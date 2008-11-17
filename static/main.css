@@ -1,0 +1,49 @@
+/* General look and feel */
+
+* {  font-family: sans-serif; }
+pre, code { font-family: monospace; }
+
+body, html { margin: 0; padding: 0; }
+body {  
+    background-color: white; 
+    font-size: small;
+}
+#mainpanel {  background-color: white; padding: 0 12 24 12; }
+
+/* General headers and footers */
+
+#header, #footer {
+    color: white; padding: 8 8 8 8;
+    background-color: #448;
+}
+
+#brandheader { background-color: white; padding: 8; }
+
+#header a { color: #fff; font-weight: bold;  }
+
+#footer {  
+    margin-top: 12;
+    padding-bottom: 12;
+    background-color: #ddf; 
+    color: black;
+}
+
+h1 { font-size: 150%;  }
+h2 { font-size: 135%; }
+
+a { color: blue; text-decoration: none; }
+a:hover {  text-decoration: underline;  }
+
+/* error panel on the person-edit form */
+
+.errors {  margin: 1em; padding: 1em; background-color: #fdd; }
+.errors h2 { font-size: 120%; }
+
+/* actions (e.g. "edit user" link) */
+.action a { font-weight: bold; }
+
+#tabbar { margin: 18 0; padding: 0; }
+#tabbar li { display: inline; }
+#tabbar li a { padding: 18 18 4 18; background-color: #ddf; color: black; text-decoration: none; }
+#tabbar li a:hover { background-color: #fc8; }
+#tabbar li.active a { background-color: #fa6; font-weight: bold; }

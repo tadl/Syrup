@@ -1,0 +1,43 @@
+<?python
+app_name = 'Syrup E-Reserve System'
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      py:strip="">
+  <py:match path="head" once="True">
+    <head py:attrs="select('@*')"
+	  py:with="t=list(select('title/text()'))">
+      <title>${app_name}<py:if test="t">: ${t}</py:if></title>
+    <link rel="stylesheet" type="text/css" href="/static/main.css"/>
+    <script type="text/javascript" src="/static/jquery-1.2.6.js"/>
+    ${select('*[local-name()!="title"]')}
+    </head>
+  </py:match>
+  <py:match path="body" once="true">
+    <body py:attrs="select('@*')">
+      <div id="brandheader">
+	<div style="float: right; font-size: x-large; padding: 12; color: #888;">
+	  ${app_name}
+	</div>
+	<img src="/static/institution-logo.png" style="height: 50;"/>
+      </div>
+      <div id="header" py:if="user.is_authenticated()">
+	<strong style="padding-right: 18;">Welcome, ${user.first_name}!</strong>
+	<a href="/accounts/logout">Log Out</a>
+	&bull; <a href="/user/prefs">Preferences</a>
+	&bull; <a href="/admin/">Admin UI</a>
+      </div>
+      <div id="header" py:if="not user.is_authenticated()">
+	<strong style="padding-right: 18;">Welcome!</strong>
+      </div>
+      <xi:include py:if="user.is_authenticated()" href="tabbar.xhtml"/>
+      <div id="mainpanel">
+	${select('*|text()')}
+      </div>
+      <div id="footer">
+	<div>&copy; 2008, <a href="http://conifer.mcmaster.ca/">Project Conifer</a></div>
+      </div>
+    </body>
+  </py:match>
+</html>

@@ -1,0 +1,23 @@
+digraph a {
+graph [ label="User subgraph", splines=true ]
+User
+CourseInstance -> Request [ arrowhead=dot, arrowtail=none ];
+User -> Request [ arrowhead=dot, arrowtail=none ];
+subgraph xcluster_attr {
+User -> InstructorAttribute [ arrowhead=dot, arrowtail=none ];
+User -> NotTrained [ arrowhead=dot, arrowtail=none ];
+User -> SpecialUser [ arrowhead=dot, arrowtail=none ];
+}
+User -> StaffLibrary [ arrowhead=dot, arrowtail=none ];
+subgraph xcluster_lib {
+Library -> Department [ arrowhead=dot, arrowtail=none ];
+Library -> StaffLibrary [ arrowhead=dot, arrowtail=none ];
+Course -> CourseAlias [ arrowhead=dot, arrowtail=none ];
+CourseAlias -> Access [ arrowhead=dot, arrowtail=none ];
+User -> Access [ arrowhead=dot, arrowtail=none ];
+Department -> Course [ arrowhead=dot, arrowtail=none ];
+}
+User [ color=blue ]
+CourseAlias [ color=red ]
+CourseInstance [ color=red ]
+}

@@ -1,0 +1,65 @@
+digraph a {
+{ splines=true; }
+graph [ label="Reserve subgraph", splines=true ]
+/*
+  InstLoadPeriod -> InstLoadPeriodLibrary [ arrowhead=dot, arrowtail=none ];
+Department -> Course [ arrowhead=dot, arrowtail=none ];
+HelpArticle -> HelpArticleTag [ arrowhead=dot, arrowtail=none ];
+HelpArticle -> HelpArticleToArticle [ arrowhead=dot, arrowtail=none ];
+HelpArticle -> HelpArticleToRole [ arrowhead=dot, arrowtail=none ];
+HelpArticle -> HelpArticleToArticle [ arrowhead=dot, arrowtail=none ];
+*/
+
+  CourseInstance -> Reserve [ arrowhead=dot, arrowtail=none ];
+CourseInstance -> Request [ arrowhead=dot, arrowtail=none ];
+User -> Request [ arrowhead=dot, arrowtail=none ];
+Item -> Request [ arrowhead=dot, arrowtail=none ];
+Item -> PhysicalCopy [ arrowhead=dot, arrowtail=none ];
+Item -> Reserve [ arrowhead=dot, arrowtail=none ];
+Reserve -> Request [ arrowhead=dot, arrowtail=none ];
+Reserve -> PhysicalCopy [ arrowhead=dot, arrowtail=none ];
+ Library -> Item [ arrowhead=dot, arrowtail=none];
+
+/*
+User -> InstructorAttribute [ arrowhead=dot, arrowtail=none ];
+User -> NotTrained [ arrowhead=dot, arrowtail=none ];
+User -> SpecialUserAudit [ arrowhead=dot, arrowtail=none ];
+User -> HelpArticleTag [ arrowhead=dot, arrowtail=none ];
+User -> SpecialUser [ arrowhead=dot, arrowtail=none ];
+User -> StaffLibrary [ arrowhead=dot, arrowtail=none ];
+User -> SpecialUserAudit [ arrowhead=dot, arrowtail=none ];
+User -> Access [ arrowhead=dot, arrowtail=none ];
+Report -> ReportCache [ arrowhead=dot, arrowtail=none ];
+Proxy -> ProxiedHost [ arrowhead=dot, arrowtail=none ];
+Library -> Department [ arrowhead=dot, arrowtail=none ];
+Library -> InstLoadPeriodLibrary [ arrowhead=dot, arrowtail=none ];
+Library -> StaffLibrary [ arrowhead=dot, arrowtail=none ];
+Course -> CourseAlias [ arrowhead=dot, arrowtail=none ];
+CourseAlias -> Access [ arrowhead=dot, arrowtail=none ];
+
+MimeType [ style=dashed ]
+HelpCategory [ style=dashed ]
+Term [ style=dashed ]
+CircRule [ style=dashed ]
+PermissionsLevel [ style=dashed ]
+ElectronicItemAudit [ style=dashed ]
+Skin [ style=dashed ]
+IlsRequest [ style=dashed ]
+Note [ style=dashed ]
+News [ style=dashed ]
+HelpCatToRole [ style=dashed ]
+CourseNoDept [ style=dashed ]
+Course [ color=blue ]
+Item [ color=blue ]
+InstLoadPeriod [ color=blue ]
+Report [ color=blue ]
+Library [ color=blue ]
+CourseInstance [ color=blue ]
+User [ color=blue ]
+CourseAlias [ color=blue ]
+Department [ color=blue ]
+HelpArticle [ color=blue ]
+Reserve [ color=blue ]
+Proxy [ color=blue ]
+*/
+}

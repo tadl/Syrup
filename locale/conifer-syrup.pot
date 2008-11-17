@@ -1,0 +1,63 @@
+# Translations template for PROJECT.
+# Copyright (C) 2008 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2008.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2008-11-16 20:37-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.4\n"
+
+#: templates/master.xhtml:25
+msgid "Welcome,"
+msgstr ""
+
+#: templates/master.xhtml:26
+msgid "Log Out"
+msgstr ""
+
+#: templates/master.xhtml:27 templates/tabbar.xhtml:9
+msgid "Preferences"
+msgstr ""
+
+#: templates/master.xhtml:28
+msgid "Admin UI"
+msgstr ""
+
+#: templates/master.xhtml:31
+msgid "Welcome!"
+msgstr ""
+
+#: templates/master.xhtml:32
+msgid "Log In"
+msgstr ""
+
+#: templates/master.xhtml:39
+msgid "Project Conifer"
+msgstr ""
+
+#: templates/tabbar.xhtml:6 templates/test.xhtml:12
+msgid "My Courses"
+msgstr ""
+
+#: templates/tabbar.xhtml:7
+msgid "Add a Reserve"
+msgstr ""
+
+#: templates/tabbar.xhtml:8
+msgid "Manage Users"
+msgstr ""
+
+#: templates/test.xhtml:19
+msgid "You are not part of any courses at this time."
+msgstr ""
+

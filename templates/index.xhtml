@@ -1,0 +1,25 @@
+<?python
+title = 'Welcome to Syrup E-Reserves!'
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="master.xhtml"/>
+<head>
+  <title>${title}</title>
+</head>
+<body>
+  <h2>My Courses</h2>
+  <?python
+    if user.is_authenticated():
+        my_courses = user.courses()
+    else:
+        my_courses = []
+  ?>
+  <p py:if="not my_courses">You are not part of any courses at this time.</p>
+  <p py:for="course in my_courses" style="font-size: large;">
+    <a href="course/${course.id}/">${course.term}: ${course.code}: ${course.title}</a>
+  </p>
+  <div class="gap"/>
+</body>
+</html>

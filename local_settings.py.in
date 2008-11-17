@@ -1,0 +1,2 @@
+# set X_BASE_DIRECTORY to the the name of the directory this file is in!
+X_BASE_DIRECTORY = '/home/graham/projects/evergreen/conifer/'

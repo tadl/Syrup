@@ -1,0 +1,14 @@
+digraph a {
+graph [ label="Library subgraph", splines=true ]
+InstLoanPeriod -> InstLoanPeriodLibrary [ arrowhead=dot, arrowtail=none ];
+Department -> Course [ arrowhead=dot, arrowtail=none ];
+Library -> Item [ arrowhead=dot, arrowtail=none ];
+User -> StaffLibrary [ arrowhead=dot, arrowtail=none ];
+Library -> Department [ arrowhead=dot, arrowtail=none ];
+Library -> InstLoanPeriodLibrary [ arrowhead=dot, arrowtail=none ];
+Library -> StaffLibrary [ arrowhead=dot, arrowtail=none ];
+Course -> CourseAlias [ arrowhead=dot, arrowtail=none ];
+CourseAlias -> Access [ arrowhead=dot, arrowtail=none ];
+ User -> Access [ arrowhead=dot, arrowtail=none ];
+
+}
