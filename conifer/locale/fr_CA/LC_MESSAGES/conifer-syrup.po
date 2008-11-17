@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-11-15 20:37+0500\n"
-"PO-Revision-Date: 2008-11-16 20:37-0500\n"
+"PO-Revision-Date: 2008-11-16 22:13-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: fr_CA <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -18,36 +18,52 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.4\n"
 
-#: templates/master.xhtml:25
-msgid "Welcome,"
+#: templates/index.xhtml:12 templates/tabbar.xhtml:6
+msgid "My Courses"
+msgstr ""
+
+#: templates/index.xhtml:19
+msgid "You are not part of any courses at this time."
+msgstr ""
+
+#: templates/login.xhtml:10
+msgid "$(function() {$('#userid').focus();});"
+msgstr ""
+
+#: templates/login.xhtml:15
+msgid "Please log in."
+msgstr ""
+
+#: templates/login.xhtml:20
+msgid "User ID:"
+msgstr ""
+
+#: templates/login.xhtml:24
+msgid "Password:"
 msgstr ""
 
 #: templates/master.xhtml:26
+msgid "Welcome,"
+msgstr ""
+
+#: templates/master.xhtml:27
 msgid "Log Out"
 msgstr ""
 
-#: templates/master.xhtml:27 templates/tabbar.xhtml:9
+#: templates/master.xhtml:28 templates/tabbar.xhtml:9
 msgid "Preferences"
 msgstr ""
 
-#: templates/master.xhtml:28
+#: templates/master.xhtml:29
 msgid "Admin UI"
 msgstr ""
 
-#: templates/master.xhtml:31
-msgid "Welcome!"
-msgstr ""
-
 #: templates/master.xhtml:32
-msgid "Log In"
+msgid "Welcome!"
 msgstr ""
 
 #: templates/master.xhtml:39
 msgid "Project Conifer"
-msgstr ""
-
-#: templates/tabbar.xhtml:6 templates/test.xhtml:12
-msgid "My Courses"
 msgstr ""
 
 #: templates/tabbar.xhtml:7
@@ -58,10 +74,6 @@ msgstr ""
 msgid "Manage Users"
 msgstr ""
 
-#: templates/test.xhtml:19
-msgid "You are not part of any courses at this time."
-msgstr ""
-
-#~ msgid "Welcome to this test!"
+#~ msgid "Log In"
 #~ msgstr ""
 

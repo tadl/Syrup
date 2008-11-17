@@ -7,7 +7,7 @@ from conifer.syrup import models
 
 @login_required
 def index(request):
-    return g.render('test.xhtml')
+    return g.render('index.xhtml')
 
 @login_required
 def course_index(request, course_id):
