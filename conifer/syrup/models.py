@@ -1,5 +1,6 @@
 from django.db import models as m
 from django.contrib.auth.models import User
+from datetime import datetime
 
 #----------------------------------------------------------------------
 # USERS
@@ -70,3 +71,15 @@ class Member(m.Model):
 
     def __unicode__(self):
         return '%s--%s--%s' % (self.user, self.role, self.course)
+
+#------------------------------------------------------------
+
+class News(m.Model):
+    subject = m.CharField(max_length=200)
+    body = m.TextField()
+    published = m.DateTimeField(default=datetime.now, blank=True, null=True)
+    encoding = m.CharField(max_length=10,
+                           choices = (('plain', 'plain'),
+                                      ('html', 'html'),
+                                      ('markdown', 'markdown')),
+                           default = 'html')

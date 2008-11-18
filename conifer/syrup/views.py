@@ -5,19 +5,12 @@ from django.contrib.auth import authenticate, login, logout
 import conifer.genshi_support as g
 from conifer.syrup import models
 
-@login_required
-def index(request):
-    return g.render('index.xhtml')
-
-@login_required
-def course_index(request, course_id):
-    course = get_object_or_404(models.Course, pk=course_id)
-    return g.render('course.xhtml', course=course)
+#------------------------------------------------------------
 
 def auth_handler(request, path):
     if path == 'login/':
         if request.method == 'GET':
-            return g.render('login.xhtml')
+            return g.render('auth/login.xhtml')
         else:
             userid, password = request.POST['userid'], request.POST['password']
             user = authenticate(username=userid, password=password)
@@ -33,3 +26,18 @@ def auth_handler(request, path):
         return HttpResponse('Logged out. Thanks for coming!')
     else:
         return HttpResponse('auth_handler: ' + path)
+
+#------------------------------------------------------------
+
+def welcome(request):
+    return g.render('welcome.xhtml')
+
+
+@login_required
+def my_courses(request):
+    return g.render('my_courses.xhtml')
+
+@login_required
+def course_detail(request, course_id):
+    course = get_object_or_404(models.Course, pk=course_id)
+    return g.render('course_detail.xhtml', course=course)

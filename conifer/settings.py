@@ -3,7 +3,10 @@
 # make sure you have a local_settings.py file! Copy from
 # local_settings.py.in and customize that file.
 
-from local_settings import X_BASE_DIRECTORY
+import os
+
+BASE_DIRECTORY = os.path.abspath(os.getcwd())
+HERE = lambda s: os.path.join(BASE_DIRECTORY, s)
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -15,7 +18,7 @@ ADMINS = (
 MANAGERS = ADMINS
 
 DATABASE_ENGINE = 'sqlite3' # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = X_BASE_DIRECTORY +'syrup.sqlite' # Or path to database file if using sqlite3.
+DATABASE_NAME = HERE('syrup.sqlite') # Or path to database file if using sqlite3.
 DATABASE_USER = ''             # Not used with sqlite3.
 DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
@@ -40,7 +43,7 @@ USE_I18N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = X_BASE_DIRECTORY + 'static'
+MEDIA_ROOT = HERE('static')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).

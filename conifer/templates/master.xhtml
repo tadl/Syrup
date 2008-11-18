@@ -23,7 +23,7 @@ app_name = 'Syrup E-Reserve System'
 	<img src="/static/institution-logo.png" style="height: 50;"/>
       </div>
       <div id="header" py:if="user.is_authenticated()">
-	<strong style="padding-right: 18;">Welcome, ${user.first_name}!</strong>
+	<strong style="padding-right: 18;">Welcome, ${user.first_name or user.username}!</strong>
 	<a href="/accounts/logout">Log Out</a>
 	&bull; <a href="/user/prefs">Preferences</a>
 	&bull; <a href="/admin/">Admin UI</a>
