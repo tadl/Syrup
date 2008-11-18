@@ -1,0 +1,22 @@
+<?python
+title = 'Welcome!'
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="master.xhtml"/>
+<head>
+  <title>${title}</title>
+</head>
+<body>
+  <div style="float: right; margin: 0 24; background-color: #feb; padding: 24;">
+    <p><a href="/accounts/login/?next=/syrup/">Log in</a></p>
+    <p><a href="/public/search">Search the Reserves</a></p>
+  </div>
+  <h1>News</h1>
+  <div py:for="news in models.News.objects.all().order_by('-published')">
+    <h2>${news.subject}</h2>
+    <div>${news.body}</div>
+  </div>
+</body>
+</html>
