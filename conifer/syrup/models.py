@@ -22,7 +22,6 @@ for k,v in [(k,v) for k,v in AnonymousUserExtensionHack.__dict__.items() \
                 if not k.startswith('_')]:
     setattr(AnonymousUser, k, v)
 
-
 class UserExtensionHack(object):
     def courses(self):
         return Course.objects.filter(member__user=self.id)
@@ -85,7 +84,7 @@ class Member(m.Model):
 
 #------------------------------------------------------------
 
-class News(m.Model):
+class NewsItem(m.Model):
     subject = m.CharField(max_length=200)
     body = m.TextField()
     published = m.DateTimeField(default=datetime.now, blank=True, null=True)

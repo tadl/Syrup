@@ -22,5 +22,5 @@ from conifer.syrup.models import *
 #             value.__unicode__ = unicode_fn(firstcharfield)
 #         admin.site.register(value)
 
-for m in [Member, Course, Term, UserProfile, News]:
+for m in [Member, Course, Term, UserProfile, NewsItem]:
     admin.site.register(m)

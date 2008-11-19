@@ -14,7 +14,7 @@ title = 'Welcome!'
     <p><a href="/public/search">Search the Reserves</a></p>
   </div>
   <h1>News</h1>
-  <div py:for="news in models.News.objects.all().order_by('-published')">
+  <div py:for="news in models.NewsItem.objects.all().order_by('-published')">
     <h2>${news.subject}</h2>
     <div>${news.body}</div>
   </div>
