@@ -39,6 +39,27 @@ class UserProfile(m.Model):
         return 'UserProfile(%s)' % self.user
 
 #----------------------------------------------------------------------
+# LIBRARIES, SERVICE DESKS
+
+class LibraryUnit(m.Model):
+    name = m.CharField(max_length=100)
+    nickname = m.CharField(max_length=15,blank=True,default='')
+    url = m.URLField()
+    contact_email = m.EmailField()
+
+    def __unicode__(self):
+        return self.name
+
+class ServiceDesk(m.Model):
+    library = m.ForeignKey(LibraryUnit)
+    abbreviation = m.CharField(max_length=8,db_index=True)
+    name = m.TextField(db_index=True)
+    active = m.BooleanField(default=True)
+
+    def __unicode__(self):
+        return self.name
+
+#----------------------------------------------------------------------
 # TERMS, COURSES, MEMBERSHIP
 
 class Term(m.Model):
@@ -50,6 +71,13 @@ class Term(m.Model):
     def __unicode__(self):
         return self.code or self.name
 
+class Department(m.Model):
+    abbreviation = m.CharField(max_length=8,db_index=True)
+    name = m.TextField(db_index=True)
+    active       = m.BooleanField(default=True)
+
+    def __unicode__(self):
+        return self.name
 
 class Course(m.Model):
     """An offering of a course."""
