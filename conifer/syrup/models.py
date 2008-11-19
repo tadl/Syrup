@@ -83,6 +83,7 @@ class Course(m.Model):
     """An offering of a course."""
     # some courses may be ad-hoc and have no code?
     code = m.CharField(max_length=64, blank=True, null=True)
+    department = m.ForeignKey(Department)
     term = m.ForeignKey(Term)
     title = m.CharField(max_length=1024)
     # Enrol-codes are used for SIS integration.
