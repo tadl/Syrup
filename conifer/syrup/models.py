@@ -1,5 +1,6 @@
 from django.db import models as m
 from django.contrib.auth.models import User
+from django.contrib.auth.models import AnonymousUser
 from datetime import datetime
 
 #----------------------------------------------------------------------
@@ -12,6 +13,15 @@ from datetime import datetime
 # We will also monkey-patch the User object so that certain methods
 # can be made available on the User that are not part of the Django
 # User model. Let's try this for a bit see how this works out.
+
+class AnonymousUserExtensionHack(object):
+    def unmoderated_courses():
+        return Course.objects.filter(moderated=False)
+
+for k,v in [(k,v) for k,v in AnonymousUserExtensionHack.__dict__.items() \
+                if not k.startswith('_')]:
+    setattr(AnonymousUser, k, v)
+
 
 class UserExtensionHack(object):
     def courses(self):
@@ -53,6 +63,7 @@ class Course(m.Model):
                                max_length=4098, 
                                blank=True, null=True)
     active       = m.BooleanField(default=True)
+    moderated    = m.BooleanField(default=False)
 
     def __unicode__(self):
         return self.code or self.title
