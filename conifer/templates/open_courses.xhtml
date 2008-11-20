@@ -1,0 +1,24 @@
+<?python
+title = 'Open Courses'
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="master.xhtml"/>
+<xi:include href="paginate.xhtml"/>
+<head>
+  <title>${title}</title>
+</head>
+<body>
+  <h1>${title}</h1>
+  <tr py:def="pageheader()">
+    <th>Term</th><th>Code</th><th>Title</th>
+  </tr>
+  <tr py:def="pagerow(item)">
+    <td>${item.term}</td>
+    <td><a href="../course/${item.id}/">${item.code}</a></td>
+    <td><a href="../course/${item.id}/">${item.title}</a></td>
+  </tr>
+  ${pagetable(paginator, start, count, pagerow, pageheader)}
+</body>
+</html>

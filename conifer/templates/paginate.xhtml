@@ -1,0 +1,32 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      py:strip="">
+<div py:def="pagetable(paginator, start, count, pagerow, pagehead=None)"
+     py:with="page = paginator.page(page_num)">
+  <table class="pagetable">
+    <thead py:if="pagehead">
+      ${pagehead()}
+    </thead>
+    <tbody>
+      <tr py:strip="True" py:for="item in page.object_list">
+	${pagerow(item)}
+      </tr>
+    </tbody>
+  </table>
+  <div class="pagination_controls" py:if="paginator.num_pages > 1">
+    <span py:if="page.has_previous()" class="prev">
+      <a href=".?page=${page.previous_page_number()}&amp;count=${count}">Previous</a>
+    </span>
+    <span class="nums">
+      <span py:for="pp in range(1, 1+paginator.num_pages)">
+	<a style="font-weight: ${pp == page_num and 'bold' or 'normal'}"
+	   href=".?page=${pp}&amp;count=${count}">${pp}</a>
+      </span>
+    </span>
+    <span py:if="page.has_next()" class="next">
+      <a href=".?page=${page.next_page_number()}&amp;count=${count}">Next</a>
+    </span>
+  </div>
+</div>
+</html>

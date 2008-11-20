@@ -34,17 +34,21 @@ def welcome(request):
     return g.render('welcome.xhtml')
 
 def open_courses(request):
-    pgstart = request.GET.get('start')
-    if not pgstart:
-        pgstart = 1
-    paginator = Paginator(models.Course.objects.filter(moderated=False), 5)
-    return g.render('open_courses.xhtml', paginator=paginator, pgstart=pgstart)
+    page_num = int(request.GET.get('page', 1))
+    count = int(request.GET.get('count', 5))
+    paginator = Paginator(models.Course.objects.filter(moderated=False), count)
+    return g.render('open_courses.xhtml', paginator=paginator,
+                    page_num=page_num,
+                    count=count)
 
 @login_required
 def my_courses(request):
     return g.render('my_courses.xhtml')
 
-@login_required
 def course_detail(request, course_id):
     course = get_object_or_404(models.Course, pk=course_id)
+    if course.moderated and request.user.is_anonymous():
+        #fixme, don't stop access just if anonymous, but rather if not
+        #allowed to access. We need to set up a permissions model.
+        return login_required(lambda *args: None)(request)
     return g.render('course_detail.xhtml', course=course)
