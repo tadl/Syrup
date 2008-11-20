@@ -1,4 +1,5 @@
 from django.http import HttpResponse, HttpResponseRedirect
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
@@ -32,6 +33,12 @@ def auth_handler(request, path):
 def welcome(request):
     return g.render('welcome.xhtml')
 
+def open_courses(request):
+    pgstart = request.GET.get('start')
+    if not pgstart:
+        pgstart = 1
+    paginator = Paginator(models.Course.objects.filter(moderated=False), 5)
+    return g.render('open_courses.xhtml', paginator=paginator, pgstart=pgstart)
 
 @login_required
 def my_courses(request):

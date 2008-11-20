@@ -14,14 +14,6 @@ from datetime import datetime
 # can be made available on the User that are not part of the Django
 # User model. Let's try this for a bit see how this works out.
 
-class AnonymousUserExtensionHack(object):
-    def unmoderated_courses():
-        return Course.objects.filter(moderated=False)
-
-for k,v in [(k,v) for k,v in AnonymousUserExtensionHack.__dict__.items() \
-                if not k.startswith('_')]:
-    setattr(AnonymousUser, k, v)
-
 class UserExtensionHack(object):
     def courses(self):
         return Course.objects.filter(member__user=self.id)
