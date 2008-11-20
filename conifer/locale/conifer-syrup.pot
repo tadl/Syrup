@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2008-11-16 22:13-0500\n"
+"POT-Creation-Date: 2008-11-18 21:24-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,30 +16,6 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.4\n"
-
-#: templates/index.xhtml:12 templates/tabbar.xhtml:6
-msgid "My Courses"
-msgstr ""
-
-#: templates/index.xhtml:19
-msgid "You are not part of any courses at this time."
-msgstr ""
-
-#: templates/login.xhtml:10
-msgid "$(function() {$('#userid').focus();});"
-msgstr ""
-
-#: templates/login.xhtml:15
-msgid "Please log in."
-msgstr ""
-
-#: templates/login.xhtml:20
-msgid "User ID:"
-msgstr ""
-
-#: templates/login.xhtml:24
-msgid "Password:"
-msgstr ""
 
 #: templates/master.xhtml:26
 msgid "Welcome,"
@@ -49,7 +25,7 @@ msgstr ""
 msgid "Log Out"
 msgstr ""
 
-#: templates/master.xhtml:28 templates/tabbar.xhtml:9
+#: templates/master.xhtml:28 templates/tabbar.xhtml:10
 msgid "Preferences"
 msgstr ""
 
@@ -65,11 +41,51 @@ msgstr ""
 msgid "Project Conifer"
 msgstr ""
 
-#: templates/tabbar.xhtml:7
-msgid "Add a Reserve"
+#: templates/my_courses.xhtml:12 templates/tabbar.xhtml:7
+msgid "My Courses"
+msgstr ""
+
+#: templates/my_courses.xhtml:19
+msgid "You are not part of any courses at this time."
+msgstr ""
+
+#: templates/tabbar.xhtml:6
+msgid "Home"
 msgstr ""
 
 #: templates/tabbar.xhtml:8
+msgid "Add a Reserve"
+msgstr ""
+
+#: templates/tabbar.xhtml:9
 msgid "Manage Users"
+msgstr ""
+
+#: templates/welcome.xhtml:13
+msgid "Log in"
+msgstr ""
+
+#: templates/welcome.xhtml:14
+msgid "Search the Reserves"
+msgstr ""
+
+#: templates/welcome.xhtml:16
+msgid "News"
+msgstr ""
+
+#: templates/auth/login.xhtml:10
+msgid "$(function() {$('#userid').focus();});"
+msgstr ""
+
+#: templates/auth/login.xhtml:15
+msgid "Please log in."
+msgstr ""
+
+#: templates/auth/login.xhtml:20
+msgid "User ID:"
+msgstr ""
+
+#: templates/auth/login.xhtml:24
+msgid "Password:"
 msgstr ""
 

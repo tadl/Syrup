@@ -26,7 +26,13 @@ class UserProfile(m.Model):
     user         = m.ForeignKey(User, unique=True)
     home_phone   = m.CharField(max_length=100, blank=True)
     home_address = m.TextField(blank=True)
-
+    ils_userid   = m.TextField("Alternate userid in the ILS, if any",
+                               max_length=50, blank=True)
+    access_level = m.CharField(max_length=5, blank=True, null=True,
+                               default=None,
+                               choices=(('CUST', 'custodian'),
+                                        ('STAFF', 'staff'),
+                                        ('ADMIN', 'system administrator')))
     def __unicode__(self):
         return 'UserProfile(%s)' % self.user
 
@@ -78,13 +84,14 @@ class Course(m.Model):
     department = m.ForeignKey(Department)
     term = m.ForeignKey(Term)
     title = m.CharField(max_length=1024)
-    # Enrol-codes are used for SIS integration.
+    active       = m.BooleanField(default=True)
+    moderated    = m.BooleanField('This is a moderated (non-public) course',
+                                  default=False)
+
+    # Enrol-codes are used for SIS integration (graham's idea-in-progress)
     enrol_codes  = m.CharField('Registrar keys for class lists, pipe-separated',
                                max_length=4098, 
                                blank=True, null=True)
-    active       = m.BooleanField(default=True)
-    moderated    = m.BooleanField(default=False)
-
     def __unicode__(self):
         return self.code or self.title
 
