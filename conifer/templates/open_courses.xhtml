@@ -8,6 +8,10 @@ title = 'Open Courses'
 <xi:include href="paginate.xhtml"/>
 <head>
   <title>${title}</title>
+  <script type="text/javascript">
+    <!-- !This ought to be in paginate.xhtml, not here. how to do? -->
+    $(function() { $('.pagetable').tablesorter(); });
+  </script>
 </head>
 <body>
   <h1>${title}</h1>
