@@ -8,12 +8,16 @@ from conifer.syrup import models # fixme, tight binding
 import gettext
 from conifer.middleware.genshi_locals import get_request
 
-translations = gettext.GNUTranslations(file('locale/%s/LC_MESSAGES/conifer-syrup.mo' % settings.LANGUAGE_CODE))
-
-_ = translations.ugettext
+if settings.USE_I18N:
+    translations = gettext.GNUTranslations(
+        file('locale/%s/LC_MESSAGES/conifer-syrup.mo' % settings.LANGUAGE_CODE))
+    _ = translations.ugettext
+else:
+    _ = gettext.gettext
 
 def template_loaded(template):
-    template.filters.insert(0, Translator(translations.ugettext))
+    if settings.USE_I18N:
+        template.filters.insert(0, Translator(translations.ugettext))
 
 dirs = ['templates']
 
