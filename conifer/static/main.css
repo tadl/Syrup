@@ -59,4 +59,7 @@ a:hover {  text-decoration: underline;  }
 }
 
 .pagetable td { border: #ddd 1px solid; padding: 4 8; }
+.pagetable .odd {
+    background-color: #F8F8F8;
+}
 .pagetable thead th { font-size: smaller; text-align: left; padding: 2 8; }

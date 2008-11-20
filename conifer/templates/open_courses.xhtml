@@ -18,11 +18,14 @@ title = 'Open Courses'
   <tr py:def="pageheader()">
     <th>Term</th><th>Code</th><th>Title</th>
   </tr>
-  <tr py:def="pagerow(item)">
+  <span py:def="pagerow(item)">
     <td>${item.term}</td>
     <td><a href="../course/${item.id}/">${item.code}</a></td>
     <td><a href="../course/${item.id}/">${item.title}</a></td>
-  </tr>
+  </span>
+    <!--
   ${pagetable(paginator, start, count, pagerow, pageheader)}
+    -->
+  ${pagetable(paginator, count, pagerow, pageheader)}
 </body>
 </html>

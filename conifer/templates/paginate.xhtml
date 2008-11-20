@@ -2,15 +2,17 @@
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       py:strip="">
-<div py:def="pagetable(paginator, start, count, pagerow, pagehead=None)"
+<div py:def="pagetable(paginator, count, pagerow, pagehead=None)"
      py:with="page = paginator.page(page_num)">
-  <table class="pagetable">
+  <table class="pagetable" py:with="cls = cycle(('odd', 'even'))"> 
     <thead py:if="pagehead">
       ${pagehead()}
     </thead>
     <tbody>
       <tr py:strip="True" py:for="item in page.object_list">
+    <tr class="${cls.next()}">
 	${pagerow(item)}
+    </tr>
       </tr>
     </tbody>
   </table>

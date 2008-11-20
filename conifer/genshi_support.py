@@ -1,3 +1,4 @@
+import genshi_namespace
 from django.http import HttpResponse, HttpRequest
 from genshi.template import TemplateLoader
 from genshi.filters import Translator
@@ -36,5 +37,4 @@ def _inject_django_things_into_namespace(request, ns):
     ns['models'] = models
     ns['request'] = request
     ns['user'] = getattr(request, 'user', None)
-
-
+    ns.update(genshi_namespace.__dict__)
