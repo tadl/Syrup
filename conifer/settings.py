@@ -70,6 +70,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'conifer.middleware.genshi_locals.ThreadLocals',
+    # TransactionMiddleware should be last...
+    'django.middleware.transaction.TransactionMiddleware',
 )
 
 ROOT_URLCONF = 'conifer.urls'
