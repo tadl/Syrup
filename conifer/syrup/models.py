@@ -22,6 +22,7 @@ for k,v in [(k,v) for k,v in UserExtensionHack.__dict__.items() \
                 if not k.startswith('_')]:
     setattr(User, k, v)
 
+
 class UserProfile(m.Model):
     user         = m.ForeignKey(User, unique=True)
     home_phone   = m.CharField(max_length=100, blank=True)
