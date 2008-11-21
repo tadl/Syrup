@@ -34,6 +34,10 @@ class UserProfile(m.Model):
                                choices=(('CUST', 'custodian'),
                                         ('STAFF', 'staff'),
                                         ('ADMIN', 'system administrator')))
+    instructor = m.BooleanField(default=False)
+    proxy = m.BooleanField(default=False)
+    active = m.BooleanField(default=True)
+
     def __unicode__(self):
         return 'UserProfile(%s)' % self.user
 
