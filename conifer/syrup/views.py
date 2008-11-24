@@ -41,8 +41,25 @@ def open_courses(request):
                     page_num=page_num,
                     count=count)
 
+#
+#
+def instructors(request):
+    page_num = int(request.GET.get('page', 1))
+    count = int(request.GET.get('count', 5))
+    action = request.GET.get('action', 'browse')
+    if action == 'join':
+        paginator = Paginator(models.Course.objects.filter(moderated=False), count)
+    elif action == 'drop':
+        paginator = Paginator(models.Course.objects.filter(moderated=False), count)
+    else:
+        paginator = Paginator(models.Course.objects.filter(moderated=False), count)
+        
+    return g.render('instructors.xhtml', paginator=paginator,
+                    page_num=page_num,
+                    count=count)
+
 def join_course(request):
-    return g.render('welcome.xhtml')
+    return g.render('join_course.xhtml')
 
 @login_required
 def my_courses(request):
