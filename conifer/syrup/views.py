@@ -41,6 +41,9 @@ def open_courses(request):
                     page_num=page_num,
                     count=count)
 
+def join_course(request):
+    return g.render('welcome.xhtml')
+
 @login_required
 def my_courses(request):
     return g.render('my_courses.xhtml')
