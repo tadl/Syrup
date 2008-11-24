@@ -48,7 +48,8 @@ def instructors(request):
     count = int(request.GET.get('count', 5))
     action = request.GET.get('action', 'browse')
     if action == 'join':
-        paginator = Paginator(models.Course.objects.filter(moderated=False), count)
+        paginator = Paginator(models.UserProfile.objects.filter(instructor=True).
+            select_related('user').order_by('-user__last_name','-user__first_name'), count)
     elif action == 'drop':
         paginator = Paginator(models.Course.objects.filter(moderated=False), count)
     else:
