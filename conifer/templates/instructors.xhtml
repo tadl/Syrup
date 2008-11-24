@@ -1,0 +1,26 @@
+<?python
+title = 'Instructors'
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="master.xhtml"/>
+<xi:include href="paginate.xhtml"/>
+<head>
+  <title>${title}</title>
+  <script type="text/javascript">
+    <!-- !This ought to be in paginate.xhtml, not here. how to do? -->
+    $(function() { $('.pagetable').tablesorter(); });
+  </script>
+</head>
+<body>
+  <h1>${title}</h1>
+  <tr py:def="pageheader()">
+    <th>Name</th>
+  </tr>
+  <span py:def="pagerow(item)">
+    <td>${item.user.last_name}, ${item.user.first_name}</td>
+  </span>
+  ${pagetable(paginator, count, pagerow, pageheader)}
+</body>
+</html>
