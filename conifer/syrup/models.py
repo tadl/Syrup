@@ -115,6 +115,89 @@ class Member(m.Model):
     def __unicode__(self):
         return '%s--%s--%s' % (self.user, self.role, self.course)
 
+
+#------------------------------------------------------------
+
+class Item(m.Model):
+    """
+    A reserve item, physical or electronic, as it appears in a given
+    course instance.
+    """
+    
+    # Item structure
+
+    # Items include both items proper, as well as headings. In the
+    # database, all items are stored as a flat list; the sort_order
+    
+    course = models.ForeignKey(Course)
+    ITEM_TYPE_CHOICES = (('ITEM', 'Item'), ('HEADING', 'Heading'))
+    item_type = m.CharField(max_length=7, choices=ITEM_TYPE_CHOICES,
+                            default='ITEM')
+    sort_order = models.IntegerField(default=0)
+    # parent must be a heading. could use ForeignKey.limit_choices_to,
+    # to enforce this in the admin ui.
+    parent_heading = models.ForeignKey('Item') 
+
+    # Metadata
+    title = m.CharField(max_length=255,db_index=True) 
+    author = m.CharField(max_length=255,db_index=True) 
+    source = m.CharField(max_length=255,db_index=True) 
+    volume_title = m.CharField(max_length=255,db_index=True) 
+    content_notes = m.CharField(max_length=255)
+    volume_edition = m.CharField(max_length=255) 
+    content_notes = m.CharField(max_length=255) 
+    volume_edition = m.CharField(max_length=255) 
+    pages_times = m.CharField(max_length=255) 
+    performer = m.CharField(max_length=255,db_index=True) 
+    local_control_key = m.CharField(max_length=30) 
+    creation_date = m.DateField(auto_now=False)
+    last_modified = m.DateField(auto_now=False)
+
+    url = m.URLField()
+    mime_type = m.CharField(max_length=100,default='text/html')
+
+    isbn = m.CharField(max_length=13,db_index=True) 
+    issn = m.CharField(max_length=8,db_index=True) 
+    oclc = m.CharField(max_length=9,db_index=True) 
+
+    home_library = m.ForeignKey(LibraryUnit)
+
+    # shouldn't the icon be derived from the MIME type?
+    ###item_icon = m.CharField(max_length=64, choices=ICON_CHOICES) 
+    ##item_group = m.CharField(max_length=25,default='0')
+    ##private_user_id = m.IntegerField(null=True,blank=True)
+    ##old_id = models.IntegerField(null=True,blank=True)
+
+    # Physical Item properties
+    reserve = models.ForeignKey(Reserve, null=True)
+    item = models.ForeignKey(Item)
+    status = models.CharField(max_length=30,blank=True,default='')
+    call_number = models.TextField() 
+    owning_library = models.CharField(max_length=15,default='0')
+    item_type = models.CharField(max_length=30) 
+    owner_user_id = models.IntegerField(null=True,blank=True)
+
+    def __unicode__(self):
+        return self.title
+
+    item = models.ForeignKey(Item)
+    activation_date = models.DateField(auto_now=False)
+    STATUS_CHOICES = (
+        ('ACTIVE', 'Active'),
+        ('INACTIVE', 'InActive'),
+        ('INPROCESS', 'In Process')
+    )
+    status = models.CharField(max_length=9, 
+        blank=True,
+        choices=STATUS_CHOICES, 
+        default=''
+    )
+    expiration = models.DateField(auto_now=False)
+    date_created = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField()
+    requested_loan_period = models.CharField(max_length=255,blank=True,default='')
+    parent_id = models.IntegerField(null=True,blank=True)
+
 #------------------------------------------------------------
 
 class NewsItem(m.Model):
