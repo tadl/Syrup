@@ -36,10 +36,17 @@ class UserProfile(m.Model):
                                         ('ADMIN', 'system administrator')))
     instructor = m.BooleanField(default=False)
     proxy = m.BooleanField(default=False)
-    active = m.BooleanField(default=True)
+    # n.b. Django's User has an active flag, maybe we should use that?
+    active = m.BooleanField(default=True) 
 
     def __unicode__(self):
         return 'UserProfile(%s)' % self.user
+
+    @classmethod
+    def active_instructors(cls):
+        return cls.objects.filter(instructor=True) \
+            .select_related('user').filter(user__is_active=True) \
+            .order_by('-user__last_name','-user__first_name')
 
 #----------------------------------------------------------------------
 # LIBRARIES, SERVICE DESKS
@@ -100,6 +107,8 @@ class Course(m.Model):
     def __unicode__(self):
         return self.code or self.title
 
+    def items(self):
+        return Item.objects.filter(course=self.id)
 
 class Member(m.Model):
     course = m.ForeignKey(Course)
@@ -128,6 +137,7 @@ class Item(m.Model):
 
     # Items comprise both items-proper, as well as headings. In the
     # database, all items are stored as a flat list; the sort_order
+    # dictates the sequencing of items within their parent group.
     
     course = m.ForeignKey(Course)
     ITEM_TYPE_CHOICES = (('ITEM', 'Item'),
@@ -137,31 +147,31 @@ class Item(m.Model):
     sort_order = m.IntegerField(default=0)
     # parent must be a heading. could use ForeignKey.limit_choices_to,
     # to enforce this in the admin ui.
-    parent_heading = m.ForeignKey('Item') 
+    parent_heading = m.ForeignKey('Item', blank=True, null=True)
 
     # Metadata
     title = m.CharField(max_length=255,db_index=True) 
     author = m.CharField(max_length=255,db_index=True) 
-    source = m.CharField(max_length=255,db_index=True) 
-    volume_title = m.CharField(max_length=255,db_index=True) 
-    content_notes = m.CharField(max_length=255)
-    volume_edition = m.CharField(max_length=255) 
-    content_notes = m.CharField(max_length=255) 
-    volume_edition = m.CharField(max_length=255) 
-    pages_times = m.CharField(max_length=255) 
-    performer = m.CharField(max_length=255,db_index=True) 
-    local_control_key = m.CharField(max_length=30) 
+    source = m.CharField(max_length=255,db_index=True, blank=True, null=True) 
+    volume_title = m.CharField(max_length=255,db_index=True, blank=True, null=True) 
+    content_notes = m.CharField(max_length=255, blank=True, null=True)
+    volume_edition = m.CharField(max_length=255, blank=True, null=True) 
+    content_notes = m.CharField(max_length=255, blank=True, null=True) 
+    volume_edition = m.CharField(max_length=255, blank=True, null=True) 
+    pages_times = m.CharField(max_length=255, blank=True, null=True) 
+    performer = m.CharField(max_length=255,db_index=True, blank=True, null=True) 
+    local_control_key = m.CharField(max_length=30, blank=True, null=True) 
     creation_date = m.DateField(auto_now=False)
     last_modified = m.DateField(auto_now=False)
 
-    url = m.URLField()
+    url = m.URLField(blank=True, null=True)
     mime_type = m.CharField(max_length=100,default='text/html')
 
-    isbn = m.CharField(max_length=13,db_index=True) 
-    issn = m.CharField(max_length=8,db_index=True) 
-    oclc = m.CharField(max_length=9,db_index=True) 
+    isbn = m.CharField(max_length=13,db_index=True, blank=True, null=True) 
+    issn = m.CharField(max_length=8,db_index=True, blank=True, null=True) 
+    oclc = m.CharField(max_length=9,db_index=True, blank=True, null=True) 
 
-    home_library = m.ForeignKey(LibraryUnit)
+    home_library = m.ForeignKey(LibraryUnit, blank=True, null=True)
 
     # shouldn't the icon be derived from the MIME type?
     ###item_icon = m.CharField(max_length=64, choices=ICON_CHOICES) 
@@ -171,8 +181,8 @@ class Item(m.Model):
 
     # Physical Item properties
 
-    call_number = m.CharField(max_length=30) # long enough?
-    barcode = m.CharField(max_length=30)     # long enough?
+    call_number = m.CharField(max_length=30, blank=True, null=True) # long enough?
+    barcode = m.CharField(max_length=30, blank=True, null=True)     # long enough?
     
 #     # owning_library:is this supposed to be a code? 
 #     owning_library = m.CharField(max_length=15,default='0')
@@ -185,14 +195,14 @@ class Item(m.Model):
                      ('INACTIVE', 'InActive'))    # no longer on rsrv.
     phys_status = m.CharField(max_length=9, 
                               null=True,
-                              choices=STATUS_CHOICES, 
+                              choices=STATUS_CHOICE, 
                               default=None) # null if not physical item.
 
     activation_date = m.DateField(auto_now=False)
-    expiration_date = m.DateField(auto_now=False)
+    expiration_date = m.DateField(auto_now=False, blank=True, null=True)
     
     # requested_loan_period: why is this a text field?
-    requested_loan_period = m.CharField(max_length=255,blank=True,default='')
+    requested_loan_period = m.CharField(max_length=255,blank=True,default='', null=True)
 
     fileobj = m.FileField(upload_to='uploads/%Y/%m/%d', max_length=255,
                           null=True, default=None)

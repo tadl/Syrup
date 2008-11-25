@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 import conifer.genshi_support as g
 from conifer.syrup import models
+from django.contrib.auth.models import User
 
 #------------------------------------------------------------
 
@@ -48,8 +49,7 @@ def instructors(request):
     count = int(request.GET.get('count', 5))
     action = request.GET.get('action', 'browse')
     if action == 'join':
-        paginator = Paginator(models.UserProfile.objects.filter(instructor=True).
-            select_related('user').filter(user__is_active=True).order_by('-user__last_name','-user__first_name'), count)
+        paginator = Paginator(models.UserProfile.active_instructors(), count)
     elif action == 'drop':
         paginator = Paginator(models.Course.objects.filter(moderated=False), count)
     else:

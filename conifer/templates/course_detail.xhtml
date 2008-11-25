@@ -1,17 +1,33 @@
 <?python
 title = '%s: %s (%s)' % (course.code, course.title, course.term)
+items = course.items()
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
-<xi:include href="master.xhtml"/>
-<head>
-  <title>${title}</title>
-</head>
-<body>
-  <h1>${title}</h1>
-  <p>${course.department}</p>
-  <h2>Reserve Items</h2>
-  (not implemented yet)
-</body>
+  <xi:include href="master.xhtml"/>
+  <head>
+    <title>${title}</title>
+  </head>
+  <body>
+    <h1>${title}</h1>
+    <p>${course.department}</p>
+    <h2>Reserve Items</h2>
+    <p py:if="not items">
+      There are no items associated with this course yet.
+    </p>
+    <div py:if="items">
+      <table class="pagetable">
+	<thead>
+	  <tr><th>Title</th><th>Type</th></tr>
+	</thead>
+	<tbody>
+	  <tr py:for="item in items">
+	    <td><a href="item/${item.id}/">${item.title}</a></td>
+	    <td>${item.item_type}</td>
+	  </tr>
+	</tbody>
+      </table>
+    </div>
+  </body>
 </html>
