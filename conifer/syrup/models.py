@@ -124,19 +124,20 @@ class Item(m.Model):
     course instance.
     """
     
-    # Item structure
+    # Structure
 
-    # Items include both items proper, as well as headings. In the
+    # Items comprise both items-proper, as well as headings. In the
     # database, all items are stored as a flat list; the sort_order
     
-    course = models.ForeignKey(Course)
-    ITEM_TYPE_CHOICES = (('ITEM', 'Item'), ('HEADING', 'Heading'))
+    course = m.ForeignKey(Course)
+    ITEM_TYPE_CHOICES = (('ITEM', 'Item'),
+                         ('HEADING', 'Heading'))
     item_type = m.CharField(max_length=7, choices=ITEM_TYPE_CHOICES,
                             default='ITEM')
-    sort_order = models.IntegerField(default=0)
+    sort_order = m.IntegerField(default=0)
     # parent must be a heading. could use ForeignKey.limit_choices_to,
     # to enforce this in the admin ui.
-    parent_heading = models.ForeignKey('Item') 
+    parent_heading = m.ForeignKey('Item') 
 
     # Metadata
     title = m.CharField(max_length=255,db_index=True) 
@@ -166,37 +167,42 @@ class Item(m.Model):
     ###item_icon = m.CharField(max_length=64, choices=ICON_CHOICES) 
     ##item_group = m.CharField(max_length=25,default='0')
     ##private_user_id = m.IntegerField(null=True,blank=True)
-    ##old_id = models.IntegerField(null=True,blank=True)
+    ##old_id = m.IntegerField(null=True,blank=True)
 
     # Physical Item properties
-    reserve = models.ForeignKey(Reserve, null=True)
-    item = models.ForeignKey(Item)
-    status = models.CharField(max_length=30,blank=True,default='')
-    call_number = models.TextField() 
-    owning_library = models.CharField(max_length=15,default='0')
-    item_type = models.CharField(max_length=30) 
-    owner_user_id = models.IntegerField(null=True,blank=True)
 
+    call_number = m.CharField(max_length=30) # long enough?
+    barcode = m.CharField(max_length=30)     # long enough?
+    
+#     # owning_library:is this supposed to be a code? 
+#     owning_library = m.CharField(max_length=15,default='0')
+#     item_type = m.CharField(max_length=30)
+#     # who is the owner?
+#     owner_user_id = m.IntegerField(null=True,blank=True)
+
+    STATUS_CHOICE = (('INPROCESS', 'In Process'), # physical, pending
+                     ('ACTIVE', 'Active'),        # available
+                     ('INACTIVE', 'InActive'))    # no longer on rsrv.
+    phys_status = m.CharField(max_length=9, 
+                              null=True,
+                              choices=STATUS_CHOICES, 
+                              default=None) # null if not physical item.
+
+    activation_date = m.DateField(auto_now=False)
+    expiration_date = m.DateField(auto_now=False)
+    
+    # requested_loan_period: why is this a text field?
+    requested_loan_period = m.CharField(max_length=255,blank=True,default='')
+
+    fileobj = m.FileField(upload_to='uploads/%Y/%m/%d', max_length=255,
+                          null=True, default=None)
+
+    date_created = m.DateTimeField(auto_now_add=True)
+    last_modified = m.DateTimeField()
+    
     def __unicode__(self):
         return self.title
 
-    item = models.ForeignKey(Item)
-    activation_date = models.DateField(auto_now=False)
-    STATUS_CHOICES = (
-        ('ACTIVE', 'Active'),
-        ('INACTIVE', 'InActive'),
-        ('INPROCESS', 'In Process')
-    )
-    status = models.CharField(max_length=9, 
-        blank=True,
-        choices=STATUS_CHOICES, 
-        default=''
-    )
-    expiration = models.DateField(auto_now=False)
-    date_created = models.DateTimeField(auto_now_add=True)
-    last_modified = models.DateTimeField()
-    requested_loan_period = models.CharField(max_length=255,blank=True,default='')
-    parent_id = models.IntegerField(null=True,blank=True)
 
 #------------------------------------------------------------
 
