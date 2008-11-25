@@ -14,6 +14,12 @@ from datetime import datetime
 # can be made available on the User that are not part of the Django
 # User model. Let's try this for a bit see how this works out.
 
+# General methods that return sets of users (e.g. all instructors, all
+# staff) -- let's put those on the UserProfile class, as class
+# methods. For now, let's put personal methods (e.g. my courses) on
+# the User object (although UserProfile would be another logical
+# candidate).
+
 class UserExtensionHack(object):
     def courses(self):
         return Course.objects.filter(member__user=self.id)
@@ -44,6 +50,7 @@ class UserProfile(m.Model):
 
     @classmethod
     def active_instructors(cls):
+        """Return a queryset of all active instructors."""
         return cls.objects.filter(instructor=True) \
             .select_related('user').filter(user__is_active=True) \
             .order_by('-user__last_name','-user__first_name')
@@ -126,6 +133,7 @@ class Member(m.Model):
 
 
 #------------------------------------------------------------
+# ITEMS
 
 class Item(m.Model):
     """
@@ -205,7 +213,7 @@ class Item(m.Model):
     requested_loan_period = m.CharField(max_length=255,blank=True,default='', null=True)
 
     fileobj = m.FileField(upload_to='uploads/%Y/%m/%d', max_length=255,
-                          null=True, default=None)
+                          blank=True, null=True, default=None)
 
     date_created = m.DateTimeField(auto_now_add=True)
     last_modified = m.DateTimeField()
