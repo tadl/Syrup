@@ -117,6 +117,16 @@ class Course(m.Model):
     def items(self):
         return Item.objects.filter(course=self.id)
 
+    def item_tree(self):
+        """
+        Return a list, representing a tree of the course items, in
+        display order.  Every element of the list is an (Item, [Item])
+        tuple, where the second element is the (optional) list of
+        sub-elements (if a heading) or None (if an item).
+        """
+        raise NotImplementedError
+
+
 class Member(m.Model):
     course = m.ForeignKey(Course)
     user = m.ForeignKey(User)
