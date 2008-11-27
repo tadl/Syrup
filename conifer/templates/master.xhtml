@@ -23,15 +23,28 @@ app_name = 'Syrup E-Reserve System'
 	</div>
 	<img src="/static/institution-logo.png" style="height: 50;"/>
       </div>
+        <!--
       <div id="header" py:if="user.is_authenticated()">
+        trying to keep the search box consistent for now
+        -->
+      <div id="header">
+        <div id="search">
+            <form method="get" action="search">
+            <input id="q" name="q" maxlength="100" size="25" type="text" 
+                value="search..." onblur="if(this.value=='') this.value='search...';" 
+                onfocus="if(this.value=='search...') this.value='';"/>
+            </form>
+        </div>
+      <span py:if="user.is_authenticated()">
 	<strong style="padding-right: 18;">Welcome, ${user.first_name or user.username}!</strong>
 	<a href="/accounts/logout">Log Out</a>
 	&bull; <a href="/user/prefs">Preferences</a>
 	&bull; <a href="/admin/">Admin UI</a>
-      </div>
-      <div id="header" py:if="not user.is_authenticated()">
+      </span>
+      <span py:if="not user.is_authenticated()">
 	<strong style="padding-right: 18;">Welcome!</strong>
-      </div>
+      </span>
+    </div>
       <xi:include py:if="user.is_authenticated()" href="tabbar.xhtml"/>
       <div id="mainpanel">
 	${select('*|text()')}
