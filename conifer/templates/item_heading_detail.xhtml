@@ -1,5 +1,7 @@
 <?python
-title = '%s: %s (%s)' % (course.code, course.title, course.term)
+course = item.course
+title = item.title
+course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
 item_tree = course.item_tree(subtree=item)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
@@ -12,11 +14,11 @@ item_tree = course.item_tree(subtree=item)
   </head>
   <body>
     <h1>${title}</h1>
+    <p><a href="../../">${course_title}</a></p>
     <p>${course.department}</p>
-    <h2>Reserve Items</h2>
     <p py:if="not item_tree">
-      There are no items associated with this course yet.
+      There are no items associated in this subheading.
     </p>
-    ${show_tree(course.item_tree())}
+    ${show_tree(item_tree)}
   </body>
 </html>

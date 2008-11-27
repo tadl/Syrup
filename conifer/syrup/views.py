@@ -80,13 +80,25 @@ def item_detail(request, course_id, item_id):
     # it is -- e.g. a URL item would redirect to the target URL. I'd
     # like this URL to be the generic dispatcher, but for now let's
     # just display some metadata about the item.
-    return item_metadata(request, course_id, item_id)
+    item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
+    if item.url:
+        return _heading_url(request, item)
+    else:
+        return item_metadata(request, course_id, item_id)
 
 def item_metadata(request, course_id, item_id):
     """Display a metadata page for the item."""
-    course = get_object_or_404(models.Course, pk=course_id)
-    item = get_object_or_404(models.Item, pk=item_id)
-    assert item.course == course, 'Item not in course'
-    return g.render('item_metadata.xhtml', course=course,
-                    item=item)
+    item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
+    if item.item_type == 'HEADING':
+        return _heading_detail(request, item)
+    else:
+        return g.render('item_metadata.xhtml', course=item.course,
+                        item=item)
+
+def _heading_url(request, item):
+    return HttpResponseRedirect(item.url)
+
+def _heading_detail(request, item):
+    """Display a heading. Show the subitems for this heading."""
+    return g.render('item_heading_detail.xhtml', item=item)
     

@@ -1,0 +1,19 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      py:strip="">
+
+  <!-- !show_tree: display a tree of items in a hierarchical style. -->
+  <ul py:def="show_tree(tree)" py:if="tree">
+    <li py:for="item, subs in tree">
+      <a href="item/${item.id}/">${item}</a> 
+      <span class="metalinks">
+	[<a href="item/${item.id}/meta">about</a>
+	&bull; <a href="/admin/syrup/item/${item.id}/">edit</a>
+	]
+      </span>
+      ${show_tree(subs)}
+    </li>
+  </ul>
+
+</html>

@@ -117,12 +117,17 @@ class Course(m.Model):
     def items(self):
         return self.item_set.all()
 
-    def item_tree(self):
+    def item_tree(self, subtree=None):
         """
         Return a list, representing a tree of the course items, in
         display order.  Every element of the list is an (Item, [Item])
         tuple, where the second element is a list of sub-elements (if
         a heading) or None (if an item).
+
+        You can provide a 'subtree', an item which is the top node in
+        a subtree of the item-tree. If subtree is provided, then
+        return either a signle (Item, [Item]) pair, where Item is the
+        subtree element, or None if there is no match.
         """
         items = self.items()
         # make a node-lookup table
@@ -139,7 +144,7 @@ class Course(m.Model):
                 sub = []
                 walk(item, sub)
                 accum.append((item, sub))
-        walk(None, out)
+        walk(subtree, out)
         return out
 
 
