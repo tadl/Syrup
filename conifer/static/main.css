@@ -63,3 +63,7 @@ a:hover {  text-decoration: underline;  }
     background-color: #F8F8F8;
 }
 .pagetable thead th { font-size: smaller; text-align: left; padding: 2 8; }
+
+.metalinks { padding-left: 12; color: gray; }
+.metalinks a { color: navy; }
+.metalinks { position: absolute; left: 300; }

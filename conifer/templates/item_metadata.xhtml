@@ -1,0 +1,22 @@
+<?python
+course_title = '%s: %s (%s)' % (course.title, course.title, course.term)
+title = item.title
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="master.xhtml"/>
+  <head>
+    <title>${title}</title>
+  </head>
+  <body>
+    <h1>${title}</h1>
+    <p><a href="../../">${course_title}</a></p>
+    <p>${course.department}</p>
+
+    <p>Title: ${item.title}</p>
+    <p>Type: ${item.item_type}</p>
+    <p>Author: ${item.author}</p>
+    <p py:if="item.url">URL: <a href="${item.url}">${item.url}</a></p>
+  </body>
+</html>

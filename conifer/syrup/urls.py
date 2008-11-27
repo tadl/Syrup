@@ -7,4 +7,6 @@ urlpatterns = patterns('conifer.syrup.views',
     (r'^join/$', 'join_course'),
     (r'^instructors/$', 'instructors'),
     (r'^course/(?P<course_id>\d+)/$', 'course_detail'),
+    (r'^course/(?P<course_id>\d+)/item/(?P<item_id>\d+)/$', 'item_detail'),
+    (r'^course/(?P<course_id>\d+)/item/(?P<item_id>\d+)/meta$', 'item_metadata'),
 )

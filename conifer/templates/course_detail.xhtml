@@ -17,28 +17,21 @@ items = course.items()
       There are no items associated with this course yet.
     </p>
     <div py:if="items">
-      <table class="pagetable">
-	<thead>
-	  <tr><th>Title</th><th>Type</th></tr>
-	</thead>
-	<tbody>
-	  <tr py:for="item in items">
-	    <td><a href="item/${item.id}/">${item.title}</a></td>
-	    <td>${item.item_type}</td>
-	    <td>${item.parent_heading}</td>
-	  </tr>
-	</tbody>
-      </table>
 
-      <h2>Show-as-tree test</h2>
-
-      <ol py:def="show_tree(tree)" py:if="tree">
+      <ul py:def="show_tree(tree)" py:if="tree">
 	<li py:for="item, subs in tree">
-	  ${item}
+	  <a href="item/${item.id}/">${item}</a> 
+	  <span class="metalinks">
+	    [<a href="item/${item.id}/meta">about</a>
+	    &bull; <a href="/admin/syrup/item/${item.id}/">edit</a>
+	    ]
+	  </span>
 	  ${show_tree(subs)}
 	</li>
-      </ol>
+      </ul>
       ${show_tree(course.item_tree())}
+    
+
     </div>
   </body>
 </html>
