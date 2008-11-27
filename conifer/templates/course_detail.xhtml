@@ -25,9 +25,20 @@ items = course.items()
 	  <tr py:for="item in items">
 	    <td><a href="item/${item.id}/">${item.title}</a></td>
 	    <td>${item.item_type}</td>
+	    <td>${item.parent_heading}</td>
 	  </tr>
 	</tbody>
       </table>
+
+      <h2>Show-as-tree test</h2>
+
+      <ol py:def="show_tree(tree)" py:if="tree">
+	<li py:for="item, subs in tree">
+	  ${item}
+	  ${show_tree(subs)}
+	</li>
+      </ol>
+      ${show_tree(course.item_tree())}
     </div>
   </body>
 </html>

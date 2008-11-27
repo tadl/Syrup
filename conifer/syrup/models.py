@@ -115,16 +115,32 @@ class Course(m.Model):
         return self.code or self.title
 
     def items(self):
-        return Item.objects.filter(course=self.id)
+        return self.item_set.all()
 
     def item_tree(self):
         """
         Return a list, representing a tree of the course items, in
         display order.  Every element of the list is an (Item, [Item])
-        tuple, where the second element is the (optional) list of
-        sub-elements (if a heading) or None (if an item).
+        tuple, where the second element is a list of sub-elements (if
+        a heading) or None (if an item).
         """
-        raise NotImplementedError
+        items = self.items()
+        # make a node-lookup table
+        dct = {}                
+        for item in items:
+            dct.setdefault(item.parent_heading, []).append(item)
+        for lst in dct.values():
+            lst.sort(key=lambda item: item.sort_order) # sort in place
+        # walk the tree
+        out = []
+        def walk(parent, accum):
+            here = dct.get(parent, [])
+            for item in here:
+                sub = []
+                walk(item, sub)
+                accum.append((item, sub))
+        walk(None, out)
+        return out
 
 
 class Member(m.Model):
