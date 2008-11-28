@@ -145,15 +145,15 @@ def search(request):
     '''
     query_string = ''
     found_entries = None
+    page_num = int(request.GET.get('page', 1))
+    count = int(request.GET.get('count', 5))
     if ('q' in request.GET) and request.GET['q'].strip():
         query_string = request.GET['q']
-        
-        entry_query = get_query(query_string, ['code', 'name',])
-        
-        #found_entries = Entry.objects.filter(entry_query).order_by('-pub_date')
-        found_entries = models.Term.objects.filter(entry_query).order_by('-pub_date')
+        entry_query = get_query(query_string, ['title', 'enrol_codes',])
+        paginator = Paginator( models.Course.objects.filter(entry_query).order_by('-title'),
+            count)
 
-    return render_to_response('search/search_results.html',
-                          { 'query_string': query_string, 'found_entries': found_entries },
-                          context_instance=RequestContext(request))
+    return g.render('search_results.xhtml', paginator=paginator,
+                    page_num=page_num,
+                    count=count, query_string=query_string)
 
