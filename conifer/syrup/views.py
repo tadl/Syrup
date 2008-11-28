@@ -149,11 +149,13 @@ def search(request):
     count = int(request.GET.get('count', 5))
     if ('q' in request.GET) and request.GET['q'].strip():
         query_string = request.GET['q']
-        entry_query = get_query(query_string, ['title', 'author', 'course__title', 'course__department__name',])
-        paginator = Paginator( models.Item.objects.filter(entry_query).order_by('-date_created'),
+        entry_query = get_query(query_string, ['title', 'author', 'course__title', 'course__department__name'])
+        instr_query = get_query(query_string, ['user__last_name'])
+        paginator = Paginator( models.Item.objects.filter(entry_query).order_by('-date_created'), 
             count)
+        instructor_list = models.Member.objects.filter(instr_query).filter(role='INSTR').order_by('-user__last_name')
 
     return g.render('search_results.xhtml', paginator=paginator,
                     page_num=page_num,
-                    count=count, query_string=query_string)
+                    count=count, query_string=query_string, instructor_list=instructor_list)
 
