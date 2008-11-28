@@ -252,7 +252,6 @@ class Item(m.Model):
     def __unicode__(self):
         return self.title
 
-
 #------------------------------------------------------------
 
 class NewsItem(m.Model):
