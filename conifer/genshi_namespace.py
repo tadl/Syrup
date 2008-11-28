@@ -6,4 +6,3 @@
 from itertools import cycle
 
 from conifer.syrup import models
-
