@@ -2,6 +2,24 @@ from django.db import models as m
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AnonymousUser
 from datetime import datetime
+import re
+
+def highlight(text, phrase,
+              highlighter='<strong class="highlight">\\1</strong>'):
+    ''' This may be a lame way to do this, but will want to highlight matches somehow
+
+        >>> highlight('The River is Wide', 'wide')
+        'The River is <strong class="highlight">Wide</strong>'
+
+    '''
+    if not phrase or not text:
+        return text
+    highlight_re = re.compile('(%s)' % re.escape(phrase), re.I)
+    if hasattr(text, '__html__'):
+        return literal(highlight_re.sub(highlighter, text))
+    else:
+        return highlight_re.sub(highlighter, text)
+
 
 #----------------------------------------------------------------------
 # USERS
@@ -158,6 +176,14 @@ class Member(m.Model):
                 ('STUDT', 'Student')),
         default = 'STUDT',
         max_length = 5)
+
+    def instr_name_hl(self, terms):
+        for term in terms:
+            hl_instr = highlight(self.user.last_name,term)
+            if not hl_instr == self.user.last_name:
+                return hl_instr
+
+        return self.user.last_name
 
     def instr_name(self):
         return self.user.last_name

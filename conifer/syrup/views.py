@@ -4,9 +4,9 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 import conifer.genshi_support as g
+import re
 from conifer.syrup import models
 from django.contrib.auth.models import User
-import re
 from django.db.models import Q
 
 
@@ -142,22 +142,6 @@ def get_query(query_string, search_fields):
 
 #------------------------------------------------------------
 
-def highlight(text, phrase, 
-              highlighter='<strong class="highlight">\\1</strong>'):
-    ''' This may be a lame way to do this, but will want to highlight matches somehow
-
-        >>> highlight('The River is Wide', 'wide')
-        'The River is <strong class="highlight">Wide</strong>'
-    
-    '''
-    if not phrase or not text:
-        return text
-    highlight_re = re.compile('(%s)' % re.escape(phrase), re.I)
-    if hasattr(text, '__html__'):
-        return literal(highlight_re.sub(highlighter, text))
-    else:
-        return highlight_re.sub(highlighter, text)
-
 def search(request):
     ''' Need to work on this
     
@@ -178,9 +162,11 @@ def search(request):
         for term in norm_query:
             print term
         print len(models.Member.objects.filter(instr_query).filter(role='INSTR'))
-        print highlight('The River Is Wide', 'is wide')
+        instr_len = len(models.Member.objects.filter(instr_query).filter(role='INSTR'))
+        #print highlight('The River Is Wide', 'is wide')
 
     return g.render('search_results.xhtml', paginator=paginator,
                     page_num=page_num,
-                    count=count, query_string=query_string, instructor_list=instructor_list)
+                    count=count, query_string=query_string, instructor_list=instructor_list,
+                    norm_query=norm_query, instr_len=instr_len)
 
