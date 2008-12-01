@@ -159,6 +159,9 @@ class Member(m.Model):
         default = 'STUDT',
         max_length = 5)
 
+    def instr_name(self):
+        return self.user.last_name
+
     def __unicode__(self):
         return '%s--%s--%s' % (self.user, self.role, self.course)
 

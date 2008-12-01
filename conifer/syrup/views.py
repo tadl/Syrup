@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 import re
 from django.db.models import Q
 
+
 #------------------------------------------------------------
 
 def auth_handler(request, path):
@@ -139,6 +140,24 @@ def get_query(query_string, search_fields):
             query = query & or_query
     return query
 
+#------------------------------------------------------------
+
+def highlight(text, phrase, 
+              highlighter='<strong class="highlight">\\1</strong>'):
+    ''' This may be a lame way to do this, but will want to highlight matches somehow
+
+        >>> highlight('The River is Wide', 'wide')
+        'The River is <strong class="highlight">Wide</strong>'
+    
+    '''
+    if not phrase or not text:
+        return text
+    highlight_re = re.compile('(%s)' % re.escape(phrase), re.I)
+    if hasattr(text, '__html__'):
+        return literal(highlight_re.sub(highlighter, text))
+    else:
+        return highlight_re.sub(highlighter, text)
+
 def search(request):
     ''' Need to work on this
     
@@ -149,11 +168,17 @@ def search(request):
     count = int(request.GET.get('count', 5))
     if ('q' in request.GET) and request.GET['q'].strip():
         query_string = request.GET['q']
+        norm_query = normalize_query(query_string)
         entry_query = get_query(query_string, ['title', 'author', 'course__title', 'course__department__name'])
         instr_query = get_query(query_string, ['user__last_name'])
         paginator = Paginator( models.Item.objects.filter(entry_query).order_by('-date_created'), 
             count)
-        instructor_list = models.Member.objects.filter(instr_query).filter(role='INSTR').order_by('-user__last_name')
+        instructor_list = models.Member.objects.filter(instr_query).filter(role='INSTR').order_by('-user__last_name')[0:5]
+        print(norm_query)
+        for term in norm_query:
+            print term
+        print len(models.Member.objects.filter(instr_query).filter(role='INSTR'))
+        print highlight('The River Is Wide', 'is wide')
 
     return g.render('search_results.xhtml', paginator=paginator,
                     page_num=page_num,
