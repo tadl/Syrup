@@ -144,7 +144,7 @@ class Course(m.Model):
 
         You can provide a 'subtree', an item which is the top node in
         a subtree of the item-tree. If subtree is provided, then
-        return either a signle (Item, [Item]) pair, where Item is the
+        return either a single (Item, [Item]) pair, where Item is the
         subtree element, or None if there is no match.
         """
         items = self.items()
@@ -208,16 +208,24 @@ class Item(m.Model):
     # dictates the sequencing of items within their parent group.
     
     course = m.ForeignKey(Course)
-    ITEM_TYPE_CHOICES = (('ITEM', 'Item'),
-                         ('HEADING', 'Heading'))
-    item_type = m.CharField(max_length=7, choices=ITEM_TYPE_CHOICES,
-                            default='ITEM')
+    ITEM_TYPE_CHOICES = (
+        ('ELEC', 'Attached Electronic Document'), # PDF, Doc, etc.
+        ('PHYS', 'Physical Book or Document'),
+        ('URL',  'URL'),
+        ('HEADING', 'Heading'))
+    item_type = m.CharField(max_length=7, choices=ITEM_TYPE_CHOICES)
     sort_order = m.IntegerField(default=0)
     # parent must be a heading. could use ForeignKey.limit_choices_to,
     # to enforce this in the admin ui.
     parent_heading = m.ForeignKey('Item', blank=True, null=True)
 
-    # Metadata
+    # Metadata.
+
+    # TODO: Are all these relevant to all item types? If not, which
+    # ones should be 'required' for which item-types? We cannot
+    # enforce these requirements through model constraints, unless we
+    # break Item up into multiple tables. But there are other ways we
+    # can specify the constraints.
     title = m.CharField(max_length=255,db_index=True) 
     author = m.CharField(max_length=255,db_index=True) 
     source = m.CharField(max_length=255,db_index=True, blank=True, null=True) 
@@ -228,9 +236,8 @@ class Item(m.Model):
     volume_edition = m.CharField(max_length=255, blank=True, null=True) 
     pages_times = m.CharField(max_length=255, blank=True, null=True) 
     performer = m.CharField(max_length=255,db_index=True, blank=True, null=True) 
+
     local_control_key = m.CharField(max_length=30, blank=True, null=True) 
-    creation_date = m.DateField(auto_now=False)
-    last_modified = m.DateField(auto_now=False)
 
     url = m.URLField(blank=True, null=True)
     mime_type = m.CharField(max_length=100,default='text/html')
@@ -272,8 +279,10 @@ class Item(m.Model):
     # requested_loan_period: why is this a text field?
     requested_loan_period = m.CharField(max_length=255,blank=True,default='', null=True)
 
+    # for items of type ELEC (attached electronic document)
     fileobj = m.FileField(upload_to='uploads/%Y/%m/%d', max_length=255,
                           blank=True, null=True, default=None)
+
 
     date_created = m.DateTimeField(auto_now_add=True)
     last_modified = m.DateTimeField()

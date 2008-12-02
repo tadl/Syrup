@@ -98,6 +98,12 @@ def item_metadata(request, course_id, item_id):
         return g.render('item_metadata.xhtml', course=item.course,
                         item=item)
 
+def item_edit(request, course_id, item_id):
+    """Edit an item."""
+    # For now, just pop to the Admin interface.
+    admin_url = '/admin/syrup/item/%s/' % item_id
+    return HttpResponseRedirect(admin_url)
+    
 def _heading_url(request, item):
     return HttpResponseRedirect(item.url)
 

@@ -22,7 +22,7 @@ instructors = instructor_list
     hey ${foo.instr_name()}<br/>
     hey ${foo.user.last_name}<br/>
     <!-- need to figure out how to unescape this -->
-    hey ${foo.instr_name_hl(norm_query)}<br/>
+    hey ${Markup(foo.instr_name_hl(norm_query))}<br/>
   </p>
   <tr py:def="pageheader()">
     <th>Term</th><!-- <th>Code</th> --><th>Title</th>

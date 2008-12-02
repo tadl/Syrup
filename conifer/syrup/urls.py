@@ -1,5 +1,11 @@
 from django.conf.urls.defaults import *
 
+# I'm not ready to break items out into their own urls.py, but I do
+# want to cut down on the common boilerplate in the urlpatterns below.
+
+ITEM_PREFIX = r'^course/(?P<course_id>\d+)/item/(?P<item_id>\d+)/'
+
+
 urlpatterns = patterns('conifer.syrup.views',
     (r'^$', 'welcome'),                       
     (r'^course/$', 'my_courses'),
@@ -8,6 +14,7 @@ urlpatterns = patterns('conifer.syrup.views',
     (r'^search/$', 'search'),
     (r'^instructors/$', 'instructors'),
     (r'^course/(?P<course_id>\d+)/$', 'course_detail'),
-    (r'^course/(?P<course_id>\d+)/item/(?P<item_id>\d+)/$', 'item_detail'),
-    (r'^course/(?P<course_id>\d+)/item/(?P<item_id>\d+)/meta$', 'item_metadata'),
+    (ITEM_PREFIX + r'$', 'item_detail'),
+    (ITEM_PREFIX + r'meta/$', 'item_metadata'),
+    (ITEM_PREFIX + r'edit/$', 'item_edit'),
 )

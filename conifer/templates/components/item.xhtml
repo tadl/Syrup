@@ -8,8 +8,8 @@
     <li py:for="item, subs in tree">
       <a href="/syrup/course/${item.course_id}/item/${item.id}/">${item}</a> 
       <span class="metalinks">
-	[<a href="/syrup/course/${item.course_id}/item/${item.id}/meta">about</a>
-	&bull; <a href="/admin/syrup/item/${item.id}/">edit</a>
+	[<a href="${item_url(item)}meta/">about</a>
+	&bull; <a href="${item_url(item)}edit/">edit</a>
 	]
       </span>
       ${show_tree(subs)}
