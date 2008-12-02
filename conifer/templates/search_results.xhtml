@@ -1,0 +1,39 @@
+<?python
+title = 'Search Results'
+instructors = instructor_list
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="master.xhtml"/>
+<xi:include href="paginate.xhtml"/>
+<head>
+  <title>${title}</title>
+  <script type="text/javascript">
+    <!-- !This ought to be in paginate.xhtml, not here. how to do? -->
+    $(function() { $('.pagetable').tablesorter(); });
+  </script>
+</head>
+<body>
+  <h1>${title}</h1>
+    
+    <h3>${query_string}</h3>
+  <p py:for="foo in instructors" style="font-size: large;">
+    hey ${foo.instr_name()}<br/>
+    hey ${foo.user.last_name}<br/>
+    <!-- need to figure out how to unescape this -->
+    hey ${foo.instr_name_hl(norm_query)}<br/>
+  </p>
+  <tr py:def="pageheader()">
+    <th>Term</th><!-- <th>Code</th> --><th>Title</th>
+  </tr>
+  <span py:def="pagerow(item)">
+    <td>${item.author}</td>
+    <!--
+    <td><a href="../course/${item.id}/">${item.code}</a></td>
+    -->
+    <td>${item.title}</td>
+  </span>
+  ${pagetable(paginator, count, pagerow, pageheader)}
+</body>
+</html>
