@@ -16,24 +16,29 @@ instructors = instructor_list
 </head>
 <body>
   <h1>${title}</h1>
+    <h3>You searched: <i>${query_string}</i></h3>
+    <p style="font-size: large;">
+        No. of instructors: <i> ${instr_len}</i>
+    </p>
+    <p py:for="foo in instructors" style="font-size: large;">
+        <!--
+        there are a couple of options here
+        ${foo.instr_name()}<br/>
+        ${foo.user.last_name}<br/>
+        -->
     
-    <h3>${query_string}</h3>
-  <p py:for="foo in instructors" style="font-size: large;">
-    hey ${foo.instr_name()}<br/>
-    hey ${foo.user.last_name}<br/>
-    <!-- need to figure out how to unescape this -->
-    hey ${Markup(foo.instr_name_hl(norm_query))}<br/>
-  </p>
-  <tr py:def="pageheader()">
-    <th>Term</th><!-- <th>Code</th> --><th>Title</th>
-  </tr>
-  <span py:def="pagerow(item)">
-    <td>${item.author}</td>
-    <!--
-    <td><a href="../course/${item.id}/">${item.code}</a></td>
-    -->
-    <td>${item.title}</td>
-  </span>
-  ${pagetable(paginator, count, pagerow, pageheader)}
+        ${Markup(foo.instr_name_hl(norm_query))}<br/>
+    </p>
+  
+    <tr py:def="pageheader()">
+        <th>Author</th><th>Title</th>
+    </tr>
+  
+    <span py:def="pagerow(item)">
+        <td>${Markup(item.author_hl(norm_query))}</td>
+        <td>${Markup(item.title_hl(norm_query))}</td>
+    </span>
+    ${pagetable(paginator, count, pagerow, pageheader)}
+
 </body>
 </html>

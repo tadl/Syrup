@@ -286,6 +286,23 @@ class Item(m.Model):
 
     date_created = m.DateTimeField(auto_now_add=True)
     last_modified = m.DateTimeField()
+
+    def title_hl(self, terms):
+        for term in terms:
+            hl_title = highlight(self.title,term)
+            if not hl_title == self.title:
+                return hl_title
+
+        return self.title
+
+    def author_hl(self, terms):
+        for term in terms:
+            hl_author = highlight(self.author,term)
+            if not hl_author == self.author:
+                return hl_author
+
+        return self.author
+
     
     def __unicode__(self):
         return self.title
