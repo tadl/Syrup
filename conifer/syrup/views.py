@@ -149,8 +149,9 @@ def get_query(query_string, search_fields):
 #------------------------------------------------------------
 
 def search(request):
-    ''' Need to work on this
-    
+    ''' Need to work on this, the basic idea is
+        - put an entry point for instructor and course listings
+        - page through item entries
     '''
     query_string = ''
     found_entries = None
@@ -159,10 +160,16 @@ def search(request):
     if ('q' in request.GET) and request.GET['q'].strip():
         query_string = request.GET['q']
         norm_query = normalize_query(query_string)
-        entry_query = get_query(query_string, ['title', 'author', 'course__title', 'course__department__name'])
-        instr_query = get_query(query_string, ['user__last_name'])
-        paginator = Paginator( models.Item.objects.filter(entry_query).order_by('-date_created'), 
+        #item search - this will be expanded
+        item_query = get_query(query_string, ['title', 'author'])
+        #need to think about sort order here
+        paginator = Paginator( models.Item.objects.filter(item_query).order_by('-date_created'), 
             count)
+        #course search
+        course_query = get_query(query_string, ['title', 'department__name'])
+        course_list = models.Course.objects.filter(course_query).order_by('-title')[0:5]
+        #instructor search
+        instr_query = get_query(query_string, ['user__last_name'])
         instructor_list = models.Member.objects.filter(instr_query).filter(role='INSTR').order_by('-user__last_name')[0:5]
         print(norm_query)
         for term in norm_query:
