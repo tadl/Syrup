@@ -77,3 +77,14 @@ a:hover {  text-decoration: underline;  }
 .metalinks { padding-left: 12; color: gray; }
 .metalinks a { color: navy; }
 .metalinks { position: absolute; left: 300; }
+
+.instructors {
+  border: 1px solid #ccc;
+  float: left;
+  width: 50%;
+  padding: 2px 2px 2px 2px;
+  font-size: 1em;
+  line-height: 1em;
+  text-align: left;
+  margin-right: 5px;
+}
