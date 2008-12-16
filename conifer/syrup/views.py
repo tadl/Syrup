@@ -157,29 +157,38 @@ def search(request):
     found_entries = None
     page_num = int(request.GET.get('page', 1))
     count = int(request.GET.get('count', 5))
+
+    #TODO: need to block or do something useful with blank query (seems dumb to do entire list)
     if ('q' in request.GET) and request.GET['q'].strip():
         query_string = request.GET['q']
         norm_query = normalize_query(query_string)
+
         #item search - this will be expanded
         item_query = get_query(query_string, ['title', 'author'])
-        #need to think about sort order here
+        #need to think about sort order here, probably better by author (will make sortable at display level)
         paginator = Paginator( models.Item.objects.filter(item_query).order_by('-date_created'), 
             count)
+
         #course search
         course_query = get_query(query_string, ['title', 'department__name'])
         course_list = models.Course.objects.filter(course_query).order_by('title')[0:5]
+        #there might be a better way of doing this, though instr and course tables should not be expensive to query
+        #len directly on course_list will reflect limit
         course_len = len(models.Course.objects.filter(course_query))
+
         #instructor search
         instr_query = get_query(query_string, ['user__last_name'])
-        print get_query(query_string, ['user__last_name'])
         instructor_list = models.Member.objects.filter(instr_query).filter(role='INSTR').order_by('user__last_name')[0:5]
+        instr_len = len(models.Member.objects.filter(instr_query).filter(role='INSTR'))
+
+        #info for debugging
+        '''
+        print get_query(query_string, ['user__last_name'])
         print instructor_list
         print(norm_query)
         for term in norm_query:
             print term
-        #len(instructor_list) -- will reflect limit
-        #there might be a better way of doing this, though this table should not be expensive to query
-        instr_len = len(models.Member.objects.filter(instr_query).filter(role='INSTR'))
+        '''
 
     return g.render('search_results.xhtml', paginator=paginator,
                     page_num=page_num,
