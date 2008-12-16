@@ -167,19 +167,26 @@ def search(request):
             count)
         #course search
         course_query = get_query(query_string, ['title', 'department__name'])
-        course_list = models.Course.objects.filter(course_query).order_by('-title')[0:5]
+        course_list = models.Course.objects.filter(course_query).order_by('title')[0:5]
+        course_len = len(models.Course.objects.filter(course_query))
         #instructor search
         instr_query = get_query(query_string, ['user__last_name'])
-        instructor_list = models.Member.objects.filter(instr_query).filter(role='INSTR').order_by('-user__last_name')[0:5]
+        print get_query(query_string, ['user__last_name'])
+        instructor_list = models.Member.objects.filter(instr_query).filter(role='INSTR').order_by('user__last_name')[0:5]
+        print instructor_list
         print(norm_query)
         for term in norm_query:
             print term
-        print len(models.Member.objects.filter(instr_query).filter(role='INSTR'))
+        #len(instructor_list) -- will reflect limit
+        #there might be a better way of doing this, though this table should not be expensive to query
         instr_len = len(models.Member.objects.filter(instr_query).filter(role='INSTR'))
-        #print highlight('The River Is Wide', 'is wide')
 
     return g.render('search_results.xhtml', paginator=paginator,
                     page_num=page_num,
-                    count=count, query_string=query_string, instructor_list=instructor_list,
-                    norm_query=norm_query, instr_len=instr_len)
+                    count=count, query_string=query_string, 
+                    course_list=course_list,
+                    instructor_list=instructor_list,
+                    norm_query=norm_query, 
+                    course_len=course_len,
+                    instr_len=instr_len)
 
