@@ -158,6 +158,7 @@ def search(request):
     page_num = int(request.GET.get('page', 1))
     count = int(request.GET.get('count', 5))
     norm_query = ''
+    query_string = ''
     
 
     #TODO: need to block or do something useful with blank query (seems dumb to do entire list)
@@ -188,7 +189,6 @@ def search(request):
         instructor_list = models.Member.objects.filter(instr_query).filter(role='INSTR').order_by('user__last_name')[0:5]
         instr_len = len(models.Member.objects.filter(instr_query).filter(role='INSTR'))
     else:
-        query_string = 'no query specified'
         paginator = Paginator( models.Item.objects.order_by('-date_created'),
             count)
         course_list = models.Course.objects.filter(active=True).order_by('title')[0:5]

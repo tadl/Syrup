@@ -15,8 +15,12 @@ instructors = instructor_list
   </script>
 </head>
 <body>
-  <h1>${title}</h1>
-    <h3>You searched: <i>${query_string}</i></h3>
+<h1>${title}</h1>
+    
+<h3 py:if="query_string">
+    You searched: <i>${query_string}</i>
+</h3>
+
     <p style="font-size: large;">
         No. of instructors: <i> ${instr_len}</i>
     </p>
