@@ -157,10 +157,17 @@ def search(request):
     found_entries = None
     page_num = int(request.GET.get('page', 1))
     count = int(request.GET.get('count', 5))
+    norm_query = ''
+    
 
     #TODO: need to block or do something useful with blank query (seems dumb to do entire list)
-    if ('q' in request.GET) and request.GET['q'].strip():
-        query_string = request.GET['q']
+    #if ('q' in request.GET) and request.GET['q']:
+        
+    if ('q' in request.GET):
+        query_string = request.GET['q'].strip()
+
+    if len(query_string) > 0:
+        print len(query_string)
         norm_query = normalize_query(query_string)
 
         #item search - this will be expanded
@@ -171,24 +178,32 @@ def search(request):
 
         #course search
         course_query = get_query(query_string, ['title', 'department__name'])
-        course_list = models.Course.objects.filter(course_query).order_by('title')[0:5]
+        course_list = models.Course.objects.filter(course_query).filter(active=True).order_by('title')[0:5]
         #there might be a better way of doing this, though instr and course tables should not be expensive to query
         #len directly on course_list will reflect limit
-        course_len = len(models.Course.objects.filter(course_query))
+        course_len = len(models.Course.objects.filter(course_query).filter(active=True))
 
         #instructor search
         instr_query = get_query(query_string, ['user__last_name'])
         instructor_list = models.Member.objects.filter(instr_query).filter(role='INSTR').order_by('user__last_name')[0:5]
         instr_len = len(models.Member.objects.filter(instr_query).filter(role='INSTR'))
+    else:
+        query_string = 'no query specified'
+        paginator = Paginator( models.Item.objects.order_by('-date_created'),
+            count)
+        course_list = models.Course.objects.filter(active=True).order_by('title')[0:5]
+        course_len = len(models.Course.objects.filter(active=True))
+        instructor_list = models.Member.objects.filter(role='INSTR').order_by('user__last_name')[0:5]
+        instr_len = len(models.Member.objects.filter(role='INSTR'))
 
-        #info for debugging
-        '''
+    #info for debugging
+    '''
         print get_query(query_string, ['user__last_name'])
         print instructor_list
         print(norm_query)
         for term in norm_query:
             print term
-        '''
+    '''
 
     return g.render('search_results.xhtml', paginator=paginator,
                     page_num=page_num,
