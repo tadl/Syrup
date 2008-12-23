@@ -41,7 +41,7 @@ courses = course_list
         <tr py:if="instr_len > count">
         <td></td>
         <!-- will tap into open list here -->
-        <td>(more...)</td>
+        <td>(${instr_len - count} more...)</td>
         </tr>
         </table>
         </td>
@@ -59,7 +59,7 @@ courses = course_list
         <tr py:if="course_len > count">
         <td></td>
         <!-- will tap into open list here -->
-        <td>(more...)</td>
+        <td>(${course_len - count} more...)</td>
         </tr>
         </table>
         </td>
