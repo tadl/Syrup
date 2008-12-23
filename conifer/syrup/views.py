@@ -174,7 +174,9 @@ def search(request):
         #item search - this will be expanded
         item_query = get_query(query_string, ['title', 'author'])
         #need to think about sort order here, probably better by author (will make sortable at display level)
-        paginator = Paginator( models.Item.objects.filter(item_query).order_by('-date_created'), 
+        results_list = models.Item.objects.filter(item_query).order_by('-date_created')
+        results_len = len(results_list)
+        paginator = Paginator( results_list,
             count)
 
         #course search
@@ -189,7 +191,9 @@ def search(request):
         instructor_list = models.Member.objects.filter(instr_query).filter(role='INSTR').order_by('user__last_name')[0:5]
         instr_len = len(models.Member.objects.filter(instr_query).filter(role='INSTR'))
     else:
-        paginator = Paginator( models.Item.objects.order_by('-date_created'),
+        results_list = models.Item.objects.order_by('-date_created')
+        results_len = len(results_list)
+        paginator = Paginator( results_list,
             count)
         course_list = models.Course.objects.filter(active=True).order_by('title')[0:5]
         course_len = len(models.Course.objects.filter(active=True))
@@ -211,6 +215,7 @@ def search(request):
                     course_list=course_list,
                     instructor_list=instructor_list,
                     norm_query=norm_query, 
+                    results_len=results_len,
                     course_len=course_len,
                     instr_len=instr_len)
 

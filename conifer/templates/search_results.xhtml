@@ -16,21 +16,21 @@ courses = course_list
   </script>
 </head>
 <body>
-<h1>${title}</h1>
+    <h1>${title}</h1>
     
-<h3 py:if="query_string">
-    You searched: <i>${query_string}</i>
-</h3>
+    <h3 py:if="query_string">
+        You searched: <i>${query_string}</i>
+    </h3>
 
-<!-- not sure if this is the best way to do this -->
-<!-- 
-    probably need a simple css option to hide instructors and course info
--->
-<table py:if="instructors or courses">
-    <tr>
+    <!-- not sure if this is the best way to do this -->
+    <!-- 
+        probably need a simple css option to hide instructors and course info
+    -->
+    <table py:if="instructors or courses">
+        <tr>
         <!-- instructors -->
-        <td py:if="instructors" valign="top">
-        <table>
+        <td py:if="instructors" valign="top" class="topbox">
+        <table class="topheading">
         <tr>
         <th>Last Name</th><th>First Name</th>
         </tr>
@@ -42,7 +42,7 @@ courses = course_list
         </td>
 
         <!-- courses -->
-        <td py:if="courses" valign="top">
+        <td py:if="courses" valign="top" class="topbox">
         <table>
         <tr>
         <th>Course</th>
@@ -53,10 +53,10 @@ courses = course_list
         </tr>
         </table>
         </td>
-    </tr>
-</table>
+        </tr>
+    </table>
   
-    <tr py:def="pageheader()">
+    <tr py:if="results_len > 0" py:def="pageheader()">
         <th>Author</th><th>Title</th>
     </tr>
   

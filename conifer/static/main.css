@@ -88,3 +88,14 @@ a:hover {  text-decoration: underline;  }
   text-align: left;
   margin-right: 5px;
 }
+
+.topbox {
+  border: 1px solid #ccc;
+  width: 50%;
+  line-height: 1em;
+  text-align: left;
+}
+
+.topheading th {
+    background-color: #ddf;
+}
