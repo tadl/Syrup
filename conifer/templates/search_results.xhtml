@@ -26,7 +26,7 @@ courses = course_list
     <!-- 
         probably need a simple css option to hide instructors and course info
     -->
-    <table py:if="instructors or courses">
+    <table py:if="instructors or courses" width="100%">
         <tr>
         <!-- instructors -->
         <td py:if="instructors" valign="top" class="topbox">
@@ -38,8 +38,9 @@ courses = course_list
             <td>${Markup(instructor.instr_name_hl(norm_query))}</td>
             <td>foo</td>
         </tr>
-        <tr>
+        <tr py:if="instr_len > count">
         <td></td>
+        <!-- will tap into open list here -->
         <td>(more...)</td>
         </tr>
         </table>
@@ -47,13 +48,18 @@ courses = course_list
 
         <!-- courses -->
         <td py:if="courses" valign="top" class="topbox">
-        <table>
+        <table class="topheading">
         <tr>
-        <th>Course</th>
+        <th align="left">Course</th>
         </tr>
         <tr py:for="course in courses">
             <!-- will highlight this, probably pull in dept info -->
             <td>${course.title}</td>
+        </tr>
+        <tr py:if="course_len > count">
+        <td></td>
+        <!-- will tap into open list here -->
+        <td>(more...)</td>
         </tr>
         </table>
         </td>
