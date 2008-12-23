@@ -181,24 +181,29 @@ def search(request):
 
         #course search
         course_query = get_query(query_string, ['title', 'department__name'])
-        course_list = models.Course.objects.filter(course_query).filter(active=True).order_by('title')[0:5]
+        course_results = models.Course.objects.filter(course_query).filter(active=True)
+        # course_list = models.Course.objects.filter(course_query).filter(active=True).order_by('title')[0:5]
+        course_list = course_results.order_by('title')[0:5]
         #there might be a better way of doing this, though instr and course tables should not be expensive to query
         #len directly on course_list will reflect limit
-        course_len = len(models.Course.objects.filter(course_query).filter(active=True))
+        course_len = len(course_results)
 
         #instructor search
         instr_query = get_query(query_string, ['user__last_name'])
-        instructor_list = models.Member.objects.filter(instr_query).filter(role='INSTR').order_by('user__last_name')[0:5]
-        instr_len = len(models.Member.objects.filter(instr_query).filter(role='INSTR'))
+        instructor_results = models.Member.objects.filter(instr_query).filter(role='INSTR')
+        instructor_list = instructor_results.order_by('user__last_name')[0:5]
+        instr_len = len(instructor_results)
     else:
         results_list = models.Item.objects.order_by('-date_created')
         results_len = len(results_list)
         paginator = Paginator( results_list,
             count)
-        course_list = models.Course.objects.filter(active=True).order_by('title')[0:5]
-        course_len = len(models.Course.objects.filter(active=True))
-        instructor_list = models.Member.objects.filter(role='INSTR').order_by('user__last_name')[0:5]
-        instr_len = len(models.Member.objects.filter(role='INSTR'))
+        course_results = models.Course.objects.filter(active=True)
+        course_list = course_results.order_by('title')[0:5]
+        course_len = len(course_results)
+        instructor_results = models.Member.objects.filter(role='INSTR')
+        instructor_list = instructor_results.order_by('user__last_name')[0:5]
+        instr_len = len(instructor_results)
 
     #info for debugging
     '''
