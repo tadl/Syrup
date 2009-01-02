@@ -178,12 +178,11 @@ class Member(m.Model):
         max_length = 5)
 
     def instr_name_hl(self, terms):
+        hl_instr = self.user.last_name
         for term in terms:
-            hl_instr = highlight(self.user.last_name,term)
-            if not hl_instr == self.user.last_name:
-                return hl_instr
+            hl_instr = highlight(hl_instr,term)
 
-        return self.user.last_name
+        return hl_instr
 
     def instr_name(self):
         return self.user.last_name
@@ -288,20 +287,19 @@ class Item(m.Model):
     last_modified = m.DateTimeField()
 
     def title_hl(self, terms):
+        hl_title = self.title
         for term in terms:
-            hl_title = highlight(self.title,term)
-            if not hl_title == self.title:
-                return hl_title
+            hl_title = highlight(hl_title,term)
 
-        return self.title
+        return hl_title
 
     def author_hl(self, terms):
-        for term in terms:
-            hl_author = highlight(self.author,term)
-            if not hl_author == self.author:
-                return hl_author
+        hl_author = self.author
 
-        return self.author
+        for term in terms:
+            hl_author = highlight(hl_author,term)
+
+        return hl_author
 
     
     def __unicode__(self):

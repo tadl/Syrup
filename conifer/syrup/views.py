@@ -168,7 +168,6 @@ def search(request):
         query_string = request.GET['q'].strip()
 
     if len(query_string) > 0:
-        print len(query_string)
         norm_query = normalize_query(query_string)
 
         #item search - this will be expanded
