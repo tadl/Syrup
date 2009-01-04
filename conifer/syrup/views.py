@@ -213,6 +213,11 @@ def search(request):
             print term
     '''
 
+    #not sure this would be the best way but locals() would be cleaner
+    #can this be done with genshi?
+    '''
+    return g.render('search_results.xhtml', locals())
+    '''
     return g.render('search_results.xhtml', paginator=paginator,
                     page_num=page_num,
                     count=count, query_string=query_string, 
