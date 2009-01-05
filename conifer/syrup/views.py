@@ -66,6 +66,29 @@ def join_course(request):
     return g.render('join_course.xhtml')
 
 def browse_courses(request, browse_option=''):
+    page_num = int(request.GET.get('page', 1))
+    count = int(request.GET.get('count', 5))
+
+    if browse_option == 'instructors':
+        paginator = Paginator(models.UserProfile.active_instructors(), count)
+
+        return g.render('instructors.xhtml', paginator=paginator,
+            page_num=page_num,
+            count=count)
+
+    elif browse_option == 'departments':
+        paginator = Paginator(models.UserProfile.active_instructors(), count)
+
+        return g.render('instructors.xhtml', paginator=paginator,
+            page_num=page_num,
+            count=count)
+    elif browse_option == 'courses':
+        paginator = Paginator(models.UserProfile.active_instructors(), count)
+
+        return g.render('instructors.xhtml', paginator=paginator,
+            page_num=page_num,
+            count=count)
+
     return g.render('browse_courses.xhtml')
 
 @login_required

@@ -52,7 +52,18 @@ app_name = 'Syrup E-Reserve System'
 	${select('*|text()')}
       </div>
       <div id="footer">
-	<div>&copy; 2008, <a href="http://conifer.mcmaster.ca/">Project Conifer</a></div>
+	<div> 
+    <!--
+        We may eventually have a tab bar for non authenticated users,
+        but we definitely need a start over option for now. There is
+        probably a more elegant way of detecting whether we are on
+        the front page but this works for the short term
+    -->
+    <span py:if="not request.META.PATH_INFO == '/syrup/'">
+        <a href="/syrup">Start Over</a>  -
+    </span>
+    Syrup is a subproject of <a href="http://conifer.mcmaster.ca/">Project Conifer</a> &copy; 2008
+    </div>
       </div>
     </body>
   </py:match>
