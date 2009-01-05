@@ -65,6 +65,9 @@ def instructors(request):
 def join_course(request):
     return g.render('join_course.xhtml')
 
+def browse_courses(request, browse_option=''):
+    return g.render('browse_courses.xhtml')
+
 @login_required
 def my_courses(request):
     return g.render('my_courses.xhtml')
