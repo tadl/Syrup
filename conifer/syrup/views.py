@@ -66,6 +66,7 @@ def join_course(request):
     return g.render('join_course.xhtml')
 
 def browse_courses(request, browse_option=''):
+    #the defaults should be moved into a config file or something...
     page_num = int(request.GET.get('page', 1))
     count = int(request.GET.get('count', 5))
 
@@ -77,15 +78,15 @@ def browse_courses(request, browse_option=''):
             count=count)
 
     elif browse_option == 'departments':
-        paginator = Paginator(models.UserProfile.active_instructors(), count)
+        paginator = Paginator(models.Department.objects.filter(active=True), count)
 
-        return g.render('instructors.xhtml', paginator=paginator,
+        return g.render('departments.xhtml', paginator=paginator,
             page_num=page_num,
             count=count)
     elif browse_option == 'courses':
-        paginator = Paginator(models.UserProfile.active_instructors(), count)
+        paginator = Paginator(models.Course.objects.filter(active=True), count)
 
-        return g.render('instructors.xhtml', paginator=paginator,
+        return g.render('courses.xhtml', paginator=paginator,
             page_num=page_num,
             count=count)
 
@@ -137,7 +138,6 @@ def _heading_detail(request, item):
     """Display a heading. Show the subitems for this heading."""
     return g.render('item_heading_detail.xhtml', item=item)
     
-
 def normalize_query(query_string,
                     findterms=re.compile(r'"([^"]+)"|(\S+)').findall,
                     normspace=re.compile(r'\s{2,}').sub):
