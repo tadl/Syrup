@@ -45,9 +45,11 @@ app_name = 'Syrup E-Reserve System'
       </span>
       <span py:if="not user.is_authenticated()">
 	<strong style="padding-right: 18;">Welcome!</strong>
+	<a class="loginbutton" href="/accounts/login/">Log In</a>
       </span>
     </div>
       <xi:include py:if="user.is_authenticated()" href="tabbar.xhtml"/>
+      <xi:include py:if="not user.is_authenticated()" href="tabbar_anonymous.xhtml"/>
       <div id="mainpanel">
 	${select('*|text()')}
       </div>

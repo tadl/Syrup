@@ -11,24 +11,36 @@ from django.db.models import Q
 
 
 #------------------------------------------------------------
+# Authentication
 
 def auth_handler(request, path):
     if path == 'login/':
         if request.method == 'GET':
-            return g.render('auth/login.xhtml')
+            next=request.GET.get('next', '/syrup/')
+            if request.user.is_authenticated():
+                return HttpResponseRedirect(next)
+            else:
+                return g.render('auth/login.xhtml', 
+                                next=request.GET.get('next'),
+                                err=None # fixme, this shouldn't be
+                                         # necessary. Genshi should treat
+                                         # missing names as None, but something
+                                         # is wrong.
+                                )
         else:
             userid, password = request.POST['userid'], request.POST['password']
+            next = request.POST['next']
             user = authenticate(username=userid, password=password)
             if user is None:
-                return HttpResponse('invalid login.')
+                return g.render('auth/login.xhtml', err='Invalid username or password. Please try again.', next=next)
             elif not user.is_active:
-                return HttpResponse('disabled account.')
+                return g.render('auth/login.xhtml', err='Sorry, this account has been disabled.', next=next)
             else:
                 login(request, user)
-                return HttpResponseRedirect(request.POST['next'])
+                return HttpResponseRedirect(request.POST.get('next', '/syrup/'))
     elif path == 'logout':
         logout(request)
-        return HttpResponse('Logged out. Thanks for coming!')
+        return HttpResponseRedirect('/syrup/')
     else:
         return HttpResponse('auth_handler: ' + path)
 

@@ -14,7 +14,8 @@ title = 'Syrup E-Reserves: Please log in'
 <body>
   <h1>Please log in.</h1>
   <form action="." method="post">
-    <input type="hidden" name="next" value="${request.GET['next']}"/>
+    <input type="hidden" name="next" value="${next}"/>
+    <div class="errors" py:if="err">${err}</div>
   <table>
     <tr>
       <th>User ID:</th>

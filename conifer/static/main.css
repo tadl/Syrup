@@ -28,7 +28,9 @@ body {
 
 #brandheader { background-color: white; padding: 8; }
 
-#header a { color: #fff; font-weight: bold;  }
+#header a { color: #fff; font-weight: bold;  padding: 8 6; }
+#header a.loginbutton { background-color: #a44; padding: 8 16; }
+#header a:hover { background-color: #fb7; color: black; text-decoration: none; }
 
 #footer {  
     margin-top: 12;
@@ -98,4 +100,12 @@ a:hover {  text-decoration: underline;  }
 
 .topheading th {
     background-color: #ddf;
+}
+
+
+p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: #d99 6px solid; }
+
+
+.newsitem { 
+    max-width: 600;
 }

@@ -9,12 +9,8 @@ title = 'Welcome!'
   <title>${title}</title>
 </head>
 <body>
-  <div style="float: right; margin: 0 24; background-color: #feb; padding: 24;">
-    <p py:if="not user.is_authenticated()"><a href="/accounts/login/?next=/syrup/">Log in</a></p>
-    <p><a href="browse">Browse</a></p> 
-  </div>
   <h1>News</h1>
-  <div py:for="news in models.NewsItem.objects.all().order_by('-published')[0:5]">
+  <div class="newsitem" py:for="news in models.NewsItem.objects.all().order_by('-published')[0:5]">
     <h2>${news.subject}</h2>
     <div>${news.body}</div>
   </div>
