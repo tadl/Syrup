@@ -171,7 +171,7 @@ def item_add(request, course_id, item_id):
     assert item_type == 'HEADING', 'Sorry, only HEADINGs can be added right now.'
 
     if request.method == 'GET':
-        return g.render('item_add.xhtml', **locals())
+        return g.render('item_add_heading.xhtml', **locals())
     else:
         title = request.POST.get('title', '').strip()
         if not title:
