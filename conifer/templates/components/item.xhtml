@@ -4,7 +4,7 @@
       py:strip="">
 
   <!-- !show_tree: display a tree of items in a hierarchical style. -->
-  <ul py:def="show_tree(tree)" py:if="tree" class="itemtree">
+  <ul py:def="show_tree(tree, edit=False)" py:if="tree" class="itemtree">
     <li py:for="item, subs in tree" class="item_${item.item_type}">
       <a href="${item_url(item)}">${item}</a> 
       <span py:if="item.needs_meta_link()" class="metalink">
@@ -13,7 +13,7 @@
       <span class="editlinks" py:if="edit">
 	[<a href="${item_url(item)}edit/">edit</a>]
       </span>
-      ${show_tree(subs)}
+      ${show_tree(subs, edit)}
     </li>
   </ul>
 
