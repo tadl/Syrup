@@ -19,7 +19,7 @@ title = 'Browse Courses'
     <tbody>
       <tr py:for="c in models.Course.objects.all().order_by('code')">
 	<td>${c.code}</td>
-	<td>${c.title}</td>
+	<td><a href="${course_url(c)}">${c.title}</a></td>
 	<td>${c.term}</td>
       </tr>
     </tbody>

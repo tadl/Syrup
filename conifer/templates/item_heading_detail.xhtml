@@ -14,7 +14,7 @@ item_tree = course.item_tree(subtree=item)
   </head>
   <body>
     <h1>${title}</h1>
-    <p><a href="../../">${course_title}</a></p>
+    <p><a href="${course_url(course)}">${course_title}</a></p>
     <p>${course.department}</p>
     <p py:if="not item_tree">
       There are no items associated in this subheading.
