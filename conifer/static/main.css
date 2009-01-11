@@ -127,6 +127,12 @@ a:hover {  text-decoration: underline;  }
     margin-top: 4;
 }
 
+.itemtree li.item_PHYS { 
+    /* fixme: need a better icon */
+    list-style-image: url(tango/x-office-address-book.png);
+    margin-top: 4;
+}
+
 
 .instructors {
   border: 1px solid #ccc;

@@ -2,6 +2,7 @@
 course = item.course
 title = item.title
 course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
+is_editor = course.can_edit(request.user)
 item_tree = course.item_tree(subtree=item)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
@@ -21,7 +22,7 @@ item_tree = course.item_tree(subtree=item)
     <!-- <p py:if="not item_tree"> -->
     <!--   There are no items associated in this subheading. -->
     <!-- </p> -->
-    ${show_tree(item_tree)}
-    ${add_subs(item)}
+    ${show_tree(item_tree, edit=is_editor)}
+    <div py:if="is_editor">${add_subs(item)}</div>
   </body>
 </html>

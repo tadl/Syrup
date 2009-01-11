@@ -165,6 +165,14 @@ class Course(m.Model):
         walk(subtree, out)
         return out
 
+    def can_edit(self, user):
+        if user.is_anonymous():
+            return False
+        try:
+            mbr = Member.objects.get(course=self, user=user)
+        except Member.DoesNotExist:
+            return False
+        return mbr.role in (u'INSTR', u'PROXY')
 
 class Member(m.Model):
     course = m.ForeignKey(Course)

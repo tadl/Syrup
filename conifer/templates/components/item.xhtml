@@ -10,7 +10,7 @@
       <span py:if="item.needs_meta_link()" class="metalink">
 	[<a href="${item_url(item)}meta/">about</a>]
       </span>
-      <span class="editlinks">
+      <span class="editlinks" py:if="edit">
 	[<a href="${item_url(item)}edit/">edit</a>]
       </span>
       ${show_tree(subs)}

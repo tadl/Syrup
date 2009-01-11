@@ -1,4 +1,5 @@
 from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseForbidden
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -138,6 +139,7 @@ def item_metadata(request, course_id, item_id):
         return g.render('item_metadata.xhtml', course=item.course,
                         item=item)
 
+@login_required
 def item_edit(request, course_id, item_id):
     """Edit an item."""
     # For now, just pop to the Admin interface.
@@ -152,7 +154,7 @@ def _heading_detail(request, item):
     return g.render('item_heading_detail.xhtml', item=item)
 
 
-
+@login_required
 def item_add(request, course_id, item_id):
     # The item-id is the id for the parent-heading item. Zero represents
     # 'top-level', i.e. the new item should have no heading. For any other
@@ -164,6 +166,10 @@ def item_add(request, course_id, item_id):
         parent_item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
         assert parent_item.item_type == 'HEADING', 'Can only add items to headings!'
         course = parent_item.course
+
+    if not course.can_edit(user):
+        return HttpResponseForbidden('not an editor') # fixme, prettier msg?
+
     item_type = request.GET.get('item_type')
     assert item_type, 'No item_type parameter was provided.'
 
@@ -175,6 +181,7 @@ def item_add(request, course_id, item_id):
                         **locals())
     else:
         # fixme, this will need refactoring. But not yet.
+        author = request.user.get_full_name() or request.user.username
         if item_type == 'HEADING':
             title = request.POST.get('title', '').strip()
             if not title:
@@ -186,7 +193,7 @@ def item_add(request, course_id, item_id):
                     item_type='HEADING',
                     parent_heading=parent_item,
                     title=title,
-                    author=request.user.get_full_name() or request.user.username,
+                    author=author,
                     activation_date=datetime.now(),
                     last_modified=datetime.now())
                 item.save()
@@ -203,7 +210,7 @@ def item_add(request, course_id, item_id):
                     item_type='URL',
                     parent_heading=parent_item,
                     title=title,
-                    author=request.user.get_full_name() or request.user.username,
+                    author=author,
                     activation_date=datetime.now(),
                     last_modified=datetime.now(),
                     url = url)
