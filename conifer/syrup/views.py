@@ -186,7 +186,7 @@ def item_add(request, course_id, item_id):
                     item_type='HEADING',
                     parent_heading=parent_item,
                     title=title,
-                    author=request.user.get_full_name() or request.user,
+                    author=request.user.get_full_name() or request.user.username,
                     activation_date=datetime.now(),
                     last_modified=datetime.now())
                 item.save()
@@ -203,7 +203,7 @@ def item_add(request, course_id, item_id):
                     item_type='URL',
                     parent_heading=parent_item,
                     title=title,
-                    author=request.user.get_full_name() or request.user,
+                    author=request.user.get_full_name() or request.user.username,
                     activation_date=datetime.now(),
                     last_modified=datetime.now(),
                     url = url)

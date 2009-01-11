@@ -41,6 +41,9 @@ body {
 
 h1 { font-size: 150%;  }
 h2 { font-size: 135%; }
+h1, h2, h3, h4 { color: navy; }
+
+h1 a, h2 a { color: navy; }
 
 a { color: blue; text-decoration: none; }
 a:hover {  text-decoration: underline;  }
@@ -85,22 +88,29 @@ a:hover {  text-decoration: underline;  }
 /* item trees (tree of headings and items in a course */
 
 .itemtree { 
-    margin-left: 100; 
+    margin-left: 30; 
     list-style-type: none; 
+    list-style-position: inside;
 }
 
 .itemtree .itemtree { margin-left: 0;}
 
 .itemtree li { width: 400; }
 
-.itemtree .metalinks   { padding-left: 12; color: gray; 
+.itemtree .metalink { padding-left: 8; color: gray; }
+.itemtree .metalink a {
+    color: gray; 
+}
+
+.itemtree .editlinks   { padding-left: 12; color: gray; 
                          position: absolute; left: 0; 
 			 font-size: small;
 		     }
-.itemtree .metalinks a { color: navy; }
+.itemtree .editlinks a { color: navy; }
 
 .itemadd { 
-    margin-left: 100; /* should match .itemtree{margin-left} */
+    margin-left: 30; /* should match .itemtree{margin-left} */
+    margin-top: 30; 
 }
 
 /* specialized display of items in tree, by type */
@@ -113,7 +123,7 @@ a:hover {  text-decoration: underline;  }
 }
 
 .itemtree li.item_URL { 
-    list-style-type: square;	/* fixme, nice URL icon */
+    list-style-image: url(tango/applications-internet.png);
     margin-top: 4;
 }
 

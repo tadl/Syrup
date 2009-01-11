@@ -314,6 +314,12 @@ class Item(m.Model):
             return [self]
         else:
             return self.parent_heading.hierarchy() + [self]
+
+    def needs_meta_link(self):
+        """Should an 'About' link be displayed for this item?"""
+
+        return self.item_type == 'URL'
+
 #------------------------------------------------------------
 
 class NewsItem(m.Model):
