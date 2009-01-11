@@ -167,30 +167,50 @@ def item_add(request, course_id, item_id):
     item_type = request.GET.get('item_type')
     assert item_type, 'No item_type parameter was provided.'
 
-    # for the moment, only HEADINGs can be added.
-    assert item_type == 'HEADING', 'Sorry, only HEADINGs can be added right now.'
+    # for the moment, only HEADINGs and URLs can be added.
+    assert item_type in ('HEADING', 'URL'), 'Sorry, only HEADINGs and URLs can be added right now.'
 
     if request.method == 'GET':
-        return g.render('item_add_heading.xhtml', **locals())
+        return g.render('item_add_%s.xhtml' % item_type.lower(),
+                        **locals())
     else:
-        title = request.POST.get('title', '').strip()
-        if not title:
-            return HttpResponseRedirect(request.get_full_path())
+        # fixme, this will need refactoring. But not yet.
+        if item_type == 'HEADING':
+            title = request.POST.get('title', '').strip()
+            if not title:
+                # fixme, better error handling.
+                return HttpResponseRedirect(request.get_full_path())
+            else:
+                item = models.Item(
+                    course=course,
+                    item_type='HEADING',
+                    parent_heading=parent_item,
+                    title=title,
+                    author=request.user.get_full_name(),
+                    activation_date=datetime.now(),
+                    last_modified=datetime.now())
+                item.save()
+                return HttpResponseRedirect(item_url(item))
+        elif item_type == 'URL':
+            title = request.POST.get('title', '').strip()
+            url = request.POST.get('url', '').strip()
+            if not (title or url):
+                # fixme, better error handling.
+                return HttpResponseRedirect(request.get_full_path())
+            else:
+                item = models.Item(
+                    course=course,
+                    item_type='URL',
+                    parent_heading=parent_item,
+                    title=title,
+                    author=request.user.get_full_name(),
+                    activation_date=datetime.now(),
+                    last_modified=datetime.now(),
+                    url = url)
+                item.save()
+                return HttpResponseRedirect(item_url(item) + 'meta/')
         else:
-            # rubber hits road.
-            item = models.Item(
-                course=course,
-                item_type='HEADING',
-                parent_heading=parent_item,
-                title=title,
-                author=request.user.get_full_name(),
-                activation_date=datetime.now(),
-                last_modified=datetime.now())
-            item.save()
-            return HttpResponseRedirect(item_url(item))
-                
-        
-        raise NotImplementedError
+            raise NotImplementedError
     
 def normalize_query(query_string,
                     findterms=re.compile(r'"([^"]+)"|(\S+)').findall,

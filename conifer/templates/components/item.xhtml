@@ -21,6 +21,17 @@
        class="nestedtitle">
     <span py:for="n, x in enumerate(hier)"
 	 style="margin-left: ${n}em;"><a href="${item_url(x)}">${x.title}</a> &bull; </span>
-<h2>${item.title}</h2>
+    <h2>${item.title}</h2>
   </div>
+
+  <ul py:def="add_subs(parent=None)">
+    <li>Add a new item...</li>
+    <ul py:with="prefix = (not parent) and 'item/0/' or ''">
+      <li><a href="${prefix}add?item_type=HEADING">Add subheading</a></li>
+      <li><a href="${prefix}add?item_type=URL">Add URL</a></li>
+      <li><a href="${prefix}add?item_type=ELEC">Add Electronic Document</a></li>
+      <li><a href="${prefix}add?item_type=PHYS">Add Physical Book/Document</a></li>
+    </ul>
+  </ul>
+  
 </html>
