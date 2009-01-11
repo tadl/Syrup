@@ -1,0 +1,28 @@
+<?python
+title = 'Add a new URL'
+course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="master.xhtml"/>
+  <xi:include href="components/item.xhtml"/>
+  <head>
+    <title>${title}</title>
+  </head>
+  <body>
+    <div class="courseident">
+      <div>${course.department}</div>
+      <h1><a href="${course_url(course)}">${course_title}</a></h1>
+      <div py:if="parent_item">${nested_title(parent_item)}</div>
+      <h2>${title}</h2>
+      <form action=".?item_type=${item_type}" method="POST">
+	<table>
+	  <tr><th>Heading</th><td><input type="text" name="title"/></td></tr>
+	  <tr><th>URL</th><td><input type="text" name="url"/></td></tr>
+	</table>
+	<p><input type="submit" value="Create heading"/></p>
+      </form>
+    </div>
+</body>
+</html>
