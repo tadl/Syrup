@@ -1,22 +1,28 @@
 <?python
-course_title = '%s: %s (%s)' % (course.title, course.title, course.term)
+course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
+hier = item.hierarchy()[:-1]
 title = item.title
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
   <xi:include href="master.xhtml"/>
+  <xi:include href="components/item.xhtml"/>
   <head>
     <title>${title}</title>
   </head>
   <body>
-    <h1>${title}</h1>
-    <p><a href="${course_url(course)}">${course_title}</a></p>
-    <p>${course.department}</p>
+    <div class="courseident">
+      <div>${course.department}</div>
+      <h1><a href="${course_url(course)}">${course_title}</a></h1>
+    </div>
+    ${nested_title(item)}
 
-    <p>Title: ${item.title}</p>
-    <p>Type: ${item.item_type}</p>
-    <p>Author: ${item.author}</p>
-    <p py:if="item.url">URL: <a href="${item.url}">${item.url}</a></p>
+    <table>
+      <tr><th>Title</th><td>${item.title}</td></tr>
+      <tr><th>Type</th><td>${item.item_type}</td></tr>
+      <tr><th>Author</th><td>${item.author}</td></tr>
+      <tr py:if="item.url"><th>URL</th><td><a href="${item.url}">${item.url}</a></td></tr>
+    </table>
   </body>
 </html>

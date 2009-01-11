@@ -1,14 +1,14 @@
+<!-- 
+     fixme, this is heading-specific. Should accommodate other types of item too. 
+-->
 <?python
-course = item.course
-title = item.title
+title = 'Add a new subheading'
 course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
-item_tree = course.item_tree(subtree=item)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
   <xi:include href="master.xhtml"/>
-  <xi:include href="components/item.xhtml"/>
   <head>
     <title>${title}</title>
   </head>
@@ -16,12 +16,13 @@ item_tree = course.item_tree(subtree=item)
     <div class="courseident">
       <div>${course.department}</div>
       <h1><a href="${course_url(course)}">${course_title}</a></h1>
+      <h2>${title}</h2>
+      <form action=".?item_type=${item_type}" method="POST">
+	<table>
+	  <tr><th>Heading</th><td><input type="text" name="title"/></td></tr>
+	</table>
+	<p><input type="submit" value="Create heading"/></p>
+      </form>
     </div>
-    ${nested_title(item)}
-    <!-- <p py:if="not item_tree"> -->
-    <!--   There are no items associated in this subheading. -->
-    <!-- </p> -->
-    ${show_tree(item_tree)}
-    <ul class="action"><li><a href="add?item_type=HEADING">Add subheading</a></li></ul>
-  </body>
+</body>
 </html>

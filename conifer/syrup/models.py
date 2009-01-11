@@ -305,6 +305,15 @@ class Item(m.Model):
     def __unicode__(self):
         return self.title
 
+    def hierarchy(self):
+        """Return a list of items; the first is the topmost ancestor
+        of this item in the heading hierarchy; the last is the current
+        item.
+        """
+        if self.parent_heading is None:
+            return [self]
+        else:
+            return self.parent_heading.hierarchy() + [self]
 #------------------------------------------------------------
 
 class NewsItem(m.Model):

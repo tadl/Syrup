@@ -4,7 +4,7 @@
       py:strip="">
 
   <!-- !show_tree: display a tree of items in a hierarchical style. -->
-  <ul py:def="show_tree(tree)" py:if="tree">
+  <ul py:def="show_tree(tree)" py:if="tree" class="itemtree">
     <li py:for="item, subs in tree">
       <a href="/syrup/course/${item.course_id}/item/${item.id}/">${item}</a> 
       <span class="metalinks">
@@ -16,4 +16,11 @@
     </li>
   </ul>
 
+  <div py:def="nested_title(item)"
+       py:with="hier=item.hierarchy()[:-1]; lastnum=len(hier)"
+       class="nestedtitle">
+    <span py:for="n, x in enumerate(hier)"
+	 style="margin-left: ${n}em;"><a href="${item_url(x)}">${x.title}</a> &bull; </span>
+<h2>${item.title}</h2>
+  </div>
 </html>

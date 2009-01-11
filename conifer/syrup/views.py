@@ -8,7 +8,8 @@ import re
 from conifer.syrup import models
 from django.contrib.auth.models import User
 from django.db.models import Q
-
+from datetime import datetime
+from genshi_namespace import item_url, course_url
 
 #------------------------------------------------------------
 # Authentication
@@ -149,6 +150,47 @@ def _heading_url(request, item):
 def _heading_detail(request, item):
     """Display a heading. Show the subitems for this heading."""
     return g.render('item_heading_detail.xhtml', item=item)
+
+
+
+def item_add(request, course_id, item_id):
+    # The item-id is the id for the parent-heading item. Zero represents
+    # 'top-level', i.e. the new item should have no heading. For any other
+    # number, we must check that the parent item is of the Heading type.
+    if item_id=='0':
+        parent_item = None
+        course = get_object_or_404(models.Course, pk=course_id)
+    else:
+        parent_item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
+        assert parent_item.item_type == 'HEADING', 'Can only add items to headings!'
+        course = parent_item.course
+    item_type = request.GET.get('item_type')
+    assert item_type, 'No item_type parameter was provided.'
+
+    # for the moment, only HEADINGs can be added.
+    assert item_type == 'HEADING', 'Sorry, only HEADINGs can be added right now.'
+
+    if request.method == 'GET':
+        return g.render('item_add.xhtml', **locals())
+    else:
+        title = request.POST.get('title', '').strip()
+        if not title:
+            return HttpResponseRedirect(request.get_full_path())
+        else:
+            # rubber hits road.
+            item = models.Item(
+                course=course,
+                item_type='HEADING',
+                parent_heading=parent_item,
+                title=title,
+                author=request.user.get_full_name(),
+                activation_date=datetime.now(),
+                last_modified=datetime.now())
+            item.save()
+            return HttpResponseRedirect(item_url(item))
+                
+        
+        raise NotImplementedError
     
 def normalize_query(query_string,
                     findterms=re.compile(r'"([^"]+)"|(\S+)').findall,

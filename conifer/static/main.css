@@ -76,9 +76,10 @@ a:hover {  text-decoration: underline;  }
 }
 .pagetable thead th { font-size: smaller; text-align: left; padding: 2 8; }
 
+.itemtree li { width: 400; }
 .metalinks { padding-left: 12; color: gray; }
 .metalinks a { color: navy; }
-.metalinks { position: absolute; left: 300; }
+.metalinks { position: absolute; left: 500; }
 
 .instructors {
   border: 1px solid #ccc;
@@ -109,3 +110,5 @@ p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: 
 .newsitem { 
     max-width: 600;
 }
+
+.nestedtitle h2 { margin-top: 8; }
