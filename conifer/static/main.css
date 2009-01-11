@@ -77,7 +77,18 @@ a:hover {  text-decoration: underline;  }
 .pagetable thead th { font-size: smaller; text-align: left; padding: 2 8; }
 
 
-.itemtree { margin-left: 100; }
+/* nested titles: like breadcrumbs when drilling into an itemtree */
+
+.nestedtitle h2 { margin-top: 8; }
+.nestedtitle a { color: navy; }
+
+/* item trees (tree of headings and items in a course */
+
+.itemtree { 
+    margin-left: 100; 
+    list-style-type: none; 
+}
+
 .itemtree .itemtree { margin-left: 0;}
 
 .itemtree li { width: 400; }
@@ -88,7 +99,24 @@ a:hover {  text-decoration: underline;  }
 		     }
 .itemtree .metalinks a { color: navy; }
 
-.itemadd { margin-left: 100; }
+.itemadd { 
+    margin-left: 100; /* should match .itemtree{margin-left} */
+}
+
+/* specialized display of items in tree, by type */
+
+.itemtree li.item_HEADING { 
+    margin-top: 4;
+}
+.itemtree li.item_HEADING > a { 
+    font-weight: bold; color: navy; 
+}
+
+.itemtree li.item_URL { 
+    list-style-type: square;	/* fixme, nice URL icon */
+    margin-top: 4;
+}
+
 
 .instructors {
   border: 1px solid #ccc;
@@ -119,5 +147,3 @@ p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: 
 .newsitem { 
     max-width: 600;
 }
-
-.nestedtitle h2 { margin-top: 8; }

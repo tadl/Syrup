@@ -5,12 +5,10 @@
 
   <!-- !show_tree: display a tree of items in a hierarchical style. -->
   <ul py:def="show_tree(tree)" py:if="tree" class="itemtree">
-    <li py:for="item, subs in tree">
+    <li py:for="item, subs in tree" class="item_${item.item_type}">
       <a href="/syrup/course/${item.course_id}/item/${item.id}/">${item}</a> 
       <span class="metalinks">
-	[<a href="${item_url(item)}meta/">about</a>
-	&bull; <a href="${item_url(item)}edit/">edit</a>
-	]
+	[<a href="${item_url(item)}meta/">about</a>&nbsp;&bull;&nbsp;<a href="${item_url(item)}edit/">edit</a>]
       </span>
       ${show_tree(subs)}
     </li>
