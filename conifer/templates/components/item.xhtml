@@ -19,12 +19,11 @@
   <div py:def="nested_title(item)"
        py:with="hier=item.hierarchy()[:-1]; lastnum=len(hier)"
        class="nestedtitle">
-    <span py:for="n, x in enumerate(hier)"
-	 style="margin-left: ${n}em;"><a href="${item_url(x)}">${x.title}</a> &bull; </span>
+    <span py:for="n, x in enumerate(hier)"><a href="${item_url(x)}">${x.title}</a> &bull; </span>
     <h2>${item.title}</h2>
   </div>
 
-  <ul py:def="add_subs(parent=None)">
+  <ul py:def="add_subs(parent=None)" class="itemadd">
     <li>Add a new item...</li>
     <ul py:with="prefix = (not parent) and 'item/0/' or ''">
       <li><a href="${prefix}add?item_type=HEADING">Add subheading</a></li>

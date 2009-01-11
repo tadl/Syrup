@@ -6,7 +6,7 @@ pre, code { font-family: monospace; }
 body, html { margin: 0; padding: 0; }
 body {  
     background-color: white; 
-    font-size: small;
+    font-size: normal;
 }
 #mainpanel {  background-color: white; padding: 0 12 24 12; }
 
@@ -76,10 +76,19 @@ a:hover {  text-decoration: underline;  }
 }
 .pagetable thead th { font-size: smaller; text-align: left; padding: 2 8; }
 
+
+.itemtree { margin-left: 100; }
+.itemtree .itemtree { margin-left: 0;}
+
 .itemtree li { width: 400; }
-.metalinks { padding-left: 12; color: gray; }
-.metalinks a { color: navy; }
-.metalinks { position: absolute; left: 500; }
+
+.itemtree .metalinks   { padding-left: 12; color: gray; 
+                         position: absolute; left: 0; 
+			 font-size: small;
+		     }
+.itemtree .metalinks a { color: navy; }
+
+.itemadd { margin-left: 100; }
 
 .instructors {
   border: 1px solid #ccc;
