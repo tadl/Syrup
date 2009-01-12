@@ -167,7 +167,7 @@ def item_add(request, course_id, item_id):
         assert parent_item.item_type == 'HEADING', 'Can only add items to headings!'
         course = parent_item.course
 
-    if not course.can_edit(user):
+    if not course.can_edit(request.user):
         return HttpResponseForbidden('not an editor') # fixme, prettier msg?
 
     item_type = request.GET.get('item_type')
