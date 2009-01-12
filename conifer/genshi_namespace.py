@@ -11,7 +11,10 @@ from conifer.syrup import models
 # approach?
 
 def item_url(item, suffix=''):
-    return '/syrup/course/%d/item/%d/%s' % (item.course_id, item.id, suffix)
+    if item.item_type == 'URL' and suffix == '':
+        return item.url
+    else:
+        return '/syrup/course/%d/item/%d/%s' % (item.course_id, item.id, suffix)
 
 def course_url(course, suffix=''):
     return '/syrup/course/%d/%s' % (course.id, suffix)
