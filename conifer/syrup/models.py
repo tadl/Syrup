@@ -290,6 +290,8 @@ class Item(m.Model):
     fileobj = m.FileField(upload_to='uploads/%Y/%m/%d', max_length=255,
                           blank=True, null=True, default=None)
 
+    fileobj_mimetype = m.CharField(max_length=128, blank=True, null=True, default=None)
+
 
     date_created = m.DateTimeField(auto_now_add=True)
     last_modified = m.DateTimeField()

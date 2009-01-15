@@ -1,5 +1,5 @@
 <?python
-title = 'Add a new URL'
+title = 'Add a new Electronic Document'
 course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
@@ -16,12 +16,13 @@ course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
       <h1><a href="${course_url(course)}">${course_title}</a></h1>
       <div py:if="parent_item">${nested_title(parent_item)}</div>
       <h2>${title}</h2>
-      <form action=".?item_type=${item_type}" method="POST">
+      <form action=".?item_type=${item_type}" method="POST"
+	    enctype="multipart/form-data">
 	<table>
-	  <tr><th>Title</th><td><input type="text" name="title"/></td></tr>
-	  <tr><th>URL</th><td><input type="text" name="url"/></td></tr>
+	  <tr><th>Title of document</th><td><input type="text" name="title"/></td></tr>
+	  <tr><th>File</th><td><input type="file" name="file"/></td></tr>
 	</table>
-	<p><input type="submit" value="Create item"/></p>
+	<p><input type="submit" value="Upload file and Create item"/></p>
       </form>
     </div>
 </body>

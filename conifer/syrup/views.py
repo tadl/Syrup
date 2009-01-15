@@ -173,8 +173,8 @@ def item_add(request, course_id, item_id):
     item_type = request.GET.get('item_type')
     assert item_type, 'No item_type parameter was provided.'
 
-    # for the moment, only HEADINGs and URLs can be added.
-    assert item_type in ('HEADING', 'URL'), 'Sorry, only HEADINGs and URLs can be added right now.'
+    # for the moment, only HEADINGs, URLs and ELECs can be added.
+    assert item_type in ('HEADING', 'URL', 'ELEC'), 'Sorry, only HEADINGs, URLs and ELECs can be added right now.'
 
     if request.method == 'GET':
         return g.render('item_add_%s.xhtml' % item_type.lower(),
@@ -216,8 +216,35 @@ def item_add(request, course_id, item_id):
                     url = url)
                 item.save()
                 return HttpResponseRedirect(item_url(item) + 'meta/')
+        elif item_type == 'ELEC':
+            title = request.POST.get('title', '').strip()
+            upload = request.FILES.get('file')
+            item = models.Item(
+                course=course,
+                item_type='ELEC',
+                parent_heading=parent_item,
+                title=title,
+                author=author,
+                activation_date=datetime.now(),
+                last_modified=datetime.now(),
+                fileobj_mimetype = upload.content_type,
+                )
+            item.fileobj.save(upload.name, upload)
+            item.save()
+
+            return HttpResponseRedirect(item_url(item) + 'meta/')
         else:
             raise NotImplementedError
+
+def item_download(request, course_id, item_id, filename):
+    course = get_object_or_404(models.Course, pk=course_id)
+    item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
+    assert item.item_type == 'ELEC', 'Can only download ELEC documents!'
+    fileiter = item.fileobj.chunks()
+    resp = HttpResponse(fileiter)
+    resp['Content-Type'] = item.fileobj_mimetype or 'application/octet-stream'
+    #resp['Content-Disposition'] = 'attachment; filename=%s' % name
+    return resp
     
 def normalize_query(query_string,
                     findterms=re.compile(r'"([^"]+)"|(\S+)').findall,
