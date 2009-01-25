@@ -18,3 +18,9 @@ def item_url(item, suffix=''):
 
 def course_url(course, suffix=''):
     return '/syrup/course/%d/%s' % (course.id, suffix)
+
+def instructor_url(instructor, suffix=''):
+    return '/syrup/instructor/%d/%s' % (instructor.id, suffix)
+
+def department_url(department, suffix=''):
+    return '/syrup/department/%d/%s' % (department.id, suffix)

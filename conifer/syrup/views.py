@@ -118,6 +118,28 @@ def course_detail(request, course_id):
         return login_required(lambda *args: None)(request)
     return g.render('course_detail.xhtml', course=course)
 
+def instructor_detail(request, instructor_id):
+    page_num = int(request.GET.get('page', 1))
+    count = int(request.GET.get('count', 5))
+    paginator = Paginator(models.Course.objects.
+        filter(member__id=instructor_id).
+        filter(active=True).order_by('title'), count)
+
+    return g.render('courses.xhtml', paginator=paginator,
+            page_num=page_num,
+            count=count)
+
+def department_detail(request, department_id):
+    page_num = int(request.GET.get('page', 1))
+    count = int(request.GET.get('count', 5))
+    paginator = Paginator(models.Course.objects.
+        filter(department__id=department_id).
+        filter(active=True).order_by('title'), count)
+
+    return g.render('courses.xhtml', paginator=paginator,
+            page_num=page_num,
+            count=count)
+
 def item_detail(request, course_id, item_id):
     """Display an item (however that makes sense).""" 
     # really, displaying an item will vary based on what type of item
@@ -314,6 +336,8 @@ def search(request):
 
         #course search
         course_query = get_query(query_string, ['title', 'department__name'])
+        print 'course_query'
+        print course_query
         course_results = models.Course.objects.filter(course_query).filter(active=True)
         # course_list = models.Course.objects.filter(course_query).filter(active=True).order_by('title')[0:5]
         course_list = course_results.order_by('title')[0:5]
