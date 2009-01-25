@@ -243,6 +243,7 @@ class Item(m.Model):
     volume_edition = m.CharField(max_length=255, blank=True, null=True) 
     pages_times = m.CharField(max_length=255, blank=True, null=True) 
     performer = m.CharField(max_length=255,db_index=True, blank=True, null=True) 
+    year = m.CharField(max_length=10,db_index=True, blank=True, null=True) 
 
     local_control_key = m.CharField(max_length=30, blank=True, null=True) 
 

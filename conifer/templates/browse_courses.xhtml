@@ -1,5 +1,5 @@
 <?python
-title = 'Browse Courses'
+title = 'Welcome to Syrup E-Reserves!'
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -9,20 +9,14 @@ title = 'Browse Courses'
   <title>${title}</title>
 </head>
 <body>
-  <h1>${title}</h1>
-  <p class="todo">What does the RD browse interface look like? Drill down by dept?</p>
-  <h2>All courses</h2>
-  <table class="pagetable">
-    <thead>
-      <tr><th py:for="h in ['Code','Title','Term']">${h}</th></tr>
-    </thead>
-    <tbody>
-      <tr py:for="c in models.Course.objects.all().order_by('code')">
-	<td>${c.code}</td>
-	<td><a href="${course_url(c)}">${c.title}</a></td>
-	<td>${c.term}</td>
-      </tr>
-    </tbody>
-  </table>
+  <h2>Browse</h2> (Note: some course materials may require you
+    to <a href="/accounts/login/?next=/syrup/">log in</a>)
+    <h3>Choose from one of the options below:</h3>
+    <ul>
+        <li><a href="instructors">Browse by Instructor</a></li>
+        <li><a href="departments">Browse by Department</a></li>
+        <li><a href="courses">Browse by Course Name</a></li>
+    </ul>
+  <div class="gap"/>
 </body>
 </html>
