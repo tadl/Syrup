@@ -36,7 +36,7 @@ courses = course_list
         </tr>
         <tr py:for="instructor in instructors">
             <td>${Markup(instructor.instr_name_hl(norm_query))}</td>
-            <td>foo</td>
+            <td>${instructor.user.first_name}</td>
         </tr>
         <tr py:if="instr_len > count">
         <td></td>
