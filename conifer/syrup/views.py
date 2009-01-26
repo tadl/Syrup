@@ -85,7 +85,8 @@ def browse_courses(request, browse_option=''):
     count = int(request.GET.get('count', 5))
 
     if browse_option == 'instructors':
-        paginator = Paginator(models.UserProfile.active_instructors(), count)
+        paginator = Paginator(models.UserProfile.active_instructors().
+            order_by('user__last_name'), count)
 
         return g.render('instructors.xhtml', paginator=paginator,
             page_num=page_num,
@@ -329,7 +330,7 @@ def search(request):
         #item search - this will be expanded
         item_query = get_query(query_string, ['title', 'author'])
         #need to think about sort order here, probably better by author (will make sortable at display level)
-        results_list = models.Item.objects.filter(item_query).order_by('-date_created')
+        results_list = models.Item.objects.filter(item_query).order_by('title')
         results_len = len(results_list)
         paginator = Paginator( results_list,
             count)
@@ -351,7 +352,7 @@ def search(request):
         instructor_list = instructor_results.order_by('user__last_name')[0:5]
         instr_len = len(instructor_results)
     else:
-        results_list = models.Item.objects.order_by('-date_created')
+        results_list = models.Item.objects.order_by('title')
         results_len = len(results_list)
         paginator = Paginator( results_list,
             count)
