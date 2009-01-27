@@ -25,7 +25,7 @@ title = item.title
       <tr py:if="item.url"><th>URL</th><td><a href="${item.url}">${item.url}</a></td></tr>
     </table>
     <div py:if="item.item_type=='ELEC'">
-    <p><a href="${item_url(item)}dl/${item.fileobj.name.split('/')[-1]}">Download</a></p>
+    <p><a href="${item_download_url(item)}">Download</a></p>
     <table>
     <tr><th>Content type</th><td>${item.fileobj_mimetype}</td></tr>
     <tr><th>Content length</th><td>${item.fileobj.size}</td></tr>

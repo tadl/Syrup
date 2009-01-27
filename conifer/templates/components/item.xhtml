@@ -8,10 +8,10 @@
     <li py:for="item, subs in tree" class="item_${item.item_type}">
       <a href="${item_url(item)}">${item}</a> 
       <span py:if="item.needs_meta_link()" class="metalink">
-	[<a href="${item_url(item)}meta/">about</a>]
+	[<a href="${item_url(item, 'meta/')}">about</a>]
       </span>
       <span class="editlinks" py:if="edit">
-	[<a href="${item_url(item)}edit/">edit</a>]
+	[<a href="${item_url(item, 'edit/')}">edit</a>]
       </span>
       ${show_tree(subs, edit)}
     </li>

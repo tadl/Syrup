@@ -40,7 +40,7 @@ app_name = 'Syrup E-Reserve System'
       <span py:if="user.is_authenticated()">
 	<strong style="padding-right: 18;">Welcome, ${user.first_name or user.username}!</strong>
 	<a href="/accounts/logout">Log Out</a>
-	&bull; <a href="/user/prefs">Preferences</a>
+	&bull; <a href="/syrup/prefs/">Preferences</a>
 	&bull; <a href="/admin/">Admin UI</a>
       </span>
       <span py:if="not user.is_authenticated()">

@@ -11,10 +11,17 @@ from conifer.syrup import models
 # approach?
 
 def item_url(item, suffix=''):
+    if item.item_type == 'ELEC' and suffix == '':
+        return item_download_url(item)
     if item.item_type == 'URL' and suffix == '':
         return item.url
     else:
         return '/syrup/course/%d/item/%d/%s' % (item.course_id, item.id, suffix)
+
+def item_download_url(item):
+    assert item.item_type == 'ELEC'
+    return '/syrup/course/%d/item/%d/dl/%s' % (
+        item.course_id, item.id, item.fileobj.name.split('/')[-1])
 
 def course_url(course, suffix=''):
     return '/syrup/course/%d/%s' % (course.id, suffix)

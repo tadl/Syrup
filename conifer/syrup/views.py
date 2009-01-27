@@ -76,8 +76,10 @@ def instructors(request):
                     page_num=page_num,
                     count=count)
 
-def join_course(request):
-    return g.render('join_course.xhtml')
+def user_prefs(request):
+    return g.render('simplemessage.xhtml',
+                    title='Sorry...', 
+                    content='The Preferences page isn\'t ready yet.')
 
 def browse_courses(request, browse_option=''):
     #the defaults should be moved into a config file or something...

@@ -329,7 +329,7 @@ class Item(m.Model):
     def needs_meta_link(self):
         """Should an 'About' link be displayed for this item?"""
 
-        return self.item_type == 'URL'
+        return self.item_type in ('ELEC', 'URL')
 
 #------------------------------------------------------------
 

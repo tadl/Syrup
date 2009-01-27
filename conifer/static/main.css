@@ -122,6 +122,11 @@ a:hover {  text-decoration: underline;  }
     font-weight: bold; color: navy; 
 }
 
+.itemtree li.item_ELEC { 
+    list-style-image: url(tango/view_detailed.png);
+    margin-top: 4;
+}
+
 .itemtree li.item_URL { 
     list-style-image: url(tango/applications-internet.png);
     margin-top: 4;
