@@ -4,11 +4,20 @@
 pre, code { font-family: monospace; }
 
 body, html { margin: 0; padding: 0; }
+
 body {  
-    background-color: white; 
-    font-size: normal;
+    background-color: #005; 
+    font-size: normal; 
 }
-#mainpanel {  background-color: white; padding: 0 12 24 12; }
+
+div#outer {
+    background-color: white; 
+    width: 960; margin-bottom: 50;
+    margin-left: auto; margin-right: auto;
+}
+#mainpanel {  background-color: white; padding: 0 12 24 12; 
+min-height: 300; 
+}
 
 /* General headers and footers */
 
@@ -33,10 +42,11 @@ body {
 #header a:hover { background-color: #fb7; color: black; text-decoration: none; }
 
 #footer {  
-    margin-top: 12;
+    margin: 12;
     padding-bottom: 12;
     background-color: #ddf; 
     color: black;
+    border-bottom: white 10px solid;
 }
 
 h1 { font-size: 150%;  }
@@ -88,14 +98,14 @@ a:hover {  text-decoration: underline;  }
 /* item trees (tree of headings and items in a course */
 
 .itemtree { 
-    margin-left: 30; 
+padding-left: 25;
     list-style-type: none; 
     list-style-position: inside;
 }
 
 .itemtree .itemtree { margin-left: 0;}
 
-.itemtree li { width: 400; }
+/* .itemtree li { width: 400; } */
 
 .itemtree .metalink { padding-left: 8; color: gray; }
 .itemtree .metalink a {
@@ -103,27 +113,29 @@ a:hover {  text-decoration: underline;  }
 }
 
 .itemtree .editlinks   { padding-left: 12; color: gray; 
-                         position: absolute; left: 0; 
 			 font-size: small;
 		     }
 .itemtree .editlinks a { color: navy; }
 
 .itemadd { 
-    margin-left: 30; /* should match .itemtree{margin-left} */
-    margin-top: 30; 
+    margin-top: 30; font-size: smaller;
+    padding: 10; background-color: #eef; 
 }
+.itemadd a { color: navy; }
+
 
 /* specialized display of items in tree, by type */
 
 .itemtree li.item_HEADING { 
+    list-style-image: url(tango/folder.png);
     margin-top: 4;
 }
 .itemtree li.item_HEADING > a { 
-    font-weight: bold; color: navy; 
+    color: navy; 
 }
 
 .itemtree li.item_ELEC { 
-    list-style-image: url(tango/view_detailed.png);
+    list-style-image: url(tango/document.png);
     margin-top: 4;
 }
 
@@ -168,3 +180,12 @@ p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: 
 .newsitem { 
     max-width: 600;
 }
+
+.menublockopener { color: gray !important; font-weight: normal !important; }
+.menublock { background-color: #f0f0e0; font-size: 95%; padding: 1 4; }
+
+#coursebanner { background-color: #f2e4cc; margin: -12 -12 0 -12; padding: 8; }
+
+#coursebanner h1 { padding: 0; font-size: 110%; }
+
+.breadcrumbs { margin: 8 8 8 0; }

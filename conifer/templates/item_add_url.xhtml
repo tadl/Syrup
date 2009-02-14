@@ -12,10 +12,12 @@ course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
   </head>
   <body>
     <div class="courseident">
+    <div id="coursebanner">
       <div>${course.department}</div>
       <h1><a href="${course_url(course)}">${course_title}</a></h1>
+    </div>
       <div py:if="parent_item">${nested_title(parent_item)}</div>
-      <h2>${title}</h2>
+      <h3>${title}</h3>
       <form action=".?item_type=${item_type}" method="POST">
 	<table>
 	  <tr><th>Title</th><td><input type="text" name="title"/></td></tr>

@@ -12,11 +12,14 @@ item_tree = course.item_tree(subtree=item)
   <xi:include href="components/item.xhtml"/>
   <head>
     <title>${title}</title>
+    <script type="text/javascript" src="/static/menublocks.js"/>
   </head>
   <body>
+    <div id="coursebanner">
     <div class="courseident">
       <div>${course.department}</div>
       <h1><a href="${course_url(course)}">${course_title}</a></h1>
+    </div>
     </div>
     ${nested_title(item)}
     <!-- <p py:if="not item_tree"> -->

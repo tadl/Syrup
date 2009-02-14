@@ -17,6 +17,7 @@ app_name = 'Syrup E-Reserve System'
   </py:match>
   <py:match path="body" once="true">
     <body py:attrs="select('@*')">
+      <div id="outer">
       <div id="brandheader">
 	<div style="float: right; font-size: x-large; padding: 12; color: #888;">
 	  ${app_name}
@@ -66,6 +67,7 @@ app_name = 'Syrup E-Reserve System'
     </span>
     Syrup is a subproject of <a href="http://conifer.mcmaster.ca/">Project Conifer</a> &copy; 2009
     </div>
+      </div>
       </div>
     </body>
   </py:match>

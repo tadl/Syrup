@@ -12,9 +12,11 @@ title = item.title
     <title>${title}</title>
   </head>
   <body>
+    <div id="coursebanner">
     <div class="courseident">
       <div>${course.department}</div>
       <h1><a href="${course_url(course)}">${course_title}</a></h1>
+    </div>
     </div>
     ${nested_title(item)}
 

@@ -7,32 +7,31 @@
   <ul py:def="show_tree(tree, edit=False)" py:if="tree" class="itemtree">
     <li py:for="item, subs in tree" class="item_${item.item_type}">
       <a href="${item_url(item)}">${item}</a> 
-      <span py:if="item.needs_meta_link()" class="metalink">
-	[<a href="${item_url(item, 'meta/')}">about</a>]
+      <span py:if="item.needs_meta_link()" class="menublock">
+	<a href="${item_url(item, 'meta/')}">about</a>
       </span>
-      <span class="editlinks" py:if="edit">
-	[<a href="${item_url(item, 'edit/')}">edit</a>]
-      </span>
-      ${show_tree(subs, edit)}
+      <!-- ${show_tree(subs, edit)} -->
     </li>
   </ul>
 
   <div py:def="nested_title(item)"
        py:with="hier=item.hierarchy()[:-1]; lastnum=len(hier)"
        class="nestedtitle">
-    <span><a href="${course_url(item.course)}">Top</a></span> &raquo; 
+    <div class="breadcrumbs">
+    <span><a href="${course_url(item.course)}">Top</a></span> &raquo;
     <span py:for="n, x in enumerate(hier)"><a href="${item_url(x)}">${x.title}</a> &raquo; </span>
-    <h2>${item.title}</h2>
+<b>${item.title}</b>
+    </div>
   </div>
 
-  <ul py:def="add_subs(parent=None)" class="itemadd">
-    <li>Add a new item...</li>
+  <div py:def="add_subs(parent=None)" class="itemadd">
+    <div>Add a new item:</div>
     <ul py:with="prefix = (not parent) and 'item/0/' or ''">
-      <li><a href="${prefix}add?item_type=HEADING">Add subheading</a></li>
-      <li><a href="${prefix}add?item_type=URL">Add URL</a></li>
-      <li><a href="${prefix}add?item_type=ELEC">Add Electronic Document</a></li>
-      <li><a href="${prefix}add?item_type=PHYS">Add Physical Book/Document</a></li>
+      <li><a href="${prefix}add/?item_type=HEADING">Subheading</a></li>
+      <li><a href="${prefix}add/?item_type=URL">URL</a></li>
+      <li><a href="${prefix}add/?item_type=ELEC">Electronic Document</a></li>
+      <li><a href="${prefix}add/?item_type=PHYS">Physical Book/Document</a></li>
     </ul>
-  </ul>
+  </div>
   
 </html>

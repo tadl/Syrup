@@ -240,7 +240,7 @@ def item_add(request, course_id, item_id):
                     last_modified=datetime.now(),
                     url = url)
                 item.save()
-                return HttpResponseRedirect(item_url(item) + 'meta/')
+                return HttpResponseRedirect(item_url(item, 'meta/'))
         elif item_type == 'ELEC':
             title = request.POST.get('title', '').strip()
             upload = request.FILES.get('file')
@@ -257,7 +257,7 @@ def item_add(request, course_id, item_id):
             item.fileobj.save(upload.name, upload)
             item.save()
 
-            return HttpResponseRedirect(item_url(item) + 'meta/')
+            return HttpResponseRedirect(item_url(item, 'meta/'))
         else:
             raise NotImplementedError
 
