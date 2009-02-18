@@ -54,7 +54,7 @@ courses = course_list
         </tr>
         <tr py:for="course in courses">
             <!-- will highlight this, probably pull in dept info -->
-            <td>${course.title}</td>
+            <td><a href="../course/${course.id}/">${course.title}</a></td>
         </tr>
         <tr py:if="course_len > count">
         <td></td>
@@ -73,6 +73,7 @@ courses = course_list
     <span py:def="pagerow(item)">
         <td>${Markup(item.author_hl(norm_query))}</td>
         <td><a href="${item_url(item)}">${Markup(item.title_hl(norm_query))}</a></td>
+	<td><a href="../course/${item.course.id}/">${item.course.title}</a></td>
     </span>
     ${pagetable(paginator, count, pagerow, pageheader)}
 

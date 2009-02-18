@@ -6,24 +6,22 @@ course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
   <xi:include href="master.xhtml"/>
-  <xi:include href="components/item.xhtml"/>
+  <xi:include href="components/course.xhtml"/>
   <head>
     <title>${title}</title>
+    <script type="text/javascript">
+      $(function() {$('input[@name="title"]').focus();});
+    </script>
   </head>
   <body>
-    <div class="courseident">
-    <div id="coursebanner">
-      <div>${course.department}</div>
-      <h1><a href="${course_url(course)}">${course_title}</a></h1>
-    </div>
-      <div py:if="parent_item">${nested_title(parent_item)}</div>
-      <h3>${title}</h3>
-      <form action=".?item_type=${item_type}" method="POST">
-	<table>
-	  <tr><th>Heading</th><td><input type="text" name="title"/></td></tr>
-	</table>
-	<p><input type="submit" value="Create heading"/></p>
-      </form>
-    </div>
+    ${course_banner(course)}
+    ${nested_title(parent_item)}
+    <h3>${title}</h3>
+    <form action=".?item_type=${item_type}" method="POST">
+      <table>
+	<tr><th>Heading</th><td><input type="text" name="title"/></td></tr>
+      </table>
+      <p><input type="submit" value="Create heading"/></p>
+    </form>
 </body>
 </html>

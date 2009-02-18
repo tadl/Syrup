@@ -9,22 +9,17 @@ item_tree = course.item_tree(subtree=item)
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
   <xi:include href="master.xhtml"/>
-  <xi:include href="components/item.xhtml"/>
-  <head>
+  <xi:include href="components/course.xhtml"/>
+   <head>
     <title>${title}</title>
     <script type="text/javascript" src="/static/menublocks.js"/>
   </head>
   <body>
-    <div id="coursebanner">
-    <div class="courseident">
-      <div>${course.department}</div>
-      <h1><a href="${course_url(course)}">${course_title}</a></h1>
-    </div>
-    </div>
+    ${course_banner(course)}
     ${nested_title(item)}
-    <!-- <p py:if="not item_tree"> -->
-    <!--   There are no items associated in this subheading. -->
-    <!-- </p> -->
+    <p py:if="not item_tree">
+      There are no items in this section.
+    </p>
     ${show_tree(item_tree, edit=is_editor)}
     <div py:if="is_editor">${add_subs(item)}</div>
   </body>

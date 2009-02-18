@@ -18,9 +18,10 @@ urlpatterns = patterns('conifer.syrup.views',
     (r'^course/(?P<course_id>\d+)/$', 'course_detail'),
     (r'^instructor/(?P<instructor_id>.*)/$', 'instructor_detail'),
     (r'^department/(?P<department_id>.*)/$', 'department_detail'),
+    (r'^course/(?P<course_id>\d+)/search/$', 'course_search'),
     (ITEM_PREFIX + r'$', 'item_detail'),
     (ITEM_PREFIX + r'dl/(?P<filename>.*)$', 'item_download'),
-    (ITEM_PREFIX + r'meta/$', 'item_metadata'),
+    (ITEM_PREFIX + r'meta$', 'item_metadata'),
     (ITEM_PREFIX + r'edit/$', 'item_edit'),
     (ITEM_PREFIX + r'add/$', 'item_add'), # for adding sub-things
 )

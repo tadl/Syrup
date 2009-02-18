@@ -121,6 +121,10 @@ def course_detail(request, course_id):
         return login_required(lambda *args: None)(request)
     return g.render('course_detail.xhtml', course=course)
 
+def course_search(request, course_id):
+    course = get_object_or_404(models.Course, pk=course_id)
+    return search(request, in_course=course)
+
 def instructor_detail(request, instructor_id):
     page_num = int(request.GET.get('page', 1))
     count = int(request.GET.get('count', 5))
@@ -181,14 +185,17 @@ def _heading_detail(request, item):
 
 @login_required
 def item_add(request, course_id, item_id):
-    # The item-id is the id for the parent-heading item. Zero represents
-    # 'top-level', i.e. the new item should have no heading. For any other
-    # number, we must check that the parent item is of the Heading type.
-    if item_id=='0':
+    # The parent_item_id is the id for the parent-heading item. Zero
+    # represents 'top-level', i.e. the new item should have no
+    # heading. 
+    #For any other number, we must check that the parent
+    # item is of the Heading type.
+    parent_item_id = item_id
+    if parent_item_id=='0':
         parent_item = None
         course = get_object_or_404(models.Course, pk=course_id)
     else:
-        parent_item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
+        parent_item = get_object_or_404(models.Item, pk=parent_item_id, course__id=course_id)
         assert parent_item.item_type == 'HEADING', 'Can only add items to headings!'
         course = parent_item.course
 
@@ -199,7 +206,8 @@ def item_add(request, course_id, item_id):
     assert item_type, 'No item_type parameter was provided.'
 
     # for the moment, only HEADINGs, URLs and ELECs can be added.
-    assert item_type in ('HEADING', 'URL', 'ELEC'), 'Sorry, only HEADINGs, URLs and ELECs can be added right now.'
+    assert item_type in ('HEADING', 'URL', 'ELEC'), \
+        'Sorry, only HEADINGs, URLs and ELECs can be added right now.'
 
     if request.method == 'GET':
         return g.render('item_add_%s.xhtml' % item_type.lower(),
@@ -222,11 +230,10 @@ def item_add(request, course_id, item_id):
                     activation_date=datetime.now(),
                     last_modified=datetime.now())
                 item.save()
-                return HttpResponseRedirect(item_url(item))
         elif item_type == 'URL':
             title = request.POST.get('title', '').strip()
             url = request.POST.get('url', '').strip()
-            if not (title or url):
+            if not (title and url):
                 # fixme, better error handling.
                 return HttpResponseRedirect(request.get_full_path())
             else:
@@ -240,10 +247,12 @@ def item_add(request, course_id, item_id):
                     last_modified=datetime.now(),
                     url = url)
                 item.save()
-                return HttpResponseRedirect(item_url(item, 'meta/'))
         elif item_type == 'ELEC':
             title = request.POST.get('title', '').strip()
             upload = request.FILES.get('file')
+            if not (title and upload):
+                # fixme, better error handling.
+                return HttpResponseRedirect(request.get_full_path())
             item = models.Item(
                 course=course,
                 item_type='ELEC',
@@ -256,10 +265,13 @@ def item_add(request, course_id, item_id):
                 )
             item.fileobj.save(upload.name, upload)
             item.save()
-
-            return HttpResponseRedirect(item_url(item, 'meta/'))
         else:
             raise NotImplementedError
+
+        if parent_item:
+            return HttpResponseRedirect(item_url(parent_item, 'meta'))
+        else:
+            return HttpResponseRedirect(course_url(course))
 
 def item_download(request, course_id, item_id, filename):
     course = get_object_or_404(models.Course, pk=course_id)
@@ -307,10 +319,11 @@ def get_query(query_string, search_fields):
 
 #------------------------------------------------------------
 
-def search(request):
+def search(request, in_course=None):
     ''' Need to work on this, the basic idea is
         - put an entry point for instructor and course listings
         - page through item entries
+        If in_course is provided, then limit search to the contents of the specified course.
     '''
     query_string = ''
     found_entries = None
@@ -333,26 +346,37 @@ def search(request):
         item_query = get_query(query_string, ['title', 'author'])
         #need to think about sort order here, probably better by author (will make sortable at display level)
         results_list = models.Item.objects.filter(item_query).order_by('title')
+        if in_course:
+            results_list = results_list.filter(course=in_course)
         results_len = len(results_list)
         paginator = Paginator( results_list,
             count)
 
         #course search
-        course_query = get_query(query_string, ['title', 'department__name'])
-        print 'course_query'
-        print course_query
-        course_results = models.Course.objects.filter(course_query).filter(active=True)
-        # course_list = models.Course.objects.filter(course_query).filter(active=True).order_by('title')[0:5]
-        course_list = course_results.order_by('title')[0:5]
-        #there might be a better way of doing this, though instr and course tables should not be expensive to query
-        #len directly on course_list will reflect limit
-        course_len = len(course_results)
+        if in_course:
+            # then no course search is necessary.
+            course_list = []; course_len = 0
+        else:
+            course_query = get_query(query_string, ['title', 'department__name'])
+            print 'course_query'
+            print course_query
+            course_results = models.Course.objects.filter(course_query).filter(active=True)
+            # course_list = models.Course.objects.filter(course_query).filter(active=True).order_by('title')[0:5]
+            course_list = course_results.order_by('title')[0:5]
+            #there might be a better way of doing this, though instr and course tables should not be expensive to query
+            #len directly on course_list will reflect limit
+            course_len = len(course_results)
 
         #instructor search
         instr_query = get_query(query_string, ['user__last_name'])
         instructor_results = models.Member.objects.filter(instr_query).filter(role='INSTR')
+        if in_course:
+            instructor_results = instructor_results.filter(course=in_course)
         instructor_list = instructor_results.order_by('user__last_name')[0:5]
         instr_len = len(instructor_results)
+    elif in_course:
+        # we are in a course, but have no query? Return to the course-home page.
+        return HttpResponseRedirect('../')
     else:
         results_list = models.Item.objects.order_by('title')
         results_len = len(results_list)

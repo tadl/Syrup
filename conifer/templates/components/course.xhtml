@@ -2,9 +2,28 @@
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       py:strip="">
-
+  
+  <div py:def="course_search(course)"
+       id="coursesearch" style="float: right;">
+    <form method="get" action="${course_url(course, 'search')}" 
+	  onsubmit="if(q.value.replace(/^\s*/, '').replace(/\s*$/, '') =='') return false;">
+      <input id="q" name="q" maxlength="100" size="25" type="text" 
+	     value="search this course..." onblur="if(this.value=='') this.value='search this course...';" 
+	     onfocus="if(this.value=='search this course...') this.value='';"/>
+    </form>
+  </div>
+  
+  <div py:def="course_banner(course)"
+       id="coursebanner">
+    <div class="deptident">${course.department}</div>
+    ${course_search(course)}
+    <h1><a href="${course_url(course)}">${course.code}: ${course.title}</a></h1>
+  </div>
+  
   <!-- !show_tree: display a tree of items in a hierarchical style. -->
-  <ul py:def="show_tree(tree, edit=False)" py:if="tree" class="itemtree">
+  <ul py:def="show_tree(tree, edit=False)"
+      py:if="tree"
+      class="itemtree">
     <li py:for="item, subs in tree" class="item_${item.item_type}">
       <a href="${item_url(item)}">${item}</a> 
       <span py:if="item.needs_meta_link()" class="menublock">
@@ -13,17 +32,18 @@
       <!-- ${show_tree(subs, edit)} -->
     </li>
   </ul>
-
+  
   <div py:def="nested_title(item)"
+       py:if="item"
        py:with="hier=item.hierarchy()[:-1]; lastnum=len(hier)"
        class="nestedtitle">
     <div class="breadcrumbs">
-    <span><a href="${course_url(item.course)}">Top</a></span> &raquo;
-    <span py:for="n, x in enumerate(hier)"><a href="${item_url(x)}">${x.title}</a> &raquo; </span>
-<b>${item.title}</b>
+      <span><a href="${course_url(item.course)}">Top</a></span> &raquo;
+      <span py:for="n, x in enumerate(hier)"><a href="${item_url(x)}">${x.title}</a> &raquo; </span>
+      <b>${item.title}</b>
     </div>
   </div>
-
+  
   <div py:def="add_subs(parent=None)" class="itemadd">
     <div>Add a new item:</div>
     <ul py:with="prefix = (not parent) and 'item/0/' or ''">

@@ -7,17 +7,12 @@ title = item.title
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
   <xi:include href="master.xhtml"/>
-  <xi:include href="components/item.xhtml"/>
+  <xi:include href="components/course.xhtml"/>
   <head>
     <title>${title}</title>
   </head>
   <body>
-    <div id="coursebanner">
-    <div class="courseident">
-      <div>${course.department}</div>
-      <h1><a href="${course_url(course)}">${course_title}</a></h1>
-    </div>
-    </div>
+    ${course_banner(course)}
     ${nested_title(item)}
 
     <table>
