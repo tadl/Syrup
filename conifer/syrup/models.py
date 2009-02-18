@@ -234,7 +234,7 @@ class Item(m.Model):
     # break Item up into multiple tables. But there are other ways we
     # can specify the constraints.
     title = m.CharField(max_length=255,db_index=True) 
-    author = m.CharField(max_length=255,db_index=True) 
+    author = m.CharField(max_length=255,db_index=True, blank=True, null=True) 
     source = m.CharField(max_length=255,db_index=True, blank=True, null=True) 
     volume_title = m.CharField(max_length=255,db_index=True, blank=True, null=True) 
     content_notes = m.CharField(max_length=255, blank=True, null=True)
@@ -248,7 +248,7 @@ class Item(m.Model):
     local_control_key = m.CharField(max_length=30, blank=True, null=True) 
 
     url = m.URLField(blank=True, null=True)
-    mime_type = m.CharField(max_length=100,default='text/html')
+    mime_type = m.CharField(max_length=100,default='text/html', blank=True, null=True)
 
     isbn = m.CharField(max_length=13,db_index=True, blank=True, null=True) 
     issn = m.CharField(max_length=8,db_index=True, blank=True, null=True) 
@@ -277,7 +277,7 @@ class Item(m.Model):
                      ('ACTIVE', 'Active'),        # available
                      ('INACTIVE', 'InActive'))    # no longer on rsrv.
     phys_status = m.CharField(max_length=9, 
-                              null=True,
+                              null=True, blank=True,
                               choices=STATUS_CHOICE, 
                               default=None) # null if not physical item.
 
