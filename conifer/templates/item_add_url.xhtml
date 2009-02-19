@@ -1,5 +1,6 @@
 <?python
-title = 'Add a new URL'
+is_edit = bool(item.id)
+title = is_edit and 'Edit a URL' or 'Add a new URL'
 course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
@@ -19,10 +20,13 @@ course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
     <h3>${title}</h3>
     <form action=".?item_type=${item_type}" method="POST">
       <table>
-	<tr><th>Title</th><td><input type="text" name="title"/></td></tr>
-	<tr><th>URL</th><td><input type="text" name="url"/></td></tr>
+	<tr><th>Title</th><td><input type="text" name="title" value="${item.title}"/></td></tr>
+	<tr><th>URL</th><td><input type="text" name="url" value="${item.url}"/></td></tr>
       </table>
-      <p><input type="submit" value="Create item"/></p>
+      <p>
+	<input py:if="not is_edit" type="submit" value="Add URL"/>
+	<input py:if="is_edit" type="submit" value="Update URL"/>
+      </p>
     </form>
 </body>
 </html>

@@ -174,6 +174,10 @@ class Course(m.Model):
             return False
         return mbr.role in (u'INSTR', u'PROXY')
 
+    def course_url(self, suffix=''):
+        return '/syrup/course/%d/%s' % (self.id, suffix)
+
+
 class Member(m.Model):
     course = m.ForeignKey(Course)
     user = m.ForeignKey(User)
@@ -330,6 +334,23 @@ class Item(m.Model):
         """Should an 'About' link be displayed for this item?"""
 
         return self.item_type in ('ELEC', 'URL')
+
+    def item_url(self, suffix=''):
+        if self.item_type == 'ELEC' and suffix == '':
+            return '/syrup/course/%d/item/%d/dl/%s' % (
+                self.course_id, self.id, 
+                self.fileobj.name.split('/')[-1])
+        if self.item_type == 'URL' and suffix == '':
+            return self.url
+        else:
+            return '/syrup/course/%d/item/%d/%s' % (
+                self.course_id, self.id, suffix)
+    
+    def parent_url(self, suffix=''):
+        if self.parent_heading:
+            return self.parent_heading.item_url()
+        else:
+            return self.course.course_url()
 
 #------------------------------------------------------------
 

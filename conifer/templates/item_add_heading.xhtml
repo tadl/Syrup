@@ -1,5 +1,6 @@
 <?python
-title = 'Add a new subheading'
+is_edit = bool(item.id)
+title = is_edit and 'Edit a subheading' or 'Add a new subheading'
 course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
@@ -19,9 +20,16 @@ course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
     <h3>${title}</h3>
     <form action=".?item_type=${item_type}" method="POST">
       <table>
-	<tr><th>Heading</th><td><input type="text" name="title"/></td></tr>
+	<tr><th>Heading</th><td>
+	<input type="text" name="title"
+	       value="${item.title}"/>
+	</td></tr>
       </table>
-      <p><input type="submit" value="Create heading"/></p>
+      <p>
+	<input py:if="not is_edit" type="submit" value="Add heading"/>
+	<input py:if="is_edit" type="submit" value="Update heading"/>
+      </p>
+
     </form>
 </body>
 </html>

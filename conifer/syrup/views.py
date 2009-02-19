@@ -10,7 +10,6 @@ from conifer.syrup import models
 from django.contrib.auth.models import User
 from django.db.models import Q
 from datetime import datetime
-from genshi_namespace import item_url, course_url
 
 #------------------------------------------------------------
 # Authentication
@@ -168,13 +167,6 @@ def item_metadata(request, course_id, item_id):
         return g.render('item_metadata.xhtml', course=item.course,
                         item=item)
 
-@login_required
-def item_edit(request, course_id, item_id):
-    """Edit an item."""
-    # For now, just pop to the Admin interface.
-    admin_url = '/admin/syrup/item/%s/' % item_id
-    return HttpResponseRedirect(admin_url)
-    
 def _heading_url(request, item):
     return HttpResponseRedirect(item.url)
 
@@ -183,6 +175,7 @@ def _heading_detail(request, item):
     return g.render('item_heading_detail.xhtml', item=item)
 
 
+# fixme, not just login required! Must be in right course.
 @login_required
 def item_add(request, course_id, item_id):
     # The parent_item_id is the id for the parent-heading item. Zero
@@ -210,6 +203,7 @@ def item_add(request, course_id, item_id):
         'Sorry, only HEADINGs, URLs and ELECs can be added right now.'
 
     if request.method == 'GET':
+        item = models.Item()    # dummy object
         return g.render('item_add_%s.xhtml' % item_type.lower(),
                         **locals())
     else:
@@ -269,10 +263,31 @@ def item_add(request, course_id, item_id):
             raise NotImplementedError
 
         if parent_item:
-            return HttpResponseRedirect(item_url(parent_item, 'meta'))
+            return HttpResponseRedirect(parent_item.item_url('meta'))
         else:
-            return HttpResponseRedirect(course_url(course))
+            return HttpResponseRedirect(course.course_url())
 
+# fixme, not just login required! Must be in right course.
+@login_required
+def item_edit(request, course_id, item_id):
+    course = get_object_or_404(models.Course, pk=course_id)
+    item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
+    template = 'item_add_%s.xhtml' % item.item_type.lower()
+    if request.method == 'GET':
+        return g.render(template, **locals())
+    else:
+        if 'file' in request.FILES:
+            # this is a 'replace-current-file' action.
+            upload = request.FILES.get('file')
+            item.fileobj.save(upload.name, upload)
+            item.fileobj_mimetype = upload.content_type
+        else:
+            # generally update the item.
+            [setattr(item, k, v) for (k,v) in request.POST.items()]
+        item.save()
+        return HttpResponseRedirect(item.parent_url())
+        
+    
 def item_download(request, course_id, item_id, filename):
     course = get_object_or_404(models.Course, pk=course_id)
     item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)

@@ -72,8 +72,8 @@ courses = course_list
   
     <span py:def="pagerow(item)">
         <td>${Markup(item.author_hl(norm_query))}</td>
-        <td><a href="${item_url(item)}">${Markup(item.title_hl(norm_query))}</a></td>
-	<td><a href="../course/${item.course.id}/">${item.course.title}</a></td>
+        <td><a href="${item.item_url('meta')}">${Markup(item.title_hl(norm_query))}</a></td>
+	<td><a href="${item.course.course_url()}">${item.course.title}</a></td>
     </span>
     ${pagetable(paginator, count, pagerow, pageheader)}
 

@@ -5,7 +5,7 @@
   
   <div py:def="course_search(course)"
        id="coursesearch" style="float: right;">
-    <form method="get" action="${course_url(course, 'search')}" 
+    <form method="get" action="${course.course_url('search')}" 
 	  onsubmit="if(q.value.replace(/^\s*/, '').replace(/\s*$/, '') =='') return false;">
       <input id="q" name="q" maxlength="100" size="25" type="text" 
 	     value="search this course..." onblur="if(this.value=='') this.value='search this course...';" 
@@ -17,7 +17,7 @@
        id="coursebanner">
     <div class="deptident">${course.department}</div>
     ${course_search(course)}
-    <h1><a href="${course_url(course)}">${course.code}: ${course.title}</a></h1>
+    <h1><a href="${course.course_url()}">${course.code}: ${course.title}</a></h1>
   </div>
   
   <!-- !show_tree: display a tree of items in a hierarchical style. -->
@@ -25,10 +25,13 @@
       py:if="tree"
       class="itemtree">
     <li py:for="item, subs in tree" class="item_${item.item_type}">
-      <a href="${item_url(item)}">${item}</a> 
-      <span py:if="item.needs_meta_link()" class="menublock">
-	<a href="${item_url(item, 'meta')}">about</a>
+      <a href="${item.item_url()}">${item}</a> 
+      <span class="menublock">
+	<span py:if="item.needs_meta_link()">
+	<a href="${item.item_url('meta')}">about</a> &bull;</span>
+	<a href="${item.item_url('edit/')}">edit</a>
       </span>
+      <!-- !to show a full tree, uncomment the following: -->
       <!-- ${show_tree(subs, edit)} -->
     </li>
   </ul>
@@ -38,8 +41,8 @@
        py:with="hier=item.hierarchy()[:-1]; lastnum=len(hier)"
        class="nestedtitle">
     <div class="breadcrumbs">
-      <span><a href="${course_url(item.course)}">Top</a></span> &raquo;
-      <span py:for="n, x in enumerate(hier)"><a href="${item_url(x)}">${x.title}</a> &raquo; </span>
+      <span><a href="${item.course.course_url()}">Top</a></span> &raquo;
+      <span py:for="n, x in enumerate(hier)"><a href="${x.item_url()}">${x.title}</a> &raquo; </span>
       <b>${item.title}</b>
     </div>
   </div>
