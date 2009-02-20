@@ -216,6 +216,18 @@ def checksum(msg):
 #------------------------------------------------------------
 # SIP Message Definitions
 
+# some common fields
+
+
+fld_localtime     = localtime('localtime')
+fld_INST_ID       = field('inst', FID_INST_ID)
+fld_ITEM_ID       = field('item', FID_ITEM_ID)
+fld_PATRON_ID     = field('patron', FID_PATRON_ID)
+ofld_TERMINAL_PWD = optfield('termpwd', FID_TERMINAL_PWD)
+fld_proto_version = charfield('version', default='2.00')
+ofld_print_line    = optfield('print_line', FID_PRINT_LINE)
+ofld_screen_msg    = optfield('screenmsg', FID_SCREEN_MSG)
+
 MESSAGES = {
     LOGIN : message(
             LOGIN, 
@@ -232,7 +244,7 @@ MESSAGES = {
             SC_STATUS, 
             charfield('online', default='1'),
             charfield('width', default='040'),
-            charfield('version', default='2.00')),
+            fld_proto_version),
 
     ACS_STATUS : message(
             ACS_STATUS,
@@ -244,22 +256,22 @@ MESSAGES = {
             yn('offline_OK'),
             charfield('timeout', default='01'),
             charfield('retries', default='9999'),
-            charfield('localtime', default='YYYYMMDD    HHMMSS'),
+            fld_localtime,
             charfield('protocol', default='2.00'),
-            field('inst', FID_INST_ID),
+            fld_INST_ID,
             optfield('instname', FID_LIBRARY_NAME),
             field('supported', FID_SUPPORTED_MSGS),
             optfield('ttylocn', FID_TERMINAL_LOCN),
-            optfield('screenmsg', FID_SCREEN_MSG),
-            optfield('printline', FID_PRINT_LINE)),
+            ofld_screen_msg,
+            ofld_print_line),
     PATRON_INFO : message(
             PATRON_INFO,
             charfield('lang', width=3, default=1),
-            localtime('localtime'),
+            fld_localtime,
             charfield('holditemsreq', default='Y         '),
-            field('inst', FID_INST_ID),
-            field('patron', FID_PATRON_ID),
-            optfield('termpwd', FID_TERMINAL_PWD),
+            fld_INST_ID,
+            fld_PATRON_ID,
+            ofld_TERMINAL_PWD,
             optfield('patronpwd', FID_PATRON_PWD),
             optfield('startitem', FID_START_ITEM, width=5),
             optfield('enditem', FID_END_ITEM, width=5)),
@@ -268,19 +280,18 @@ MESSAGES = {
             PATRON_INFO_RESP,
             charfield('hmmm', width=14),
             charfield('lang', width=3, default=1),
-            localtime('localtime'),
+            fld_localtime,
             charfield('onhold', width=4),
             charfield('overdue', width=4),
             charfield('charged', width=4),
             charfield('fine', width=4),
             charfield('recall', width=4),
             charfield('unavail_holds', width=4),
-            
-            field('inst', FID_INST_ID),
-            optfield('screenmsg', FID_SCREEN_MSG),
-            optfield('printline', FID_PRINT_LINE),
+            fld_INST_ID,
+            ofld_screen_msg,
+            ofld_print_line,
             optfield('instname', FID_LIBRARY_NAME),
-            field('patron', FID_PATRON_ID),
+            fld_PATRON_ID,
             field('personal', FID_PERSONAL_NAME),
 
             optfield('hold_limit', FID_HOLD_ITEMS_LMT, width=4),
@@ -304,22 +315,51 @@ MESSAGES = {
 
     END_PATRON_SESSION : message(
             END_PATRON_SESSION,
-            localtime('localtime'),
+            fld_localtime,
             field('inst', FID_INST_ID),
             field('patron', FID_PATRON_ID)),
 
     END_SESSION_RESP : message(
             END_SESSION_RESP,
             yn('session_ended'),
-            localtime('localtime'),
-            field('inst', FID_INST_ID),
-            field('patron', FID_PATRON_ID),            
-            optfield('printline', FID_PRINT_LINE),
-            optfield('screenmsg', FID_SCREEN_MSG)),
+            fld_localtime,
+            fld_INST_ID,
+            fld_PATRON_ID,
+            ofld_print_line,
+            ofld_screen_msg),
 
+    ITEM_INFORMATION : message(
+            ITEM_INFORMATION,
+            fld_localtime,
+            fld_INST_ID,
+            fld_ITEM_ID,
+            ofld_TERMINAL_PWD),
+
+    ITEM_INFO_RESP : message(
+            ITEM_INFO_RESP,
+            charfield('circstat', width=2),
+            charfield('security', width=2),
+            charfield('feetype', width=2),
+            fld_localtime,
+            fld_ITEM_ID,
+            field('title', FID_TITLE_ID),
+            optfield('mediatype', FID_MEDIA_TYPE),
+            optfield('perm_locn', FID_PERM_LOCN),
+            optfield('current_locn', FID_CURRENT_LOCN),
+            optfield('item_props', FID_ITEM_PROPS),
+            optfield('currency', FID_CURRENCY),
+            optfield('fee', FID_FEE_AMT),
+            optfield('owner', FID_OWNER),
+            optfield('hold_queue_len', FID_HOLD_QUEUE_LEN),
+            optfield('due_date', FID_DUE_DATE),
+
+            optfield('recall_date', FID_RECALL_DATE),
+            optfield('hold_pickup_date', FID_HOLD_PICKUP_DATE),
+            ofld_screen_msg,
+            ofld_print_line),
+            
     RAW : message(raw()),
 }
-
 
 
 class SipClient(object):
@@ -362,6 +402,9 @@ class SipClient(object):
         return self.send(SC_STATUS, ACS_STATUS)
 
 
+# ------------------------------------------------------------
+# Test code.
+
 if __name__ == '__main__':
     from pprint import pprint
 
@@ -370,12 +413,21 @@ if __name__ == '__main__':
                      pwd='clientpwd', locn='The basement')
     pprint(resp)
     pprint(sip.status())
-    pprint(sip.send(PATRON_INFO, PATRON_INFO_RESP,
-                   {'patron':'scclient'}))
 
+    pprint(sip.send(PATRON_INFO, PATRON_INFO_RESP,
+                   {'patron':'scclient',
+                    'startitem':1, 'enditem':2}))
+
+    # these are items from openncip's test database.
+    item_ids = ['1565921879', '0440242746', '660']
+    bad_ids = ['xx' + i for i in item_ids]
+    for item in (item_ids + bad_ids):
+        result = sip.send(ITEM_INFORMATION, ITEM_INFO_RESP,
+                          {'item':item})
+        print '%-12s: %s' % (item, result['title'] or '????')
 
     pprint(sip.send(END_PATRON_SESSION, END_SESSION_RESP,
                    {'patron':'scclient',
                     'inst':'UWOLS'}))
 
-                    #{'raw': '36Y20090220    133339AOUWOLS|AAscclient|AFThank you for using Evergreen!|\r'}
+
