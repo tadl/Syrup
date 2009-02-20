@@ -1,0 +1,9 @@
+A Python implementation of the 3M Standard Interchange Protocol
+(SIP). It's a client, but I've tried to be agnostic when defining the
+protocol itself.
+
+My goals are to implement enough of SIP to enable our e-reserve system
+to interact with an ILS.
+
+Many thanks to Georgia Public Library Service and to David Fiander for
+the openncip project, which has been an invaluable source of insight.
