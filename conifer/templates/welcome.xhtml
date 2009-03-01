@@ -12,7 +12,7 @@ title = 'Welcome!'
   <h1>News</h1>
   <div class="newsitem" py:for="news in models.NewsItem.objects.all().order_by('-published')[0:5]">
     <h2>${news.subject}</h2>
-    <div>${news.body}</div>
+    <div>${news.generated_body()}</div>
   </div>
 </body>
 </html>

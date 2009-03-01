@@ -2,6 +2,7 @@ from django.db import models as m
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AnonymousUser
 from datetime import datetime
+from genshi import Markup
 import re
 
 def highlight(text, phrase,
@@ -353,6 +354,15 @@ class Item(m.Model):
             return self.course.course_url()
 
 #------------------------------------------------------------
+# News items
+
+try:
+    import markdown
+    def do_markdown(txt):
+        return markdown.markdown(txt)
+except ImportError:
+    def do_markdown(txt):
+        return '(Markdown not installed).'
 
 class NewsItem(m.Model):
     subject = m.CharField(max_length=200)
@@ -363,3 +373,12 @@ class NewsItem(m.Model):
                                       ('html', 'html'),
                                       ('markdown', 'markdown')),
                            default = 'html')
+
+    def generated_body(self):
+        if self.encoding == 'plain':
+            return self.body
+        elif self.encoding == 'html':
+            return Markup(self.body)
+        elif self.encoding == 'markdown':
+            return Markup(do_markdown(self.body))
+            
