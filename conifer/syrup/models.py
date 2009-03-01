@@ -1,6 +1,7 @@
 from django.db import models as m
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth import get_backends
 from datetime import datetime
 from genshi import Markup
 import re
@@ -73,6 +74,33 @@ class UserProfile(m.Model):
         return cls.objects.filter(instructor=True) \
             .select_related('user').filter(user__is_active=True) \
             .order_by('-user__last_name','-user__first_name')
+
+#----------------------------------------------------------------------
+# Initializing an external user account
+
+# For usernames that come from external authentication sources (LDAP,
+# Evergreen, etc.) we need a general way to look up a user who may not
+# yet have a Django account.  For example, you might want to add user
+# 'xsmith' as the instructor for a course. If 'xsmith' is in LDAP but
+# not yet in Django, it would be nice if a Django record were lazily
+# created for him upon lookup. 
+
+# That's what 'maybe_initialize_user' is for: participating backends
+# provide a 'maybe_initialize_user' method which creates a new User
+# record if one doesn't exist. Otherwise, 'maybe_initialize_user' is
+# equivalent to 'User.objects.get(username=username)'.
+
+_backends_that_can_initialize_users = [
+    be for be in get_backends() if hasattr(be, 'maybe_initialize_user')]
+
+def maybe_initialize_user(username):
+    try:
+        return User.objects.get(username=username)
+    except User.DoesNotExist:
+        for be in _backends_that_can_initialize_users:
+            user = be.maybe_initialize_user(username, look_local=False)
+            if user:
+                return user
 
 #----------------------------------------------------------------------
 # LIBRARIES, SERVICE DESKS
