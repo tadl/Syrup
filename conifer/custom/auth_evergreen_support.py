@@ -46,7 +46,7 @@ class EvergreenAuthServer(object):
         prx = self.proxy('open-ils.auth')
         seed = prx('open-ils.auth.authenticate.init', username)
         resp = prx('open-ils.auth.authenticate.complete',
-                   dict(username='admin',
+                   dict(username=username,
                         password=_hsh(seed + _hsh(password)), 
                         type='reserves'))
         try:
