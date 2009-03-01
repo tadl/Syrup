@@ -92,3 +92,14 @@ INSTALLED_APPS = (
 )
 
 AUTH_PROFILE_MODULE = 'syrup.UserProfile'
+
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+EVERGREEN_XMLRPC_SERVER = None # evergreen host, for auth, e.g. '192.168.1.10'
+
+if EVERGREEN_XMLRPC_SERVER:
+    AUTHENTICATION_BACKENDS.append(
+        'conifer.custom.auth_evergreen.EvergreenAuthBackend')
