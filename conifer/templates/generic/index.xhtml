@@ -1,0 +1,28 @@
+<?python
+index = form.Index
+title = index.title
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="../master.xhtml"/>
+<head>
+  <title>${title}</title>
+</head>
+<body>
+  <h1>${title}</h1>
+  <table class="pagetable">
+    <thead><tr><th py:for="c in form.Index.cols">${c}</th></tr></thead>
+    <tbody>
+      <tr py:for="r in form.Index.all()">
+	<td py:for="n, c in enumerate(form.Index.cols)">
+	<a py:strip="n not in form.Index.links"
+	   href="${r.id}/">${call_or_value(getattr(r,c))}
+	</a>
+	</td>
+      </tr>
+    </tbody>
+  </table>
+  <p><a href="0/">Add ${form.Meta.model.__name__}</a></p>
+</body>
+</html>

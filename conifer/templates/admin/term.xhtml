@@ -1,0 +1,18 @@
+<?python
+title = 'Add a new Term'
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="../master.xhtml"/>
+<head>
+  <title>${title}</title>
+</head>
+<body>
+  <h1>${title}</h1>
+  <form action="." method="POST">
+  <table>${Markup(form.as_table())}</table>
+  <input type="submit" value="Save"/>
+  </form>
+</body>
+</html>

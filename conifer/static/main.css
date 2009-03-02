@@ -189,3 +189,6 @@ p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: 
 #coursebanner h1 { padding: 0; font-size: 110%; }
 
 .breadcrumbs { margin: 8 8 8 0; }
+
+.errorlist { float: right; }
+.errorlist li { color: red; font-size: 90%; }

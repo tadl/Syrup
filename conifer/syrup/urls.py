@@ -4,7 +4,7 @@ from django.conf.urls.defaults import *
 # want to cut down on the common boilerplate in the urlpatterns below.
 
 ITEM_PREFIX = r'^course/(?P<course_id>\d+)/item/(?P<item_id>\d+)/'
-
+GENERIC_REGEX = r'((?P<obj_id>\d+)/)?(?P<action>.+)?$'
 
 urlpatterns = patterns('conifer.syrup.views',
     (r'^$', 'welcome'),                       
@@ -24,4 +24,11 @@ urlpatterns = patterns('conifer.syrup.views',
     (ITEM_PREFIX + r'meta$', 'item_metadata'),
     (ITEM_PREFIX + r'edit/$', 'item_edit'),
     (ITEM_PREFIX + r'add/$', 'item_add'), # for adding sub-things
+    (r'^admin/$', 'admin_index'),
+    (r'^admin/terms/' + GENERIC_REGEX, 'admin_terms'),
+    (r'^admin/depts/' + GENERIC_REGEX, 'admin_depts'),
+
+#     (r'^admin/terms/(?P<term_id>\d+)/$', 'admin_term_edit'),
+#     (r'^admin/terms/(?P<term_id>\d+)/delete$', 'admin_term_delete'),
+#     (r'^admin/terms/$', 'admin_term'),
 )

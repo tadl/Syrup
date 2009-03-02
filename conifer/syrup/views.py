@@ -10,6 +10,7 @@ from conifer.syrup import models
 from django.contrib.auth.models import User
 from django.db.models import Q
 from datetime import datetime
+from generics import *
 
 #------------------------------------------------------------
 # Authentication
@@ -414,4 +415,50 @@ def search(request, in_course=None):
     '''
 
     return g.render('search_results.xhtml', **locals())
+
+
+#------------------------------------------------------------
+# administrative options
+
+def admin_index(request):
+    return g.render('admin/index.xhtml')
+
+# fixme, no auth or permissions stuff yet.
+
+class TermForm(ModelForm):
+    class Meta:
+        model = models.Term
+
+    class Index:
+        title = 'Terms'
+        all   = models.Term.objects.order_by('start', 'code').all
+        cols  = ['code', 'name', 'start', 'finish']
+        links = [0,1]
+
+    clean_name = strip_and_nonblank('name')
+    clean_code = strip_and_nonblank('code')
+
+    def clean(self):
+        cd = self.cleaned_data
+        s, f = cd.get('start'), cd.get('finish')
+        if (s and f) and s >= f:
+            raise ValidationError, 'start must precede finish'
+        return cd
+
+admin_terms = generic_handler(TermForm)
+
+class DeptForm(ModelForm):
+    class Meta:
+        model = models.Department
+
+    class Index:
+        title = 'Departments'
+        all   = models.Department.objects.order_by('abbreviation').all
+        cols  = ['abbreviation', 'name']
+        links = [0,1]
+
+    clean_abbreviation = strip_and_nonblank('abbreviation')
+    clean_name = strip_and_nonblank('name')
+
+admin_depts = generic_handler(DeptForm)
 

@@ -1,0 +1,23 @@
+<?python
+if instance:
+    title = 'Modify %s' % form.Meta.model.__name__
+else:
+    title = 'Add %s' % form.Meta.model.__name__
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="../master.xhtml"/>
+<head>
+  <title>${title}</title>
+</head>
+<body>
+  <h1>${title}</h1>
+  <form action="." method="POST">
+  <table>${Markup(form.as_table())}</table>
+  <p><input type="submit" value="Save changes"/></p>
+  <p><a href="../">Cancel changes</a></p>
+  <p><a href="delete">Delete this record</a></p>
+  </form>
+</body>
+</html>

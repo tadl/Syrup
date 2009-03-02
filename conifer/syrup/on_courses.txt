@@ -1,0 +1,161 @@
+# -*- mode: text; mode: auto-fill; -*-
+
+
+Fleshing out the course model
+--------------------------------------------------
+
+These are just some stream-of-thought notes; don't take them too
+seriously yet.
+
+
+
+We should capitalize on external data sources for course and
+registration information.  At the same time, it must be possible to
+use Syrup without an external source, or in a mixed mode (where some
+courses are defined externally and others are ad-hoc).
+
+There will be local variations in the quality of course information.
+Possibly some can provide lists of known courses, but not registration
+information; others will know students enrolled but may not know
+instructors (or vice versa).
+
+So, in fact we have a number of granular external sources, and Syrup
+should operate with any combination of them.
+
+* list of terms (but allowing ad-hoc terms);
+
+* list of course codes and titles (not time- or term-related);
+
+* list of offerings (course-code offered in term);
+
+* list of sections (same course offered several times in one term,
+  and/or broken up into multiple subgroups. Some reserve courses may
+  aggregate some sections, excluding others). Sections are ultimately
+  the join-points between instructors and students, so we must handle
+  them well;
+
+* cross-listings (equivalent course-codes);
+
+* people (username/identifier, given, surname, email)
+
+* instructor and student relationships (fred teaches FRE233/2009W/01;
+  bill takes ESP125/2009W/03).
+
+
+Rolls-Royce Scenario
+--------------------------------------------------
+
+Shelley Smith wants to set up a reserves-site for the course she's
+teaching next term. She logs into reserves, clicks on My Courses, and
+clicks Add a New Course Site. The form asks her to pick a term (the
+current term is the default, all future terms are listed in a
+drop-down), and to pick a course. The system suggests the courses she
+is currently teaching; but this is for a future term, and she's not
+the instructor of record yet, so she picks the code and title from a
+drop-down list. 
+
+She doesn't specify any sections, since she won't know that for a few
+months yet. The site remains unavailable to students until she does.
+
+Later, she clicks on Invite Students. It asks her to pick the
+course-sections she's teaching from a list. It knows her course is
+cross-listed; the cross-list sections also appear on the list. 
+
+Once the sections are selected, and she presses Continue, the students
+are granted access.
+
+  Variation: staff-assistance
+  --------------------------------------------------
+
+  Shelley contacts Ed at the Reserves desk, and tells him she wants to
+  put some items on reserve. She's teaching MAC-100, Intro to Macrame,
+  section 2, in the upcoming term.
+
+  Ed clicks on Assist, and finds Shelley's in the people-list, and
+  selects her. He clicks on Shelley's Courses, then Add New Course,
+  and enters the term and picks MAC-100 from the list. He knows the
+  section so is able to add that right away. The system alerts him to
+  the cross-listed section, and he adds that too.
+
+  The site won't be ready for students until he (or Shelley) activates
+  the site later on.
+
+  Shelley gets an email letting her know the site is ready for
+  content.
+
+  Data sources
+  --------------------------------------------------
+
+  Shelley and Ed logged in against campus LDAP.
+
+  Shelley's current courses and 
+
+
+
+Another take
+------------------------------------------------------------
+
+Shelley can set up the course well in advance, with a trivial working
+title, e.g. "Macrame". It's one of Shelley's courses, but no one else
+has access, and it's not associated with any term, etc.
+
+  Instructor:    course-add
+  Library-Staff: course-add
+
+Later, when Shelley is ready to open her reserves to her students, she
+opens the site and hits Invite. What appears is a list of the course
+sections she is teaching:
+
+    MAC-100 section 02 -- Introduction to Macrame (58 members)
+    MAC-301 section 01 -- Macrame Advanced Studio (2 members)
+    LAB-203 section 01 -- Macrame in Labour Studies (8 members)
+
+She checkmarks the first and last section, and presses Invite.
+Automatically, her site is available to her students, but it also gets
+a proper title and course number: she is asked to pick either MAC-100
+or LAB-203 as the primary identifier for the site; the other becomes
+an alias.
+
+Later calls Ed -- she's talked with the instructor of Textiles 101,
+and they've agreed to share Shelley's reserves list with the Textiles
+class. She cannot add an arbitrary section to the course site. So Ed
+opens the site; clicks on Invite; clicks Arbitrary Section; and
+specifies the term, course code, and section of the Textiles class.
+
+  Instructor:    course-section-invite
+  Library-Staff: course-section-invite-arbitrary
+
+A key point here is that the formal course numbers may not be
+selectable until late in the game; until just before the course, a
+working title may be all that you have. That's fine. Choosing specific
+course sections can be deferred until the registration info is
+available.
+
+
+What about the case where there is no registration data? How do you
+make a site available to an unknown audience?
+
+Have controls for "publishing" a site, that is, making it available to
+unknown users. A few options:
+
+  * Anyone at all can view the site, even anonymously
+
+  * Any logged-in user can view the site
+
+  * The instructor provides an access key out-of-band. The access key
+    auto-invites you into the site. This isn't so bad really.
+
+  * Any logged-in user can request access; the instructor has to grant
+    access. This way lies madness.
+
+Scrapping the madness-path, we're left with a reasonable set of
+options: Anonymous, Authenticated, AccessKey, Restricted (to members
+of the registered list), or NoAccess (for archived sites, etc.). None
+of this applies to instructors and their proxies, just to visitors.
+
+  Instructor:    course-change-access
+  Library-Staff: course-change-access-extended
+
+  The extended permissions could let the librarian decide if certain
+  types of materials in the site should be inaccessible to Anonymous
+  users. Or maybe we should just scrap Anonymous access altogether.

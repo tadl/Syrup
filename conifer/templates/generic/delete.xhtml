@@ -1,0 +1,24 @@
+<?python
+title = 'Delete %s?' % form.Meta.model.__name__
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="../master.xhtml"/>
+<head>
+  <title>${title}</title>
+</head>
+<body>
+  <h1>${title}</h1>
+  <form action="delete" method="POST">
+  <table>
+    <tr>
+      <th>${form.Meta.model.__name__}</th>
+      <td>${instance}</td>
+    </tr>
+  </table>
+  <p><input type="submit" value="Delete"/></p>
+  <p><a href="../">Cancel</a></p>
+  </form>
+</body>
+</html>
