@@ -152,13 +152,18 @@ class Course(m.Model):
     department = m.ForeignKey(Department)
     term = m.ForeignKey(Term)
     title = m.CharField(max_length=1024)
-    active       = m.BooleanField(default=True)
-    moderated    = m.BooleanField(_('This is a moderated (non-public) course'),
-                                  default=False)
+    access = m.CharField(max_length=5,
+                         choices = [('ANON', _('World-accessible')),
+                                    ('LOGIN', _('Accessible to all logged-in users')),
+                                    ('STUDT', _('Accessible to course students')),
+                                    ('CLOSE', _('Accessible only to course owners'))],
+                         default='CLOSE')
 
-    # Enrol-codes are used for SIS integration (graham's idea-in-progress)
-    # don't i18nize, I'm probably dropping this. vvvvv
-    enrol_codes  = m.CharField('Registrar keys for class lists, pipe-separated',
+    # For sites that use a passphrase as an invitation.
+    passkey = m.CharField(db_index=True, unique=True, blank=True, null=True)
+
+    # For sites that have registration-lists from an external system.
+    enrol_codes  = m.CharField(_('Registrar keys for class lists, pipe-separated'),
                                max_length=4098, 
                                blank=True, null=True)
     def __unicode__(self):
@@ -220,6 +225,12 @@ class Member(m.Model):
                 ('STUDT', _('Student'))),
         default = 'STUDT',
         max_length = 5)
+
+    # a user is 'provided' if s/he was added automatically due to
+    # membership in an external registration system. The notion is
+    # that these students can be automatically removed by add/drop
+    # processors.
+    provided = m.BooleanField(default=False)
 
     def instr_name_hl(self, terms):
         hl_instr = self.user.last_name

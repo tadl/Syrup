@@ -114,6 +114,15 @@ def browse_courses(request, browse_option=''):
 def my_courses(request):
     return g.render('my_courses.xhtml')
 
+class NewCourseForm(ModelForm):
+    class Meta:
+        model = models.Course
+
+@login_required
+def add_new_course(request):
+    form = NewCourseForm(instance=models.Course())
+    return g.render('add_new_course.xhtml', **locals())
+
 def course_detail(request, course_id):
     course = get_object_or_404(models.Course, pk=course_id)
     if course.moderated and request.user.is_anonymous():

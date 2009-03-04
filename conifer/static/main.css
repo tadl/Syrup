@@ -196,3 +196,13 @@ p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: 
 
 .errorlist { float: right; }
 .errorlist li { color: red; font-size: 90%; }
+
+
+/* a nice table-style for forms. */
+.formtable tbody th { 
+    padding: 0 8 16 0;
+    width: 200; 
+    text-align: left; 
+    font-size: 90%;
+    font-weight: normal; 
+}

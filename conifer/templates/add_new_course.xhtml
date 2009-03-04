@@ -1,0 +1,38 @@
+<?python
+title = _('Add a new course site')
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="master.xhtml"/>
+<head>
+  <title>${title}</title>
+</head>
+<body>
+  <h1>${title}</h1>
+  <form action="." method="POST">
+  <fieldset>
+    <legend>General description</legend>
+  <table class="formtable">
+    <tr><th>Course code</th><td><input type="text"/></td></tr>
+    <tr><th>Title</th><td><input type="text"/></td></tr>
+    <tr><th>Term</th><td>${Markup(form.term)}</td></tr>
+    <tr><th>Department</th><td>${Markup(form.department)}</td></tr>
+  </table>
+  </fieldset>
+  <fieldset>
+    <legend>Access controls</legend>
+    <p>This site will be available to:</p>
+    <select>
+      <option>For now, just myself and designated colleagues</option>
+      <option>Students in my course (I will provide section numbers)</option>
+      <option>Students in my course (I will share a password with them)</option>
+      <option>All Reserves patrons</option>
+    </select>
+  </fieldset>
+  <p><input type="submit" value="Continue"/></p>
+  </form>
+
+  <div class="gap"/>
+</body>
+</html>

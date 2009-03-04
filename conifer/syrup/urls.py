@@ -9,6 +9,7 @@ GENERIC_REGEX = r'((?P<obj_id>\d+)/)?(?P<action>.+)?$'
 urlpatterns = patterns('conifer.syrup.views',
     (r'^$', 'welcome'),                       
     (r'^course/$', 'my_courses'),
+    (r'^course/new/$', 'add_new_course'),
     (r'^browse/$', 'browse_courses'),
     (r'^browse/(?P<browse_option>.*)/$', 'browse_courses'),
     (r'^prefs/$', 'user_prefs'),
