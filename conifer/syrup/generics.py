@@ -25,7 +25,7 @@ def generic_edit(form, request, obj_id):
             return HttpResponseRedirect('../')
 
 def generic_delete(form, request, obj_id):
-    instance = get_object_or_404(models.Term, pk=obj_id)
+    instance = get_object_or_404(form.Meta.model, pk=obj_id)
     if request.method != 'POST':
         form = form(instance=instance)
         return g.render('generic/delete.xhtml', **locals())

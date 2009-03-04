@@ -405,6 +405,9 @@ class NewsItem(m.Model):
                                       ('markdown', _('Markdown'))),
                            default = 'html')
 
+    def __unicode__(self):
+        return u'%s (%s)' % (self.subject, self.published)
+
     def generated_body(self):
         if self.encoding == 'plain':
             return self.body
