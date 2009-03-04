@@ -27,6 +27,7 @@ urlpatterns = patterns('conifer.syrup.views',
     (r'^admin/$', 'admin_index'),
     (r'^admin/terms/' + GENERIC_REGEX, 'admin_terms'),
     (r'^admin/depts/' + GENERIC_REGEX, 'admin_depts'),
+    (r'^admin/news/' + GENERIC_REGEX, 'admin_news'),
 
 #     (r'^admin/terms/(?P<term_id>\d+)/$', 'admin_term_edit'),
 #     (r'^admin/terms/(?P<term_id>\d+)/delete$', 'admin_term_delete'),

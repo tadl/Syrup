@@ -462,3 +462,19 @@ class DeptForm(ModelForm):
 
 admin_depts = generic_handler(DeptForm)
 
+
+class NewsForm(ModelForm):
+    class Meta:
+        model = models.NewsItem
+
+    class Index:
+        title = 'News Items'
+        all   = models.NewsItem.objects.order_by('-id').all
+        cols  = ['id', 'subject', 'published']
+        links = [0, 1]
+
+    clean_subject = strip_and_nonblank('subject')
+    clean_body = strip_and_nonblank('body')
+
+admin_news = generic_handler(NewsForm)
+

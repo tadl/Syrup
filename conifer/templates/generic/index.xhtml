@@ -8,6 +8,9 @@ title = index.title
 <xi:include href="../master.xhtml"/>
 <head>
   <title>${title}</title>
+  <script type="text/javascript">
+    $(function() { $('table').tablesorter(); });
+  </script>
 </head>
 <body>
   <h1>${title}</h1>

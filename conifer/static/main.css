@@ -180,6 +180,10 @@ p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: 
 .newsitem { 
     max-width: 600;
 }
+.newsitem .newsdate { 
+    margin: 4 0 8 0; text-align: right; 
+    font-size: 80%; color: navy;
+}
 
 .menublockopener { color: gray !important; font-weight: normal !important; }
 .menublock { background-color: #f0f0e0; font-size: 95%; padding: 1 4; }

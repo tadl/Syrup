@@ -10,9 +10,10 @@ title = 'Welcome!'
 </head>
 <body>
   <h1>News</h1>
-  <div class="newsitem" py:for="news in models.NewsItem.objects.all().order_by('-published')[0:5]">
+  <div class="newsitem" py:for="news in models.NewsItem.objects.all().order_by('-published','-id')[0:5]">
     <h2>${news.subject}</h2>
     <div>${news.generated_body()}</div>
+    <div class="newsdate">posted ${news.published.strftime('%c')}</div>
   </div>
 </body>
 </html>
