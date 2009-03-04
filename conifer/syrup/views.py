@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from datetime import datetime
 from generics import *
+from gettext import gettext as _ # fixme, is this the right function to import?
 
 #------------------------------------------------------------
 # Authentication
@@ -34,9 +35,9 @@ def auth_handler(request, path):
             next = request.POST['next']
             user = authenticate(username=userid, password=password)
             if user is None:
-                return g.render('auth/login.xhtml', err='Invalid username or password. Please try again.', next=next)
+                return g.render('auth/login.xhtml', err=_('Invalid username or password. Please try again.'), next=next)
             elif not user.is_active:
-                return g.render('auth/login.xhtml', err='Sorry, this account has been disabled.', next=next)
+                return g.render('auth/login.xhtml', err=_('Sorry, this account has been disabled.'), next=next)
             else:
                 login(request, user)
                 return HttpResponseRedirect(request.POST.get('next', '/syrup/'))
@@ -78,8 +79,8 @@ def instructors(request):
 
 def user_prefs(request):
     return g.render('simplemessage.xhtml',
-                    title='Sorry...', 
-                    content='The Preferences page isn\'t ready yet.')
+                    title=_('Sorry...'), 
+                    content=_('The Preferences page isn\'t ready yet.'))
 
 def browse_courses(request, browse_option=''):
     #the defaults should be moved into a config file or something...
@@ -194,14 +195,14 @@ def item_add(request, course_id, item_id):
         course = parent_item.course
 
     if not course.can_edit(request.user):
-        return HttpResponseForbidden('not an editor') # fixme, prettier msg?
+        return HttpResponseForbidden(_('not an editor')) # fixme, prettier msg?
 
     item_type = request.GET.get('item_type')
-    assert item_type, 'No item_type parameter was provided.'
+    assert item_type, _('No item_type parameter was provided.')
 
     # for the moment, only HEADINGs, URLs and ELECs can be added.
     assert item_type in ('HEADING', 'URL', 'ELEC'), \
-        'Sorry, only HEADINGs, URLs and ELECs can be added right now.'
+        _('Sorry, only HEADINGs, URLs and ELECs can be added right now.')
 
     if request.method == 'GET':
         item = models.Item()    # dummy object
@@ -292,7 +293,7 @@ def item_edit(request, course_id, item_id):
 def item_download(request, course_id, item_id, filename):
     course = get_object_or_404(models.Course, pk=course_id)
     item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
-    assert item.item_type == 'ELEC', 'Can only download ELEC documents!'
+    assert item.item_type == 'ELEC', _('Can only download ELEC documents!')
     fileiter = item.fileobj.chunks()
     resp = HttpResponse(fileiter)
     resp['Content-Type'] = item.fileobj_mimetype or 'application/octet-stream'
@@ -430,7 +431,7 @@ class TermForm(ModelForm):
         model = models.Term
 
     class Index:
-        title = 'Terms'
+        title = _('Terms')
         all   = models.Term.objects.order_by('start', 'code').all
         cols  = ['code', 'name', 'start', 'finish']
         links = [0,1]
@@ -442,7 +443,7 @@ class TermForm(ModelForm):
         cd = self.cleaned_data
         s, f = cd.get('start'), cd.get('finish')
         if (s and f) and s >= f:
-            raise ValidationError, 'start must precede finish'
+            raise ValidationError, _('start must precede finish')
         return cd
 
 admin_terms = generic_handler(TermForm)
@@ -452,7 +453,7 @@ class DeptForm(ModelForm):
         model = models.Department
 
     class Index:
-        title = 'Departments'
+        title = _('Departments')
         all   = models.Department.objects.order_by('abbreviation').all
         cols  = ['abbreviation', 'name']
         links = [0,1]
@@ -468,7 +469,7 @@ class NewsForm(ModelForm):
         model = models.NewsItem
 
     class Index:
-        title = 'News Items'
+        title = _('News Items')
         all   = models.NewsItem.objects.order_by('-id').all
         cols  = ['id', 'subject', 'published']
         links = [0, 1]
@@ -477,4 +478,3 @@ class NewsForm(ModelForm):
     clean_body = strip_and_nonblank('body')
 
 admin_news = generic_handler(NewsForm)
-

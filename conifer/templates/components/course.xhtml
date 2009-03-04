@@ -1,3 +1,6 @@
+<?python
+searchtext = _('search this course...')
+?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -8,8 +11,8 @@
     <form method="get" action="${course.course_url('search')}" 
 	  onsubmit="if(q.value.replace(/^\s*/, '').replace(/\s*$/, '') =='') return false;">
       <input id="q" name="q" maxlength="100" size="25" type="text" 
-	     value="search this course..." onblur="if(this.value=='') this.value='search this course...';" 
-	     onfocus="if(this.value=='search this course...') this.value='';"/>
+	     value="${searchtext}" onblur="if(this.value=='') this.value='${searchtext}';" 
+	     onfocus="if(this.value=='${searchtext}') this.value='';"/>
     </form>
   </div>
   

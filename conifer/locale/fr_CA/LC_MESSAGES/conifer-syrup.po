@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2008-11-15 20:37+0500\n"
-"PO-Revision-Date: 2008-11-18 21:24-0500\n"
+"PO-Revision-Date: 2009-03-03 20:23-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: fr_CA <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -18,31 +18,322 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.4\n"
 
-#: templates/master.xhtml:26
+#: syrup/models.py:62
+msgid "custodian"
+msgstr ""
+
+#: syrup/models.py:63
+msgid "staff"
+msgstr ""
+
+#: syrup/models.py:64
+msgid "system administrator"
+msgstr ""
+
+#: syrup/models.py:156
+msgid "This is a moderated (non-public) course"
+msgstr ""
+
+#: syrup/models.py:218
+msgid "Instructor"
+msgstr ""
+
+#: syrup/models.py:219
+msgid "Proxy Instructor"
+msgstr ""
+
+#: syrup/models.py:220
+msgid "Student"
+msgstr ""
+
+#: syrup/models.py:255
+msgid "Attached Electronic Document"
+msgstr ""
+
+#: syrup/models.py:256
+msgid "Physical Book or Document"
+msgstr ""
+
+#: syrup/models.py:257 templates/item_add_url.xhtml:24
+#: templates/item_metadata.xhtml:22 templates/components/course.xhtml:57
+msgid "URL"
+msgstr ""
+
+#: syrup/models.py:258 templates/item_add_heading.xhtml:23
+msgid "Heading"
+msgstr ""
+
+#: syrup/models.py:312
+msgid "In Process"
+msgstr ""
+
+#: syrup/models.py:313
+msgid "Active"
+msgstr ""
+
+#: syrup/models.py:314
+msgid "InActive"
+msgstr ""
+
+#: syrup/models.py:396
+msgid "(Markdown not installed)."
+msgstr ""
+
+#: syrup/models.py:403
+msgid "plain text"
+msgstr ""
+
+#: syrup/models.py:404
+msgid "HTML"
+msgstr ""
+
+#: syrup/models.py:405
+msgid "Markdown"
+msgstr ""
+
+#: syrup/views.py:38
+msgid "Invalid username or password. Please try again."
+msgstr ""
+
+#: syrup/views.py:40
+msgid "Sorry, this account has been disabled."
+msgstr ""
+
+#: syrup/views.py:82
+msgid "Sorry..."
+msgstr ""
+
+#: syrup/views.py:83
+msgid "The Preferences page isn't ready yet."
+msgstr ""
+
+#: syrup/views.py:198
+msgid "not an editor"
+msgstr ""
+
+#: syrup/views.py:201
+msgid "No item_type parameter was provided."
+msgstr ""
+
+#: syrup/views.py:205
+msgid "Sorry, only HEADINGs, URLs and ELECs can be added right now."
+msgstr ""
+
+#: syrup/views.py:296
+msgid "Can only download ELEC documents!"
+msgstr ""
+
+#: syrup/views.py:434 templates/admin/index.xhtml:15
+msgid "Terms"
+msgstr ""
+
+#: syrup/views.py:446
+msgid "start must precede finish"
+msgstr ""
+
+#: syrup/views.py:456 templates/admin/index.xhtml:14
+msgid "Departments"
+msgstr ""
+
+#: syrup/views.py:472 templates/admin/index.xhtml:16
+msgid "News Items"
+msgstr ""
+
+#: templates/browse_courses.xhtml:1 templates/my_courses.xhtml:1
+msgid "Welcome to Syrup E-Reserves!"
+msgstr ""
+
+#: templates/browse_courses.xhtml:12 templates/tabbar.xhtml:11
+#: templates/tabbar_anonymous.xhtml:11
+msgid "Browse"
+msgstr ""
+
+#: templates/browse_courses.xhtml:12
+msgid ""
+"(Note: some course materials may require you\n"
+"    to"
+msgstr ""
+
+#: templates/browse_courses.xhtml:13
+msgid "log in"
+msgstr ""
+
+#: templates/browse_courses.xhtml:14
+msgid "Choose from one of the options below:"
+msgstr ""
+
+#: templates/browse_courses.xhtml:16
+msgid "Browse by Instructor"
+msgstr ""
+
+#: templates/browse_courses.xhtml:17
+msgid "Browse by Department"
+msgstr ""
+
+#: templates/browse_courses.xhtml:18
+msgid "Browse by Course Name"
+msgstr ""
+
+#: templates/course_detail.xhtml:17
+msgid "There are no items associated with this course yet."
+msgstr ""
+
+#: templates/instructors.xhtml:1
+msgid "Instructors"
+msgstr ""
+
+#: templates/instructors.xhtml:12 templates/open_courses.xhtml:12
+#: templates/search_results.xhtml:14
+msgid "$(function() { $('.pagetable').tablesorter(); });"
+msgstr ""
+
+#: templates/instructors.xhtml:19
+msgid "Name"
+msgstr ""
+
+#: templates/item_add_elec.xhtml:1
+msgid "Edit an electronic document"
+msgstr ""
+
+#: templates/item_add_elec.xhtml:1
+msgid "Add a new electronic document"
+msgstr ""
+
+#: templates/item_add_elec.xhtml:13 templates/item_add_heading.xhtml:13
+#: templates/item_add_url.xhtml:13
+msgid "$(function() {$('input[@name=\"title\"]').focus();});"
+msgstr ""
+
+#: templates/item_add_elec.xhtml:25 templates/item_add_elec.xhtml:37
+msgid "Title of document"
+msgstr ""
+
+#: templates/item_add_elec.xhtml:28 templates/item_add_elec.xhtml:45
+msgid "File"
+msgstr ""
+
+#: templates/item_add_elec.xhtml:30
+msgid "Upload file and Create item"
+msgstr ""
+
+#: templates/item_add_elec.xhtml:40
+msgid "Update item"
+msgstr ""
+
+#: templates/item_add_elec.xhtml:42
+msgid "Replace the current file with a new file"
+msgstr ""
+
+#: templates/item_add_elec.xhtml:47
+msgid "Upload new file"
+msgstr ""
+
+#: templates/item_add_heading.xhtml:1
+msgid "Edit a subheading"
+msgstr ""
+
+#: templates/item_add_heading.xhtml:1
+msgid "Add a new subheading"
+msgstr ""
+
+#: templates/item_add_heading.xhtml:29
+msgid "Add heading"
+msgstr ""
+
+#: templates/item_add_heading.xhtml:30
+msgid "Update heading"
+msgstr ""
+
+#: templates/item_add_url.xhtml:1
+msgid "Edit a URL"
+msgstr ""
+
+#: templates/item_add_url.xhtml:1
+msgid "Add a new URL"
+msgstr ""
+
+#: templates/item_add_url.xhtml:23 templates/item_metadata.xhtml:19
+#: templates/open_courses.xhtml:19 templates/search_results.xhtml:70
+msgid "Title"
+msgstr ""
+
+#: templates/item_add_url.xhtml:27
+msgid "Add URL"
+msgstr ""
+
+#: templates/item_add_url.xhtml:28
+msgid "Update URL"
+msgstr ""
+
+#: templates/item_heading_detail.xhtml:20
+msgid "There are no items in this section."
+msgstr ""
+
+#: templates/item_metadata.xhtml:20
+msgid "Type"
+msgstr ""
+
+#: templates/item_metadata.xhtml:21 templates/search_results.xhtml:70
+msgid "Author"
+msgstr ""
+
+#: templates/item_metadata.xhtml:25
+msgid "Download"
+msgstr ""
+
+#: templates/item_metadata.xhtml:27
+msgid "Content type"
+msgstr ""
+
+#: templates/item_metadata.xhtml:28
+msgid "Content length"
+msgstr ""
+
+#: templates/master.xhtml:1
+msgid "Syrup E-Reserve System"
+msgstr ""
+
+#: templates/master.xhtml:1
+msgid "search..."
+msgstr ""
+
+#: templates/master.xhtml:43
 msgid "Welcome,"
 msgstr ""
 
-#: templates/master.xhtml:27
+#: templates/master.xhtml:44
 msgid "Log Out"
 msgstr ""
 
-#: templates/master.xhtml:28 templates/tabbar.xhtml:10
+#: templates/master.xhtml:45
 msgid "Preferences"
 msgstr ""
 
-#: templates/master.xhtml:29
+#: templates/master.xhtml:46
 msgid "Admin UI"
 msgstr ""
 
-#: templates/master.xhtml:32
+#: templates/master.xhtml:49 templates/welcome.xhtml:1
 msgid "Welcome!"
 msgstr ""
 
-#: templates/master.xhtml:39
+#: templates/master.xhtml:50
+msgid "Log In"
+msgstr ""
+
+#: templates/master.xhtml:67
+msgid "Start Over"
+msgstr ""
+
+#: templates/master.xhtml:68
+msgid "Syrup is a subproject of"
+msgstr ""
+
+#: templates/master.xhtml:69
 msgid "Project Conifer"
 msgstr ""
 
-#: templates/my_courses.xhtml:12 templates/tabbar.xhtml:7
+#: templates/my_courses.xhtml:12 templates/tabbar.xhtml:12
 msgid "My Courses"
 msgstr ""
 
@@ -50,28 +341,80 @@ msgstr ""
 msgid "You are not part of any courses at this time."
 msgstr ""
 
-#: templates/tabbar.xhtml:6
+#: templates/open_courses.xhtml:1
+msgid "Open Courses"
+msgstr ""
+
+#: templates/open_courses.xhtml:19
+msgid "Term"
+msgstr ""
+
+#: templates/open_courses.xhtml:19
+msgid "Code"
+msgstr ""
+
+#: templates/paginate.xhtml:21
+msgid "Previous"
+msgstr ""
+
+#: templates/paginate.xhtml:30
+msgid "Next"
+msgstr ""
+
+#: templates/search_results.xhtml:1
+msgid "Search Results"
+msgstr ""
+
+#: templates/search_results.xhtml:21
+msgid "You searched:"
+msgstr ""
+
+#: templates/search_results.xhtml:35
+msgid "Last Name"
+msgstr ""
+
+#: templates/search_results.xhtml:35
+msgid "First Name"
+msgstr ""
+
+#: templates/search_results.xhtml:44 templates/search_results.xhtml:62
+msgid "more...)"
+msgstr ""
+
+#: templates/search_results.xhtml:53
+msgid "Course"
+msgstr ""
+
+#: templates/tabbar.xhtml:10 templates/tabbar_anonymous.xhtml:10
 msgid "Home"
 msgstr ""
 
-#: templates/tabbar.xhtml:8
-msgid "Add a Reserve"
+#: templates/tabbar.xhtml:13
+msgid "Admin Options"
 msgstr ""
 
-#: templates/tabbar.xhtml:9
-msgid "Manage Users"
-msgstr ""
-
-#: templates/welcome.xhtml:13
-msgid "Log in"
-msgstr ""
-
-#: templates/welcome.xhtml:14
-msgid "Search the Reserves"
+#: templates/welcome.xhtml:12
+msgid "News"
 msgstr ""
 
 #: templates/welcome.xhtml:16
-msgid "News"
+msgid "posted"
+msgstr ""
+
+#: templates/admin/index.xhtml:1
+msgid "Administrative Options"
+msgstr ""
+
+#: templates/admin/term.xhtml:1
+msgid "Add a new Term"
+msgstr ""
+
+#: templates/admin/term.xhtml:15
+msgid "Save"
+msgstr ""
+
+#: templates/auth/login.xhtml:1
+msgid "Syrup E-Reserves: Please log in"
 msgstr ""
 
 #: templates/auth/login.xhtml:10
@@ -82,11 +425,93 @@ msgstr ""
 msgid "Please log in."
 msgstr ""
 
-#: templates/auth/login.xhtml:20
+#: templates/auth/login.xhtml:21
 msgid "User ID:"
 msgstr ""
 
-#: templates/auth/login.xhtml:24
+#: templates/auth/login.xhtml:25
 msgid "Password:"
 msgstr ""
+
+#: templates/auth/login.xhtml:29
+msgid "Log in"
+msgstr ""
+
+#: templates/components/course.xhtml:1
+msgid "search this course..."
+msgstr ""
+
+#: templates/components/course.xhtml:34
+msgid "about"
+msgstr ""
+
+#: templates/components/course.xhtml:35
+msgid "edit"
+msgstr ""
+
+#: templates/components/course.xhtml:47
+msgid "Top"
+msgstr ""
+
+#: templates/components/course.xhtml:54
+msgid "Add a new item:"
+msgstr ""
+
+#: templates/components/course.xhtml:56
+msgid "Subheading"
+msgstr ""
+
+#: templates/components/course.xhtml:58
+msgid "Electronic Document"
+msgstr ""
+
+#: templates/components/course.xhtml:59
+msgid "Physical Book/Document"
+msgstr ""
+
+#: templates/generic/delete.xhtml:1
+#, python-format
+msgid "Delete %s?"
+msgstr ""
+
+#: templates/generic/delete.xhtml:20
+msgid "Delete"
+msgstr ""
+
+#: templates/generic/delete.xhtml:21
+msgid "Cancel"
+msgstr ""
+
+#: templates/generic/edit.xhtml:1
+#, python-format
+msgid "Modify %s"
+msgstr ""
+
+#: templates/generic/edit.xhtml:1
+#, python-format
+msgid "Add %s"
+msgstr ""
+
+#: templates/generic/edit.xhtml:18
+msgid "Save changes"
+msgstr ""
+
+#: templates/generic/edit.xhtml:19
+msgid "Cancel changes"
+msgstr ""
+
+#: templates/generic/edit.xhtml:20
+msgid "Delete this record"
+msgstr ""
+
+#: templates/generic/index.xhtml:11
+msgid "$(function() { $('table').tablesorter(); });"
+msgstr ""
+
+#: templates/generic/index.xhtml:29
+msgid "Add"
+msgstr ""
+
+#~ msgid "published !!!"
+#~ msgstr ""
 

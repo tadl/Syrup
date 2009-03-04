@@ -1,5 +1,6 @@
 <?python
-app_name = 'Syrup E-Reserve System'
+app_name = _('Syrup E-Reserve System')
+search = _('search...')
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
@@ -34,8 +35,8 @@ app_name = 'Syrup E-Reserve System'
                 onsubmit="if(q.value.replace(/^\s*/, '').replace(/\s*$/, '') =='') return false;"
             >
             <input id="q" name="q" maxlength="100" size="25" type="text" 
-                value="search..." onblur="if(this.value=='') this.value='search...';" 
-                onfocus="if(this.value=='search...') this.value='';"/>
+                value="${search}" onblur="if(this.value=='') this.value='${search}';" 
+                onfocus="if(this.value=='${search}') this.value='';"/>
             </form>
         </div>
       <span py:if="user.is_authenticated()">
@@ -57,7 +58,7 @@ app_name = 'Syrup E-Reserve System'
       <div id="footer">
 	<div> 
     <!--
-        We may eventually have a tab bar for non authenticated users,
+        !We may eventually have a tab bar for non authenticated users,
         but we definitely need a start over option for now. There is
         probably a more elegant way of detecting whether we are on
         the front page but this works for the short term

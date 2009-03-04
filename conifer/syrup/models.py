@@ -4,6 +4,8 @@ from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth import get_backends
 from datetime import datetime
 from genshi import Markup
+from gettext import gettext as _ # fixme, is this the right function to import?
+
 import re
 
 def highlight(text, phrase,
@@ -57,9 +59,9 @@ class UserProfile(m.Model):
                                max_length=50, blank=True)
     access_level = m.CharField(max_length=5, blank=True, null=True,
                                default=None,
-                               choices=(('CUST', 'custodian'),
-                                        ('STAFF', 'staff'),
-                                        ('ADMIN', 'system administrator')))
+                               choices=(('CUST', _('custodian')),
+                                        ('STAFF', _('staff')),
+                                        ('ADMIN', _('system administrator'))))
     instructor = m.BooleanField(default=False)
     proxy = m.BooleanField(default=False)
     # n.b. Django's User has an active flag, maybe we should use that?
@@ -151,10 +153,11 @@ class Course(m.Model):
     term = m.ForeignKey(Term)
     title = m.CharField(max_length=1024)
     active       = m.BooleanField(default=True)
-    moderated    = m.BooleanField('This is a moderated (non-public) course',
+    moderated    = m.BooleanField(_('This is a moderated (non-public) course'),
                                   default=False)
 
     # Enrol-codes are used for SIS integration (graham's idea-in-progress)
+    # don't i18nize, I'm probably dropping this. vvvvv
     enrol_codes  = m.CharField('Registrar keys for class lists, pipe-separated',
                                max_length=4098, 
                                blank=True, null=True)
@@ -212,9 +215,9 @@ class Member(m.Model):
     user = m.ForeignKey(User)
     role = m.CharField(
         choices = (
-                ('INSTR', 'Instructor'),
-                ('PROXY', 'Proxy Instructor'),
-                ('STUDT', 'Student')),
+                ('INSTR', _('Instructor')),
+                ('PROXY', _('Proxy Instructor')),
+                ('STUDT', _('Student'))),
         default = 'STUDT',
         max_length = 5)
 
@@ -249,10 +252,10 @@ class Item(m.Model):
     
     course = m.ForeignKey(Course)
     ITEM_TYPE_CHOICES = (
-        ('ELEC', 'Attached Electronic Document'), # PDF, Doc, etc.
-        ('PHYS', 'Physical Book or Document'),
-        ('URL',  'URL'),
-        ('HEADING', 'Heading'))
+        ('ELEC', _('Attached Electronic Document')), # PDF, Doc, etc.
+        ('PHYS', _('Physical Book or Document')),
+        ('URL',  _('URL')),
+        ('HEADING', _('Heading')))
     item_type = m.CharField(max_length=7, choices=ITEM_TYPE_CHOICES)
     sort_order = m.IntegerField(default=0)
     # parent must be a heading. could use ForeignKey.limit_choices_to,
@@ -306,9 +309,9 @@ class Item(m.Model):
 #     # who is the owner?
 #     owner_user_id = m.IntegerField(null=True,blank=True)
 
-    STATUS_CHOICE = (('INPROCESS', 'In Process'), # physical, pending
-                     ('ACTIVE', 'Active'),        # available
-                     ('INACTIVE', 'InActive'))    # no longer on rsrv.
+    STATUS_CHOICE = (('INPROCESS', _('In Process')), # physical, pending
+                     ('ACTIVE', _('Active')),        # available
+                     ('INACTIVE', _('InActive')))    # no longer on rsrv.
     phys_status = m.CharField(max_length=9, 
                               null=True, blank=True,
                               choices=STATUS_CHOICE, 
@@ -390,16 +393,16 @@ try:
         return markdown.markdown(txt)
 except ImportError:
     def do_markdown(txt):
-        return '(Markdown not installed).'
+        return _('(Markdown not installed).')
 
 class NewsItem(m.Model):
     subject = m.CharField(max_length=200)
     body = m.TextField()
     published = m.DateTimeField(default=datetime.now, blank=True, null=True)
     encoding = m.CharField(max_length=10,
-                           choices = (('plain', 'plain'),
-                                      ('html', 'html'),
-                                      ('markdown', 'markdown')),
+                           choices = (('plain', _('plain text')),
+                                      ('html', _('HTML')),
+                                      ('markdown', _('Markdown'))),
                            default = 'html')
 
     def generated_body(self):
