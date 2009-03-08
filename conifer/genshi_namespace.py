@@ -17,3 +17,12 @@ def call_or_value(obj, dflt=None):
         return obj() or dflt
     else:
         return obj or dflt
+
+
+def instructs(user, course):
+    try:
+        mbr = models.Member.objects.get(user=user, course=course)
+        return mbr.role in ('INSTR', 'PROXY')
+    except:
+        return False
+    

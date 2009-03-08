@@ -192,6 +192,8 @@ p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: 
 
 #coursebanner h1 { padding: 0; font-size: 110%; }
 
+#edit_course_link { float: right; margin: 4 0 0 0; font-size: 95%; }
+
 .breadcrumbs { margin: 8 8 8 0; }
 
 .errorlist { float: right; }
@@ -206,3 +208,4 @@ p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: 
     font-size: 90%;
     font-weight: normal; 
 }
+

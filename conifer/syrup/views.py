@@ -171,20 +171,32 @@ if COURSE_CODE_LIST:
     
 @login_required
 def add_new_course(request):
+    return add_or_edit_course(request)
+
+@login_required
+def edit_course(request, course_id):
+    instance = models.Course.objects.get(pk=course_id)
+    return add_or_edit_course(request, instance=instance)
+    
+def add_or_edit_course(request, instance=None):
+    if instance is None:
+        instance = models.Course()
     example = models.course_codes.course_code_example
     if request.method != 'POST':
-        form = NewCourseForm(instance=models.Course())
+        form = NewCourseForm(instance=instance)
         return g.render('add_new_course.xhtml', **locals())
     else:
-        form = NewCourseForm(request.POST, instance=models.Course())
+        form = NewCourseForm(request.POST, instance=instance)
         if not form.is_valid():
             return g.render('add_new_course.xhtml', **locals())
         else:
             form.save()
             course = form.instance
             assert course.id
-            mbr = course.member_set.create(user=request.user, role='INSTR')
-            mbr.save()
+            user_in_course = models.Member.objects.filter(user=request.user,course=course)
+            if not user_in_course: # for edits, might already be!
+                mbr = course.member_set.create(user=request.user, role='INSTR')
+                mbr.save()
                                      
             # fixme, need to ask about PASWD and STUDT settings before redirect.
             return HttpResponseRedirect('../') # back to My Courses

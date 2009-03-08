@@ -14,6 +14,9 @@ is_editor = course.can_edit(request.user)
   </head>
   <body>
     ${course_banner(course)}
+    <div py:if="instructs(request.user, course)" id="edit_course_link">
+      <a href="${course.course_url()}edit/">Edit course details</a>
+    </div>
     <p py:if="not item_tree">
       There are no items associated with this course yet.
     </p>

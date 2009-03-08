@@ -16,11 +16,12 @@ searchtext = _('search this course...')
     </form>
   </div>
   
-  <div py:def="course_banner(course)"
-       id="coursebanner">
-    <div class="deptident">${course.department}</div>
-    ${course_search(course)}
-    <h1><a href="${course.course_url()}">${course.code}: ${course.title}</a></h1>
+  <div py:def="course_banner(course)" py:strip="True">
+    <div id="coursebanner">
+      <div class="deptident">${course.department}</div>
+      ${course_search(course)}
+      <h1><a href="${course.course_url()}">${course.code}: ${course.title}</a></h1>
+    </div>
   </div>
   
   <!-- !show_tree: display a tree of items in a hierarchical style. -->
