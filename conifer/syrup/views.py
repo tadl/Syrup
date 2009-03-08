@@ -177,9 +177,10 @@ if COURSE_CODE_LIST:
         choices = choices)
     NewCourseForm.base_fields['code'].empty_label = empty_label
     
-# todo, how do we decide who can create new course sites?
 @login_required
 def add_new_course(request):
+    if not request.user.has_perm('add_course'):
+        return HttpResponseForbidden('You are not allowed to create course sites.') # fixme, prettier msg.
     return add_or_edit_course(request)
 
 @instructors_only
