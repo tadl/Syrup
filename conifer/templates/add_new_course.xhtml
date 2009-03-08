@@ -7,17 +7,23 @@ title = _('Add a new course site')
 <xi:include href="master.xhtml"/>
 <head>
   <title>${title}</title>
+  <script type="text/javascript" src="/static/add_new_course.js"/>
 </head>
 <body>
   <h1>${title}</h1>
   <form action="." method="POST">
+    <tr py:def="field_row(field)">
+      <th>${field.label}</th><td>${Markup(field)} !!!</td></tr>
   <fieldset>
     <legend>General description</legend>
-  <table class="formtable">
-    <tr><th>Course code</th><td><input type="text"/></td></tr>
-    <tr><th>Title</th><td><input type="text"/></td></tr>
+    <table class="formtable">
+    <tr><th>Course code</th><td>${Markup(form.code)}</td>
+    <td py:if="example">e.g. ${example}</td></tr>
+    <tr><th>Title</th><td>${Markup(form.title)} <span>${form.title.errors}</span></td></tr>
     <tr><th>Term</th><td>${Markup(form.term)}</td></tr>
-    <tr><th>Department</th><td>${Markup(form.department)}</td></tr>
+    <tr><th>Access</th><td>${Markup(form.access)}</td></tr>
+    ${field_row(form.department)}
+    <!-- <tr><th>Department</th><td>${Markup(form.department)} ${errorlist(form.department)}</td></tr> -->
   </table>
   </fieldset>
   <fieldset>

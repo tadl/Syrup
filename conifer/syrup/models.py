@@ -5,7 +5,7 @@ from django.contrib.auth import get_backends
 from datetime import datetime
 from genshi import Markup
 from gettext import gettext as _ # fixme, is this the right function to import?
-
+from conifer.custom import course_codes # fixme, not sure if conifer.custom is a good parent.
 import re
 
 def highlight(text, phrase,
@@ -159,11 +159,13 @@ class Course(m.Model):
                                     ('CLOSE', _('Accessible only to course owners'))],
                          default='CLOSE')
 
-    # For sites that use a passphrase as an invitation.
-    passkey = m.CharField(db_index=True, unique=True, blank=True, null=True)
+    # For sites that use a passphrase as an invitation (STUDT access).
+    passkey = m.CharField(db_index=True, unique=True, blank=True, null=True,
+                          max_length=255)
 
-    # For sites that have registration-lists from an external system.
-    enrol_codes  = m.CharField(_('Registrar keys for class lists, pipe-separated'),
+    # For sites that have registration-lists from an external system
+    # (STUDT access).
+    enrol_codes  = m.CharField(_('Registrar keys for class lists'),
                                max_length=4098, 
                                blank=True, null=True)
     def __unicode__(self):
@@ -414,7 +416,7 @@ class NewsItem(m.Model):
                            choices = (('plain', _('plain text')),
                                       ('html', _('HTML')),
                                       ('markdown', _('Markdown'))),
-                           default = 'html')
+                           default = 'plain')
 
     def __unicode__(self):
         return u'%s (%s)' % (self.subject, self.published)
@@ -426,4 +428,3 @@ class NewsItem(m.Model):
             return Markup(self.body)
         elif self.encoding == 'markdown':
             return Markup(do_markdown(self.body))
-            

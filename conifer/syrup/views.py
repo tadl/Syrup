@@ -12,6 +12,8 @@ from django.db.models import Q
 from datetime import datetime
 from generics import *
 from gettext import gettext as _ # fixme, is this the right function to import?
+from django.utils import simplejson
+
 
 #------------------------------------------------------------
 # Authentication
@@ -102,7 +104,8 @@ def browse_courses(request, browse_option=''):
             page_num=page_num,
             count=count)
     elif browse_option == 'courses':
-        paginator = Paginator(models.Course.objects.filter(active=True), count)
+        # fixme, course filter should not be (active=True) but based on user identity.
+        paginator = Paginator(models.Course.objects.all(), count)
 
         return g.render('courses.xhtml', paginator=paginator,
             page_num=page_num,
@@ -117,11 +120,44 @@ def my_courses(request):
 class NewCourseForm(ModelForm):
     class Meta:
         model = models.Course
+    def clean_code(self):
+        v = (self.cleaned_data.get('code') or '').strip()
+        is_valid_func = models.course_codes.course_code_is_valid
+        if (not is_valid_func) or is_valid_func(v):
+            return v
+        else:
+            raise ValidationError, _('invalid course code')
 
+# hack the new-course form if we have course-code lookup
+COURSE_CODE_LIST = bool(models.course_codes.course_code_list)
+COURSE_CODE_LOOKUP_TITLE = bool(models.course_codes.course_code_lookup_title)
+
+if COURSE_CODE_LIST:
+    from django.forms import Select
+    course_list = models.course_codes.course_code_list()
+    choices = [(a,a) for a in course_list]
+    choices.sort()
+    empty_label = u'---------'
+    choices.insert(0, (0, empty_label))
+    NewCourseForm.base_fields['code'].widget = Select(
+        choices = choices)
+    NewCourseForm.base_fields['code'].empty_label = empty_label
+    
 @login_required
 def add_new_course(request):
-    form = NewCourseForm(instance=models.Course())
-    return g.render('add_new_course.xhtml', **locals())
+    example = models.course_codes.course_code_example
+    if request.method != 'POST':
+        form = NewCourseForm(instance=models.Course())
+        return g.render('add_new_course.xhtml', **locals())
+    else:
+        form = NewCourseForm(request.POST, instance=models.Course())
+        if not form.is_valid():
+            return g.render('add_new_course.xhtml', **locals())
+
+def add_new_course_ajax_title(request):
+    course_code = request.GET['course_code']
+    title = models.course_codes.course_code_lookup_title(course_code)
+    return HttpResponse(simplejson.dumps({'title':title}))
 
 def course_detail(request, course_id):
     course = get_object_or_404(models.Course, pk=course_id)
@@ -386,7 +422,7 @@ def search(request, in_course=None):
             course_query = get_query(query_string, ['title', 'department__name'])
             print 'course_query'
             print course_query
-            course_results = models.Course.objects.filter(course_query).filter(active=True)
+            course_results = models.Course.objects.filter(course_query).all()
             # course_list = models.Course.objects.filter(course_query).filter(active=True).order_by('title')[0:5]
             course_list = course_results.order_by('title')[0:5]
             #there might be a better way of doing this, though instr and course tables should not be expensive to query
