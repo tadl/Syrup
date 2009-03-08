@@ -27,12 +27,7 @@ def auth_handler(request, path):
                 return HttpResponseRedirect(next)
             else:
                 return g.render('auth/login.xhtml', 
-                                next=request.GET.get('next'),
-                                err=None # fixme, this shouldn't be
-                                         # necessary. Genshi should treat
-                                         # missing names as None, but something
-                                         # is wrong.
-                                )
+                                next=request.GET.get('next'))
         else:
             userid, password = request.POST['userid'], request.POST['password']
             next = request.POST['next']
