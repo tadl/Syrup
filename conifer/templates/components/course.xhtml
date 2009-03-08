@@ -20,7 +20,7 @@ searchtext = _('search this course...')
     <div id="coursebanner">
       <div class="deptident">${course.department}</div>
       ${course_search(course)}
-      <h1><a href="${course.course_url()}">${course.code}: ${course.title}</a></h1>
+      <h1><a href="${course.course_url()}"><span py:if="course.code">${course.code}: </span>${course.title}</a></h1>
     </div>
   </div>
   
