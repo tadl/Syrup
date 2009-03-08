@@ -38,7 +38,15 @@ else:
   </table>
   <p><input type="submit" value="Continue"/></p>
   </form>
-
   <div class="gap"/>
+  <div py:if="instance.id">
+    <h2>Delete this course</h2>
+    <form action="delete/" method="POST">
+      <p><input type="checkbox" name="confirm_delete" id="confirm_delete"/>
+      <label for="confirm_delete">Yes, I want to delete this course site and all of its contents.</label>
+      </p>
+      <p><input type="submit" value="Delete this course"/></p>
+    </form>
+  </div>
 </body>
 </html>

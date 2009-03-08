@@ -276,7 +276,16 @@ def edit_course_permissions(request, course_id):
             if course.access == u'STUDT':
                 raise NotImplementedError, 'No course sections yet! Coming soon.'
             return HttpResponseRedirect('.')
-            
+
+@login_required                 # fixme, must be instructor...
+def delete_course(request, course_id):
+    course = get_object_or_404(models.Course, pk=course_id)
+    if request.POST.get('confirm_delete'):
+        course.delete()
+        return HttpResponseRedirect('/syrup/course/')
+    else:
+        return HttpResponseRedirect('../')
+
 #------------------------------------------------------------
 
 @login_required                 # must be, to avoid/audit brute force attacks.
