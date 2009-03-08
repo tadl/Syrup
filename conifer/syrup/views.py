@@ -57,7 +57,7 @@ def welcome(request):
 def open_courses(request):
     page_num = int(request.GET.get('page', 1))
     count = int(request.GET.get('count', 5))
-    paginator = Paginator(models.Course.objects.filter(moderated=False), count)
+    paginator = Paginator(models.Course.objects.all(), count) # fixme, what filter?
     return g.render('open_courses.xhtml', paginator=paginator,
                     page_num=page_num,
                     count=count)
@@ -71,9 +71,9 @@ def instructors(request):
     if action == 'join':
         paginator = Paginator(models.UserProfile.active_instructors(), count)
     elif action == 'drop':
-        paginator = Paginator(models.Course.objects.filter(moderated=False), count)
+        paginator = Paginator(models.Course.objects.all(), count) # fixme, what filter?
     else:
-        paginator = Paginator(models.Course.objects.filter(moderated=False), count)
+        paginator = Paginator(models.Course.objects.all(), count) # fixme, what filter?
         
     return g.render('instructors.xhtml', paginator=paginator,
                     page_num=page_num,
@@ -117,9 +117,26 @@ def browse_courses(request, browse_option=''):
 def my_courses(request):
     return g.render('my_courses.xhtml')
 
+def course_detail(request, course_id):
+    course = get_object_or_404(models.Course, pk=course_id)
+    if course.access != 'ANON' and request.user.is_anonymous():
+        #fixme, don't stop access just if anonymous, but rather if not
+        #allowed to access. We need to set up a permissions model.
+        return login_required(lambda *args: None)(request)
+    return g.render('course_detail.xhtml', course=course)
+
+def course_search(request, course_id):
+    course = get_object_or_404(models.Course, pk=course_id)
+    return search(request, in_course=course)
+
+
+#------------------------------------------------------------
+# Creating a new course
+
 class NewCourseForm(ModelForm):
     class Meta:
         model = models.Course
+
     def clean_code(self):
         v = (self.cleaned_data.get('code') or '').strip()
         is_valid_func = models.course_codes.course_code_is_valid
@@ -127,6 +144,15 @@ class NewCourseForm(ModelForm):
             return v
         else:
             raise ValidationError, _('invalid course code')
+
+# I want different choice labels on the access screen than are given
+# in the model.
+NewCourseForm.base_fields['access'].widget.choices = [
+    ('CLOSE', _('For now, just myself and designated colleagues')),
+    ('STUDT', _('Students in my course (I will provide section numbers)')),
+    ('PASWD', _('Students in my course (I will share a password with them)')),
+    ('LOGIN', _('All Reserves patrons'))]
+
 
 # hack the new-course form if we have course-code lookup
 COURSE_CODE_LIST = bool(models.course_codes.course_code_list)
@@ -153,23 +179,22 @@ def add_new_course(request):
         form = NewCourseForm(request.POST, instance=models.Course())
         if not form.is_valid():
             return g.render('add_new_course.xhtml', **locals())
+        else:
+            form.save()
+            course = form.instance
+            assert course.id
+            mbr = course.member_set.create(user=request.user, role='INSTR')
+            mbr.save()
+                                     
+            # fixme, need to ask about PASWD and STUDT settings before redirect.
+            return HttpResponseRedirect('../') # back to My Courses
 
 def add_new_course_ajax_title(request):
     course_code = request.GET['course_code']
     title = models.course_codes.course_code_lookup_title(course_code)
     return HttpResponse(simplejson.dumps({'title':title}))
 
-def course_detail(request, course_id):
-    course = get_object_or_404(models.Course, pk=course_id)
-    if course.moderated and request.user.is_anonymous():
-        #fixme, don't stop access just if anonymous, but rather if not
-        #allowed to access. We need to set up a permissions model.
-        return login_required(lambda *args: None)(request)
-    return g.render('course_detail.xhtml', course=course)
-
-def course_search(request, course_id):
-    course = get_object_or_404(models.Course, pk=course_id)
-    return search(request, in_course=course)
+#------------------------------------------------------------
 
 def instructor_detail(request, instructor_id):
     page_num = int(request.GET.get('page', 1))
@@ -319,7 +344,9 @@ def item_add(request, course_id, item_id):
 def item_edit(request, course_id, item_id):
     course = get_object_or_404(models.Course, pk=course_id)
     item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
-    template = 'item_add_%s.xhtml' % item.item_type.lower()
+    item_type = item.item_type
+    template = 'item_add_%s.xhtml' % item_type.lower()
+    parent_item = item.parent_heading
     if request.method == 'GET':
         return g.render(template, **locals())
     else:

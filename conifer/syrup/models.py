@@ -153,21 +153,36 @@ class Course(m.Model):
     term = m.ForeignKey(Term)
     title = m.CharField(max_length=1024)
     access = m.CharField(max_length=5,
-                         choices = [('ANON', _('World-accessible')),
-                                    ('LOGIN', _('Accessible to all logged-in users')),
-                                    ('STUDT', _('Accessible to course students')),
-                                    ('CLOSE', _('Accessible only to course owners'))],
+                         choices = [
+                                 ('ANON', _('World-accessible')),
+                                 ('LOGIN', _('Accessible to all logged-in users')),
+                                 ('STUDT', _('Accessible to course students (by section)')),
+                                 ('PASWD', _('Accessible to course students (by password)')),
+                                 ('CLOSE', _('Accessible only to course owners'))],
                          default='CLOSE')
 
-    # For sites that use a passphrase as an invitation (STUDT access).
-    passkey = m.CharField(db_index=True, unique=True, blank=True, null=True,
-                          max_length=255)
+    # For sites that use a passphrase as an invitation (PASWD access).
+    passkey = m.CharField(db_index=True, blank=True, null=True, max_length=255)
 
     # For sites that have registration-lists from an external system
     # (STUDT access).
     enrol_codes  = m.CharField(_('Registrar keys for class lists'),
                                max_length=4098, 
                                blank=True, null=True)
+
+
+    def save(self, force_insert=False, force_update=False):
+        # We need to override save() to ensure unique passkey
+        # values. Django (and some backend databases) will not allow
+        # multiple NULL values in a unique column.
+        if self.passkey:
+            try:
+                already = Course.objects.get(passkey=self.passkey)
+            except Course.DoesNotExist:
+                super(Course, self).save(force_insert, force_update)
+        else:
+            super(Course, self).save(force_insert, force_update)
+
     def __unicode__(self):
         return self.code or self.title
 

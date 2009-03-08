@@ -11,17 +11,26 @@ title = _('Add a new course site')
 </head>
 <body>
   <h1>${title}</h1>
+  <ul py:for="fld in form" py:if="fld.errors">
+    <li py:for="err in fld.errors">${fld.name}: ${err}</li>
+  </ul>
   <form action="." method="POST">
-    <tr py:def="field_row(field)">
-      <th>${field.label}</th><td>${Markup(field)} !!!</td></tr>
+    <tr py:def="field_row(field, example=None)">
+      <th>${field.label}</th>
+      <td>
+	<ul py:if="field.errors" class="errorlist">
+	  <li py:for="err in field.errors">${err}</li>
+	</ul>
+	${Markup(field)}
+      </td>
+      <td class="example" py:if="example">e.g., ${example}</td>
+    </tr>
   <fieldset>
     <legend>General description</legend>
     <table class="formtable">
-    <tr><th>Course code</th><td>${Markup(form.code)}</td>
-    <td py:if="example">e.g. ${example}</td></tr>
-    <tr><th>Title</th><td>${Markup(form.title)} <span>${form.title.errors}</span></td></tr>
-    <tr><th>Term</th><td>${Markup(form.term)}</td></tr>
-    <tr><th>Access</th><td>${Markup(form.access)}</td></tr>
+    ${field_row(form.code, example)}
+    ${field_row(form.title)}
+    ${field_row(form.term)}
     ${field_row(form.department)}
     <!-- <tr><th>Department</th><td>${Markup(form.department)} ${errorlist(form.department)}</td></tr> -->
   </table>
@@ -29,12 +38,7 @@ title = _('Add a new course site')
   <fieldset>
     <legend>Access controls</legend>
     <p>This site will be available to:</p>
-    <select>
-      <option>For now, just myself and designated colleagues</option>
-      <option>Students in my course (I will provide section numbers)</option>
-      <option>Students in my course (I will share a password with them)</option>
-      <option>All Reserves patrons</option>
-    </select>
+    ${Markup(form.access)}
   </fieldset>
   <p><input type="submit" value="Continue"/></p>
   </form>
