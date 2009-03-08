@@ -1,0 +1,38 @@
+<?python
+title = _('Edit course permissions')
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="master.xhtml"/>
+<head>
+  <title>${title}</title>
+</head>
+<body>
+  <h1>${title}</h1>
+  <h2>Add Co-Instructors and Proxies</h2>
+  <p>blah blah...</p>    
+  <div py:choose="course.access">
+    <div py:when="'INVIT'">
+      <h2>Course Invitation Code</h2>
+      <p style="font-size: larger;">Your Course Invitation Code is: <strong>${course.passkey}</strong></p>
+      <form action="." method="POST">
+	<p>
+	  <input type="hidden" name="action" value="change_code"/>
+	  <input type="submit" value="Select a new code (this will invalidate the old code!)"/>
+	</p>
+	</form>
+      <p>This invitation code will enable your students to join this
+      course site. Share it only with your students: anyone who has
+      the code can join your site.</p>
+      <p>You may change the code at any time. This will not block
+      students who have already joined, but will prevent new students
+      from joining with the old code.</p>
+    </div>
+    <div py:when="'STUDT'">
+      <h2>Course section numbers</h2>
+    </div>
+  </div>
+  <div class="gap"/>
+</body>
+</html>

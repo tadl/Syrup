@@ -1,0 +1,27 @@
+<?python
+title = _('Join a course using an Invitation Code')
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="master.xhtml"/>
+<head>
+  <title>${title}</title>
+</head>
+<body>
+  <h1>${title}</h1>
+  <p>Your instructor may have provided you with an Invitation Code,
+  which will give you access to your course's reserves. Enter the
+  invitation code below to continue. Note that not all courses require
+  an invitation code; contact your instructor or the library staff for
+  more information.</p>
+  <div class="errors" py:if="error">${error}</div>
+  <form action="." method="POST">
+  <table>
+    <tr><th>Invitation Code:</th><td><input type="text" name="code" size="30" value="${code}"/></td></tr>
+    <tr><th/><td><input type="submit" value="Continue"/> <a style="margin-left: 12;" href="../">Go back</a></td></tr>
+  </table>
+  </form>
+  <div class="gap"/>
+</body>
+</html>

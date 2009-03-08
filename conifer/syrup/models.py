@@ -7,6 +7,7 @@ from genshi import Markup
 from gettext import gettext as _ # fixme, is this the right function to import?
 from conifer.custom import course_codes # fixme, not sure if conifer.custom is a good parent.
 import re
+import random
 
 def highlight(text, phrase,
               highlighter='<strong class="highlight">\\1</strong>'):
@@ -157,11 +158,11 @@ class Course(m.Model):
                                  ('ANON', _('World-accessible')),
                                  ('LOGIN', _('Accessible to all logged-in users')),
                                  ('STUDT', _('Accessible to course students (by section)')),
-                                 ('PASWD', _('Accessible to course students (by password)')),
+                                 ('INVIT', _('Accessible to course students (by invitation code)')),
                                  ('CLOSE', _('Accessible only to course owners'))],
                          default='CLOSE')
 
-    # For sites that use a passphrase as an invitation (PASWD access).
+    # For sites that use a passkey as an invitation (INVIT access).
     passkey = m.CharField(db_index=True, blank=True, null=True, max_length=255)
 
     # For sites that have registration-lists from an external system
@@ -177,7 +178,7 @@ class Course(m.Model):
         # multiple NULL values in a unique column.
         if self.passkey:
             try:
-                already = Course.objects.get(passkey=self.passkey)
+                already = Course.objects.exclude(pk=self.id).get(passkey=self.passkey)
             except Course.DoesNotExist:
                 super(Course, self).save(force_insert, force_update)
         else:
@@ -237,6 +238,18 @@ class Course(m.Model):
     def course_url(self, suffix=''):
         return '/syrup/course/%d/%s' % (self.id, suffix)
 
+    def generate_new_passkey(self):
+        # todo: have a pluggable passkey algorithm.
+        def algorithm():
+            # four numbers, separated by dashes, e.g. "342-58-928-21".
+            return '-'.join([str(random.randint(1,999)) for x in range(4)])
+        while True:
+            key = algorithm()
+            try:
+                crs = Course.objects.get(passkey=key)
+            except Course.DoesNotExist:
+                self.passkey = key
+                break
 
 class Member(m.Model):
     course = m.ForeignKey(Course)

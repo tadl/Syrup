@@ -13,7 +13,7 @@ from datetime import datetime
 from generics import *
 from gettext import gettext as _ # fixme, is this the right function to import?
 from django.utils import simplejson
-
+import sys
 
 #------------------------------------------------------------
 # Authentication
@@ -136,6 +136,7 @@ def course_search(request, course_id):
 class NewCourseForm(ModelForm):
     class Meta:
         model = models.Course
+        exclude = ('passkey',)
 
     def clean_code(self):
         v = (self.cleaned_data.get('code') or '').strip()
@@ -148,10 +149,10 @@ class NewCourseForm(ModelForm):
 # I want different choice labels on the access screen than are given
 # in the model.
 NewCourseForm.base_fields['access'].widget.choices = [
-    ('CLOSE', _('For now, just myself and designated colleagues')),
-    ('STUDT', _('Students in my course (I will provide section numbers)')),
-    ('PASWD', _('Students in my course (I will share a password with them)')),
-    ('LOGIN', _('All Reserves patrons'))]
+    (u'CLOSE', _(u'For now, just myself and designated colleagues')),
+    (u'STUDT', _(u'Students in my course (I will provide section numbers)')),
+    (u'INVIT', _(u'Students in my course (I will share an Invitation Code with them)')),
+    (u'LOGIN', _(u'All Reserves patrons'))]
 
 
 # hack the new-course form if we have course-code lookup
@@ -175,12 +176,14 @@ def add_new_course(request):
 
 @login_required
 def edit_course(request, course_id):
-    instance = models.Course.objects.get(pk=course_id)
+    instance = get_object_or_404(models.Course, pk=course_id)
     return add_or_edit_course(request, instance=instance)
     
 def add_or_edit_course(request, instance=None):
-    if instance is None:
+    is_add = (instance is None)
+    if is_add:
         instance = models.Course()
+    current_access_level = not is_add and instance.access or None
     example = models.course_codes.course_code_example
     if request.method != 'POST':
         form = NewCourseForm(instance=instance)
@@ -192,20 +195,68 @@ def add_or_edit_course(request, instance=None):
         else:
             form.save()
             course = form.instance
+            if course.access == u'INVIT' and not course.passkey:
+                course.generate_new_passkey()
+                course.save()
             assert course.id
             user_in_course = models.Member.objects.filter(user=request.user,course=course)
             if not user_in_course: # for edits, might already be!
                 mbr = course.member_set.create(user=request.user, role='INSTR')
                 mbr.save()
-                                     
-            # fixme, need to ask about PASWD and STUDT settings before redirect.
-            return HttpResponseRedirect('../') # back to My Courses
+            
+            if is_add or (current_access_level != course.access):
+                # we need to configure permissions.
+                return HttpResponseRedirect(course.course_url('edit/permission/'))
+            else:
+                return HttpResponseRedirect('../') # back to main view.
 
 def add_new_course_ajax_title(request):
     course_code = request.GET['course_code']
     title = models.course_codes.course_code_lookup_title(course_code)
     return HttpResponse(simplejson.dumps({'title':title}))
 
+def edit_course_permissions(request, course_id):
+    course = get_object_or_404(models.Course, pk=course_id)
+    if request.method != 'POST':
+        return g.render('edit_course_permissions.xhtml', **locals())
+    else:
+        if request.POST.get('action') == 'change_code':
+            course.generate_new_passkey()
+            course.save()
+            return HttpResponseRedirect('.')
+
+#------------------------------------------------------------
+
+@login_required                 # must be, to avoid/audit brute force attacks.
+def course_invitation(request):
+    if request.method != 'POST':
+        return g.render('course_invitation.xhtml', code='', error='',
+                        **locals())
+    else:
+        code = request.POST.get('code', '').strip()
+        # todo, a pluggable passkey implementation would normalize the code here.
+        if not code:
+            return HttpResponseRedirect('.')
+        try:
+            # note, we only allow the passkey if access='INVIT'.
+            crs = models.Course.objects.filter(access='INVIT').get(passkey=code)
+        except models.Course.DoesNotExist:
+            # todo, do we need a formal logging system? Or a table for
+            # invitation failures? They should be captured somehow, I
+            # think. Should we temporarily disable accounts after
+            # multiple failures?
+            print >> sys.stdout, '[%s] WARN: Invitation failure, user %r gave code %r' % \
+                (datetime.now(), request.user.username, code)
+            error = _('The code you provided is not valid.')
+            return g.render('course_invitation.xhtml', **locals())
+
+        # the passkey is good; add the user if not already a member.
+        if not models.Member.objects.filter(user=request.user, course=crs):
+            mbr = models.Member.objects.create(user=request.user, course=crs, 
+                                               role='STUDT')
+            mbr.save()
+        return HttpResponseRedirect(crs.course_url())
+        
 #------------------------------------------------------------
 
 def instructor_detail(request, instructor_id):
