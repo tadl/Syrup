@@ -51,6 +51,25 @@ def auth_handler(request, path):
         return HttpResponse('auth_handler: ' + path)
 
 #------------------------------------------------------------
+# Authorization
+
+def instructors_only(handler):
+    def hdlr(request, course_id, *args, **kwargs):
+        allowed = request.user.is_superuser
+        if not allowed:
+            cursor = django.db.connection.cursor()
+            cursor.execute('select count(*) from syrup_member where user_id=%s and course_id=%s',                       
+                           [request.user.id, int(course_id)])
+            res = cursor.fetchall()
+            cursor.close()
+            allowed = res[0][0]
+        if allowed:
+            return handler(request, course_id, *args, **kwargs)
+        else:
+            return HttpResponseForbidden(_('Only instructors may edit courses.'))
+    return hdlr
+
+#------------------------------------------------------------
 
 def welcome(request):
     return g.render('welcome.xhtml')
@@ -163,11 +182,12 @@ if COURSE_CODE_LIST:
         choices = choices)
     NewCourseForm.base_fields['code'].empty_label = empty_label
     
+# todo, how do we decide who can create new course sites?
 @login_required
 def add_new_course(request):
     return add_or_edit_course(request)
 
-@login_required
+@instructors_only
 def edit_course(request, course_id):
     instance = get_object_or_404(models.Course, pk=course_id)
     return add_or_edit_course(request, instance=instance)
@@ -277,7 +297,7 @@ def edit_course_permissions(request, course_id):
                 raise NotImplementedError, 'No course sections yet! Coming soon.'
             return HttpResponseRedirect('.')
 
-@login_required                 # fixme, must be instructor...
+@instructors_only
 def delete_course(request, course_id):
     course = get_object_or_404(models.Course, pk=course_id)
     if request.POST.get('confirm_delete'):
@@ -371,8 +391,7 @@ def _heading_detail(request, item):
     return g.render('item_heading_detail.xhtml', item=item)
 
 
-# fixme, not just login required! Must be in right course.
-@login_required
+@instructors_only
 def item_add(request, course_id, item_id):
     # The parent_item_id is the id for the parent-heading item. Zero
     # represents 'top-level', i.e. the new item should have no
@@ -463,8 +482,7 @@ def item_add(request, course_id, item_id):
         else:
             return HttpResponseRedirect(course.course_url())
 
-# fixme, not just login required! Must be in right course.
-@login_required
+@instructors_only
 def item_edit(request, course_id, item_id):
     course = get_object_or_404(models.Course, pk=course_id)
     item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
