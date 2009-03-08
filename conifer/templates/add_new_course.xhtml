@@ -8,15 +8,15 @@ else:
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
 <xi:include href="master.xhtml"/>
+<xi:include href="components/course.xhtml"/>
 <head>
   <title>${title}</title>
   <script type="text/javascript" src="/static/add_new_course.js"/>
 </head>
 <body>
+  <div py:if="instance.id">${course_banner(instance)}</div>
   <h1>${title}</h1>
-  <ul py:for="fld in form" py:if="fld.errors">
-    <li py:for="err in fld.errors">${fld.name}: ${err}</li>
-  </ul>
+  <p py:if="instance.id"><a href="permission/">Edit course permissions</a> &bull; <a href="${instance.course_url()}">Return to course page</a></p>
   <form action="." method="POST">
     <tr py:def="field_row(field, example=None)">
       <th>${field.label}</th>
@@ -28,8 +28,7 @@ else:
       </td>
       <td class="example" py:if="example">e.g., ${example}</td>
     </tr>
-  <fieldset>
-    <legend>General description</legend>
+    <h2>General description</h2>
     <table class="formtable">
     ${field_row(form.code, example)}
     ${field_row(form.title)}
@@ -37,12 +36,6 @@ else:
     ${field_row(form.department)}
     <!-- <tr><th>Department</th><td>${Markup(form.department)} ${errorlist(form.department)}</td></tr> -->
   </table>
-  </fieldset>
-  <fieldset>
-    <legend>Access controls</legend>
-    <p>This site will be available to:</p>
-    ${Markup(form.access)}
-  </fieldset>
   <p><input type="submit" value="Continue"/></p>
   </form>
 

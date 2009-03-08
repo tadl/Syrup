@@ -9,6 +9,7 @@ import re
 from conifer.syrup import models
 from django.contrib.auth.models import User
 from django.db.models import Q
+import django.forms
 from datetime import datetime
 from generics import *
 from gettext import gettext as _ # fixme, is this the right function to import?
@@ -136,7 +137,7 @@ def course_search(request, course_id):
 class NewCourseForm(ModelForm):
     class Meta:
         model = models.Course
-        exclude = ('passkey',)
+        exclude = ('passkey','access')
 
     def clean_code(self):
         v = (self.cleaned_data.get('code') or '').strip()
@@ -145,14 +146,6 @@ class NewCourseForm(ModelForm):
             return v
         else:
             raise ValidationError, _('invalid course code')
-
-# I want different choice labels on the access screen than are given
-# in the model.
-NewCourseForm.base_fields['access'].widget.choices = [
-    (u'CLOSE', _(u'For now, just myself and designated colleagues')),
-    (u'STUDT', _(u'Students in my course (I will provide section numbers)')),
-    (u'INVIT', _(u'Students in my course (I will share an Invitation Code with them)')),
-    (u'LOGIN', _(u'All Reserves patrons'))]
 
 
 # hack the new-course form if we have course-code lookup
@@ -217,14 +210,73 @@ def add_new_course_ajax_title(request):
 
 def edit_course_permissions(request, course_id):
     course = get_object_or_404(models.Course, pk=course_id)
+    choose_access = django.forms.Select(choices=[
+        (u'CLOSE', _(u'No students: this site is closed.')),
+        (u'STUDT', _(u'Students in my course -- I will provide section numbers')),
+        (u'INVIT', _(u'Students in my course -- I will share an Invitation Code with them')),
+        (u'LOGIN', _(u'All Reserves patrons'))])
     if request.method != 'POST':
         return g.render('edit_course_permissions.xhtml', **locals())
     else:
-        if request.POST.get('action') == 'change_code':
+        POST = request.POST
+
+        if 'action_change_code' in POST:
+            # update invitation code -------------------------------------
             course.generate_new_passkey()
+            course.access = u'INVIT'
             course.save()
             return HttpResponseRedirect('.')
 
+        elif 'action_save_instructor' in POST:
+            # update instructor details ----------------------------------
+            iname = POST.get('new_instructor_name','').strip()
+            irole = POST.get('new_instructor_role')
+
+            def get_record_for(username):
+                instr = models.maybe_initialize_user(iname)
+                if instr:
+                    try:
+                        return models.Member.objects.get(user=instr, course=course)
+                    except models.Member.DoesNotExist:
+                        return models.Member.objects.create(user=instr, course=course)
+
+            # add a new instructor
+            if iname:
+                instr = get_record_for(iname)
+                if instr:       # else? should have an error.
+                    instr.role = irole
+                    instr.save()
+                else:
+                    instructor_error = 'No such user: %s' % iname
+                    return g.render('edit_course_permissions.xhtml', **locals())
+
+
+            # removing and changing roles of instructors
+            to_change_role = [(int(name.rsplit('_', 1)[-1]), POST[name]) \
+                                  for name in POST if name.startswith('instructor_role_')]
+            to_remove = [int(name.rsplit('_', 1)[-1]) \
+                             for name in POST if name.startswith('instructor_remove_')]
+            for instr_id, newrole in to_change_role:
+                if not instr_id in to_remove:
+                    instr = models.Member.objects.get(pk=instr_id, course=course)
+                    instr.role = newrole
+                    instr.save()
+            for instr_id in to_remove:
+                # todo, should warn if deleting yourself!
+                instr = models.Member.objects.get(pk=instr_id, course=course)
+                instr.delete()
+            # todo, should have some error-reporting.
+            return HttpResponseRedirect('.')
+
+        elif 'action_save_student' in POST:
+            # update student details ------------------------------------
+            access = POST.get('access')
+            course.access = access
+            course.save()
+            if course.access == u'STUDT':
+                raise NotImplementedError, 'No course sections yet! Coming soon.'
+            return HttpResponseRedirect('.')
+            
 #------------------------------------------------------------
 
 @login_required                 # must be, to avoid/audit brute force attacks.
