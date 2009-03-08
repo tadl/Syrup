@@ -195,11 +195,11 @@ def add_or_edit_course(request, instance=None):
     example = models.course_codes.course_code_example
     if request.method != 'POST':
         form = NewCourseForm(instance=instance)
-        return g.render('add_new_course.xhtml', **locals())
+        return g.render('edit_course.xhtml', **locals())
     else:
         form = NewCourseForm(request.POST, instance=instance)
         if not form.is_valid():
-            return g.render('add_new_course.xhtml', **locals())
+            return g.render('edit_course.xhtml', **locals())
         else:
             form.save()
             course = form.instance
