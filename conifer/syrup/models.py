@@ -147,7 +147,7 @@ class Department(m.Model):
 
 class Course(m.Model):
     """An offering of a course."""
-    # some courses may be ad-hoc and have no code?
+    # some courses may be ad-hoc and have no code.
     code = m.CharField(max_length=64, blank=True, null=True)
     department = m.ForeignKey(Department)
     term = m.ForeignKey(Term)
@@ -185,6 +185,12 @@ class Course(m.Model):
 
     def __unicode__(self):
         return self.code or self.title
+
+    def list_display(self):
+        if self.code:
+            return '%s: %s [%s]' % (self.term, self.title, self.code)
+        else:
+            return '%s: %s' % (self.term, self.title)
 
     def items(self):
         return self.item_set.all()

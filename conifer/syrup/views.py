@@ -164,7 +164,7 @@ if COURSE_CODE_LIST:
     choices = [(a,a) for a in course_list]
     choices.sort()
     empty_label = u'---------'
-    choices.insert(0, (0, empty_label))
+    choices.insert(0, ('', empty_label))
     NewCourseForm.base_fields['code'].widget = Select(
         choices = choices)
     NewCourseForm.base_fields['code'].empty_label = empty_label
