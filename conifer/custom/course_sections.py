@@ -116,9 +116,15 @@ sections_for_code_and_term = None
 
 sections_tuple_delimiter = '|'
 
+# For any of the students to actually appear in a course site, they
+# must also exist as Django users (or be in an authentication backend
+# that supports 'maybe_initialize_user'; see auth_evergreen.py).
+
 _db = [
+    #(instructor, (term, code, sec-code), 'student1 student2 ... studentN'),
     ('fred', ('2009W', 'ENG203', '1'), 'jim joe jack ellen ed'),
     ('fred', ('2009W', 'ENG327', '1'), 'ed paul bill'),
+    ('art',  ('2009W', 'LIB201', '1'), 'graham bill ed'),
     ('graham', ('2009S', 'ART108', '1'), 'alan june jack'),
     ('graham', ('2009S', 'ART108', '2'), 'emmet'),
     ('graham', ('2009S', 'ART108', '3'), 'freda hugo bill'),

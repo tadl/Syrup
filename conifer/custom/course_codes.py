@@ -111,6 +111,7 @@
 _codes = [('ENG100', 'Introduction to English'),
           ('ART108', 'English: An Introduction'),
           ('FRE238', 'Modern French Literature'),
+          ('LIB201', 'Intro to Library Science'),
           ('WEB203', 'Advanced Web Design'),]
 
 _crosslists = set(['ENG100', 'ART108'])
