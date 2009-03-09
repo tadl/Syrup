@@ -1,5 +1,6 @@
 <?python
 title = _('Welcome!')
+news_items = models.NewsItem.objects.all().order_by('-published','-id')[0:5]
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -9,13 +10,13 @@ title = _('Welcome!')
   <title>${title}</title>
 </head>
 <body>
-  <!-- !opting *not* to put a heading on the welcome page, so that the News items can be used to customize it. -->
-  <h1 style="visibility: hidden;">Welcome!</h1>
-  <div class="newsitem" py:for="news in models.NewsItem.objects.all().order_by('-published','-id')[0:5]">
+  <p>Welcome! Please use the links above to browse the reserves, or to join and visit your course sites.</p>
+  <div class="newsitem" py:for="news in news_items">
     <h2>${news.subject}</h2>
     <div>${news.generated_body()}</div>
     <div class="newsdate">posted ${news.published.strftime('%c')}
     <span py:if="user.has_perm('change_newsitem')">&bull; <a href="admin/news/${news.id}/">edit</a></span></div>
   </div>
+  <p py:if="user.has_perm('add_newsitem')"><a href="admin/news/0/">Add a news item</a></p>
 </body>
 </html>
