@@ -265,11 +265,13 @@ class Course(m.Model):
             return set(inner())
 
     def add_sections(self, *sections):
+        assert all(len(s)==3 for s in sections), repr(sections)
         current = self.sections()
         sections = set(sections).union(current)
         self.enrol_codes = _merge_sections(sections)
 
     def drop_sections(self, *sections):
+        assert all(len(s)==3 for s in sections), repr(sections)
         current = self.sections()
         sections = current - set(sections)
         self.enrol_codes = _merge_sections(sections)

@@ -363,17 +363,19 @@ def edit_course_permissions(request, course_id):
                 if new_sec:
                     course.add_sections(new_sec)
                 # remove the sections to be dropped
-                    to_remove = [models.section_decode_safe(name.rsplit('_',1)[1]) \
-                                     for name in POST \
-                                     if name.startswith('remove_section_')]
-                    course.drop_sections(*to_remove)
+                to_remove = [models.section_decode_safe(name.rsplit('_',1)[1]) \
+                                 for name in POST \
+                                 if name.startswith('remove_section_')]
+                course.drop_sections(*to_remove)
                 student_names = models.course_sections.students_in(*course.sections())
                 for name in student_names:
                     user = models.maybe_initialize_user(name)
                     if user:
-                        mbr = models.Member.objects.create(course=course, user=user, 
-                                                           role='STUDT', provided=True)
-                        mbr.save()
+                        if not models.Member.objects.filter(course=course, user=user):
+                            mbr = models.Member.objects.create(
+                                course=course, user=user, 
+                                role='STUDT', provided=True)
+                            mbr.save()
             else:
                 pass
             course.save()
