@@ -16,6 +16,10 @@ from gettext import gettext as _ # fixme, is this the right function to import?
 from django.utils import simplejson
 import sys
 
+# for Z39.50 support, not sure whether this is the way to go yet but
+# as generic as it gets
+# from PyZ3950 import zoom
+
 #------------------------------------------------------------
 # Authentication
 
@@ -98,6 +102,23 @@ def user_prefs(request):
     return g.render('simplemessage.xhtml',
                     title=_('Sorry...'), 
                     content=_('The Preferences page isn\'t ready yet.'))
+
+def z3950_test(request):
+    conn = zoom.Connection ('z3950.loc.gov', 7090)
+    conn.databaseName = 'VOYAGER'
+    conn.preferredRecordSyntax = 'USMARC'
+    query = zoom.Query ('CCL', 'ti="1066 and all that"')
+    # print("connecting...")
+    res = conn.search (query)
+    collector = []
+    for r in res:
+        collector.append(str(r))
+    conn.close ()
+    # print("done searching...")
+    res_str = "" . join(collector)
+    # print(res_str)
+
+    return g.render('z3950_test.xhtml', res_str=res_str)
 
 def browse_courses(request, browse_option=''):
     #the defaults should be moved into a config file or something...
