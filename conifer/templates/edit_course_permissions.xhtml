@@ -28,7 +28,7 @@ instructors = [m for m in models.Member.objects.filter(course=course) if m.role 
 			    [(u'INSTR',_(u'Instructor')), (u'PROXY', _(u'Proxy instructor'))])
 			    .render('instructor_role_%d' % mbr.id, mbr.role))"/>
       <tr py:for="mbr in instructors">
-	<td>${mbr.user.get_full_name() or mbr.user}</td>
+	<td>${mbr.user.get_full_name() or ''} <code>(${mbr.user.username})</code></td>
 	<td>${select_role(mbr)}</td>
 	<td><input type="checkbox" name="instructor_remove_${mbr.id}"/></td>
       </tr>

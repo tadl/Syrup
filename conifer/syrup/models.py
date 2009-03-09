@@ -291,6 +291,9 @@ def section_encode_safe(section):
     return course_sections.sections_tuple_delimiter.join(section).encode('base64').strip()
 
 class Member(m.Model):
+    class Meta:
+        unique_together = (('course', 'user'))
+
     course = m.ForeignKey(Course)
     user = m.ForeignKey(User)
     role = m.CharField(
