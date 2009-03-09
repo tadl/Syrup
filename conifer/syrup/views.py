@@ -226,11 +226,15 @@ def add_new_course_ajax_title(request):
 
 def edit_course_permissions(request, course_id):
     course = get_object_or_404(models.Course, pk=course_id)
-    choose_access = django.forms.Select(choices=[
+    choices = [
         (u'CLOSE', _(u'No students: this site is closed.')),
         (u'STUDT', _(u'Students in my course -- I will provide section numbers')),
         (u'INVIT', _(u'Students in my course -- I will share an Invitation Code with them')),
-        (u'LOGIN', _(u'All Reserves patrons'))])
+        (u'LOGIN', _(u'All Reserves patrons'))]
+    if models.course_sections.sections_tuple_delimiter is None:
+        del choices[1]          # no STUDT support.
+    choose_access = django.forms.Select(choices=choices)
+        
     if request.method != 'POST':
         return g.render('edit_course_permissions.xhtml', **locals())
     else:
@@ -288,10 +292,31 @@ def edit_course_permissions(request, course_id):
             # update student details ------------------------------------
             access = POST.get('access')
             course.access = access
-            course.save()
+            # drop all provided users. fixme, this could be optimized to do add/drops.
+            models.Member.objects.filter(course=course, provided=True).delete()
             if course.access == u'STUDT':
-                raise NotImplementedError, 'No course sections yet! Coming soon.'
-            return HttpResponseRedirect('.')
+                initial_sections = course.sections()
+                # add the 'new section' if any
+                new_sec = request.POST.get('add_section')
+                new_sec = models.section_decode_safe(new_sec)
+                if new_sec:
+                    course.add_sections(new_sec)
+                # remove the sections to be dropped
+                    to_remove = [models.section_decode_safe(name.rsplit('_',1)[1]) \
+                                     for name in POST \
+                                     if name.startswith('remove_section_')]
+                    course.drop_sections(*to_remove)
+                student_names = models.course_sections.students_in(*course.sections())
+                for name in student_names:
+                    user = models.maybe_initialize_user(name)
+                    if user:
+                        mbr = models.Member.objects.create(course=course, user=user, 
+                                                           role='STUDT', provided=True)
+                        mbr.save()
+            else:
+                pass
+            course.save()
+            return HttpResponseRedirect('.#student_access')
 
 @instructors_only
 def delete_course(request, course_id):

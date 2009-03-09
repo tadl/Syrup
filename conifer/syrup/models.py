@@ -6,6 +6,7 @@ from datetime import datetime
 from genshi import Markup
 from gettext import gettext as _ # fixme, is this the right function to import?
 from conifer.custom import course_codes # fixme, not sure if conifer.custom is a good parent.
+from conifer.custom import course_sections # fixme, not sure if conifer.custom is a good parent.
 import re
 import random
 
@@ -250,6 +251,44 @@ class Course(m.Model):
             except Course.DoesNotExist:
                 self.passkey = key
                 break
+
+    def sections(self):
+        delim = course_sections.sections_tuple_delimiter
+        if not delim:
+            return []
+        else:
+            def inner():
+                parts = self.enrol_codes.split(delim)
+                while len(parts) > 2:
+                    yield tuple(parts[:3])
+                    del parts[:3]
+            return set(inner())
+
+    def add_sections(self, *sections):
+        current = self.sections()
+        sections = set(sections).union(current)
+        self.enrol_codes = _merge_sections(sections)
+
+    def drop_sections(self, *sections):
+        current = self.sections()
+        sections = current - set(sections)
+        self.enrol_codes = _merge_sections(sections)
+
+    def get_students(self):
+        return User.objects.filter(member__course__exact=self, member__role__exact='STUDT') \
+            .order_by('last_name', 'first_name')
+
+def _merge_sections(secs):
+    delim = course_sections.sections_tuple_delimiter
+    return delim.join(delim.join(sec) for sec in secs)
+
+def section_decode_safe(secstring):
+    if not secstring:
+        return None
+    return tuple(secstring.decode('base64').split(course_sections.sections_tuple_delimiter))
+
+def section_encode_safe(section):
+    return course_sections.sections_tuple_delimiter.join(section).encode('base64').strip()
 
 class Member(m.Model):
     course = m.ForeignKey(Course)
