@@ -19,8 +19,11 @@ import sys
 # for Z39.50 support, not sure whether this is the way to go yet but
 # as generic as it gets
 # from PyZ3950 import zoom
+#-----------------------------------------------------------------------------
+def log(level, msg):
+    print >> sys.stderr, '[%s] %s: %s' % (datetime.now(), level.upper(), msg)
 
-#------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # Authentication
 
 def auth_handler(request, path):
@@ -36,10 +39,14 @@ def auth_handler(request, path):
             userid, password = request.POST['userid'], request.POST['password']
             next = request.POST['next']
             user = authenticate(username=userid, password=password)
+            def _error_page(msg):
+                return g.render('auth/login.xhtml', err=msg, next=next)
             if user is None:
-                return g.render('auth/login.xhtml', err=_('Invalid username or password. Please try again.'), next=next)
+                return _error_page(
+                    _('Invalid username or password. Please try again.'))
             elif not user.is_active:
-                return g.render('auth/login.xhtml', err=_('Sorry, this account has been disabled.'), next=next)
+                return _error_age(
+                    _('Sorry, this account has been disabled.'))
             else:
                 login(request, user)
                 return HttpResponseRedirect(request.POST.get('next', '/syrup/'))
@@ -49,26 +56,56 @@ def auth_handler(request, path):
     else:
         return HttpResponse('auth_handler: ' + path)
 
-#------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # Authorization
+
+def _fast_user_membership_query(user_id, course_id, where=None):
+    # I use a raw SQL query here because I want the lookup to be as
+    # fast as possible. Caching would help too, but let's try this
+    # first. (todo, review later.)
+    query = ('select count(*) from syrup_member '
+             'where user_id=%s and course_id=%s ')
+    if where:
+        query += (' and ' + where)
+    cursor = django.db.connection.cursor()
+    cursor.execute(query, [user_id, int(course_id)])
+    res = cursor.fetchall()
+    cursor.close()
+    allowed = bool(res[0][0])
+    return allowed
+    
+def _access_denied(message):
+    return g.render('simplemessage.xhtml',
+                    title=_(_('Access denied.')), 
+                    content=message,
+                    _django_type=HttpResponseForbidden)
+
 
 def instructors_only(handler):
     def hdlr(request, course_id, *args, **kwargs):
         allowed = request.user.is_superuser
         if not allowed:
-            cursor = django.db.connection.cursor()
-            cursor.execute('select count(*) from syrup_member where user_id=%s and course_id=%s',                       
-                           [request.user.id, int(course_id)])
-            res = cursor.fetchall()
-            cursor.close()
-            allowed = res[0][0]
+            allowed = _fast_user_membership_query(
+                request.user.id, course_id, "role in ('INSTR','PROXY')")
         if allowed:
             return handler(request, course_id, *args, **kwargs)
         else:
-            return HttpResponseForbidden(_('Only instructors may edit courses.'))
+            return _access_denied(_('Only instructors are allowed here.'))
     return hdlr
 
-#------------------------------------------------------------
+
+def members_only(handler):
+    def hdlr(request, course_id, *args, **kwargs):
+        allowed = request.user.is_superuser
+        if not allowed:
+            allowed = _fast_user_membership_query(request.user.id, course_id)
+        if allowed:
+            return handler(request, course_id, *args, **kwargs)
+        else:
+            return _access_denied(_('Only course members are allowed here.'))
+    return hdlr
+
+#-----------------------------------------------------------------------------
 
 def welcome(request):
     return g.render('welcome.xhtml')
@@ -153,6 +190,7 @@ def browse_courses(request, browse_option=''):
 def my_courses(request):
     return g.render('my_courses.xhtml')
 
+@members_only
 def course_detail(request, course_id):
     course = get_object_or_404(models.Course, pk=course_id)
     if course.access != 'ANON' and request.user.is_anonymous():
@@ -161,12 +199,13 @@ def course_detail(request, course_id):
         return login_required(lambda *args: None)(request)
     return g.render('course_detail.xhtml', course=course)
 
+@members_only
 def course_search(request, course_id):
     course = get_object_or_404(models.Course, pk=course_id)
     return search(request, in_course=course)
 
 
-#------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # Creating a new course
 
 class NewCourseForm(ModelForm):
@@ -201,15 +240,15 @@ if COURSE_CODE_LIST:
 @login_required
 def add_new_course(request):
     if not request.user.has_perm('add_course'):
-        return HttpResponseForbidden('You are not allowed to create course sites.') # fixme, prettier msg.
-    return add_or_edit_course(request)
+        return _access_denied(_('You are not allowed to create course sites.'))
+    return _add_or_edit_course(request)
 
 @instructors_only
 def edit_course(request, course_id):
     instance = get_object_or_404(models.Course, pk=course_id)
-    return add_or_edit_course(request, instance=instance)
+    return _add_or_edit_course(request, instance=instance)
     
-def add_or_edit_course(request, instance=None):
+def _add_or_edit_course(request, instance=None):
     is_add = (instance is None)
     if is_add:
         instance = models.Course()
@@ -245,6 +284,7 @@ def add_new_course_ajax_title(request):
     title = models.course_codes.course_code_lookup_title(course_code)
     return HttpResponse(simplejson.dumps({'title':title}))
 
+@instructors_only
 def edit_course_permissions(request, course_id):
     course = get_object_or_404(models.Course, pk=course_id)
     choices = [
@@ -348,7 +388,7 @@ def delete_course(request, course_id):
     else:
         return HttpResponseRedirect('../')
 
-#------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 @login_required                 # must be, to avoid/audit brute force attacks.
 def course_invitation(request):
@@ -368,8 +408,8 @@ def course_invitation(request):
             # invitation failures? They should be captured somehow, I
             # think. Should we temporarily disable accounts after
             # multiple failures?
-            print >> sys.stdout, '[%s] WARN: Invitation failure, user %r gave code %r' % \
-                (datetime.now(), request.user.username, code)
+            log('WARN', 'Invitation failure, user %r gave code %r' % \
+                (datetime.now(), request.user.username, code))
             error = _('The code you provided is not valid.')
             return g.render('course_invitation.xhtml', **locals())
 
@@ -380,7 +420,7 @@ def course_invitation(request):
             mbr.save()
         return HttpResponseRedirect(crs.course_url())
         
-#------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 def instructor_detail(request, instructor_id):
     page_num = int(request.GET.get('page', 1))
@@ -404,6 +444,7 @@ def department_detail(request, department_id):
             page_num=page_num,
             count=count)
 
+@members_only
 def item_detail(request, course_id, item_id):
     """Display an item (however that makes sense).""" 
     # really, displaying an item will vary based on what type of item
@@ -416,6 +457,7 @@ def item_detail(request, course_id, item_id):
     else:
         return item_metadata(request, course_id, item_id)
 
+@members_only
 def item_metadata(request, course_id, item_id):
     """Display a metadata page for the item."""
     item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
@@ -450,7 +492,7 @@ def item_add(request, course_id, item_id):
         course = parent_item.course
 
     if not course.can_edit(request.user):
-        return HttpResponseForbidden(_('not an editor')) # fixme, prettier msg?
+        return _access_denied(_('You are not an editor.'))
 
     item_type = request.GET.get('item_type')
     assert item_type, _('No item_type parameter was provided.')
@@ -546,6 +588,7 @@ def item_edit(request, course_id, item_id):
         return HttpResponseRedirect(item.parent_url())
         
     
+@members_only
 def item_download(request, course_id, item_id, filename):
     course = get_object_or_404(models.Course, pk=course_id)
     item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
@@ -590,7 +633,7 @@ def get_query(query_string, search_fields):
             query = query & or_query
     return query
 
-#------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 def search(request, in_course=None):
     ''' Need to work on this, the basic idea is
@@ -674,7 +717,7 @@ def search(request, in_course=None):
     return g.render('search_results.xhtml', **locals())
 
 
-#------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # administrative options
 
 def admin_index(request):
