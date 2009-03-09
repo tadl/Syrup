@@ -45,7 +45,7 @@ instructors = [m for m in models.Member.objects.filter(course=course) if m.role 
     </table>
     <p>	  <input type="submit" name="action_save_instructor" value="Save changes to instructors"/></p>
     <div class="gap"/>
-    <h2>Student Access</h2>
+    <h2 id="student_access">Student Access</h2>
     <p>Who will have student-level access to this site?
     <span style="margin-left: 12;"/>${Markup(choose_access.render('access', course.access, {'id':'id_access'}, []))}</p>
     <div id="INVIT_panel" class="specific">

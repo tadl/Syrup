@@ -241,7 +241,7 @@ def edit_course_permissions(request, course_id):
             course.generate_new_passkey()
             course.access = u'INVIT'
             course.save()
-            return HttpResponseRedirect('.')
+            return HttpResponseRedirect('.#student_access')
 
         elif 'action_save_instructor' in POST:
             # update instructor details ----------------------------------
