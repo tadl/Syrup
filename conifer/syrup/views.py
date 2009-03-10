@@ -16,9 +16,25 @@ from gettext import gettext as _ # fixme, is this the right function to import?
 from django.utils import simplejson
 import sys
 
+# Graham needs this import hackery to get PyZ3950 working. Presumably
+# Art can 'import profile', so this code won't run for him.
+
+try:
+    import profile
+    import lex
+    import yacc
+except ImportError:
+    sys.modules['profile'] = sys # just get something called profile;
+                                 # it's not actually used.
+    import ply.lex              
+    import ply.yacc             # pyz3950 thinks these are toplevel modules
+    sys.modules['lex'] = ply.lex
+    sys.modules['yacc'] = ply.yacc
+
 # for Z39.50 support, not sure whether this is the way to go yet but
 # as generic as it gets
-# from PyZ3950 import zoom
+from PyZ3950 import zoom
+
 #-----------------------------------------------------------------------------
 def log(level, msg):
     print >> sys.stderr, '[%s] %s: %s' % (datetime.now(), level.upper(), msg)
