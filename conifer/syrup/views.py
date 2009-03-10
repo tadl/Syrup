@@ -115,6 +115,8 @@ def _access_denied(message):
                     content=message,
                     _django_type=HttpResponseForbidden)
 
+# todo, these decorators could be refactored.
+
 # decorator
 def instructors_only(handler):
     def hdlr(request, course_id, *args, **kwargs):
@@ -343,13 +345,17 @@ def add_new_course_ajax_title(request):
 @instructors_only
 def edit_course_permissions(request, course_id):
     course = get_object_or_404(models.Course, pk=course_id)
+    # choices: make the access-choice labels more personalized than
+    # the ones in 'models'.
     choices = [
+        # note: I'm leaving ANON out for now, until we discuss it further.
         (u'CLOSE', _(u'No students: this site is closed.')),
         (u'STUDT', _(u'Students in my course -- I will provide section numbers')),
         (u'INVIT', _(u'Students in my course -- I will share an Invitation Code with them')),
         (u'LOGIN', _(u'All Reserves patrons'))]
     if models.course_sections.sections_tuple_delimiter is None:
-        del choices[1]          # no STUDT support.
+        # no course-sections support? Then STUDT cannot be an option.
+        del choices[1]
     choose_access = django.forms.Select(choices=choices)
         
     if request.method != 'POST':
@@ -549,7 +555,7 @@ def item_add(request, course_id, item_id):
     assert item_type in ('HEADING', 'URL', 'ELEC'), \
         _('Sorry, only HEADINGs, URLs and ELECs can be added right now.')
 
-    if request.method == 'GET':
+    if request.method != 'POST':
         item = models.Item()    # dummy object
         return g.render('item_add_%s.xhtml' % item_type.lower(),
                         **locals())
@@ -621,7 +627,7 @@ def item_edit(request, course_id, item_id):
     item_type = item.item_type
     template = 'item_add_%s.xhtml' % item_type.lower()
     parent_item = item.parent_heading
-    if request.method == 'GET':
+    if request.method != 'POST':
         return g.render(template, **locals())
     else:
         if 'file' in request.FILES:

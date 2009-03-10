@@ -25,7 +25,7 @@ def generic_edit(form, request, obj_id):
         instance = None
     else:
         instance = get_object_or_404(form.Meta.model, pk=obj_id)
-    if request.method == 'GET':
+    if request.method != 'POST':
         form = form(instance=instance)
         return g.render('generic/edit.xhtml', **locals())
     else:
