@@ -3,4 +3,4 @@ sip/openncip/*
 sip/doc/sip2_developers_guide.pdf
 sip/java/*
 *.pyc
-
+PyZ3950_parsetab.py

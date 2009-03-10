@@ -4,6 +4,18 @@ from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.forms import ModelForm, ValidationError
 
+
+def generic_handler(form, decorator=lambda x: x):
+    def handler(request, obj_id=None, action=None):
+        if obj_id is None and action is None:
+            return generic_index(form)
+        elif action is None:
+            return generic_edit(form, request, obj_id)
+        elif action == 'delete':
+            return generic_delete(form, request, obj_id)
+    return decorator(handler)
+
+
 def generic_index(form):
     assert hasattr(form, 'Index')
     return g.render('generic/index.xhtml', form=form)
@@ -32,16 +44,6 @@ def generic_delete(form, request, obj_id):
     else:
         instance.delete()
         return HttpResponseRedirect('../')
-
-def generic_handler(form):
-    def handler(request, obj_id=None, action=None):
-        if obj_id is None and action is None:
-            return generic_index(form)
-        elif action is None:
-            return generic_edit(form, request, obj_id)
-        elif action == 'delete':
-            return generic_delete(form, request, obj_id)
-    return handler
 
 
 def strip_and_nonblank(fieldname):

@@ -1,33 +1,50 @@
+#-----------------------------------------------------------------------------
+# todo: break this up. It's getting long. I think we should have
+# something like:
+#
+#   views/__init__.py                     # which imports:
+#   views/course_site_handlers.py
+#   views/search_stuff.py
+#   views/add_edit_course.py
+#   ...
+#   views/common_imports.py              # imported by all.
+#
+# though these are just examples. Everything in views/* would include
+# 'from common_imports import *' just to keep the imports
+# tidy. Views/__init__ would import all the other bits: that ought to
+# satisfy Django.
+
+from conifer.syrup import models
+from datetime import datetime
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.core.paginator import Paginator
+from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseForbidden
-from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
-import conifer.genshi_support as g
-import re
-from conifer.syrup import models
-from django.contrib.auth.models import User
-from django.db.models import Q
-import django.forms
-from datetime import datetime
+from django.utils import simplejson
 from generics import *
 from gettext import gettext as _ # fixme, is this the right function to import?
-from django.utils import simplejson
+import conifer.genshi_support as g
+import django.forms
+import re
 import sys
 
 # Graham needs this import hackery to get PyZ3950 working. Presumably
-# Art can 'import profile', so this code won't run for him.
+# Art can 'import profile; import lex', so this hack won't run for
+# him.
 
 try:
     import profile
     import lex
     import yacc
 except ImportError:
-    sys.modules['profile'] = sys # just get something called profile;
+    sys.modules['profile'] = sys # just get something called 'profile';
                                  # it's not actually used.
     import ply.lex              
-    import ply.yacc             # pyz3950 thinks these are toplevel modules
+    import ply.yacc             # pyz3950 thinks these are toplevel modules.
     sys.modules['lex'] = ply.lex
     sys.modules['yacc'] = ply.yacc
 
@@ -36,6 +53,8 @@ except ImportError:
 from PyZ3950 import zoom
 
 #-----------------------------------------------------------------------------
+# poor-man's logging. Not sure we need more yet.
+
 def log(level, msg):
     print >> sys.stderr, '[%s] %s: %s' % (datetime.now(), level.upper(), msg)
 
@@ -96,7 +115,7 @@ def _access_denied(message):
                     content=message,
                     _django_type=HttpResponseForbidden)
 
-
+# decorator
 def instructors_only(handler):
     def hdlr(request, course_id, *args, **kwargs):
         allowed = request.user.is_superuser
@@ -110,6 +129,7 @@ def instructors_only(handler):
     return hdlr
 
 
+# decorator
 def members_only(handler):
     def hdlr(request, course_id, *args, **kwargs):
         allowed = request.user.is_superuser
@@ -119,6 +139,18 @@ def members_only(handler):
             return handler(request, course_id, *args, **kwargs)
         else:
             return _access_denied(_('Only course members are allowed here.'))
+    return hdlr
+
+# decorator
+def admin_only(handler):
+    # fixme, 'admin' is vaguely defined for now as anyone who is
+    # 'staff', i.e. who has access to the Django admin interface.
+    def hdlr(request, *args, **kwargs):
+        allowed = request.user.is_staff
+        if allowed:
+            return handler(request, *args, **kwargs)
+        else:
+            return _access_denied(_('Only administrators are allowed here.'))
     return hdlr
 
 #-----------------------------------------------------------------------------
@@ -134,8 +166,6 @@ def open_courses(request):
                     page_num=page_num,
                     count=count)
 
-#
-#
 def instructors(request):
     page_num = int(request.GET.get('page', 1))
     count = int(request.GET.get('count', 5))
@@ -206,20 +236,27 @@ def browse_courses(request, browse_option=''):
 def my_courses(request):
     return g.render('my_courses.xhtml')
 
-@members_only
-def course_detail(request, course_id):
-    course = get_object_or_404(models.Course, pk=course_id)
-    if course.access != 'ANON' and request.user.is_anonymous():
-        #fixme, don't stop access just if anonymous, but rather if not
-        #allowed to access. We need to set up a permissions model.
-        return login_required(lambda *args: None)(request)
-    return g.render('course_detail.xhtml', course=course)
+def instructor_detail(request, instructor_id):
+    page_num = int(request.GET.get('page', 1))
+    count = int(request.GET.get('count', 5))
+    paginator = Paginator(models.Course.objects.
+        filter(member__id=instructor_id).
+        filter(active=True).order_by('title'), count)
 
-@members_only
-def course_search(request, course_id):
-    course = get_object_or_404(models.Course, pk=course_id)
-    return search(request, in_course=course)
+    return g.render('courses.xhtml', paginator=paginator,
+            page_num=page_num,
+            count=count)
 
+def department_detail(request, department_id):
+    page_num = int(request.GET.get('page', 1))
+    count = int(request.GET.get('count', 5))
+    paginator = Paginator(models.Course.objects.
+        filter(department__id=department_id).
+        filter(active=True).order_by('title'), count)
+
+    return g.render('courses.xhtml', paginator=paginator,
+            page_num=page_num,
+            count=count)
 
 #-----------------------------------------------------------------------------
 # Creating a new course
@@ -237,8 +274,8 @@ class NewCourseForm(ModelForm):
         else:
             raise ValidationError, _('invalid course code')
 
+# if we have course-code lookup, hack lookup support into the new-course form.
 
-# hack the new-course form if we have course-code lookup
 COURSE_CODE_LIST = bool(models.course_codes.course_code_list)
 COURSE_CODE_LOOKUP_TITLE = bool(models.course_codes.course_code_lookup_title)
 
@@ -252,6 +289,8 @@ if COURSE_CODE_LIST:
     NewCourseForm.base_fields['code'].widget = Select(
         choices = choices)
     NewCourseForm.base_fields['code'].empty_label = empty_label
+
+#--------------------
     
 @login_required
 def add_new_course(request):
@@ -295,6 +334,7 @@ def _add_or_edit_course(request, instance=None):
             else:
                 return HttpResponseRedirect('../') # back to main view.
 
+# no access-control needed to protect title lookup.
 def add_new_course_ajax_title(request):
     course_code = request.GET['course_code']
     title = models.course_codes.course_code_lookup_title(course_code)
@@ -407,6 +447,7 @@ def delete_course(request, course_id):
         return HttpResponseRedirect('../')
 
 #-----------------------------------------------------------------------------
+# Course Invitation Code handler
 
 @login_required                 # must be, to avoid/audit brute force attacks.
 def course_invitation(request):
@@ -437,30 +478,19 @@ def course_invitation(request):
                                                role='STUDT')
             mbr.save()
         return HttpResponseRedirect(crs.course_url())
-        
+
 #-----------------------------------------------------------------------------
+# Course-instance handlers
 
-def instructor_detail(request, instructor_id):
-    page_num = int(request.GET.get('page', 1))
-    count = int(request.GET.get('count', 5))
-    paginator = Paginator(models.Course.objects.
-        filter(member__id=instructor_id).
-        filter(active=True).order_by('title'), count)
+@members_only
+def course_detail(request, course_id):
+    course = get_object_or_404(models.Course, pk=course_id)
+    return g.render('course_detail.xhtml', course=course)
 
-    return g.render('courses.xhtml', paginator=paginator,
-            page_num=page_num,
-            count=count)
-
-def department_detail(request, department_id):
-    page_num = int(request.GET.get('page', 1))
-    count = int(request.GET.get('count', 5))
-    paginator = Paginator(models.Course.objects.
-        filter(department__id=department_id).
-        filter(active=True).order_by('title'), count)
-
-    return g.render('courses.xhtml', paginator=paginator,
-            page_num=page_num,
-            count=count)
+@members_only
+def course_search(request, course_id):
+    course = get_object_or_404(models.Course, pk=course_id)
+    return search(request, in_course=course)
 
 @members_only
 def item_detail(request, course_id, item_id):
@@ -506,7 +536,7 @@ def item_add(request, course_id, item_id):
         course = get_object_or_404(models.Course, pk=course_id)
     else:
         parent_item = get_object_or_404(models.Item, pk=parent_item_id, course__id=course_id)
-        assert parent_item.item_type == 'HEADING', 'Can only add items to headings!'
+        assert parent_item.item_type == 'HEADING', _('You can only add items to headings!')
         course = parent_item.course
 
     if not course.can_edit(request.user):
@@ -515,7 +545,7 @@ def item_add(request, course_id, item_id):
     item_type = request.GET.get('item_type')
     assert item_type, _('No item_type parameter was provided.')
 
-    # for the moment, only HEADINGs, URLs and ELECs can be added.
+    # for the moment, only HEADINGs, URLs and ELECs can be added. fixme.
     assert item_type in ('HEADING', 'URL', 'ELEC'), \
         _('Sorry, only HEADINGs, URLs and ELECs can be added right now.')
 
@@ -651,7 +681,9 @@ def get_query(query_string, search_fields):
             query = query & or_query
     return query
 
+
 #-----------------------------------------------------------------------------
+# Search and search support
 
 def search(request, in_course=None):
     ''' Need to work on this, the basic idea is
@@ -736,12 +768,12 @@ def search(request, in_course=None):
 
 
 #-----------------------------------------------------------------------------
-# administrative options
+# Administrative options
 
+@admin_only
 def admin_index(request):
     return g.render('admin/index.xhtml')
 
-# fixme, no auth or permissions stuff yet.
 
 class TermForm(ModelForm):
     class Meta:
@@ -763,7 +795,8 @@ class TermForm(ModelForm):
             raise ValidationError, _('start must precede finish')
         return cd
 
-admin_terms = generic_handler(TermForm)
+admin_terms = generic_handler(TermForm, decorator=admin_only)
+
 
 class DeptForm(ModelForm):
     class Meta:
@@ -778,7 +811,7 @@ class DeptForm(ModelForm):
     clean_abbreviation = strip_and_nonblank('abbreviation')
     clean_name = strip_and_nonblank('name')
 
-admin_depts = generic_handler(DeptForm)
+admin_depts = generic_handler(DeptForm, decorator=admin_only)
 
 
 class NewsForm(ModelForm):
@@ -794,4 +827,4 @@ class NewsForm(ModelForm):
     clean_subject = strip_and_nonblank('subject')
     clean_body = strip_and_nonblank('body')
 
-admin_news = generic_handler(NewsForm)
+admin_news = generic_handler(NewsForm, decorator=admin_only)
