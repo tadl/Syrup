@@ -19,4 +19,8 @@ urlpatterns = patterns('',
     (r'^static/(?P<path>.*)$', 'django.views.static.serve',
         {'document_root': settings.MEDIA_ROOT}),
     (r'^accounts/(?P<path>.*)$', 'conifer.syrup.views.auth_handler'),
+
+    (r'^syrup/setlang', 'conifer.syrup.views.setlang'),
+    (r'^syrup/i18n/', include('django.conf.urls.i18n')),
+
 )

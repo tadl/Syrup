@@ -11,16 +11,19 @@ from conifer.middleware.genshi_locals import get_request
 #------------------------------------------------------------
 # set up internationalization
 
-if settings.USE_I18N:
-    translations = gettext.GNUTranslations(
-        file('locale/%s/LC_MESSAGES/conifer-syrup.mo' % settings.LANGUAGE_CODE))
-    _ = translations.ugettext
-else:
-    _ = gettext.gettext
+# if settings.USE_I18N:
+#     translations = gettext.GNUTranslations(
+#         file('locale/%s/LC_MESSAGES/conifer-syrup.mo' % settings.LANGUAGE_CODE))
+#     _ = translations.ugettext
+# else:
+#     _ = gettext.gettext
+
+from django.utils import translation
+_ = translation.ugettext
 
 def template_loaded(template):
     if settings.USE_I18N:
-        template.filters.insert(0, Translator(translations.ugettext))
+        template.filters.insert(0, Translator(_))
 
 
 dirs = ['templates']

@@ -1,0 +1,770 @@
+# Translations template for PROJECT.
+# Copyright (C) 2009 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2009-03-10 22:25-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.4\n"
+
+#: syrup/models.py:64
+msgid "custodian"
+msgstr ""
+
+#: syrup/models.py:65
+msgid "staff"
+msgstr ""
+
+#: syrup/models.py:66
+msgid "system administrator"
+msgstr ""
+
+#: syrup/models.py:159
+msgid "World-accessible"
+msgstr ""
+
+#: syrup/models.py:160
+msgid "Accessible to all logged-in users"
+msgstr ""
+
+#: syrup/models.py:161
+msgid "Accessible to course students (by section)"
+msgstr ""
+
+#: syrup/models.py:162
+msgid "Accessible to course students (by invitation code)"
+msgstr ""
+
+#: syrup/models.py:163
+msgid "Accessible only to course owners"
+msgstr ""
+
+#: syrup/models.py:171
+msgid "Registrar keys for class lists"
+msgstr ""
+
+#: syrup/models.py:303 templates/edit_course_permissions.xhtml:26
+#: templates/edit_course_permissions.xhtml:38
+msgid "Instructor"
+msgstr ""
+
+#: syrup/models.py:304
+msgid "Proxy Instructor"
+msgstr ""
+
+#: syrup/models.py:305
+msgid "Student"
+msgstr ""
+
+#: syrup/models.py:346
+msgid "Attached Electronic Document"
+msgstr ""
+
+#: syrup/models.py:347
+msgid "Physical Book or Document"
+msgstr ""
+
+#: syrup/models.py:348 templates/item_add_url.xhtml:24
+#: templates/item_metadata.xhtml:22 templates/components/course.xhtml:58
+msgid "URL"
+msgstr ""
+
+#: syrup/models.py:349 templates/item_add_heading.xhtml:23
+msgid "Heading"
+msgstr ""
+
+#: syrup/models.py:403
+msgid "In Process"
+msgstr ""
+
+#: syrup/models.py:404
+msgid "Active"
+msgstr ""
+
+#: syrup/models.py:405
+msgid "InActive"
+msgstr ""
+
+#: syrup/models.py:487
+msgid "(Markdown not installed)."
+msgstr ""
+
+#: syrup/models.py:494
+msgid "plain text"
+msgstr ""
+
+#: syrup/models.py:495
+msgid "HTML"
+msgstr ""
+
+#: syrup/models.py:496
+msgid "Markdown"
+msgstr ""
+
+#: syrup/views.py:82
+msgid "Invalid username or password. Please try again."
+msgstr ""
+
+#: syrup/views.py:85
+msgid "Sorry, this account has been disabled."
+msgstr ""
+
+#: syrup/views.py:131
+msgid "Only instructors are allowed here."
+msgstr ""
+
+#: syrup/views.py:144
+msgid "Only course members are allowed here."
+msgstr ""
+
+#: syrup/views.py:156
+msgid "Only administrators are allowed here."
+msgstr ""
+
+#: syrup/views.py:192
+msgid "Sorry..."
+msgstr ""
+
+#: syrup/views.py:193
+msgid "The Preferences page isn't ready yet."
+msgstr ""
+
+#: syrup/views.py:281
+msgid "invalid course code"
+msgstr ""
+
+#: syrup/views.py:304
+msgid "You are not allowed to create course sites."
+msgstr ""
+
+#: syrup/views.py:356
+msgid "No students: this site is closed."
+msgstr ""
+
+#: syrup/views.py:357
+msgid "Students in my course -- I will provide section numbers"
+msgstr ""
+
+#: syrup/views.py:358
+msgid "Students in my course -- I will share an Invitation Code with them"
+msgstr ""
+
+#: syrup/views.py:359
+msgid "All Reserves patrons"
+msgstr ""
+
+#: syrup/views.py:482
+msgid "The code you provided is not valid."
+msgstr ""
+
+#: syrup/views.py:549
+msgid "You can only add items to headings!"
+msgstr ""
+
+#: syrup/views.py:553
+msgid "You are not an editor."
+msgstr ""
+
+#: syrup/views.py:556
+msgid "No item_type parameter was provided."
+msgstr ""
+
+#: syrup/views.py:560
+msgid "Sorry, only HEADINGs, URLs and ELECs can be added right now."
+msgstr ""
+
+#: syrup/views.py:653
+msgid "Can only download ELEC documents!"
+msgstr ""
+
+#: syrup/views.py:793 templates/admin/index.xhtml:15
+msgid "Terms"
+msgstr ""
+
+#: syrup/views.py:805
+msgid "start must precede finish"
+msgstr ""
+
+#: syrup/views.py:816 templates/admin/index.xhtml:14
+msgid "Departments"
+msgstr ""
+
+#: syrup/views.py:832 templates/admin/index.xhtml:16
+msgid "News Items"
+msgstr ""
+
+#: templates/browse_courses.xhtml:1
+msgid "Browse the Reserves"
+msgstr ""
+
+#: templates/browse_courses.xhtml:12
+msgid ""
+"(Note: some course materials may require you\n"
+"    to"
+msgstr ""
+
+#: templates/browse_courses.xhtml:14
+msgid "log in"
+msgstr ""
+
+#: templates/browse_courses.xhtml:15
+msgid "Choose from one of the options below:"
+msgstr ""
+
+#: templates/browse_courses.xhtml:17
+msgid "Browse by Instructor"
+msgstr ""
+
+#: templates/browse_courses.xhtml:18
+msgid "Browse by Department"
+msgstr ""
+
+#: templates/browse_courses.xhtml:19
+msgid "Browse by Course Name"
+msgstr ""
+
+#: templates/course_detail.xhtml:18 templates/edit_course.xhtml:1
+#: templates/edit_course_permissions.xhtml:17
+msgid "Edit course details"
+msgstr ""
+
+#: templates/course_detail.xhtml:20
+msgid "There are no items associated with this course yet."
+msgstr ""
+
+#: templates/course_invitation.xhtml:1 templates/my_courses.xhtml:26
+msgid "Join a course using an Invitation Code"
+msgstr ""
+
+#: templates/course_invitation.xhtml:13
+msgid ""
+"Your instructor may have provided you with an Invitation Code,\n"
+"  which will give you access to your course's reserves. Enter the\n"
+"  invitation code below to continue. Note that not all courses require\n"
+"  an invitation code; contact your instructor or the library staff for\n"
+"  more information."
+msgstr ""
+
+#: templates/course_invitation.xhtml:21
+msgid "Invitation Code:"
+msgstr ""
+
+#: templates/course_invitation.xhtml:22 templates/edit_course.xhtml:39
+msgid "Continue"
+msgstr ""
+
+#: templates/course_invitation.xhtml:22
+msgid "Go back"
+msgstr ""
+
+#: templates/edit_course.xhtml:1
+msgid "Add a new course site"
+msgstr ""
+
+#: templates/edit_course.xhtml:19 templates/edit_course_permissions.xhtml:1
+msgid "Edit course permissions"
+msgstr ""
+
+#: templates/edit_course.xhtml:19 templates/edit_course_permissions.xhtml:17
+msgid "Return to course page"
+msgstr ""
+
+#: templates/edit_course.xhtml:29
+msgid "e.g.,"
+msgstr ""
+
+#: templates/edit_course.xhtml:31
+msgid "General description"
+msgstr ""
+
+#: templates/edit_course.xhtml:43 templates/edit_course.xhtml:48
+msgid "Delete this course"
+msgstr ""
+
+#: templates/edit_course.xhtml:46
+msgid "Yes, I want to delete this course site and all of its contents."
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:19
+msgid "Instructor Access"
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:23
+msgid "Person"
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:23
+msgid "Role"
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:23
+#: templates/edit_course_permissions.xhtml:77
+msgid "Remove?"
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:36
+msgid "Username of the new instructor."
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:38
+msgid "INSTR"
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:39
+msgid "PROXY"
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:39
+msgid "Proxy instructor"
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:46
+msgid "Save changes to instructors"
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:48
+msgid "Student Access"
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:49
+msgid "Who will have student-level access to this site?"
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:52
+msgid "Course Invitation Code"
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:53
+msgid "Your Course Invitation Code is:"
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:55
+msgid "Select a new code"
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:58
+msgid ""
+"This invitation code will enable your students to join this\n"
+"      course site. Share it only with your students: anyone who has\n"
+"      the code can join your site."
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:61
+msgid ""
+"You may change the code at any time. This will not block\n"
+"      students who have already joined, but will prevent new students\n"
+"      from joining with the old code."
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:66
+msgid "Course section numbers"
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:77
+msgid "Associated section"
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:82
+#: templates/edit_course_permissions.xhtml:94
+msgid ", section"
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:82
+#: templates/edit_course_permissions.xhtml:94
+msgid ", in term"
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:87
+msgid "Add section:"
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:100
+msgid "Save changes to student access"
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:103
+msgid "Class List"
+msgstr ""
+
+#: templates/edit_course_permissions.xhtml:104
+msgid "The following users have student-level access in this course site."
+msgstr ""
+
+#: templates/instructors.xhtml:1
+msgid "Instructors"
+msgstr ""
+
+#: templates/instructors.xhtml:12 templates/open_courses.xhtml:12
+#: templates/search_results.xhtml:14 templates/z3950_test.xhtml:13
+msgid "$(function() { $('.pagetable').tablesorter(); });"
+msgstr ""
+
+#: templates/instructors.xhtml:19
+msgid "Name"
+msgstr ""
+
+#: templates/item_add_elec.xhtml:1
+msgid "Edit an electronic document"
+msgstr ""
+
+#: templates/item_add_elec.xhtml:1
+msgid "Add a new electronic document"
+msgstr ""
+
+#: templates/item_add_elec.xhtml:13 templates/item_add_heading.xhtml:13
+#: templates/item_add_url.xhtml:13
+msgid "$(function() {$('input[@name=\"title\"]').focus();});"
+msgstr ""
+
+#: templates/item_add_elec.xhtml:25 templates/item_add_elec.xhtml:37
+msgid "Title of document"
+msgstr ""
+
+#: templates/item_add_elec.xhtml:28 templates/item_add_elec.xhtml:45
+msgid "File"
+msgstr ""
+
+#: templates/item_add_elec.xhtml:30
+msgid "Upload file and Create item"
+msgstr ""
+
+#: templates/item_add_elec.xhtml:40
+msgid "Update item"
+msgstr ""
+
+#: templates/item_add_elec.xhtml:42
+msgid "Replace the current file with a new file"
+msgstr ""
+
+#: templates/item_add_elec.xhtml:47
+msgid "Upload new file"
+msgstr ""
+
+#: templates/item_add_heading.xhtml:1
+msgid "Edit a subheading"
+msgstr ""
+
+#: templates/item_add_heading.xhtml:1
+msgid "Add a new subheading"
+msgstr ""
+
+#: templates/item_add_heading.xhtml:29
+msgid "Add heading"
+msgstr ""
+
+#: templates/item_add_heading.xhtml:30
+msgid "Update heading"
+msgstr ""
+
+#: templates/item_add_url.xhtml:1
+msgid "Edit a URL"
+msgstr ""
+
+#: templates/item_add_url.xhtml:1
+msgid "Add a new URL"
+msgstr ""
+
+#: templates/item_add_url.xhtml:23 templates/item_metadata.xhtml:19
+#: templates/open_courses.xhtml:19 templates/search_results.xhtml:70
+msgid "Title"
+msgstr ""
+
+#: templates/item_add_url.xhtml:27
+msgid "Add URL"
+msgstr ""
+
+#: templates/item_add_url.xhtml:28
+msgid "Update URL"
+msgstr ""
+
+#: templates/item_heading_detail.xhtml:20
+msgid "There are no items in this section."
+msgstr ""
+
+#: templates/item_metadata.xhtml:20
+msgid "Type"
+msgstr ""
+
+#: templates/item_metadata.xhtml:21 templates/search_results.xhtml:70
+msgid "Author"
+msgstr ""
+
+#: templates/item_metadata.xhtml:25
+msgid "Download"
+msgstr ""
+
+#: templates/item_metadata.xhtml:27
+msgid "Content type"
+msgstr ""
+
+#: templates/item_metadata.xhtml:28
+msgid "Content length"
+msgstr ""
+
+#: templates/master.xhtml:1
+msgid "Syrup E-Reserve System"
+msgstr ""
+
+#: templates/master.xhtml:1
+msgid "search..."
+msgstr ""
+
+#: templates/master.xhtml:43
+msgid "Welcome,"
+msgstr ""
+
+#: templates/master.xhtml:44
+msgid "Log Out"
+msgstr ""
+
+#: templates/master.xhtml:45 templates/master.xhtml:52
+msgid "Language"
+msgstr ""
+
+#: templates/master.xhtml:46
+msgid "Preferences"
+msgstr ""
+
+#: templates/master.xhtml:47
+msgid "Admin UI"
+msgstr ""
+
+#: templates/master.xhtml:50 templates/welcome.xhtml:1
+msgid "Welcome!"
+msgstr ""
+
+#: templates/master.xhtml:51
+msgid "Log In"
+msgstr ""
+
+#: templates/master.xhtml:69
+msgid "Start Over"
+msgstr ""
+
+#: templates/master.xhtml:70
+msgid "Syrup is a subproject of"
+msgstr ""
+
+#: templates/master.xhtml:71
+msgid "Project Conifer"
+msgstr ""
+
+#: templates/my_courses.xhtml:1 templates/tabbar.xhtml:12
+msgid "My Courses"
+msgstr ""
+
+#: templates/my_courses.xhtml:19
+msgid "You are not part of any courses at this time."
+msgstr ""
+
+#: templates/my_courses.xhtml:25
+msgid "Create a new course site"
+msgstr ""
+
+#: templates/open_courses.xhtml:1
+msgid "Open Courses"
+msgstr ""
+
+#: templates/open_courses.xhtml:19
+msgid "Term"
+msgstr ""
+
+#: templates/open_courses.xhtml:19
+msgid "Code"
+msgstr ""
+
+#: templates/paginate.xhtml:21
+msgid "Previous"
+msgstr ""
+
+#: templates/paginate.xhtml:30
+msgid "Next"
+msgstr ""
+
+#: templates/search_results.xhtml:1
+msgid "Search Results"
+msgstr ""
+
+#: templates/search_results.xhtml:21
+msgid "You searched:"
+msgstr ""
+
+#: templates/search_results.xhtml:35
+msgid "Last Name"
+msgstr ""
+
+#: templates/search_results.xhtml:35
+msgid "First Name"
+msgstr ""
+
+#: templates/search_results.xhtml:44 templates/search_results.xhtml:62
+msgid "more...)"
+msgstr ""
+
+#: templates/search_results.xhtml:53
+msgid "Course"
+msgstr ""
+
+#: templates/setlang.xhtml:1
+msgid "Choose your language."
+msgstr ""
+
+#: templates/setlang.xhtml:15
+msgid "/syrup/"
+msgstr ""
+
+#: templates/setlang.xhtml:20
+msgid "Go"
+msgstr ""
+
+#: templates/tabbar.xhtml:10 templates/tabbar_anonymous.xhtml:10
+msgid "Home"
+msgstr ""
+
+#: templates/tabbar.xhtml:11 templates/tabbar_anonymous.xhtml:11
+msgid "Browse"
+msgstr ""
+
+#: templates/tabbar.xhtml:13
+msgid "Admin Options"
+msgstr ""
+
+#: templates/welcome.xhtml:13
+msgid ""
+"Welcome! Please use the links above to browse the reserves, or to join "
+"and visit your course sites."
+msgstr ""
+
+#: templates/welcome.xhtml:17
+msgid "posted"
+msgstr ""
+
+#: templates/welcome.xhtml:18 templates/components/course.xhtml:36
+msgid "edit"
+msgstr ""
+
+#: templates/welcome.xhtml:20
+msgid "Add a news item"
+msgstr ""
+
+#: templates/z3950_test.xhtml:1
+msgid "Z39.50 Test"
+msgstr ""
+
+#: templates/admin/index.xhtml:1
+msgid "Administrative Options"
+msgstr ""
+
+#: templates/admin/term.xhtml:1
+msgid "Add a new Term"
+msgstr ""
+
+#: templates/admin/term.xhtml:15
+msgid "Save"
+msgstr ""
+
+#: templates/auth/login.xhtml:1
+msgid "Syrup E-Reserves: Please log in"
+msgstr ""
+
+#: templates/auth/login.xhtml:10
+msgid "$(function() {$('#userid').focus();});"
+msgstr ""
+
+#: templates/auth/login.xhtml:15
+msgid "Please log in."
+msgstr ""
+
+#: templates/auth/login.xhtml:21
+msgid "User ID:"
+msgstr ""
+
+#: templates/auth/login.xhtml:25
+msgid "Password:"
+msgstr ""
+
+#: templates/auth/login.xhtml:29
+msgid "Log in"
+msgstr ""
+
+#: templates/components/course.xhtml:1
+msgid "search this course..."
+msgstr ""
+
+#: templates/components/course.xhtml:35
+msgid "about"
+msgstr ""
+
+#: templates/components/course.xhtml:48
+msgid "Top"
+msgstr ""
+
+#: templates/components/course.xhtml:55
+msgid "Add a new item:"
+msgstr ""
+
+#: templates/components/course.xhtml:57
+msgid "Subheading"
+msgstr ""
+
+#: templates/components/course.xhtml:59
+msgid "Electronic Document"
+msgstr ""
+
+#: templates/components/course.xhtml:60
+msgid "Physical Book/Document"
+msgstr ""
+
+#: templates/generic/delete.xhtml:1
+#, python-format
+msgid "Delete %s?"
+msgstr ""
+
+#: templates/generic/delete.xhtml:20
+msgid "Delete"
+msgstr ""
+
+#: templates/generic/delete.xhtml:21
+msgid "Cancel"
+msgstr ""
+
+#: templates/generic/edit.xhtml:1
+#, python-format
+msgid "Modify %s"
+msgstr ""
+
+#: templates/generic/edit.xhtml:1
+#, python-format
+msgid "Add %s"
+msgstr ""
+
+#: templates/generic/edit.xhtml:18
+msgid "Save changes"
+msgstr ""
+
+#: templates/generic/edit.xhtml:19
+msgid "Cancel changes"
+msgstr ""
+
+#: templates/generic/edit.xhtml:20
+msgid "Delete this record"
+msgstr ""
+
+#: templates/generic/index.xhtml:11
+msgid "$(function() { $('table').tablesorter(); });"
+msgstr ""
+
+#: templates/generic/index.xhtml:29
+msgid "Add"
+msgstr ""
+

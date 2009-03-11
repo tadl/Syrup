@@ -2,8 +2,18 @@
 
 import os
 
-PROJECT = 'conifer-syrup'
+PROJECT = 'django'
 LOCALES = ['en_US', 'fr_CA']
+
+import settings
+def convert_locale_code(code):
+    parts = code.split('-')
+    if len(parts) > 1:
+        return '%s_%s' % (parts[0], parts[1].upper())
+    else:
+        return parts
+
+LOCALES = [convert_locale_code(code) for code, descr in settings.LANGUAGES]
 
 # extraction
 

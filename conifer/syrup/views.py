@@ -26,7 +26,8 @@ from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.utils import simplejson
 from generics import *
-from gettext import gettext as _ # fixme, is this the right function to import?
+#from gettext import gettext as _ # fixme, is this the right function to import?
+from django.utils.translation import ugettext as _
 import conifer.genshi_support as g
 import django.forms
 import re
@@ -159,6 +160,9 @@ def admin_only(handler):
 
 def welcome(request):
     return g.render('welcome.xhtml')
+
+def setlang(request):
+    return g.render('setlang.xhtml')
 
 def open_courses(request):
     page_num = int(request.GET.get('page', 1))

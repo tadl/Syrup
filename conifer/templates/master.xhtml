@@ -42,12 +42,14 @@ search = _('search...')
       <span py:if="user.is_authenticated()">
 	<strong style="padding-right: 18;">Welcome, ${user.first_name or user.username}!</strong>
 	<a href="/accounts/logout">Log Out</a>
+	&bull; <a href="/syrup/setlang">Language</a>
 	&bull; <a href="/syrup/prefs/">Preferences</a>
 	&bull; <a href="/admin/">Admin UI</a>
       </span>
       <span py:if="not user.is_authenticated()">
 	<strong style="padding-right: 18;">Welcome!</strong>
 	<a class="loginbutton" href="/accounts/login/">Log In</a>
+	<a style="margin-left: 24;" href="/syrup/setlang">Language</a>
       </span>
     </div>
       <xi:include py:if="user.is_authenticated()" href="tabbar.xhtml"/>

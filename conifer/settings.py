@@ -35,6 +35,12 @@ TIME_ZONE = 'America/Detroit'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en_US'
 
+# Please only include languages here for which we have a locale in our
+# locale/ directory.
+LANGUAGES = [("en-us", "English"),
+             ("fr-ca", "Canadian French"),
+             ]
+
 SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not
@@ -70,6 +76,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'conifer.middleware.genshi_locals.ThreadLocals',
+    'django.middleware.locale.LocaleMiddleware',
+    'babeldjango.middleware.LocaleMiddleware',
     # TransactionMiddleware should be last...
     'django.middleware.transaction.TransactionMiddleware',
 )
