@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2009-03-10 22:25-0400\n"
+"POT-Creation-Date: 2009-03-12 18:41-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -312,6 +312,11 @@ msgstr ""
 msgid "Remove?"
 msgstr ""
 
+#: templates/edit_course_permissions.xhtml:26
+#: templates/edit_course_permissions.xhtml:39
+msgid "Proxy instructor"
+msgstr ""
+
 #: templates/edit_course_permissions.xhtml:36
 msgid "Username of the new instructor."
 msgstr ""
@@ -322,10 +327,6 @@ msgstr ""
 
 #: templates/edit_course_permissions.xhtml:39
 msgid "PROXY"
-msgstr ""
-
-#: templates/edit_course_permissions.xhtml:39
-msgid "Proxy instructor"
 msgstr ""
 
 #: templates/edit_course_permissions.xhtml:46

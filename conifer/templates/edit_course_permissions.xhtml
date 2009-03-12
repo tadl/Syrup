@@ -25,7 +25,7 @@ instructors = [m for m in models.Member.objects.filter(course=course) if m.role 
       <tbody>
 	<select py:def="select_role(mbr)" 
 		py:replace="Markup(django.forms.Select(choices=
-			    [(u'INSTR',_(u'Instructor')), (u'PROXY', _(u'Proxy instructor'))])
+			    [(u'INSTR',_('Instructor')), (u'PROXY', _('Proxy instructor'))])
 			    .render('instructor_role_%d' % mbr.id, mbr.role))"/>
       <tr py:for="mbr in instructors">
 	<td>${mbr.user.get_full_name() or ''} <code>(${mbr.user.username})</code></td>
