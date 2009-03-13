@@ -22,6 +22,7 @@ searchtext = _('search this course...')
       ${course_search(course)}
       <h1><a href="${course.course_url()}"><span py:if="course.code">${course.code}: </span>${course.title}</a></h1>
     </div>
+      <div id="feeds_panel"><a href="${course.course_url('feeds/')}">Feeds</a></div>
   </div>
   
   <!-- !show_tree: display a tree of items in a hierarchical style. -->

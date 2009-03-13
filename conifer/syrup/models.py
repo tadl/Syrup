@@ -422,7 +422,7 @@ class Item(m.Model):
 
 
     date_created = m.DateTimeField(auto_now_add=True)
-    last_modified = m.DateTimeField()
+    last_modified = m.DateTimeField(auto_now=True)
 
     def title_hl(self, terms):
         hl_title = self.title
@@ -458,12 +458,12 @@ class Item(m.Model):
 
         return self.item_type in ('ELEC', 'URL')
 
-    def item_url(self, suffix=''):
+    def item_url(self, suffix='', force_local_url=False):
         if self.item_type == 'ELEC' and suffix == '':
             return '/syrup/course/%d/item/%d/dl/%s' % (
                 self.course_id, self.id, 
                 self.fileobj.name.split('/')[-1])
-        if self.item_type == 'URL' and suffix == '':
+        if self.item_type == 'URL' and suffix == '' and not force_local_url:
             return self.url
         else:
             return '/syrup/course/%d/item/%d/%s' % (

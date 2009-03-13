@@ -199,6 +199,8 @@ p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: 
 
 #edit_course_link { margin: 8 0 8 0; font-size: 95%; }
 
+#feeds_panel { float: right; font-size: 95%; margin: 8 0; }
+
 .breadcrumbs { margin: 8 8 8 0; }
 
 .errorlist { float: right; }

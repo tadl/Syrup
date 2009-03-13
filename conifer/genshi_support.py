@@ -43,8 +43,8 @@ def _inject_django_things_into_namespace(request, ns):
 #------------------------------------------------------------
 # main API
 
-def render(tname, _django_type=HttpResponse, **kwargs):
+def render(tname, _django_type=HttpResponse, _serialization='xhtml', **kwargs):
     request = get_request()
     _inject_django_things_into_namespace(request, kwargs)
-    return _django_type(template(tname).generate(**kwargs).render('xhtml'))
+    return _django_type(template(tname).generate(**kwargs).render(_serialization))
 

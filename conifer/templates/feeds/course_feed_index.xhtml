@@ -1,0 +1,22 @@
+<?python
+title = _('Available Feeds')
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="../master.xhtml"/>
+  <xi:include href="../components/course.xhtml"/>
+  <head>
+    <title>${title}</title>
+    <script type="text/javascript" src="/static/menublocks.js"/>
+  </head>
+  <body>
+    ${course_banner(course)}
+    <h2>Available Feeds</h2>
+    <ul>
+      <li><a href="recent-changes">Recent changes</a></li>
+      <li><a href="top-level">Top level items in this site</a></li>
+      <li><a href="tree">Tree-walk of all items in this site</a></li>
+    </ul>
+  </body>
+</html>

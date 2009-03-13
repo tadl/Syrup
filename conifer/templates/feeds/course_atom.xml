@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <title>Reserves (${feed_type}) for ${course.list_display()}</title>
+  <link href="${root}${course.course_url()}"
+  rel="alternate"/>
+  <link href="${root}${course.course_url('feeds/' + feed_type)}"
+  rel="self"/>
+  <id>${root}${course.course_url('feeds/') + feed_type}</id>
+  <updated>${lastmod.strftime("%Y-%m-%dT%H:%M:%SZ")}</updated>
+  <entry py:for="item in items">
+    <title>${render_title(item)}</title>
+    <link href="${root}${item.item_url(force_local_url=True)}"
+    rel="alternate"></link>
+    <updated>${item.last_modified.strftime("%Y-%m-%dT%H:%M:%SZ")}</updated>
+    <id>${root}${item.item_url('')}</id>
+    <summary type="html">${item.get_item_type_display()}.
+    <div py:if="item.item_type=='HEADING'" py:strip="True">
+      Contains ${len(models.Item.objects.filter(parent_heading=item))} items.
+    </div>
+  </summary>
+  </entry>
+</feed>
