@@ -14,6 +14,7 @@
 # tidy. Views/__init__ would import all the other bits: that ought to
 # satisfy Django.
 
+import warnings
 from conifer.syrup import models
 from datetime import datetime
 from django.contrib.auth import authenticate, login, logout
@@ -33,25 +34,35 @@ import django.forms
 import re
 import sys
 
-# Graham needs this import hackery to get PyZ3950 working. Presumably
-# Art can 'import profile; import lex', so this hack won't run for
-# him.
+#-----------------------------------------------------------------------------
+# Z39.50 Support
+#
+# This is experimental at this time, and requires some tricky Python
+# imports as far as I can tell. For that reason, let's keep the Z39.50
+# support optional for now. If you have Ply and PyZ3950, we'll load
+# and use it; if not, no worries, everything else will workk.
 
 try:
-    import profile
-    import lex
-    import yacc
-except ImportError:
-    sys.modules['profile'] = sys # just get something called 'profile';
-                                 # it's not actually used.
-    import ply.lex              
-    import ply.yacc             # pyz3950 thinks these are toplevel modules.
-    sys.modules['lex'] = ply.lex
-    sys.modules['yacc'] = ply.yacc
+    # Graham needs this import hackery to get PyZ3950 working. Presumably
+    # Art can 'import profile; import lex', so this hack won't run for
+    # him.
+    try:
+        import profile
+        import lex
+        import yacc
+    except ImportError:
+        sys.modules['profile'] = sys # just get something called 'profile';
+                                     # it's not actually used.
+        import ply.lex              
+        import ply.yacc             # pyz3950 thinks these are toplevel modules.
+        sys.modules['lex'] = ply.lex
+        sys.modules['yacc'] = ply.yacc
 
-# for Z39.50 support, not sure whether this is the way to go yet but
-# as generic as it gets
-from PyZ3950 import zoom
+    # for Z39.50 support, not sure whether this is the way to go yet but
+    # as generic as it gets
+    from PyZ3950 import zoom
+except:
+    warnings.warn('Could not load Z39.50 support.')
 
 #-----------------------------------------------------------------------------
 # poor-man's logging. Not sure we need more yet.
