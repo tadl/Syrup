@@ -895,5 +895,5 @@ def course_feeds(request, course_id, feed_type):
                         lastmod=lastmod,
                         render_title=render_title,
                         items=items,
-                        root='http://localhost:8000',
+                        root='http://%s' % request.get_host(),
                         _serialization='xml')
