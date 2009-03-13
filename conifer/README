@@ -18,7 +18,32 @@ at the moment.
 Required Python components
 ------------------------------
 
-sudo easy_install Django Genshi Babel BabelDjango
+You need Python. Probably Python 2.5, I haven't tested with other
+versions. You also need sqlite3 or another Django-compatible
+database. Sqlite3 is recommended for kicking the tires, PostgreSQL for
+production.
+
+Third-party dependencies:
+
+  sudo easy_install Django Genshi Babel BabelDjango pycrypto 
+
+Optionally, you can also install:
+
+  sudo easy_install ply PyZ3950
+
+...though these are just for some Z39.50 code we are testing and
+aren't part of the Syrup Experience yet.
+
+Graham has the following versions installed. Not saying you need these
+exact ones, just that they are known to work.
+
+    Django-1.0.1_final-py2.5
+    Babel-0.9.4-py2.5
+    BabelDjango-0.2.2-py2.5
+    Genshi-0.5.1-py2.5-linux-i686
+    pycrypto-2.0.1-py2.5-linux-i686
+    PyZ3950-2.04-py2.5-linux-i686
+    ply-3.1-py2.5
 
 
 Getting this thing to run
@@ -26,10 +51,8 @@ Getting this thing to run
 
 This might work:
 
-* cp local_settings.py.in local_settings.py
-
-* edit local_settings.py and set X_BASE_DIRECTORY to the the name of
-  the directory this file is in. (This is a hack, will remove soon.)
+* Review settings.py. Maybe you need to edit stuff. Probably not for a
+  quick test.
 
 * ./manage.py syncdb
 
@@ -39,16 +62,16 @@ This might work:
 
 * ./manage.py runserver
 
-* visit http://localhost:8000/admin/ and log in
+* visit http://localhost:8000/syrup/ and log in.
 
-* Create a Term, a Course, and a Member record, adding your superuser
-  acct to the Course via the Member record.
+* create at least one Term and one Department under Admin Options.
 
-* visit http://localhost:8000/syrup/ and log in (if you're not already
-  logged in from the admin screens) to see the main interface.
+* make yourself a course.
+
+* click on all of the links and see what they do.
 
 
-Contents
+Contents [out of date -- Ed.]
 ------------------------------
 
 syrup/			-- the reserves app
