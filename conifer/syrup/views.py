@@ -261,9 +261,21 @@ def my_courses(request):
 def instructor_detail(request, instructor_id):
     page_num = int(request.GET.get('page', 1))
     count = int(request.GET.get('count', 5))
+    '''
+    i am not sure this is the best way to go from instructor
+    to course
+    '''
+    members = models.Member.objects.get(user__id=instructor_id, 
+        role='INSTR')
     paginator = Paginator(models.Course.objects.
-        filter(member__id=instructor_id).
-        filter(active=True).order_by('title'), count)
+        filter(member__id=members.id).
+        order_by('title'), count)
+
+    '''
+    no concept of active right now, maybe suppressed is a better
+    description anyway?
+    '''
+        # filter(active=True).order_by('title'), count)
 
     return g.render('courses.xhtml', paginator=paginator,
             page_num=page_num,
