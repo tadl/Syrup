@@ -11,6 +11,10 @@ import django.forms
 def instructor_url(instructor, suffix=''):
     return '/syrup/instructor/%d/%s' % (instructor.id, suffix)
 
+# added to make department browse
+def department_url(department, suffix=''):
+    return '/syrup/department/%d/%s' % (department.id, suffix)
+
 
 def call_or_value(obj, dflt=None):
     # This is used by the generics templates.
