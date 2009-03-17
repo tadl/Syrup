@@ -23,5 +23,5 @@ from conifer.syrup.models import *
 #         admin.site.register(value)
 
 for m in [LibraryUnit, ServiceDesk, Member, Department, Course, Term, UserProfile, NewsItem, 
-          Item]:
+          Item, Target]:
     admin.site.register(m)

@@ -60,7 +60,7 @@ try:
 
     # for Z39.50 support, not sure whether this is the way to go yet but
     # as generic as it gets
-    from PyZ3950 import zoom
+    from PyZ3950 import zoom, zmarc
 except:
     warnings.warn('Could not load Z39.50 support.')
 
@@ -210,10 +210,11 @@ def user_prefs(request):
 
 def z3950_test(request):
     conn = zoom.Connection ('z3950.loc.gov', 7090)
+    #conn = zoom.Connection ('webvoy.uwindsor.ca', 9000)
     conn.databaseName = 'VOYAGER'
     conn.preferredRecordSyntax = 'USMARC'
     query = zoom.Query ('CCL', 'ti="1066 and all that"')
-    # print("connecting...")
+    print("connecting...")
     res = conn.search (query)
     collector = []
     for r in res:
@@ -804,6 +805,64 @@ def search(request, in_course=None):
 
     return g.render('search_results.xhtml', **locals())
 
+#-----------------------------------------------------------------------------
+# Z39.50 support
+
+def zsearch(request):
+    ''' 
+    '''
+    if request.method == 'GET':
+        targets_list = models.Target.objects.filter(active=True).order_by('name')
+        targets_len = len(targets_list)
+        return g.render('zsearch.xhtml', **locals())
+    else:
+        start = int(request.POST.get('start', 1))
+        count = int(request.POST.get('count', 5))
+        search_target= models.Target.objects.get(name=request.POST['target'])
+        conn = zoom.Connection (search_target.host, search_target.port)
+        conn.databaseName = search_target.db
+        conn.preferredRecordSyntax = search_target.syntax
+        # query = zoom.Query ('CCL', '%s="%s"' % ('ti','1066 and all that'))
+        query = zoom.Query ('CCL', '%s="%s"' % ('ti',request.POST['ztitle']))
+        # print("connecting...")
+        res = conn.search (query)
+        collector = []
+
+        for r in res[start: start + count]:
+            if r.syntax <> 'USMARC':
+                collector.append ((None, 'Unsupported syntax: ' + r.syntax, None))
+            else:
+                raw = r.data
+
+                # Convert to MARC
+                marcdata = zmarc.MARC(raw)
+                # print marcdata
+
+                # Convert to MARCXML
+                marcxml = marcdata.toMARCXML()
+                print marcxml
+
+                # How to Remove non-ascii characters (in case this is a problem)
+                marcxmlascii = unicode(marcxml, 'ascii', 'ignore').encode('ascii')
+                
+                bibid = marcdata.fields[1][0]
+                title = " ".join ([v[1] for v in marcdata.fields [245][0][2]])
+
+                # And then Amara XML tools would allow using xpath
+                '''
+                title = ""
+                doc = binderytools.bind_string(marcxml)
+                t = doc.xml_xpath("//datafield[@tag='245']/subfield[@code='a']")
+                if len(title)>0:
+                    title = t[0].xml_text_content()
+                '''
+                
+                collector.append ((bibid, title))
+        conn.close ()
+        # print("done searching...")
+
+    return g.render('zsearch_results.xhtml', **locals())
+
 
 #-----------------------------------------------------------------------------
 # Administrative options
@@ -883,6 +942,21 @@ class ItemForm(ModelForm):
     clean_author = strip_and_nonblank('author')
 
 admin_items = generic_handler(ItemForm, decorator=admin_only)
+
+class TargetForm(ModelForm):
+    class Meta:
+        model = models.Target
+
+    class Index:
+        title = _('Targets')
+        all   = models.Target.objects.order_by('name').all
+        cols  = ['name', 'host']
+        links = [0,1]
+
+    clean_name = strip_and_nonblank('name')
+    clean_host = strip_and_nonblank('host')
+
+admin_targets = generic_handler(TargetForm, decorator=admin_only)
 ###
 
 

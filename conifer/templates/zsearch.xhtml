@@ -1,0 +1,23 @@
+<?python
+title = _('Search via Z39.50')
+targets = targets_list
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="master.xhtml"/>
+<head>
+  <title>${title}</title>
+</head>
+<body>
+    <h1>${title}</h1> 
+    <form py:if="targets" action="." method="POST">
+    <select name="target" py:for="target in targets">
+            <option>${target.name}</option>
+    </select>
+    Title: <input id="ztitle" name="ztitle" maxlength="100" size="100" type="text"/>
+    <p><input type="submit" value="Search target"/></p>
+    </form>
+  <div class="gap"/>
+</body>
+</html>

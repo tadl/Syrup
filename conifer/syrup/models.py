@@ -391,6 +391,11 @@ class Item(m.Model):
 
     # Physical Item properties
 
+    '''
+    want to add enumeration and chronology info 
+    '''
+    # enumeration = m.CharField(max_length=255, blank=True, null=True) 
+    # chronology = m.CharField(max_length=255, blank=True, null=True) 
     call_number = m.CharField(max_length=30, blank=True, null=True) # long enough?
     barcode = m.CharField(max_length=30, blank=True, null=True)     # long enough?
     
@@ -506,3 +511,17 @@ class NewsItem(m.Model):
             return Markup(self.body)
         elif self.encoding == 'markdown':
             return Markup(do_markdown(self.body))
+
+#----------------------------------------------------------------------
+# Z39.50 Support
+
+class Target(m.Model):
+    name = m.CharField(max_length=100)
+    host = m.CharField(max_length=50)
+    db = m.CharField(max_length=50)
+    port = m.IntegerField(default=210)
+    syntax = m.CharField(max_length=10,default='USMARC')
+    active = m.BooleanField(default=True)
+
+    def __unicode__(self):
+        return self.name
