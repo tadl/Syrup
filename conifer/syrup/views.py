@@ -849,7 +849,6 @@ def zsearch(request):
         start = (page_num - 1) * count
         end = (page_num * count) + 1
         for r in res[0: start]:
-                print("none")
                 collector.append ((None, None))
         for r in res[start + 1: end]:
             if r.syntax <> 'USMARC':
@@ -885,7 +884,6 @@ def zsearch(request):
                 collector.append ((bibid, unicode(title, 'ascii', 'ignore')))
         if end < len(res):
             for r in res[end + 1:len(res)]:
-                    print("end none")
                     collector.append ((None, None))
         conn.close ()
         # print("done searching...")
@@ -893,7 +891,10 @@ def zsearch(request):
 
     print("page_num is %d" % page_num)
     print("returning...")
-    return g.render('zsearch_results.xhtml', **locals())
+    #return g.render('zsearch_results.xhtml', **locals())
+    return g.render('zsearch_results.xhtml', paginator=paginator,
+                    page_num=page_num,
+                    count=count, target=target, tquery=tquery)
 
 
 #-----------------------------------------------------------------------------
