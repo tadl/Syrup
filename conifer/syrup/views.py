@@ -811,24 +811,47 @@ def search(request, in_course=None):
 def zsearch(request):
     ''' 
     '''
-    if request.method == 'GET':
+        
+    if request.GET.get('page')==None:
+        print("nope")
+    page_num = int(request.GET.get('page', 1))
+    count = int(request.POST.get('count', 5))
+
+    if request.GET.get('page')==None and request.method == 'GET':
         targets_list = models.Target.objects.filter(active=True).order_by('name')
         targets_len = len(targets_list)
         return g.render('zsearch.xhtml', **locals())
     else:
-        start = int(request.POST.get('start', 1))
-        count = int(request.POST.get('count', 5))
-        search_target= models.Target.objects.get(name=request.POST['target'])
+            
+        target = request.GET.get('target')
+        if request.method == 'POST':
+            target = request.POST['target']
+        print("target is %s" % target)
+            
+        tquery = request.GET.get('query')
+        if request.method == 'POST':
+            tquery = request.POST['ztitle']
+        search_target= models.Target.objects.get(name=target)
         conn = zoom.Connection (search_target.host, search_target.port)
         conn.databaseName = search_target.db
         conn.preferredRecordSyntax = search_target.syntax
-        # query = zoom.Query ('CCL', '%s="%s"' % ('ti','1066 and all that'))
-        query = zoom.Query ('CCL', '%s="%s"' % ('ti',request.POST['ztitle']))
-        # print("connecting...")
+        query = zoom.Query ('CCL', '%s="%s"' % ('ti',tquery))
         res = conn.search (query)
+        print("results are %d" % len(res))
         collector = []
 
-        for r in res[start: start + count]:
+        '''
+        need to add some plumbing for scan if possible
+        suspect this is too much overhead, though it could just be
+        the target z39.50 server that is slow
+        '''
+        # we fudge this since it has more overhead 
+        start = (page_num - 1) * count
+        end = (page_num * count) + 1
+        for r in res[0: start]:
+                print("none")
+                collector.append ((None, None))
+        for r in res[start + 1: end]:
             if r.syntax <> 'USMARC':
                 collector.append ((None, 'Unsupported syntax: ' + r.syntax, None))
             else:
@@ -839,11 +862,11 @@ def zsearch(request):
                 # print marcdata
 
                 # Convert to MARCXML
-                marcxml = marcdata.toMARCXML()
-                print marcxml
+                # marcxml = marcdata.toMARCXML()
+                # print marcxml
 
                 # How to Remove non-ascii characters (in case this is a problem)
-                marcxmlascii = unicode(marcxml, 'ascii', 'ignore').encode('ascii')
+                #marcxmlascii = unicode(marcxml, 'ascii', 'ignore').encode('ascii')
                 
                 bibid = marcdata.fields[1][0]
                 title = " ".join ([v[1] for v in marcdata.fields [245][0][2]])
@@ -857,10 +880,19 @@ def zsearch(request):
                     title = t[0].xml_text_content()
                 '''
                 
-                collector.append ((bibid, title))
+                # collector.append ((bibid, title))
+                #this is not a good situation but will leave for now
+                collector.append ((bibid, unicode(title, 'ascii', 'ignore')))
+        if end < len(res):
+            for r in res[end + 1:len(res)]:
+                    print("end none")
+                    collector.append ((None, None))
         conn.close ()
         # print("done searching...")
+        paginator = Paginator(collector, count) 
 
+    print("page_num is %d" % page_num)
+    print("returning...")
     return g.render('zsearch_results.xhtml', **locals())
 
 

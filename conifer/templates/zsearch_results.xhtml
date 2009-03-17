@@ -15,14 +15,22 @@ title_list = collector
   </script>
 </head>
 <body>
-    <h1>${title}</h1>
-    
+<!--
     <table py:if="title_list" width="100%">
     <tr py:for="item in title_list">
     <td>${item[0]}</td>
     <td>${item[1]}</td>
     </tr>
     </table>
+-->
+  <h1>${title}</h1>
+  <tr py:def="pageheader()">
+    <th>Name</th>
+  </tr>
+  <span py:def="pagerow(item)">
+    <td><a href="${item[0]}">${item[1]}</a></td>
+  </span>
+  ${pagetable(paginator, count, pagerow, pageheader, tquery, target)}
 
 </body>
 </html>
