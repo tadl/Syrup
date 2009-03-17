@@ -838,7 +838,6 @@ def zsearch(request):
         print("results are %d" % len(res))
         collector = [(None,None)] * len(res)
 
-        # we fudge this since it has more overhead 
         start = (page_num - 1) * count
         end = (page_num * count) + 1
 
@@ -880,7 +879,8 @@ def zsearch(request):
                 #collector.append ((bibid, unicode(title, 'ascii', 'ignore')))
 
                 collector.pop(idx)
-                collector.insert (idx,(bibid, unicode(title, 'ascii', 'ignore')))
+                # collector.insert (idx,(bibid, unicode(title, 'ascii', 'ignore')))
+                collector.insert (idx,(bibid, unicode(title, 'utf-8', 'ignore')))
             idx+=1
 
         conn.close ()
@@ -942,36 +942,6 @@ admin_depts = generic_handler(DeptForm, decorator=admin_only)
 ###
 # graham - zap this if it messes anything up :-)
 ###
-class CourseForm(ModelForm):
-    class Meta:
-        model = models.Course
-
-    class Index:
-        title = _('Courses')
-        all   = models.Course.objects.order_by('code').all
-        cols  = ['code', 'title']
-        links = [0,1]
-
-    clean_code = strip_and_nonblank('code')
-    clean_title = strip_and_nonblank('title')
-
-admin_courses = generic_handler(CourseForm, decorator=admin_only)
-
-class ItemForm(ModelForm):
-    class Meta:
-        model = models.Item
-
-    class Index:
-        title = _('Items')
-        all   = models.Item.objects.order_by('title').all
-        cols  = ['title', 'author']
-        links = [0,1]
-
-    clean_title = strip_and_nonblank('title')
-    clean_author = strip_and_nonblank('author')
-
-admin_items = generic_handler(ItemForm, decorator=admin_only)
-
 class TargetForm(ModelForm):
     class Meta:
         model = models.Target
