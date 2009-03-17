@@ -812,8 +812,6 @@ def zsearch(request):
     ''' 
     '''
         
-    if request.GET.get('page')==None:
-        print("nope")
     page_num = int(request.GET.get('page', 1))
     count = int(request.POST.get('count', 5))
 
@@ -838,27 +836,25 @@ def zsearch(request):
         query = zoom.Query ('CCL', '%s="%s"' % ('ti',tquery))
         res = conn.search (query)
         print("results are %d" % len(res))
-        collector = []
+        collector = [(None,None)] * len(res)
 
-        '''
-        need to add some plumbing for scan if possible
-        suspect this is too much overhead, though it could just be
-        the target z39.50 server that is slow
-        '''
         # we fudge this since it has more overhead 
         start = (page_num - 1) * count
         end = (page_num * count) + 1
-        for r in res[0: start]:
-                collector.append ((None, None))
-        for r in res[start + 1: end]:
+
+        idx = start; 
+        for r in res[start : end]:
+                
+            print("-> %d" % idx)
             if r.syntax <> 'USMARC':
-                collector.append ((None, 'Unsupported syntax: ' + r.syntax, None))
+                collector.pop(idx)
+                collector.insert (idx,(None, 'Unsupported syntax: ' + r.syntax, None))
             else:
                 raw = r.data
 
                 # Convert to MARC
                 marcdata = zmarc.MARC(raw)
-                # print marcdata
+                #print marcdata
 
                 # Convert to MARCXML
                 # marcxml = marcdata.toMARCXML()
@@ -870,7 +866,7 @@ def zsearch(request):
                 bibid = marcdata.fields[1][0]
                 title = " ".join ([v[1] for v in marcdata.fields [245][0][2]])
 
-                # And then Amara XML tools would allow using xpath
+                # Amara XML tools would allow using xpath
                 '''
                 title = ""
                 doc = binderytools.bind_string(marcxml)
@@ -881,15 +877,15 @@ def zsearch(request):
                 
                 # collector.append ((bibid, title))
                 #this is not a good situation but will leave for now
-                collector.append ((bibid, unicode(title, 'ascii', 'ignore')))
-        if end < len(res):
-            for r in res[end + 1:len(res)]:
-                    collector.append ((None, None))
+                #collector.append ((bibid, unicode(title, 'ascii', 'ignore')))
+
+                collector.pop(idx)
+                collector.insert (idx,(bibid, unicode(title, 'ascii', 'ignore')))
+            idx+=1
+
         conn.close ()
-        # print("done searching...")
         paginator = Paginator(collector, count) 
 
-    print("page_num is %d" % page_num)
     print("returning...")
     #return g.render('zsearch_results.xhtml', **locals())
     return g.render('zsearch_results.xhtml', paginator=paginator,
