@@ -203,6 +203,11 @@ def instructors(request):
                     page_num=page_num,
                     count=count)
 
+
+def departments(request):
+    raise NotImplementedError
+
+
 def user_prefs(request):
     return g.render('simplemessage.xhtml',
                     title=_('Sorry...'), 
@@ -1006,8 +1011,7 @@ def course_feeds(request, course_id, feed_type):
                     return '%s :: %s' % (item.parent_heading.title, item.title)
                 else:
                     return item.title
-
-        lastmod = max(i.last_modified for i in items)
+        lastmod = items and max(i.last_modified for i in items) or datetime.now()
         return g.render('feeds/course_atom.xml',
                         course=course,
                         feed_type=feed_type,
@@ -1016,3 +1020,4 @@ def course_feeds(request, course_id, feed_type):
                         items=items,
                         root='http://%s' % request.get_host(),
                         _serialization='xml')
+
