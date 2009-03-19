@@ -446,32 +446,34 @@ class Item(m.Model):
 
 
 metadata_attributes = {
-    'dc:contributor': 'Contributor',
-    'dc:coverage': 'Coverage',
-    'dc:creator': 'Creator',
-    'dc:date': 'Date',
-    'dc:description': 'Description',
-    'dc:format': 'Format',
-    'dc:identifier': 'Identifier',
-    'dc:language': 'Language',
-    'dc:publisher': 'Publisher',
-    'dc:relation': 'Relation',
-    'dc:rights': 'Rights',
-    'dc:source': 'Source',
-    'dc:subject': 'Subject',
-    'dc:title': 'Title',
-    'dc:type': 'Type',
-    'syrup:barcode': 'Barcode',
-    'syrup:enumeration': 'Enumeration',
-    'syrup:chronology': 'Chronology'}
+    'dc:contributor': _('Contributor'),
+    'dc:coverage': _('Coverage'),
+    'dc:creator': _('Creator'),
+    'dc:date': _('Date'),
+    'dc:description': _('Description'),
+    'dc:format': _('Format'),
+    'dc:identifier': _('Identifier'),
+    'dc:language': _('Language'),
+    'dc:publisher': _('Publisher'),
+    'dc:relation': _('Relation'),
+    'dc:rights': _('Rights'),
+    'dc:source': _('Source'),
+    'dc:subject': _('Subject'),
+    'dc:title': _('Title'),
+    'dc:type': _('Type'),
+    'syrup:barcode': _('Barcode'),
+    'syrup:enumeration': _('Enumeration'),
+    'syrup:chronology': _('Chronology')}
 
 
+metadata_attribute_choices = metadata_attributes.items()
+metadata_attribute_choices.sort(key=lambda (a,b): b)
 class Metadata(m.Model):
     """Metadata for items."""
 
     item = m.ForeignKey(Item)
     #fixme, arbitrary sizes.
-    name = m.CharField(max_length=128, choices=metadata_attributes.items())
+    name = m.CharField('Attribute', max_length=128, choices=metadata_attribute_choices)
     value = m.CharField(max_length=4096)
 
 #------------------------------------------------------------

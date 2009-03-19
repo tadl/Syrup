@@ -61,5 +61,26 @@ searchtext = _('search this course...')
       <li><a href="${prefix}add/?item_type=PHYS">Physical Book/Document</a></li>
     </ul>
   </div>
-  
+
+  <div py:def="item_metadata_formset_header()" py:strip="True">
+    <script type="text/javascript">
+      $(function() {$('#metadatatable').hide(); });
+      function show_metadata() {
+      $('#metadatatable').show();
+      $('#show_metadata').fadeOut();
+      }
+    </script>
+  </div>
+
+  <div py:def="item_metadata_formset()">
+      <p><a href="javascript:show_metadata();" id="show_metadata">Show more attributes</a></p>
+      <div  id="metadatatable">
+      ${Markup(metadata_formset.management_form)}
+      <table>
+	<tr py:for="thing in metadata_formset.forms">
+	  <td style="border: gray 1px solid; padding: 4; ">${Markup(thing.as_p())}</td>
+	</tr>
+      </table>
+      </div>
+  </div>
 </html>

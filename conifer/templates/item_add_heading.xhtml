@@ -13,6 +13,7 @@ course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
     <script type="text/javascript">
       $(function() {$('input[@name="title"]').focus();});
     </script>
+    ${item_metadata_formset_header()}
   </head>
   <body>
     ${course_banner(course)}
@@ -25,6 +26,7 @@ course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
 	       value="${item.title}"/>
 	</td></tr>
       </table>
+      ${item_metadata_formset()}
       <p>
 	<input py:if="not is_edit" type="submit" value="Add heading"/>
 	<input py:if="is_edit" type="submit" value="Update heading"/>

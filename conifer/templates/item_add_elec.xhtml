@@ -13,6 +13,7 @@ course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
     <script type="text/javascript">
       $(function() {$('input[@name="title"]').focus();});
     </script>
+    ${item_metadata_formset_header()}
   </head>
   <body>
     ${course_banner(course)}
@@ -27,6 +28,7 @@ course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
 	  value="${item.title}"/></td></tr>
 	  <tr><th>File</th><td><input type="file" name="file"/></td></tr>
 	</table>
+	${item_metadata_formset()}
 	<p><input type="submit" value="Upload file and Create item"/></p>
       </form>
     </div>

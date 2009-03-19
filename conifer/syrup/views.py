@@ -33,6 +33,7 @@ import conifer.genshi_support as g
 import django.forms
 import re
 import sys
+from django.forms.models import modelformset_factory
 
 #-----------------------------------------------------------------------------
 # Z39.50 Support
@@ -595,11 +596,20 @@ def item_add(request, course_id, item_id):
 
     if request.method != 'POST':
         item = models.Item()    # dummy object
+        metadata_formset = metadata_formset_class(queryset=item.metadata_set.all())
         return g.render('item_add_%s.xhtml' % item_type.lower(),
                         **locals())
     else:
         # fixme, this will need refactoring. But not yet.
         author = request.user.get_full_name() or request.user.username
+        item = models.Item()    # dummy object
+        metadata_formset = metadata_formset_class(request.POST, queryset=item.metadata_set.all())
+        assert metadata_formset.is_valid()
+        def do_metadata(item):
+            for obj in [obj for obj in metadata_formset.cleaned_data if obj]: # ignore empty dicts
+                if not obj.get('DELETE'):
+                    item.metadata_set.create(name=obj['name'], value=obj['value'])
+            
         if item_type == 'HEADING':
             title = request.POST.get('title', '').strip()
             if not title:
@@ -612,6 +622,8 @@ def item_add(request, course_id, item_id):
                     parent_heading=parent_item,
                     title=title,
                     )
+                item.save()
+                do_metadata(item)
                 item.save()
         elif item_type == 'URL':
             title = request.POST.get('title', '').strip()
@@ -626,6 +638,8 @@ def item_add(request, course_id, item_id):
                     parent_heading=parent_item,
                     title=title,
                     url = url)
+                item.save()
+                do_metadata(item)
                 item.save()
         elif item_type == 'ELEC':
             title = request.POST.get('title', '').strip()
@@ -642,6 +656,8 @@ def item_add(request, course_id, item_id):
                 )
             item.fileobj.save(upload.name, upload)
             item.save()
+            do_metadata(item)
+            item.save()
         else:
             raise NotImplementedError
 
@@ -650,6 +666,11 @@ def item_add(request, course_id, item_id):
         else:
             return HttpResponseRedirect(course.course_url())
 
+metadata_formset_class = modelformset_factory(models.Metadata, 
+                                              fields=['name','value'], 
+                                              extra=3, can_delete=True)
+
+
 @instructors_only
 def item_edit(request, course_id, item_id):
     course = get_object_or_404(models.Course, pk=course_id)
@@ -657,9 +678,13 @@ def item_edit(request, course_id, item_id):
     item_type = item.item_type
     template = 'item_add_%s.xhtml' % item_type.lower()
     parent_item = item.parent_heading
+
     if request.method != 'POST':
+        metadata_formset = metadata_formset_class(queryset=item.metadata_set.all())
         return g.render(template, **locals())
     else:
+        metadata_formset = metadata_formset_class(request.POST, queryset=item.metadata_set.all())
+        assert metadata_formset.is_valid()
         if 'file' in request.FILES:
             # this is a 'replace-current-file' action.
             upload = request.FILES.get('file')
@@ -668,6 +693,12 @@ def item_edit(request, course_id, item_id):
         else:
             # generally update the item.
             [setattr(item, k, v) for (k,v) in request.POST.items()]
+            # generally update the metadata
+            item.metadata_set.all().delete()
+            for obj in [obj for obj in metadata_formset.cleaned_data if obj]: # ignore empty dicts
+                if not obj.get('DELETE'):
+                    item.metadata_set.create(name=obj['name'], value=obj['value'])
+                    
         item.save()
         return HttpResponseRedirect(item.parent_url())
         
