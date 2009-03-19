@@ -76,11 +76,17 @@ searchtext = _('search this course...')
       <p><a href="javascript:show_metadata();" id="show_metadata">Show more attributes</a></p>
       <div  id="metadatatable">
       ${Markup(metadata_formset.management_form)}
-      <table>
-	<tr py:for="thing in metadata_formset.forms">
-	  <td style="border: gray 1px solid; padding: 4; ">${Markup(thing.as_p())}</td>
+      <table class="pagetable">
+	<thead>
+	  <tr><th>Attribute</th><th>Value</th><th/><th>Delete?</th></tr>
+	</thead>
+	<tbody>
+	<tr py:for="form in metadata_formset.forms">
+	  <!-- <td style="border: gray 1px solid; padding: 4; ">${Markup(form.as_p())}</td> -->
+	  <td py:for="cell in form">${Markup(cell)}</td>
 	</tr>
+	</tbody>
       </table>
       </div>
-  </div>
+   </div>
 </html>
