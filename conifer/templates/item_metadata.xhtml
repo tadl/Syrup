@@ -18,7 +18,6 @@ title = item.title
     <table>
       <tr><th>Title</th><td>${item.title}</td></tr>
       <tr><th>Type</th><td>${item.item_type}</td></tr>
-      <tr><th>Author</th><td>${item.author}</td></tr>
       <tr py:if="item.url"><th>URL</th><td><a href="${item.url}">${item.url}</a></td></tr>
     </table>
     <div py:if="item.item_type=='ELEC'">
@@ -28,5 +27,11 @@ title = item.title
     <tr><th>Content length</th><td>${item.fileobj.size}</td></tr>
     </table>
     </div>
+
+    <table>
+      <tr py:for="attr in item.metadata_set.all()">
+	<th>${attr.get_name_display()}</th><td>${attr.value}</td>
+      </tr>
+    </table>
   </body>
 </html>

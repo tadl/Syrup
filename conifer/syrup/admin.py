@@ -23,5 +23,16 @@ from conifer.syrup.models import *
 #         admin.site.register(value)
 
 for m in [LibraryUnit, ServiceDesk, Member, Department, Course, Term, UserProfile, NewsItem, 
-          Item, Target]:
+          Target]:
     admin.site.register(m)
+
+
+class MetadataInline(admin.StackedInline):
+    model = Metadata
+    extra = 3
+
+class ItemAdmin(admin.ModelAdmin):
+    model = Item
+    inlines = [MetadataInline]
+
+admin.site.register(Item, ItemAdmin)

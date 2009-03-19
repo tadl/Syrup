@@ -611,9 +611,7 @@ def item_add(request, course_id, item_id):
                     item_type='HEADING',
                     parent_heading=parent_item,
                     title=title,
-                    author=author,
-                    activation_date=datetime.now(),
-                    last_modified=datetime.now())
+                    )
                 item.save()
         elif item_type == 'URL':
             title = request.POST.get('title', '').strip()
@@ -627,9 +625,6 @@ def item_add(request, course_id, item_id):
                     item_type='URL',
                     parent_heading=parent_item,
                     title=title,
-                    author=author,
-                    activation_date=datetime.now(),
-                    last_modified=datetime.now(),
                     url = url)
                 item.save()
         elif item_type == 'ELEC':
@@ -643,9 +638,6 @@ def item_add(request, course_id, item_id):
                 item_type='ELEC',
                 parent_heading=parent_item,
                 title=title,
-                author=author,
-                activation_date=datetime.now(),
-                last_modified=datetime.now(),
                 fileobj_mimetype = upload.content_type,
                 )
             item.fileobj.save(upload.name, upload)
@@ -753,7 +745,13 @@ def search(request, in_course=None):
         norm_query = normalize_query(query_string)
 
         #item search - this will be expanded
-        item_query = get_query(query_string, ['title', 'author'])
+
+        # fixme, when moving author to the Metadata table, we can no
+        # longer do a straight search on author. Using
+        # 'metadata__value' sort of works, but also searches other
+        # metadata fields. 
+
+        item_query = get_query(query_string, ['title', 'metadata__value'])
         #need to think about sort order here, probably better by author (will make sortable at display level)
         results_list = models.Item.objects.filter(item_query).order_by('title')
         if in_course:

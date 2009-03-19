@@ -349,75 +349,16 @@ class Item(m.Model):
         ('HEADING', _('Heading')))
     item_type = m.CharField(max_length=7, choices=ITEM_TYPE_CHOICES)
     sort_order = m.IntegerField(default=0)
+
     # parent must be a heading. could use ForeignKey.limit_choices_to,
     # to enforce this in the admin ui.
     parent_heading = m.ForeignKey('Item', blank=True, null=True)
 
-    # Metadata.
-
-    # TODO: Are all these relevant to all item types? If not, which
-    # ones should be 'required' for which item-types? We cannot
-    # enforce these requirements through model constraints, unless we
-    # break Item up into multiple tables. But there are other ways we
-    # can specify the constraints.
+    # the display title may not be the same as the dc:title.
     title = m.CharField(max_length=255,db_index=True) 
-    author = m.CharField(max_length=255,db_index=True, blank=True, null=True) 
-    source = m.CharField(max_length=255,db_index=True, blank=True, null=True) 
-    volume_title = m.CharField(max_length=255,db_index=True, blank=True, null=True) 
-    content_notes = m.CharField(max_length=255, blank=True, null=True)
-    volume_edition = m.CharField(max_length=255, blank=True, null=True) 
-    content_notes = m.CharField(max_length=255, blank=True, null=True) 
-    volume_edition = m.CharField(max_length=255, blank=True, null=True) 
-    pages_times = m.CharField(max_length=255, blank=True, null=True) 
-    performer = m.CharField(max_length=255,db_index=True, blank=True, null=True) 
-    year = m.CharField(max_length=10,db_index=True, blank=True, null=True) 
 
-    local_control_key = m.CharField(max_length=30, blank=True, null=True) 
-
+    # ditto the URL: this is for display items that are links.
     url = m.URLField(blank=True, null=True)
-    mime_type = m.CharField(max_length=100,default='text/html', blank=True, null=True)
-
-    isbn = m.CharField(max_length=13,db_index=True, blank=True, null=True) 
-    issn = m.CharField(max_length=8,db_index=True, blank=True, null=True) 
-    oclc = m.CharField(max_length=9,db_index=True, blank=True, null=True) 
-
-    home_library = m.ForeignKey(LibraryUnit, blank=True, null=True)
-
-    # shouldn't the icon be derived from the MIME type?
-    ###item_icon = m.CharField(max_length=64, choices=ICON_CHOICES) 
-    ##item_group = m.CharField(max_length=25,default='0')
-    ##private_user_id = m.IntegerField(null=True,blank=True)
-    ##old_id = m.IntegerField(null=True,blank=True)
-
-    # Physical Item properties
-
-    '''
-    want to add enumeration and chronology info 
-    '''
-    # enumeration = m.CharField(max_length=255, blank=True, null=True) 
-    # chronology = m.CharField(max_length=255, blank=True, null=True) 
-    call_number = m.CharField(max_length=30, blank=True, null=True) # long enough?
-    barcode = m.CharField(max_length=30, blank=True, null=True)     # long enough?
-    
-#     # owning_library:is this supposed to be a code? 
-#     owning_library = m.CharField(max_length=15,default='0')
-#     item_type = m.CharField(max_length=30)
-#     # who is the owner?
-#     owner_user_id = m.IntegerField(null=True,blank=True)
-
-    STATUS_CHOICE = (('INPROCESS', _('In Process')), # physical, pending
-                     ('ACTIVE', _('Active')),        # available
-                     ('INACTIVE', _('InActive')))    # no longer on rsrv.
-    phys_status = m.CharField(max_length=9, 
-                              null=True, blank=True,
-                              choices=STATUS_CHOICE, 
-                              default=None) # null if not physical item.
-
-    activation_date = m.DateField(auto_now=False)
-    expiration_date = m.DateField(auto_now=False, blank=True, null=True)
-    
-    # requested_loan_period: why is this a text field?
-    requested_loan_period = m.CharField(max_length=255,blank=True,default='', null=True)
 
     # for items of type ELEC (attached electronic document)
     fileobj = m.FileField(upload_to='uploads/%Y/%m/%d', max_length=255,
@@ -425,9 +366,27 @@ class Item(m.Model):
 
     fileobj_mimetype = m.CharField(max_length=128, blank=True, null=True, default=None)
 
-
+    # basic timestamps
     date_created = m.DateTimeField(auto_now_add=True)
     last_modified = m.DateTimeField(auto_now=True)
+
+
+    # stuff I'm not sure about yet. I don't think it belongs here.
+
+    STATUS_CHOICE = (('INPROCESS', _('In Process')), # physical, pending
+                     ('ACTIVE', _('Active')),        # available
+                     ('INACTIVE', _('Inactive')))    # no longer on rsrv.
+    phys_status = m.CharField(max_length=9, 
+                              null=True, blank=True,
+                              choices=STATUS_CHOICE, 
+                              default=None) # null if not physical item.
+
+    activation_date = m.DateField(auto_now=False, blank=True, null=True)
+    expiration_date = m.DateField(auto_now=False, blank=True, null=True)
+    
+    # requested_loan_period: why is this a text field?
+    requested_loan_period = m.CharField(max_length=255,blank=True,default='', null=True)
+
 
     def title_hl(self, terms):
         hl_title = self.title
@@ -436,8 +395,12 @@ class Item(m.Model):
 
         return hl_title
 
+    def author(self):
+        creators = self.metadata_set.filter(name='dc:creator')
+        return creators and creators[0].value or None
+
     def author_hl(self, terms):
-        hl_author = self.author
+        hl_author = self.author()
 
         for term in terms:
             hl_author = highlight(hl_author,term)
@@ -479,6 +442,37 @@ class Item(m.Model):
             return self.parent_heading.item_url()
         else:
             return self.course.course_url()
+
+
+
+metadata_attributes = {
+    'dc:contributor': 'Contributor',
+    'dc:coverage': 'Coverage',
+    'dc:creator': 'Creator',
+    'dc:date': 'Date',
+    'dc:description': 'Description',
+    'dc:format': 'Format',
+    'dc:identifier': 'Identifier',
+    'dc:language': 'Language',
+    'dc:publisher': 'Publisher',
+    'dc:relation': 'Relation',
+    'dc:rights': 'Rights',
+    'dc:source': 'Source',
+    'dc:subject': 'Subject',
+    'dc:title': 'Title',
+    'dc:type': 'Type',
+    'syrup:barcode': 'Barcode',
+    'syrup:enumeration': 'Enumeration',
+    'syrup:chronology': 'Chronology'}
+
+
+class Metadata(m.Model):
+    """Metadata for items."""
+
+    item = m.ForeignKey(Item)
+    #fixme, arbitrary sizes.
+    name = m.CharField(max_length=128, choices=metadata_attributes.items())
+    value = m.CharField(max_length=4096)
 
 #------------------------------------------------------------
 # News items
