@@ -185,6 +185,7 @@ def welcome(request):
 def setlang(request):
     return g.render('setlang.xhtml')
 
+# MARK: propose we get rid of this. We already have a 'Courses' browser.
 def open_courses(request):
     page_num = int(request.GET.get('page', 1))
     count = int(request.GET.get('count', 5))
@@ -192,7 +193,7 @@ def open_courses(request):
     return g.render('open_courses.xhtml', paginator=paginator,
                     page_num=page_num,
                     count=count)
-
+# MARK: propose we drop this too. We have a browse.
 def instructors(request):
     page_num = int(request.GET.get('page', 1))
     count = int(request.GET.get('count', 5))
@@ -208,7 +209,7 @@ def instructors(request):
                     page_num=page_num,
                     count=count)
 
-
+# MARK: propose we get rid of this. We have browse.
 def departments(request):
     raise NotImplementedError
 
@@ -235,34 +236,29 @@ def z3950_test(request):
 
     return g.render('z3950_test.xhtml', res_str=res_str)
 
-def browse_courses(request, browse_option=''):
+def browse(request, browse_option=''):
     #the defaults should be moved into a config file or something...
     page_num = int(request.GET.get('page', 1))
-    count = int(request.GET.get('count', 5))
+    count    = int(request.GET.get('count', 5))
 
-    if browse_option == 'instructors':
-        paginator = Paginator(models.User.active_instructors(),
-                              count)
-
-        return g.render('instructors.xhtml', paginator=paginator,
-            page_num=page_num,
-            count=count)
-
+    if browse_option == '':
+        queryset = None
+        template = 'browse_index.xhtml'
+    elif browse_option == 'instructors':
+        queryset = models.User.active_instructors()
+        template = 'instructors.xhtml'
     elif browse_option == 'departments':
-        paginator = Paginator(models.Department.objects.filter(active=True), count)
-
-        return g.render('departments.xhtml', paginator=paginator,
-            page_num=page_num,
-            count=count)
+        queryset = models.Department.objects.filter(active=True)
+        template = 'departments.xhtml'
     elif browse_option == 'courses':
         # fixme, course filter should not be (active=True) but based on user identity.
-        paginator = Paginator(models.Course.objects.all(), count)
+        queryset = models.Course.objects.all()
+        template = 'courses.xhtml'
 
-        return g.render('courses.xhtml', paginator=paginator,
-            page_num=page_num,
-            count=count)
-
-    return g.render('browse_courses.xhtml')
+    paginator = queryset and Paginator(queryset, count) or None # index has no queryset.
+    return g.render(template, paginator=paginator,
+                    page_num=page_num,
+                    count=count)
 
 @login_required
 def my_courses(request):

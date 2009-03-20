@@ -133,7 +133,7 @@ class Term(m.Model):
 class Department(m.Model):
     abbreviation = m.CharField(max_length=8,db_index=True)
     name   = m.CharField(max_length=255)
-    active       = m.BooleanField(default=True)
+    active = m.BooleanField(default=True)
 
     def __unicode__(self):
         return self.name
