@@ -18,8 +18,8 @@ title = _('Instructors')
   <tr py:def="pageheader()">
     <th>Name</th>
   </tr>
-  <span py:def="pagerow(item)">
-    <td><a href="${instructor_url(item.user)}">${item.user.last_name}, ${item.user.first_name}</a></td>
+  <span py:def="pagerow(user)">
+    <td><a href="${instructor_url(user)}">${user.last_name}, ${user.first_name}</a></td>
   </span>
   ${pagetable(paginator, count, pagerow, pageheader)}
 </body>

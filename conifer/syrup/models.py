@@ -48,6 +48,13 @@ class UserExtensionHack(object):
     def courses(self):
         return Course.objects.filter(member__user=self.id)
 
+    @classmethod
+    def active_instructors(cls):
+        """Return a queryset of all active instructors."""
+        # We are using the Django is_active flag to model activeness.
+        return cls.objects.filter(member__role='INSTR', is_active=True) \
+            .order_by('-last_name','-first_name')
+    
 for k,v in [(k,v) for k,v in UserExtensionHack.__dict__.items() \
                 if not k.startswith('_')]:
     setattr(User, k, v)
@@ -59,25 +66,9 @@ class UserProfile(m.Model):
     home_address = m.TextField(blank=True)
     ils_userid   = m.TextField("Alternate userid in the ILS, if any",
                                max_length=50, blank=True)
-    access_level = m.CharField(max_length=5, blank=True, null=True,
-                               default=None,
-                               choices=(('CUST', _('custodian')),
-                                        ('STAFF', _('staff')),
-                                        ('ADMIN', _('system administrator'))))
-    instructor = m.BooleanField(default=False)
-    proxy = m.BooleanField(default=False)
-    # n.b. Django's User has an active flag, maybe we should use that?
-    active = m.BooleanField(default=True) 
 
     def __unicode__(self):
         return 'UserProfile(%s)' % self.user
-
-    @classmethod
-    def active_instructors(cls):
-        """Return a queryset of all active instructors."""
-        return cls.objects.filter(instructor=True) \
-            .select_related('user').filter(user__is_active=True) \
-            .order_by('-user__last_name','-user__first_name')
 
 #----------------------------------------------------------------------
 # Initializing an external user account

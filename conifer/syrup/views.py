@@ -198,7 +198,7 @@ def instructors(request):
     count = int(request.GET.get('count', 5))
     action = request.GET.get('action', 'browse')
     if action == 'join':
-        paginator = Paginator(models.UserProfile.active_instructors(), count)
+        paginator = Paginator(models.User.active_instructors(), count)
     elif action == 'drop':
         paginator = Paginator(models.Course.objects.all(), count) # fixme, what filter?
     else:
@@ -241,8 +241,8 @@ def browse_courses(request, browse_option=''):
     count = int(request.GET.get('count', 5))
 
     if browse_option == 'instructors':
-        paginator = Paginator(models.UserProfile.active_instructors().
-            order_by('user__last_name'), count)
+        paginator = Paginator(models.User.active_instructors(),
+                              count)
 
         return g.render('instructors.xhtml', paginator=paginator,
             page_num=page_num,
@@ -275,21 +275,21 @@ def instructor_detail(request, instructor_id):
     i am not sure this is the best way to go from instructor
     to course
     '''
-    members = models.Member.objects.get(user__id=instructor_id, 
-        role='INSTR')
-    paginator = Paginator(models.Course.objects.
-        filter(member__id=members.id).
-        order_by('title'), count)
+    courses = models.Course.objects.filter(member__user=instructor_id,
+                                           member__role='INSTR')
+    paginator = Paginator(courses.order_by('title'), count)
 
     '''
     no concept of active right now, maybe suppressed is a better
     description anyway?
     '''
         # filter(active=True).order_by('title'), count)
-
-    return g.render('courses.xhtml', paginator=paginator,
-            page_num=page_num,
-            count=count)
+    instructor = models.User.objects.get(pk=instructor_id)
+    return g.render('courses.xhtml', 
+                    custom_title=_('Courses taught by %s') % instructor.get_full_name(),
+                    paginator=paginator,
+                    page_num=page_num,
+                    count=count)
 
 def department_detail(request, department_id):
     page_num = int(request.GET.get('page', 1))
