@@ -1044,7 +1044,7 @@ def course_feeds(request, course_id, feed_type):
                 else:
                     return item.title
         lastmod = items and max(i.last_modified for i in items) or datetime.now()
-        return g.render('feeds/course_atom.xml',
+        resp = g.render('feeds/course_atom.xml',
                         course=course,
                         feed_type=feed_type,
                         lastmod=lastmod,
@@ -1052,4 +1052,6 @@ def course_feeds(request, course_id, feed_type):
                         items=items,
                         root='http://%s' % request.get_host(),
                         _serialization='xml')
+        resp['Content-Type'] = 'application/atom+xml'
+        return resp
 
