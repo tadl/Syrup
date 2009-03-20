@@ -143,17 +143,17 @@ def instructors_only(handler):
             return _access_denied(_('Only instructors are allowed here.'))
     return hdlr
 
-
 # decorator
 def members_only(handler):
     def hdlr(request, course_id, *args, **kwargs):
-        allowed = request.user.is_superuser
+        user = request.user
+        allowed = user.is_superuser
         if not allowed:
             course = models.Course.objects.get(pk=course_id)
-            allowed = ((request.user.is_anonymous and course.access=='ANON') or \
-                       (request.user.is_authenticated and course.access=='LOGIN'))
+            allowed = ((user.is_anonymous and course.access=='ANON') or \
+                       (user.is_authenticated and course.access=='LOGIN'))
         if not allowed:
-            allowed = _fast_user_membership_query(request.user.id, course_id)
+            allowed = _fast_user_membership_query(user.id, course_id)
         if allowed:
             return handler(request, course_id, *args, **kwargs)
         else:
@@ -214,9 +214,8 @@ def departments(request):
 
 
 def user_prefs(request):
-    return g.render('simplemessage.xhtml',
-                    title=_('Sorry...'), 
-                    content=_('The Preferences page isn\'t ready yet.'))
+    # for now, just send to the 'setlang' page. Better than 'under construction.'
+    return HttpResponseRedirect('../setlang')
 
 def z3950_test(request):
     conn = zoom.Connection ('z3950.loc.gov', 7090)
