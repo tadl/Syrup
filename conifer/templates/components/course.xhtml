@@ -33,8 +33,10 @@ searchtext = _('search this course...')
       <a href="${item.item_url()}">${item}</a> 
       <span class="menublock">
 	<span py:if="item.needs_meta_link()">
-	<a href="${item.item_url('meta')}">about</a> &bull;</span>
-	<a href="${item.item_url('edit/')}">edit</a>
+	<a href="${item.item_url('meta')}">about</a> </span>
+	<span py:if="edit">
+	  &bull; <a href="${item.item_url('edit/')}">edit</a>
+	</span>
       </span>
       <!-- !to show a full tree, uncomment the following: -->
       <!-- ${show_tree(subs, edit)} -->

@@ -149,6 +149,10 @@ def members_only(handler):
     def hdlr(request, course_id, *args, **kwargs):
         allowed = request.user.is_superuser
         if not allowed:
+            course = models.Course.objects.get(pk=course_id)
+            allowed = ((request.user.is_anonymous and course.access=='ANON') or \
+                       (request.user.is_authenticated and course.access=='LOGIN'))
+        if not allowed:
             allowed = _fast_user_membership_query(request.user.id, course_id)
         if allowed:
             return handler(request, course_id, *args, **kwargs)
