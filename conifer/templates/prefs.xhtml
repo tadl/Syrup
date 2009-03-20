@@ -19,7 +19,7 @@ title = _('Preferences')
 	value="${code}">${_(descr)}</option>
 </select> <input type="submit" value="Change" />
 </form>
-<div py:if="user.is_authenticated">
+<div py:if="user.is_authenticated()">
   <h2>Notification preferences</h2>
   <form action="." method="POST">
     <input type="checkbox" name="wants_email_notices" id="id_wants_email_notices"
