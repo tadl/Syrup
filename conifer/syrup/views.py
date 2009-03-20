@@ -19,7 +19,7 @@ from conifer.syrup import models
 from datetime import datetime
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, SiteProfileNotAvailable
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
@@ -97,6 +97,12 @@ def auth_handler(request, path):
                     _('Sorry, this account has been disabled.'))
             else:
                 login(request, user)
+                # initialize the profile if it doesn't exist.
+                try:
+                    user.get_profile()
+                except models.UserProfile.DoesNotExist:
+                    profile = models.UserProfile.objects.create(user=user)
+                    profile.save()
                 return HttpResponseRedirect(request.POST.get('next', '/syrup/'))
     elif path == 'logout':
         logout(request)
@@ -182,9 +188,6 @@ def public(handler):
 def welcome(request):
     return g.render('welcome.xhtml')
 
-def setlang(request):
-    return g.render('setlang.xhtml')
-
 # MARK: propose we get rid of this. We already have a 'Courses' browser.
 def open_courses(request):
     page_num = int(request.GET.get('page', 1))
@@ -215,8 +218,13 @@ def departments(request):
 
 
 def user_prefs(request):
-    # for now, just send to the 'setlang' page. Better than 'under construction.'
-    return HttpResponseRedirect('../setlang')
+    if request.method != 'POST':
+        return g.render('prefs.xhtml')
+    else:
+        profile = request.user.get_profile()
+        profile.wants_email_notices = bool(request.POST.get('wants_email_notices'))
+        profile.save()
+        return HttpResponseRedirect('../')
 
 def z3950_test(request):
     conn = zoom.Connection ('z3950.loc.gov', 7090)

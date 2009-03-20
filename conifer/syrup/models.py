@@ -4,7 +4,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth import get_backends
 from datetime import datetime
 from genshi import Markup
-from gettext import gettext as _ # fixme, is this the right function to import?
+from django.utils.translation import ugettext as _
 from conifer.custom import course_codes # fixme, not sure if conifer.custom is a good parent.
 from conifer.custom import course_sections # fixme, not sure if conifer.custom is a good parent.
 import re
@@ -64,8 +64,14 @@ class UserProfile(m.Model):
     user         = m.ForeignKey(User, unique=True)
     home_phone   = m.CharField(max_length=100, blank=True)
     home_address = m.TextField(blank=True)
-    ils_userid   = m.TextField("Alternate userid in the ILS, if any",
+    ils_userid   = m.CharField(_('Alternate userid in the ILS, if any'),
                                max_length=50, blank=True)
+
+    # When we add email notices for new items, this is how we'll set
+    # the preference, and how far back we'll need to look.
+    wants_email_notices = m.BooleanField(default=False)
+    last_email_notice   = m.DateTimeField(default=datetime.now,
+                                          blank=True, null=True)
 
     def __unicode__(self):
         return 'UserProfile(%s)' % self.user
