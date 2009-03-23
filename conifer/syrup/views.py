@@ -244,18 +244,20 @@ def z3950_test(request):
     return g.render('z3950_test.xhtml', res_str=res_str)
 
 def graham_z3950_test(request):
+    query = request.GET.get('query', '@and "Denis" "Gravel"')
     from conifer.libsystems.z3950 import yaz_search
     from conifer.libsystems.evergreen.item_status import lookup_availability
-    host, db, query = ('dwarf.cs.uoguelph.ca:2210', 'conifer', '@and "Denis" "Gravel"')
+    host, db, query = ('dwarf.cs.uoguelph.ca:2210', 'conifer', query)
     #host, db, query = ('z3950.loc.gov:7090', 'VOYAGER', '@attr 1=4 @attr 4=1 "dylan"')
     results = yaz_search.search(host, db, query)
     for result in results:
         bibid = result.get('901c')
         if bibid:
-            avail = lookup_availability(bibid)
+            # it would be better to do these asynchronously.
+            avail = lookup_availability(bibid) 
             if avail:
                 result['avail'] = avail
-    return g.render('graham_z3950_test.xhtml', results=results)
+    return g.render('graham_z3950_test.xhtml', results=results, query=query)
 
 def browse(request, browse_option=''):
     #the defaults should be moved into a config file or something...

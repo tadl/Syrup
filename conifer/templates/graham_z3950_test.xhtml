@@ -21,6 +21,10 @@ keys = [('245a', 'Title'), ('100a', 'Author'), ('260c', 'PubDate'), ('901c', 'Bi
 </head>
 <body>
     <h1>${title}</h1>
+    <form method="GET" action=".">
+      <input type="text" name="query" value="${query}" style="font-size: larger;"/>
+      <input type="submit" value="Search"/>
+    </form>
     <p><a href="javascript:$('.lesser').show(); void(0);">show more detail</a></p>
     <table py:for="res in results" style="margin: 1em 0; border: black 1px solid;">
       <?python 
