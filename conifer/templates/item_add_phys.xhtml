@@ -20,10 +20,12 @@ course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
     <h3>${title}</h3>
 
     <form action=".?item_type=${item_type}" method="POST">
+      <p>Display name: <input type="text" name="title" value="${item.title}"/></p>
+
       ${item_metadata_formset(show_more=False)}
       <p>
     	<input py:if="not is_edit" type="submit" value="Add heading"/>
-    	<input py:if="is_edit" type="submit" value="Update heading"/>
+    	<input py:if="is_edit" type="submit" value="Update physical-item request"/>
       </p>
 
     </form>
