@@ -9,17 +9,20 @@ import re
 from xml.etree import ElementTree
 import pexpect
 import marctools
+import sys
+
 loc_to_unicode = marctools.locToUTF8().replace
 
 LOG = None              #  for pexpect debugging, try LOG = sys.stderr
 YAZ_CLIENT = 'yaz-client'
-GENERAL_TIMEOUT = 3
+GENERAL_TIMEOUT = 10
 PRESENT_TIMEOUT = 30
 
 
 def search(host, database, query, start=1, limit=None):
 
     server = pexpect.spawn('yaz-client', timeout=GENERAL_TIMEOUT, logfile=LOG)
+    #server.expect('Z>')
     for line in ('open %s' % host, 'base %s' % database, 'format xml'):
         server.sendline(line)
         server.expect('Z>')

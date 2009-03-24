@@ -1,0 +1,31 @@
+<?python
+is_edit = bool(item.id)
+title = is_edit and _('Edit a physical-item request') or _('Add a physical-item request')
+course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="master.xhtml"/>
+  <xi:include href="components/course.xhtml"/>
+  <head>
+    <title>${title}</title>
+    <script type="text/javascript">
+      $(function() {$('input[@name="title"]').focus();});
+    </script>
+  </head>
+  <body>
+    ${course_banner(course)}
+    ${nested_title(parent_item)}
+    <h3>${title}</h3>
+
+    <form action=".?item_type=${item_type}" method="POST">
+      ${item_metadata_formset(show_more=False)}
+      <p>
+    	<input py:if="not is_edit" type="submit" value="Add heading"/>
+    	<input py:if="is_edit" type="submit" value="Update heading"/>
+      </p>
+
+    </form>
+</body>
+</html>

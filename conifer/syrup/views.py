@@ -613,8 +613,12 @@ def item_add(request, course_id, item_id):
     assert item_type, _('No item_type parameter was provided.')
 
     # for the moment, only HEADINGs, URLs and ELECs can be added. fixme.
-    assert item_type in ('HEADING', 'URL', 'ELEC'), \
+    assert item_type in ('HEADING', 'URL', 'ELEC', 'PHYS'), \
         _('Sorry, only HEADINGs, URLs and ELECs can be added right now.')
+
+    if request.method != 'POST' and item_type == 'PHYS':
+        # special handling: send to catalogue search
+        return HttpResponseRedirect('cat_search/')
 
     if request.method != 'POST':
         item = models.Item()    # dummy object
@@ -687,6 +691,47 @@ def item_add(request, course_id, item_id):
             return HttpResponseRedirect(parent_item.item_url('meta'))
         else:
             return HttpResponseRedirect(course.course_url())
+
+@instructors_only
+def item_add_cat_search(request, course_id, item_id):
+    if request.method != 'POST':
+        return g.render('item_add_cat_search.xhtml', results=[], query='@and dylan thomas')
+    query = request.POST.get('query','').strip()
+    pickitem = request.POST.get('pickitem', '').strip()
+    if not pickitem:
+        assert query, 'must provide a query.'
+        from conifer.libsystems.z3950 import yaz_search
+        host, db, query = ('dwarf.cs.uoguelph.ca:2210', 'conifer', query)
+        #host, db = ('z3950.loc.gov:7090', 'VOYAGER')
+        results = yaz_search.search(host, db, query)
+        return g.render('item_add_cat_search.xhtml', results=results, query=query)
+    else:
+        #fixme, this block copied from item_add. refactor.
+        parent_item_id = item_id
+        if parent_item_id=='0':
+            parent_item = None
+            course = get_object_or_404(models.Course, pk=course_id)
+        else:
+            parent_item = get_object_or_404(models.Item, pk=parent_item_id, course__id=course_id)
+            assert parent_item.item_type == 'HEADING', _('You can only add items to headings!')
+            course = parent_item.course
+        if not course.can_edit(request.user):
+            return _access_denied(_('You are not an editor.'))
+
+        pickitem = eval(pickitem) # fixme, dangerous. cache result server-side instead, or encrypt it.
+        item = course.item_set.create(parent_heading=parent_item,
+                                      title=pickitem.get('245a', 'Untitled'),
+                                      item_type='PHYS')
+        item.save()
+        # these are a temporary hack, must replace
+        meta = [('245a', 'dc:title'), ('100a', 'dc:creator'), ('260b', 'dc:publisher'),
+                ('dc:260c', 'dc:date'), ('700a', 'dc:contributor')]
+        for marc, dc in meta:
+            value = pickitem.get(marc)
+            if value:
+                md = item.metadata_set.create(item=item, name=dc, value=value)
+        item.save()
+        return HttpResponseRedirect('../../../%d/' % item.id)
 
 metadata_formset_class = modelformset_factory(models.Metadata, 
                                               fields=['name','value'], 

@@ -1,0 +1,48 @@
+<?python
+title = _('Add physical item: Catalogue search')
+# I just made up these keys...
+keys = [('245a', 'Title'), ('100a', 'Author'), ('260b', 'Publisher'), ('260c', 'PubDate'), ('700a', 'Editor')]
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="master.xhtml"/>
+<xi:include href="paginate.xhtml"/>
+<head>
+  <title>${title}</title>
+  <style>
+    .lesser { font-size: smaller; color: gray; display: none; }
+  </style>
+  <script type="text/javascript">
+    <!-- !This ought to be in paginate.xhtml, not here. how to do? -->
+    $(function() { $('.pagetable').tablesorter(); });
+  </script>
+</head>
+<body>
+    <h1>${title}</h1>
+    <form method="POST" action=".">
+      <input type="text" name="query" value="${query}" style="font-size: larger;"/>
+      <input type="submit" value="Search"/>
+    </form>
+    <p><a href="javascript:$('.lesser').show(); void(0);">show more detail</a></p>
+    <table py:for="res in results" style="margin: 1em 0; border: black 1px solid;">
+      <tbody>
+      <tr py:for="k, title in keys" py:if="k in res">
+	<th>${title}</th><td>${res[k]}</td>
+      </tr>
+      <tr>
+	<th/><td>
+	<form action="." method="POST">
+	  <input type="hidden" name="pickitem" value="${repr(res)}"/>
+	  <input type="submit" value="Pick this item"/>
+	</form>
+      </td>
+      </tr>
+      <?python allkeys = res.keys(); allkeys.sort(); ?>
+      <tr py:for="k in allkeys" class="lesser">
+	<th>${k}</th><td>${res[k]}</td>
+      </tr>
+      </tbody>
+    </table>
+</body>
+</html>
