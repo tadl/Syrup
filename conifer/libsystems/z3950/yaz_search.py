@@ -13,7 +13,7 @@ import sys
 
 loc_to_unicode = marctools.locToUTF8().replace
 
-LOG = None              #  for pexpect debugging, try LOG = sys.stderr
+LOG = sys.stderr #None              #  for pexpect debugging, try LOG = sys.stderr
 YAZ_CLIENT = 'yaz-client'
 GENERAL_TIMEOUT = 10
 PRESENT_TIMEOUT = 30
@@ -50,12 +50,10 @@ def search(host, database, query, start=1, limit=None):
         return []
 
     raw_records = []
-    for x in range(to_show):
-        server.expect(r'Record type: XML', timeout=PRESENT_TIMEOUT)
-        server.expect('<record .*</record>')
-        raw_records.append(server.match.group(0))
-
+    err = None
     server.expect('nextResultSetPosition')
+    pat = re.compile('<record .*?</record>', re.M)
+    raw_records = pat.findall(server.before)
     server.expect('Z>')
     server.sendline('quit')
     server.close()
@@ -64,7 +62,10 @@ def search(host, database, query, start=1, limit=None):
     for rec in raw_records:
         dct = {}
         parsed.append(dct)
-        tree = ElementTree.fromstring(rec)
+        try:
+            tree = ElementTree.fromstring(rec)
+        except:
+            raise rec
         for df in tree.findall('{http://www.loc.gov/MARC21/slim}datafield'):
             t = df.attrib['tag']
             for sf in df.findall('{http://www.loc.gov/MARC21/slim}subfield'):
