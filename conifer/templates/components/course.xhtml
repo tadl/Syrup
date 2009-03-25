@@ -38,6 +38,9 @@ searchtext = _('search this course...')
 	<span py:if="edit">
 	  &bull; <a href="${item.item_url('edit/')}">edit</a>
 	</span>
+	<span py:if="edit">
+	  &bull; <a href="${item.item_url('relocate/')}">put under heading</a>
+	</span>
       </span>
       <!-- !to show a full tree, uncomment the following: -->
       <!-- ${show_tree(subs, edit)} -->

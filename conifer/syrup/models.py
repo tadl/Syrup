@@ -194,6 +194,11 @@ class Course(m.Model):
     def items(self):
         return self.item_set.all()
 
+    def headings(self):
+        """A list of all items which are headings."""
+        #fixme, not sure 'title' is the best ordering.
+        return self.item_set.filter(item_type='HEADING').order_by('title')
+
     def item_tree(self, subtree=None):
         """
         Return a list, representing a tree of the course items, in

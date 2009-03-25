@@ -35,9 +35,9 @@ function doReorder() {
 	$('#reorder_panel a').text($('#i18n-save-order').text());
 	reordering = true;
     } else {
-	$('.an_item').css({ marginTop: '3px' });
+	$('.an_item').css({ marginTop: '4px' });
 	$('#ropanelmessage').remove();
-	$('#reorder_panel a').text($('#i18n-reorder-items').text());
+	$('#reorder_panel a').text('...');
 	$('.itemtree').sortable('destroy');
 	reordering = false;
 	// get the LI item ids. Send them to the server.
@@ -45,6 +45,7 @@ function doReorder() {
 	var new_seq_string = Array.join(new_sequence, ',');
 	$.post('reseq', {'new_order':new_seq_string}, 
 		   function() {
+		       $('#reorder_panel a').text($('#i18n-reorder-items').text());
 		       alert($('#i18n-new-order-saved').text());
 		   });
     }

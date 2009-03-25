@@ -46,6 +46,7 @@ urlpatterns = patterns('conifer.syrup.views',
     (r'^admin/targets/' + GENERIC_REGEX, 'admin_targets'),
     (r'^course/(?P<course_id>\d+)/reseq$', 'course_reseq'),
     (ITEM_PREFIX + r'reseq', 'item_heading_reseq'),
+    (ITEM_PREFIX + r'relocate/', 'item_relocate'), # move to new subheading
 #     (r'^admin/terms/(?P<term_id>\d+)/$', 'admin_term_edit'),
 #     (r'^admin/terms/(?P<term_id>\d+)/delete$', 'admin_term_delete'),
 #     (r'^admin/terms/$', 'admin_term'),

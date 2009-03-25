@@ -1150,3 +1150,31 @@ def item_heading_reseq(request, course_id, item_id):
     item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
     parent_heading = item
     return _reseq(request, course, parent_heading)
+
+
+@instructors_only
+def item_relocate(request, course_id, item_id):
+    """Move an item from its current subheading to another one."""
+    course = get_object_or_404(models.Course, pk=course_id)
+    item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
+    if request.method != 'POST':
+        return g.render('item_relocate.xhtml', **locals())
+    else:
+        newheading = int(request.POST['newheading'])
+        if newheading == 0:
+            new_parent = None
+        else:
+            new_parent = course.item_set.get(pk=newheading)
+            if item in new_parent.hierarchy():
+                # then we would create a cycle. Bail out.
+                return g.render('simplemessage.xhtml',
+                                title=_(_('Impossible item-move!')), 
+                                content=_('You cannot make an item a descendant of itself!'))
+        item.parent_heading = new_parent
+        item.save()
+        if new_parent:
+            return HttpResponseRedirect(new_parent.item_url('meta'))
+        else:
+            return HttpResponseRedirect(course.course_url())
+        
+        
