@@ -1,0 +1,40 @@
+<?python
+title = 'Move item under a different heading'
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="master.xhtml"/>
+  <xi:include href="components/course.xhtml"/>
+   <head>
+    <title>${title}</title>
+    <script type="text/javascript" src="/static/menublocks.js"/>
+  </head>
+  <body>
+    ${course_banner(course)}
+    ${nested_title(item)}
+    <h2>${title}</h2>
+    <p>Please choose the heading under which this item should be moved:</p>
+    <form action="." method="POST">
+      <table>
+	<tbody style="text-align: left;">
+	  <tr><th>Item title:</th><td>${item.title}</td></tr>
+	  <tr><th>Current heading:</th><td>${item.parent_heading and item.parent_heading.title or 'Top Level'}</td></tr>
+	  <tr><th>New heading:</th>
+	  <td>
+	    <select name="newheading">
+	      <option value="0">Top Level (no heading)</option>
+	      <option py:for="h in [h for h in course.headings() if not h == item]"
+		      value="${h.id}">${h.title}</option>
+	    </select>
+	  </td>
+	  </tr>
+	  <tr>
+	    <th/>
+	    <td><input type="submit" value="Move item"/></td>
+	  </tr>
+	</tbody>
+      </table>
+    </form>
+  </body>
+</html>
