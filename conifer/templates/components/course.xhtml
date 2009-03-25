@@ -92,4 +92,19 @@ searchtext = _('search this course...')
       </table>
       </div>
    </div>
+
+   <div py:def="item_reorder_panel()" py:strip="True">
+    <div id="reorder_panel" class="little_action_panel">
+      <a href="javascript:doReorder();">Reorder items</a>
+    </div>
+    <div style="display: none;">
+      <span id="i18n-save-order">Save Ordering</span>
+      <span id="i18n-reorder-items">Reorder Items</span>
+      <span id="i18n-new-order-saved">The new ordering has been saved.</span>
+      <div id="ropanelmessage" style="clear: right; width: 10em;"
+	   class="little_action_panel">Drag the items around. Then click Save Ordering, above.</div>
+    </div>
+    </div>
+
 </html>
+

@@ -1124,16 +1124,13 @@ def course_feeds(request, course_id, feed_type):
 #------------------------------------------------------------
 # resequencing items
 
-@instructors_only
-def course_reseq(request, course_id):
-    course = get_object_or_404(models.Course, pk=course_id)
+def _reseq(request, course, parent_heading):
     new_order = request.POST['new_order'].split(',')
     # new_order is now a list like this: ['item_3', 'item_8', 'item_1', ...].
     # get at the ints.
     new_order = [int(n.split('_')[1]) for n in new_order]
     print >> sys.stderr, new_order
-    # we are at top level, so parent-heading is null.
-    the_items = list(course.item_set.filter(parent_heading=None).order_by('sort_order'))
+    the_items = list(course.item_set.filter(parent_heading=parent_heading).order_by('sort_order'))
     # sort the items by position in new_order
     the_items.sort(key=lambda item: new_order.index(item.id))
     for newnum, item in enumerate(the_items):
@@ -1141,4 +1138,15 @@ def course_reseq(request, course_id):
         item.save()
     return HttpResponse("'ok'");
 
-# fixme, need to implement for subheading reordering too.
+@instructors_only
+def course_reseq(request, course_id):
+    course = get_object_or_404(models.Course, pk=course_id)
+    parent_heading = None
+    return _reseq(request, course, parent_heading)
+
+@instructors_only
+def item_heading_reseq(request, course_id, item_id):
+    course = get_object_or_404(models.Course, pk=course_id)
+    item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
+    parent_heading = item
+    return _reseq(request, course, parent_heading)
