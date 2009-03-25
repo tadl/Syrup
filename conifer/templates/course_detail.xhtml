@@ -14,13 +14,27 @@ is_editor = course.can_edit(request.user)
   </head>
   <body>
     ${course_banner(course)}
-    <div py:if="instructs(request.user, course)" id="edit_course_link">
-      <a href="${course.course_url()}edit/">Edit course details</a>
-    </div>
     <p py:if="not item_tree">
       There are no items associated with this course yet.
     </p>
+    <div py:if="instructs(request.user, course)" id="edit_course" class="little_action_panel">
+      <a href="${course.course_url()}edit/">Edit course details</a>
+    </div>
+    <div id="reorder_panel" class="little_action_panel">
+      <a href="javascript:doReorder();">Reorder items</a>
+    </div>
+
     ${show_tree(item_tree, edit=is_editor)}
+
     <div py:if="is_editor">${add_subs()}</div>
+
+    <div style="display: none;">
+      <span id="i18n-save-order">Save Ordering</span>
+      <span id="i18n-reorder-items">Reorder Items</span>
+      <span id="i18n-new-order-saved">The new ordering has been saved.</span>
+      <div id="ropanelmessage" style="clear: right; width: 10em;"
+	   class="little_action_panel">Drag the items around. Then click Save Ordering, above.</div>
+    </div>
+
   </body>
 </html>

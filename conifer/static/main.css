@@ -199,7 +199,10 @@ p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: 
 
 #edit_course_link { margin: 8 0 8 0; font-size: 95%; }
 
-#feeds_panel { float: right; font-size: 95%; margin: 8 0; }
+#feeds_panel,
+.little_action_panel
+{ float: right; font-size: 95%; margin: 8 0; clear: right; }
+
 
 .breadcrumbs { margin: 8 8 8 0; }
 
@@ -220,3 +223,5 @@ p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: 
 
 /* panels that appear when specific OPTIONs or radio-buttons are selected. */
 .specific { padding: 8; margin: 0 16; background-color: #eef; }
+
+

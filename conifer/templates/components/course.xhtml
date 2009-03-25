@@ -29,7 +29,8 @@ searchtext = _('search this course...')
   <ul py:def="show_tree(tree, edit=False)"
       py:if="tree"
       class="itemtree">
-    <li py:for="item, subs in tree" class="item_${item.item_type}">
+    <li py:for="item, subs in tree" class="item_${item.item_type} an_item"
+	id="item_${item.id}">
       <a href="${item.item_url()}">${item}</a> 
       <span class="menublock">
 	<span py:if="item.needs_meta_link()">
