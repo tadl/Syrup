@@ -34,15 +34,12 @@ searchtext = _('search this course...')
       <div class="mainline">
 	<a href="${item.item_url()}" class="mainlink">${item}</a> 
 	<span class="menublock" py:if="not (item.item_type=='HEADING' and not edit)">
-	<span py:if="item.needs_meta_link()">
-	<a href="${item.item_url('meta')}">about</a> </span>
-	<span py:if="edit">
-	  &bull; <a href="${item.item_url('edit/')}">edit</a>
+
+	  <!-- !I'm really sorry, this is ugly, but I want
+	       non-breaking spaces here, so that on long-named items,
+	       the links will stay togeter. A better way?  -->
+	  <span py:if="item.needs_meta_link()"><a href="${item.item_url('meta')}">about</a>&#160;</span><span py:if="edit">&bull;&#160;<a href="${item.item_url('edit/')}">edit</a></span><span py:if="edit">&#160;&bull;&#160;<a href="${item.item_url('relocate/')}">put under heading</a></span>
 	</span>
-	<span py:if="edit">
-	  &bull; <a href="${item.item_url('relocate/')}">put under heading</a>
-	</span>
-      </span>
       </div>
       <!-- !to show a full tree, uncomment the following: -->
       ${show_tree(subs, edit)}
