@@ -19,14 +19,13 @@ title = 'Move item under a different heading'
       <table>
 	<tbody style="text-align: left;">
 	  <tr><th>Item title:</th><td>${item.title}</td></tr>
-	  <tr><th>Current heading:</th><td>${item.parent_heading and item.parent_heading.title or 'Top Level'}</td></tr>
+	  <tr><th>Current heading:
+	  </th><td>${item.parent_heading and item.parent_heading.title or 'Top Level'}
+	  <div class="gap"/></td></tr>
 	  <tr><th>New heading:</th>
 	  <td>
-	    <select name="newheading">
-	      <option value="0">Top Level (no heading)</option>
-	      <option py:for="h in [h for h in course.headings() if not h == item]"
-		      value="${h.id}">${h.title}</option>
-	    </select>
+	    ${heading_tree(course.item_tree(), stop_at=item)}
+	    <div class="gap"/>
 	  </td>
 	  </tr>
 	  <tr>

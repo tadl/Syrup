@@ -1160,7 +1160,7 @@ def item_relocate(request, course_id, item_id):
     if request.method != 'POST':
         return g.render('item_relocate.xhtml', **locals())
     else:
-        newheading = int(request.POST['newheading'])
+        newheading = int(request.POST['heading'])
         if newheading == 0:
             new_parent = None
         else:

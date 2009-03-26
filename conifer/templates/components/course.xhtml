@@ -46,6 +46,18 @@ searchtext = _('search this course...')
       ${show_tree(subs, edit)}
     </li>
   </ul>
+
+  <ul py:def="heading_tree(tree, stop_at=None)" class="heading_tree">
+    <li><input type="radio" name="heading" value="0" id="heading_0"/><label for="heading_0">Top Level</label></li>
+    ${_heading_tree(tree, stop_at)}
+  </ul>
+
+  <ul py:def="_heading_tree(tree, stop_at=None)">
+    <li py:for="item, subs in tree" py:if="item.item_type=='HEADING' and item != stop_at">
+      <input type="radio" name="heading" value="${item.id}" id="heading_${item.id}"/><label for="heading_${item.id}">${item}</label>
+      ${_heading_tree(subs, stop_at)}
+      </li>
+  </ul>
   
   <div py:def="nested_title(item)"
        py:if="item"
