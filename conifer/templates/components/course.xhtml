@@ -31,8 +31,9 @@ searchtext = _('search this course...')
       class="itemtree">
     <li py:for="item, subs in tree" class="item_${item.item_type} an_item"
 	id="item_${item.id}">
-      <a href="${item.item_url()}" class="mainlink">${item}</a> 
-      <span class="menublock">
+      <div class="mainline">
+	<a href="${item.item_url()}" class="mainlink">${item}</a> 
+	<span class="menublock" py:if="not (item.item_type=='HEADING' and not edit)">
 	<span py:if="item.needs_meta_link()">
 	<a href="${item.item_url('meta')}">about</a> </span>
 	<span py:if="edit">
@@ -42,6 +43,7 @@ searchtext = _('search this course...')
 	  &bull; <a href="${item.item_url('relocate/')}">put under heading</a>
 	</span>
       </span>
+      </div>
       <!-- !to show a full tree, uncomment the following: -->
       ${show_tree(subs, edit)}
     </li>
@@ -109,9 +111,6 @@ searchtext = _('search this course...')
    </div>
 
    <div py:def="item_resequence_panel()" py:strip="True">
-    <div id="showtree_panel" class="little_action_panel">
-      <a href="javascript:doToggleItemTree();">Show/hide tree</a>
-    </div>
     <div id="resequence_panel" class="little_action_panel">
       <a href="javascript:doResequence();">Resequence items</a>
     </div>

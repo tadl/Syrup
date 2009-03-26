@@ -137,22 +137,27 @@ padding-left: 15;
 }
 .itemadd a { color: navy; }
 
+.itemtree li .mainline { margin-left: 24; }
 
 /* specialized display of items in tree, by type */
 
 .itemtree li.item_HEADING { 
     list-style-image: url(tango/folder.png);
-    margin-top: 4;
+    margin: 9 0; 
 }
 .itemtree li.item_HEADING > a { 
     color: navy; 
 }
 
-li.item_HEADING > a.mainlink {
+li.item_HEADING > .mainline {
+    margin-bottom: 12;
+}
+
+li.item_HEADING > div.mainline  a.mainlink {
     border-bottom: #aaa 1px solid; 
 }
 
-li.item_HEADING > a.mainlink:hover {
+li.item_HEADING > .mainline a.mainlink:hover {
     border-bottom: none;
 }
 
@@ -207,7 +212,7 @@ p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: 
     font-size: 80%; color: navy;
 }
 
-.menublockopener { margin-left: 0.25em; color: #aaa !important; font-weight: normal !important; }
+.menublockopener { margin-left: 0.25em; color: #bbb !important; font-weight: normal !important; }
 .menublock { background-color: #f0f0e0; font-size: 95%; padding: 1 4; }
 
 #coursebanner { background-color: #f2e4cc; margin: -12 -12 0 -12; padding: 8; }

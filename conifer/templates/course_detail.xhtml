@@ -17,10 +17,13 @@ is_editor = course.can_edit(request.user)
     <p py:if="not item_tree">
       There are no items associated with this course yet.
     </p>
-    <div py:if="instructs(request.user, course)" id="edit_course" class="little_action_panel">
+    <div py:if="is_editor" id="edit_course" class="little_action_panel">
       <a href="${course.course_url()}edit/">Edit course details</a>
     </div>
-    ${item_resequence_panel()}
+    <div id="showtree_panel" class="little_action_panel">
+      <a href="javascript:doToggleItemTree();">Show/hide tree</a>
+    </div>
+    <div py:if="is_editor">${item_resequence_panel()}</div>
     ${show_tree(item_tree, edit=is_editor)}
     <div py:if="is_editor">${add_subs()}</div>
 

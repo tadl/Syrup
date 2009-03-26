@@ -156,14 +156,18 @@ def members_only(handler):
         allowed = user.is_superuser
         if not allowed:
             course = models.Course.objects.get(pk=course_id)
-            allowed = ((user.is_anonymous and course.access=='ANON') or \
-                       (user.is_authenticated and course.access=='LOGIN'))
+            allowed = ((user.is_anonymous() and course.access=='ANON') or \
+                       (user.is_authenticated() and course.access=='LOGIN'))
         if not allowed:
             allowed = _fast_user_membership_query(user.id, course_id)
         if allowed:
             return handler(request, course_id, *args, **kwargs)
         else:
-            return _access_denied(_('Only course members are allowed here.'))
+            if course.access=='LOGIN':
+                msg = _('Please log in, so that you can enter this site.')
+            else:
+                msg = _('Only course members are allowed here.')
+            return _access_denied(msg)
     return hdlr
 
 # decorator
