@@ -1,5 +1,6 @@
 function init_blocks() {
     $('span.menublock').each(make_opener);
+    $('div').click(hideblocks);
 }
 
 var blocknum = 0;
@@ -12,9 +13,13 @@ function make_opener() {
     menublock.hide();
 }
 
+function hideblocks() {
+    $('span.menublock').hide();
+}
+
 function openblock(bid) {
     if (!resequencing) {
-	$('span.menublock').hide();
+	hideblocks();
 	$('#' + bid).fadeIn('fast');
     }
 }
@@ -52,3 +57,11 @@ function doResequence() {
 		   });
     }
 };
+
+function doToggleItemTree() {
+    if ($('.itemtree:hidden').length > 0) {
+	$('.itemtree:hidden').fadeIn(1000);
+    } else {
+	$('.itemtree').not('.itemtree:nth(0)').fadeOut('slow');
+    }
+}

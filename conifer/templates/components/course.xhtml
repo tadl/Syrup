@@ -54,7 +54,7 @@ searchtext = _('search this course...')
     <div class="breadcrumbs">
       <span><a href="${item.course.course_url()}">Top</a></span> &raquo;
       <span py:for="n, x in enumerate(hier)"><a href="${x.item_url()}">${x.title}</a> &raquo; </span>
-      <b>${item.title}</b>
+      <span class="final_item">${item.title}</span>
     </div>
   </div>
   
@@ -97,6 +97,9 @@ searchtext = _('search this course...')
    </div>
 
    <div py:def="item_resequence_panel()" py:strip="True">
+    <div id="showtree_panel" class="little_action_panel">
+      <a href="javascript:doToggleItemTree();">Show/hide tree</a>
+    </div>
     <div id="resequence_panel" class="little_action_panel">
       <a href="javascript:doResequence();">Resequence items</a>
     </div>
