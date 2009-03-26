@@ -3,12 +3,13 @@ function init_blocks() {
     $('div').click(hideblocks);
 }
 
+var LINGER = 200; // # milliseconds linger-time required to trigger menu
 var blocknum = 0;
 function make_opener() {
     var menublock = $(this);
     var blockid = 'menublock' + (blocknum++);
     menublock.attr('id', blockid);
-    var opener = '<a class="menublockopener" onmouseover="openblock(\'' + blockid + '\');" href="javascript:openblock(\'' + blockid + '\');">&raquo;</a>';
+    var opener = '<a class="menublockopener" onmouseout="maybe_cancelblock(\'' + blockid + '\');" onmouseover="maybe_openblock(\'' + blockid + '\');" href="javascript:openblock(\'' + blockid + '\');">&raquo;</a>';
     menublock.before(opener);
     menublock.hide();
 }
@@ -17,10 +18,30 @@ function hideblocks() {
     $('span.menublock').hide();
 }
 
+// the block we are scheduling to open (due to a mouseover).
+var block_to_open = null;
+
+function maybe_cancelblock(bid) {
+    // if it is not open yet, this will stop it from opening.
+    block_to_open = null;
+}
+
+function maybe_openblock(bid) {
+    // it's 'maybe' because it's cancellable. You have to linger for
+    // LINGER milliseconds for the open to happen; otherwise
+    // maybe_cancelblock() will prevent it.
+    block_to_open = bid;
+    var cmd = 'openblock("' + bid + '")';
+    setTimeout(cmd, LINGER);
+}
+
 function openblock(bid) {
-    if (!resequencing) {
-	hideblocks();
-	$('#' + bid).fadeIn('fast');
+    if (!resequencing) {	// it's annoying during reseq.
+	if (block_to_open == bid) {
+	    hideblocks();
+	    $('#' + bid).fadeIn('fast');
+	    block_to_open = null;
+	}
     }
 }
 
