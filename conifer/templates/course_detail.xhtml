@@ -20,7 +20,7 @@ is_editor = course.can_edit(request.user)
     <div py:if="instructs(request.user, course)" id="edit_course" class="little_action_panel">
       <a href="${course.course_url()}edit/">Edit course details</a>
     </div>
-    ${item_reorder_panel()}
+    ${item_resequence_panel()}
     ${show_tree(item_tree, edit=is_editor)}
     <div py:if="is_editor">${add_subs()}</div>
 

@@ -225,3 +225,7 @@ p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: 
 .specific { padding: 8; margin: 0 16; background-color: #eef; }
 
 
+li.sort_item { margin-top: 20px !important;
+	     border: gray 1px dotted; width: 400; }
+
+li.sort_item:hover { background-color: #eee; }

@@ -13,8 +13,10 @@ function make_opener() {
 }
 
 function openblock(bid) {
-    $('span.menublock').hide();
-    $('#' + bid).fadeIn('fast');
+    if (!resequencing) {
+	$('span.menublock').hide();
+	$('#' + bid).fadeIn('fast');
+    }
 }
 
 $(init_blocks);
@@ -23,29 +25,29 @@ $(init_blocks);
 // fixme, I need to rename menublocks.js to something more like
 // 'course-item-stuff.js'.
 
-// this is some item reordering code. 
+// this is some item resequencing code. 
 
-var reordering = false;
+var resequencing = false;
 
-function doReorder() {
-    if (!reordering)  {
-	$('.itemtree').sortable({axis:'y'});
-	$('.an_item').css({ marginTop: '20px' });
-	$('#reorder_panel').after($('#ropanelmessage'));
-	$('#reorder_panel a').text($('#i18n-save-order').text());
-	reordering = true;
+function doResequence() {
+    if (!resequencing)  {
+	$('.itemtree:nth(0)').sortable({axis:'y'});
+	$('.itemtree:nth(0) > .an_item').addClass('sort_item');
+	$('#resequence_panel').after($('#ropanelmessage'));
+	$('#resequence_panel a').text($('#i18n-save-order').text());
+	resequencing = true;
     } else {
-	$('.an_item').css({ marginTop: '4px' });
+	$('.an_item').removeClass('sort_item');
 	$('#ropanelmessage').remove();
-	$('#reorder_panel a').text('...');
+	$('#resequence_panel a').text('...');
 	$('.itemtree').sortable('destroy');
-	reordering = false;
+	resequencing = false;
 	// get the LI item ids. Send them to the server.
 	var new_sequence = $('.an_item').map(function() { return $(this).attr('id') });
 	var new_seq_string = Array.join(new_sequence, ',');
 	$.post('reseq', {'new_order':new_seq_string}, 
 		   function() {
-		       $('#reorder_panel a').text($('#i18n-reorder-items').text());
+		       $('#resequence_panel a').text($('#i18n-resequence-items').text());
 		       alert($('#i18n-new-order-saved').text());
 		   });
     }
