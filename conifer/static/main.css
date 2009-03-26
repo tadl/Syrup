@@ -241,13 +241,29 @@ p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: 
     font-weight: normal; 
 }
 
+.metadata_table tbody th,
+.metadata_table tbody td {
+    padding: 8; border: #ddd 1px solid;
+}
+
+.metadata_table tbody th {
+    background-color: #eee;
+}
+   
+.metadata_table a.bigdownload { padding: 8 58; font-weight: bold; font-size: 105%; }
+
+h2.metadata_subhead {font-size: 105%; padding: 0; margin: 18 0 9 0;}
+
+.metadata_table tbody th {
+    text-align: left; width: 120;
+}
 .gap { height: 24; }
 
 /* panels that appear when specific OPTIONs or radio-buttons are selected. */
 .specific { padding: 8; margin: 0 16; background-color: #eef; }
 
 
-li.sort_item { margin-top: 20px !important;
+li.sort_item { margin-top: 20px} !important;
 	     border: gray 1px dotted; width: 400; }
 
 li.sort_item:hover { background-color: #eee; }

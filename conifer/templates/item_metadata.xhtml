@@ -2,6 +2,7 @@
 course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
 hier = item.hierarchy()[:-1]
 title = item.title
+metadata = item.metadata_set.all()
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -14,24 +15,26 @@ title = item.title
   <body>
     ${course_banner(course)}
     ${nested_title(item)}
-
-    <table>
+    <table class="metadata_table" style="margin-top: 1em;">
       <tr><th>Title</th><td>${item.title}</td></tr>
-      <tr><th>Type</th><td>${item.item_type}</td></tr>
+      <tr><th>Type</th><td>${item.get_item_type_display()}</td></tr>
       <tr py:if="item.url"><th>URL</th><td><a href="${item.url}">${item.url}</a></td></tr>
     </table>
     <div py:if="item.item_type=='ELEC'">
-    <p><a href="${item.item_url()}">Download</a></p>
-    <table>
+    <h2 class="metadata_subhead">Attached document</h2>
+    <table class="metadata_table">
     <tr><th>Content type</th><td>${item.fileobj_mimetype}</td></tr>
-    <tr><th>Content length</th><td>${item.fileobj.size}</td></tr>
+    <tr><th>Size</th><td>${item.fileobj.size} bytes</td></tr>
+    <tr><th/><td><a class="bigdownload" href="${item.item_url()}">Download</a></td></tr>
     </table>
     </div>
-
-    <table>
-      <tr py:for="attr in item.metadata_set.all()">
-	<th>${attr.get_name_display()}</th><td>${attr.value}</td>
-      </tr>
-    </table>
+    <div py:if="metadata">
+      <h2 class="metadata_subhead">Additional metadata</h2>
+      <table class="metadata_table">
+	<tr py:for="attr in metadata">
+	  <th>${attr.get_name_display()}</th><td>${attr.value}</td>
+	</tr>
+      </table>
+      </div>
   </body>
 </html>
