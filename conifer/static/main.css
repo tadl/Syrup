@@ -251,6 +251,7 @@ p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: 
 }
    
 .metadata_table a.bigdownload { padding: 8 58; font-weight: bold; font-size: 105%; }
+.metadata_table a.bigdownload:hover { background-color: #dfd; color: black; }
 
 h2.metadata_subhead {font-size: 105%; padding: 0; margin: 18 0 9 0;}
 
@@ -263,7 +264,7 @@ h2.metadata_subhead {font-size: 105%; padding: 0; margin: 18 0 9 0;}
 .specific { padding: 8; margin: 0 16; background-color: #eef; }
 
 
-li.sort_item { margin-top: 20px} !important;
+li.sort_item { margin-top: 20px !important;
 	     border: gray 1px dotted; width: 400; }
 
 li.sort_item:hover { background-color: #eee; }

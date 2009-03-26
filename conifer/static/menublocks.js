@@ -60,7 +60,7 @@ function doResequence() {
 
 function doToggleItemTree() {
     if ($('.itemtree:hidden').length > 0) {
-	$('.itemtree:hidden').fadeIn(1000);
+	$('.itemtree:hidden').fadeIn(500);
     } else {
 	$('.itemtree').not('.itemtree:nth(0)').fadeOut('slow');
     }
