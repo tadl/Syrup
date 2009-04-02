@@ -231,20 +231,27 @@ def user_prefs(request):
         return HttpResponseRedirect('../')
 
 def z3950_test(request):
-    conn = zoom.Connection ('z3950.loc.gov', 7090)
+    #testing JZKitZ3950 - it seems to work, but i have a character set problem
+    #with the returned marc
+
+    #conn = zoom.Connection ('z3950.loc.gov', 7090)
     #conn = zoom.Connection ('webvoy.uwindsor.ca', 9000)
-    conn.databaseName = 'VOYAGER'
-    conn.preferredRecordSyntax = 'USMARC'
-    query = zoom.Query ('CCL', 'ti="1066 and all that"')
+    #solr index with JZKitZ3950 wrapping
+    conn = zoom.Connection ('127.0.0.1', 2100)
     print("connecting...")
+    conn.databaseName = 'Test'
+    conn.preferredRecordSyntax = 'USMARC'
+    query = zoom.Query ('CCL', 'ti="agar"')
     res = conn.search (query)
+    print(len(res))
     collector = []
     for r in res:
+        #this hits the marc problem - need to figure out how to set strict
+        print(str(r))
         collector.append(str(r))
     conn.close ()
-    # print("done searching...")
+
     res_str = "" . join(collector)
-    # print(res_str)
     return g.render('z3950_test.xhtml', res_str=res_str)
 
 def graham_z3950_test(request):
