@@ -1251,7 +1251,7 @@ def phys_checkout(request):
             return g.render('phys/checkout.xhtml', step=3, 
                             patron=patron, item=item,
                             patron_descrip=post('patron_descrip'),
-                            checkout_result=msg['raw'],
+                            checkout_result=msg,
                             item_descrip=item_descrip)
         elif post('step') == '3':
             # continue after checkout. Go to 'checkout another item'.

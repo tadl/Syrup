@@ -166,3 +166,37 @@ def lookup_constant(x):
     for k, v in constants:
         if v == x:
             return k
+
+
+#------------------------------------------------------------
+# Other lookups
+
+MEDIA_TYPE_TABLE = {
+    '000': 'Other',
+    '001': 'Book',
+    '002': 'Magazine',
+    '003': 'Bound journal',
+    '004': 'Audio tape',
+    '005': 'Video tape',
+    '006': 'CD/CDROM',
+    '007': 'Diskette',
+    '008': 'Book with diskette',
+    '009': 'Book with CD',
+    '010': 'Book with audio tape',
+    }
+
+ITEM_STATUS_TABLE = {
+    '01': 'Other',
+    '02': 'On order',
+    '03': 'Available',
+    '04': 'Charged',
+    '05': 'Charged; not to be recalled until',
+    '06': 'In process',
+    '07': 'Recalled',
+    '08': 'Waiting on hold shelf',
+    '09': 'Waiting to be re-shelved',
+    '10': 'In transit between library locations',
+    '11': 'Claimed returned',
+    '12': 'Lost',
+    '13': 'Missing',
+    }

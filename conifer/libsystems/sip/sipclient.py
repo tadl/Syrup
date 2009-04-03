@@ -196,7 +196,7 @@ def decode_msg(msg, bytes):
             add(fld.name, good)
             varposn.remove(fld)
         else:
-            raise 'FieldNotProcessed', (segment, lookup_constant(segment[:2]))
+            raise 'FieldNotProcessed: %s, %s' % (segment, lookup_constant(segment[:2]))
 
     # Let's make sure that any "required" fields were not missing.
     notpresent = set(f for f in varposn if not isinstance(f, optfield))
@@ -238,7 +238,7 @@ MESSAGES = {
 
     LOGIN_RESP : message(
             LOGIN_RESP, 
-            charfield('okay', width=1)),
+            charfield('ok', width=1)),
 
     SC_STATUS : message(
             SC_STATUS, 
@@ -343,6 +343,23 @@ MESSAGES = {
         field('item', FID_ITEM_ID),
         ),
 
+    CHECKOUT_RESP: message(
+        CHECKOUT_RESP,
+        charfield('ok', width=1),
+        yn('is_renewal'),
+        yn('is_magnetic'),
+        yn('desensitize'),
+        fld_localtime,
+        field('inst', FID_INST_ID),
+        field('patron', FID_PATRON_ID),
+        field('item', FID_ITEM_ID),
+        field('due', FID_DUE_DATE),
+        field('title', FID_TITLE_ID),
+        optfield('media_type_code', FID_MEDIA_TYPE),
+        optfield('is_valid_patron', FID_VALID_PATRON),
+        ofld_print_line,
+        ofld_screen_msg),
+
     CHECKIN: message(
         CHECKIN,
         yn('is_retry'),
@@ -353,6 +370,31 @@ MESSAGES = {
         field('inst', FID_INST_ID),
         ofld_TERMINAL_PWD,
         ),
+
+    CHECKIN_RESP: message(
+        CHECKIN_RESP,
+        charfield('ok', width=1),
+        yn('resensitize'),
+        yn('is_magnetic'),
+        yn('alert'),
+        fld_localtime,
+        fld_INST_ID,
+        optfield('patron', FID_PATRON_ID),
+        field('item', FID_ITEM_ID),
+        field('title', FID_TITLE_ID),
+        optfield('media_type_code', FID_MEDIA_TYPE),
+        optfield('perm_locn', FID_PERM_LOCN),
+        optfield('due', FID_DUE_DATE),
+        ofld_print_line,
+        ofld_screen_msg,
+        ),
+#         yn('is_retry'),
+#         fld_localtime,
+#         fld_localtime,
+#         field('item', FID_ITEM_ID),
+#         field('location', FID_CURRENT_LOCN),
+#         ofld_TERMINAL_PWD,
+#        ),
 
     ITEM_INFORMATION : message(
             ITEM_INFORMATION,
@@ -427,7 +469,7 @@ class SipClient(object):
     def login(self, uid, pwd, locn):
         msg = self.send(LOGIN, LOGIN_RESP, 
                         dict(uid=uid, pwd=pwd, locn=locn))
-        return msg.get('okay') == '1'
+        return msg.get('ok') == '1'
 
     def status(self):
         return self.send(SC_STATUS, ACS_STATUS)
@@ -439,40 +481,28 @@ class SipClient(object):
         return msg
 
     def checkout(self, patron, item, inst=''):
-        msg = self.send(CHECKOUT, RAW, # fixme
+        msg = self.send(CHECKOUT, CHECKOUT_RESP,
                         {'patron':patron,
                          'inst': inst,
                          'item':item})
+        msg['media_type'] = MEDIA_TYPE_TABLE.get(msg.get('media_type_code'))
+        msg['success'] = msg.get('ok') == '1'
         return msg
 
     def checkin(self, item, institution='', location=''):
-        msg = self.send(CHECKIN, RAW, # fixme
+        msg = self.send(CHECKIN, CHECKIN_RESP,
                         {'inst': institution,
                          'location':location,
                          'is_retry':False,
                          'item':item})
+        msg['success'] = msg.get('ok') == '1'
         return msg
 
     def item_info(self, barcode):
         msg = self.send(ITEM_INFORMATION, ITEM_INFO_RESP,
                         {'item':barcode})
-        decode_status = {
-            '01': 'Other',
-            '02': 'On order',
-            '03': 'Available',
-            '04': 'Charged',
-            '05': 'Charged; not to be recalled until',
-            '06': 'In process',
-            '07': 'Recalled',
-            '08': 'Waiting on hold shelf',
-            '09': 'Waiting to be re-shelved',
-            '10': 'In transit between library locations',
-            '11': 'Claimed returned',
-            '12': 'Lost',
-            '13': 'Missing ',
-            }
         msg['available'] = msg['circstat'] == '03'
-        msg['status'] = decode_status[msg['circstat']]
+        msg['status'] = ITEM_STATUS_TABLE[msg['circstat']]
         return msg
 
 
@@ -532,11 +562,4 @@ if __name__ == '__main__':
                    {'patron':'scclient',
                     'inst':'UWOLS'}))
 
-
-
-#checked out a book!
-#"{'raw': '121NNY20090402    220912AOconifer|AA21862000380830|AB31862017120995|AJNo great mischief|AH2009-07-31 00:00:00|CK001|\\r'}"
-
-#checked it back in:
-#"{'raw': '101YNN20090402    222519AO|AB31862017120995|AQLeddy Library|AJNo great mischief|AA21862000380830|CK001|\\r'}"
 

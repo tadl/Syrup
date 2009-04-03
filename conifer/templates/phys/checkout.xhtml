@@ -12,6 +12,10 @@ title = _('Patron Checkout of Item')
   <script>
     $(function() { $('form:last input:visible:first').focus(); });
   </script>
+  <style>
+    .success { background-color: #dfd; }
+    .failure { background-color: #fdd; }
+  </style>
 </head>
 <body>
   <h1>${title}</h1>
@@ -22,7 +26,7 @@ title = _('Patron Checkout of Item')
       <tr py:choose="defined('patron')">
 	<th>Patron Barcode</th>
 	<td py:when="False">
-	  <input type="text" id="patron" name="patron" style="width: 400;" value="${os.environ['ART']}"/>
+	  <input type="text" id="patron" name="patron" style="width: 400;" value=""/>
 	</td>
 	<td py:when="True">
 	    ${patron}: ${Markup(patron_descrip)}
@@ -40,9 +44,19 @@ title = _('Patron Checkout of Item')
 	  <input type="hidden" name="item" value="${item}"/>
 	</td>
       </tr>
-      <tr py:if="step==3">
+      <tr py:if="step==3" py:with="successful=checkout_result['success']">
 	<th/>
-	<td><b>${checkout_result}</b></td>
+	<?python keys = checkout_result.keys(); keys.sort() ?>
+	<td class="${successful and 'success' or 'failure'}">
+	  <p py:if="successful">The checkout was successful. Due Date: ${checkout_result['due']}</p>
+	  <p py:if="not successful">The checkout failed.</p>
+	  <p style="font-size: 85%;">
+	    <a id="sdtog" href="javascript:$('#sip_details').toggle();$('#stog').hide();void(0);">Show details</a>
+	  </p>
+	  <table id="sip_details" style="font-size: 85%; display: none;"><tr py:for="k in keys">
+	    <th>${k}</th><td>${checkout_result[k]}</td>
+	  </tr></table>
+	</td>
       </tr>
       <tr>
 	<th/>
