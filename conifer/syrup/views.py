@@ -129,11 +129,16 @@ def _fast_user_membership_query(user_id, course_id, where=None):
     allowed = bool(res[0][0])
     return allowed
     
-def _access_denied(message):
-    return g.render('simplemessage.xhtml',
-                    title=_(_('Access denied.')), 
-                    content=message,
-                    _django_type=HttpResponseForbidden)
+def _access_denied(request, message):
+    if request.user.is_anonymous():
+        # then take them to login screen....
+        dest = '/accounts/login/?next=' + request.environ['PATH_INFO']
+        return HttpResponseRedirect(dest)
+    else:
+        return g.render('simplemessage.xhtml',
+                        title=_(_('Access denied.')), 
+                        content=message,
+                        _django_type=HttpResponseForbidden)
 
 # todo, these decorators could be refactored.
 
@@ -147,7 +152,7 @@ def instructors_only(handler):
         if allowed:
             return handler(request, course_id, *args, **kwargs)
         else:
-            return _access_denied(_('Only instructors are allowed here.'))
+            return _access_denied(request, _('Only instructors are allowed here.'))
     return hdlr
 
 # decorator
@@ -168,7 +173,7 @@ def members_only(handler):
                 msg = _('Please log in, so that you can enter this site.')
             else:
                 msg = _('Only course members are allowed here.')
-            return _access_denied(msg)
+            return _access_denied(request, msg)
     return hdlr
 
 # decorator
@@ -180,7 +185,7 @@ def admin_only(handler):
         if allowed:
             return handler(request, *args, **kwargs)
         else:
-            return _access_denied(_('Only administrators are allowed here.'))
+            return _access_denied(request, _('Only administrators are allowed here.'))
     return hdlr
 
 #decorator
