@@ -8,27 +8,46 @@ title = _('Patron Checkout of Item')
 <head>
   <title>${title}</title>
   <script>
-    $(function() { $('#patron').focus(); });
+    $(function() { $('form:last input:visible:nth(0)').focus(); });
   </script>
 </head>
 <body>
   <h1>${title}</h1>
   <form action="." method="POST">
-    <table>
-      <tr>
+    <input type="hidden" name="step" value="${step}"/>
+    <div>
+    <table class="metadata_table">
+      <tr py:choose="defined('patron')">
 	<th>Patron Barcode</th>
-	<td><input type="text" id="patron" name="patron" style="width: 400;"/></td>
+	<td py:when="False">
+	  <input type="text" id="patron" name="patron" style="width: 400;"/>
+	</td>
+	<td py:when="True">
+	    ${patron}: ${patron_descrip}
+	    <input type="hidden" name="patron" value="${patron}"/>
+	</td>
       </tr>
-      <tr>
+      <tr py:if="step>1" py:choose="defined('item')">
 	<th>Item Barcode</th>
-	<td><input type="text" name="item" style="width: 400;"/></td>
+	<td py:when="False">
+	  <input type="text" id="item" name="item" style="width: 400;"/>
+	</td>
+	<td py:when="True">
+	  ${item}: ${item_descrip}
+	  <input type="hidden" name="item" value="${item}"/>
+	</td>
+      </tr>
+      <tr py:if="step==3">
+	<th/>
+	<td><b>Success: Item Checked Out.</b></td>
       </tr>
       <tr>
 	<th/>
-	<td><input type="submit" value="Request Checkout"/></td>
+	<td><input type="submit" value="Continue"/></td>
       </tr>
     </table>
-      
+  </div>
+
   </form>
 
 </body>

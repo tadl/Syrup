@@ -23,4 +23,7 @@ def lookup_availability(bib_id):
 
 if __name__ == '__main__':
     DYLAN = 1321798
-    print lookup_availability(DYLAN)
+    #print lookup_availability(DYLAN)
+
+    MISCHIEF = 2063351
+    pprint(E1('open-ils.search.biblio.record.mods_slim.retrieve', MISCHIEF))

@@ -1219,4 +1219,30 @@ def phys_index(request):
 
 @admin_only                     # fixme, is this the right permission?
 def phys_checkout(request):
-    return g.render('phys/checkout.xhtml')
+    if request.method != 'POST':
+        return g.render('phys/checkout.xhtml', step=1)
+    else:
+        post = lambda k: request.POST.get(k, '').strip()
+        patron, item = post('patron'), post('item')
+        if post('step') == '1':
+            # patron entered, need item
+            patron_descrip = 'Fred Example, Jr.' # fixme, lookup
+            return g.render('phys/checkout.xhtml', step=2, 
+                            patron=patron, 
+                            patron_descrip=patron_descrip)
+        elif post('step') == '2':
+            # patron + item. do SIP calls.
+            # log the checkout in a local table.
+            patron_descrip = 'Fred Example, Jr.' # fixme, lookup
+            item_descrip   = 'War and Peace (Reader\'s Digest edition)'
+            return g.render('phys/checkout.xhtml', step=3, 
+                            patron=patron, item=item,
+                            patron_descrip=patron_descrip,
+                            item_descrip=item_descrip)
+        elif post('step') == '3':
+            # continue after checkout. Go to 'checkout another item'.
+            patron_descrip = 'Fred Example, Jr.' # fixme, lookup
+            return g.render('phys/checkout.xhtml', step=2, 
+                            patron=patron,
+                            patron_descrip=patron_descrip)
+        
