@@ -73,7 +73,7 @@ a:hover {  text-decoration: underline;  }
 /* actions (e.g. "edit user" link) */
 .action a { font-weight: bold; }
 
-#tabbar { margin: 18 0; padding: 0; width: 700; }
+#tabbar { margin: 18 0; padding: 0; }
 #tabbar li { display: inline; }
 #tabbar li a { padding: 18 18 4 18; background-color: #ddf; color: black; text-decoration: none; }
 #tabbar li a:hover { background-color: #fc8; }

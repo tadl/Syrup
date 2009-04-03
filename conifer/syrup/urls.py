@@ -39,11 +39,16 @@ urlpatterns = patterns('conifer.syrup.views',
     (ITEM_PREFIX + r'edit/$', 'item_edit'),
     (ITEM_PREFIX + r'add/$', 'item_add'), # for adding sub-things
     (ITEM_PREFIX + r'add/cat_search/$', 'item_add_cat_search'),
+
     (r'^admin/$', 'admin_index'),
     (r'^admin/terms/' + GENERIC_REGEX, 'admin_terms'),
     (r'^admin/depts/' + GENERIC_REGEX, 'admin_depts'),
     (r'^admin/news/' + GENERIC_REGEX, 'admin_news'),
     (r'^admin/targets/' + GENERIC_REGEX, 'admin_targets'),
+
+    (r'^phys/$', 'phys_index'),
+    (r'^phys/checkout/$', 'phys_checkout'),
+
     (r'^course/(?P<course_id>\d+)/reseq$', 'course_reseq'),
     (ITEM_PREFIX + r'reseq', 'item_heading_reseq'),
     (ITEM_PREFIX + r'relocate/', 'item_relocate'), # move to new subheading

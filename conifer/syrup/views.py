@@ -1209,3 +1209,14 @@ def item_relocate(request, course_id, item_id):
             return HttpResponseRedirect(course.course_url())
         
         
+
+#-----------------------------------------------------------------------------
+# Physical item processing
+
+@admin_only                     # fixme, is this the right permission?
+def phys_index(request):
+    return g.render('phys/index.xhtml')
+
+@admin_only                     # fixme, is this the right permission?
+def phys_checkout(request):
+    return g.render('phys/checkout.xhtml')

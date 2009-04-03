@@ -1,0 +1,35 @@
+<?python
+title = _('Patron Checkout of Item')
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="../master.xhtml"/>
+<head>
+  <title>${title}</title>
+  <script>
+    $(function() { $('#patron').focus(); });
+  </script>
+</head>
+<body>
+  <h1>${title}</h1>
+  <form action="." method="POST">
+    <table>
+      <tr>
+	<th>Patron Barcode</th>
+	<td><input type="text" id="patron" name="patron" style="width: 400;"/></td>
+      </tr>
+      <tr>
+	<th>Item Barcode</th>
+	<td><input type="text" name="item" style="width: 400;"/></td>
+      </tr>
+      <tr>
+	<th/>
+	<td><input type="submit" value="Request Checkout"/></td>
+      </tr>
+    </table>
+      
+  </form>
+
+</body>
+</html>

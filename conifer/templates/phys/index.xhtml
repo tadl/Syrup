@@ -1,0 +1,25 @@
+<?python
+title = _('Physical Item Processing')
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="../master.xhtml"/>
+<head>
+  <title>${title}</title>
+</head>
+<body>
+  <h1>${title}</h1>
+  <h2>Patron assistance</h2>
+  <ul>
+    <li><a href="checkout/">Patron Checkout of Item</a></li>
+  </ul>
+
+  <h2>Circulations workflow</h2>
+  <ul>
+    <li><a href="circlist/">Notify Circulation of wanted items</a></li>
+    <li><a href="mark_arrived/">Mark items as Arrived</a></li>
+ </ul>
+
+</body>
+</html>
