@@ -8,7 +8,7 @@ title = _('Patron Checkout of Item')
 <head>
   <title>${title}</title>
   <script>
-    $(function() { $('form:last input:visible:nth(0)').focus(); });
+    $(function() { $('form:last input:visible:first').focus(); });
   </script>
 </head>
 <body>
@@ -43,12 +43,16 @@ title = _('Patron Checkout of Item')
       </tr>
       <tr>
 	<th/>
-	<td><input type="submit" value="Continue"/></td>
+	<td><input type="submit" value="${step==3 and _('Check out another item') or _('Continue')}"/></td>
       </tr>
+      <tr py:if="step==3">
+	<th/>
+	<td><a href="../">Done</a></td>
+      </tr>
+
+
     </table>
   </div>
-
   </form>
-
 </body>
 </html>
