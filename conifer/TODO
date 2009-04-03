@@ -1,0 +1,7 @@
+* a short-number for physical items. Sort of a barcode, but intended
+  for easier communicatinon between patrons and staff.
+
+  * Update views.search() when this is in place.
+
+* ...
+

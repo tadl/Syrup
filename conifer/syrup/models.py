@@ -401,6 +401,10 @@ class Item(m.Model):
         creators = self.metadata_set.filter(name='dc:creator')
         return creators and creators[0].value or None
 
+    def barcode(self):
+        bc = self.metadata_set.filter(name='syrup:barcode')
+        return bc and bc[0].value or None
+
     def author_hl(self, terms):
         hl_author = self.author()
 

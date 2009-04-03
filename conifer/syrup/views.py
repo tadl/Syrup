@@ -843,7 +843,6 @@ def search(request, in_course=None):
         - page through item entries
         If in_course is provided, then limit search to the contents of the specified course.
     '''
-    query_string = ''
     found_entries = None
     page_num = int(request.GET.get('page', 1))
     count = int(request.GET.get('count', 5))
@@ -859,22 +858,36 @@ def search(request, in_course=None):
 
     if len(query_string) > 0:
         norm_query = normalize_query(query_string)
+        # we start with an empty results_list, as a default
+        results_list = models.Item.objects.filter(pk=-1)
 
-        #item search - this will be expanded
+        # numeric search: If the query-string is a single number, then
+        # we do an item-ID search, or a barcode search.  fixme:
+        # item-ID is not a good short-id, since the physical item may
+        # be represented in multiple Item records. We need a
+        # short-number for barcodes.
 
-        # fixme, when moving author to the Metadata table, we can no
-        # longer do a straight search on author. Using
-        # 'metadata__value' sort of works, but also searches other
-        # metadata fields. 
+        if re.match(r'\d+', query_string):
+            # Search by short ID.
+            results_list = models.Item.objects.filter(pk=query_string,
+                                                      item_type='PHYS')
+            if not results_list:
+                # Search by barcode.
+                results_list = models.Item.objects.filter(
+                    item_type='PHYS',
+                    metadata__name='syrup:barcode', 
+                    metadata__value=query_string)
+        else:
+            # Textual (non-numeric) queries.
+            item_query = get_query(query_string, ['title', 'metadata__value'])
+                #need to think about sort order here, probably better by author (will make sortable at display level)
+            results_list = models.Item.objects.filter(item_query)
 
-        item_query = get_query(query_string, ['title', 'metadata__value'])
-        #need to think about sort order here, probably better by author (will make sortable at display level)
-        results_list = models.Item.objects.filter(item_query).order_by('title')
         if in_course:
             results_list = results_list.filter(course=in_course)
+        results_list = results_list.order_by('title')
         results_len = len(results_list)
-        paginator = Paginator( results_list,
-            count)
+        paginator = Paginator(results_list, count)
 
         #course search
         if in_course:
