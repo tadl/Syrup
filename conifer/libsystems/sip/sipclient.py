@@ -26,7 +26,7 @@ import sys
 from datetime import datetime
 import re
 
-DEBUG = False
+DEBUG = True
 
 # ------------------------------------------------------------
 # helper functions
@@ -259,6 +259,10 @@ MESSAGES = {
             fld_localtime,
             charfield('protocol', default='2.00'),
             fld_INST_ID,
+            optfield('patron_id', FID_PATRON_ID),
+            optfield('item_id', FID_ITEM_ID),
+            optfield('terminal_pwd', FID_TERMINAL_PWD),
+            
             optfield('instname', FID_LIBRARY_NAME),
             field('supported', FID_SUPPORTED_MSGS),
             optfield('ttylocn', FID_TERMINAL_LOCN),
@@ -327,6 +331,28 @@ MESSAGES = {
             fld_PATRON_ID,
             ofld_print_line,
             ofld_screen_msg),
+
+    CHECKOUT: message(
+        CHECKOUT,
+        yn('renewals_OK'),
+        yn('no_block'),
+        fld_localtime,
+        fld_localtime,
+        field('inst', FID_INST_ID),
+        field('patron', FID_PATRON_ID),
+        field('item', FID_ITEM_ID),
+        ),
+
+    CHECKIN: message(
+        CHECKIN,
+        yn('is_retry'),
+        fld_localtime,
+        fld_localtime,
+        field('item', FID_ITEM_ID),
+        field('location', FID_CURRENT_LOCN),
+        field('inst', FID_INST_ID),
+        ofld_TERMINAL_PWD,
+        ),
 
     ITEM_INFORMATION : message(
             ITEM_INFORMATION,
@@ -412,6 +438,21 @@ class SipClient(object):
                          'startitem':1, 'enditem':2})
         return msg
 
+    def checkout(self, patron, item, inst=''):
+        msg = self.send(CHECKOUT, RAW, # fixme
+                        {'patron':patron,
+                         'inst': inst,
+                         'item':item})
+        return msg
+
+    def checkin(self, item, institution='', location=''):
+        msg = self.send(CHECKIN, RAW, # fixme
+                        {'inst': institution,
+                         'location':location,
+                         'is_retry':False,
+                         'item':item})
+        return msg
+
     def item_info(self, barcode):
         msg = self.send(ITEM_INFORMATION, ITEM_INFO_RESP,
                         {'item':barcode})
@@ -446,6 +487,15 @@ try:
             raise 'SipLoginError'
         return sip
 
+    # decorator
+    def SIP(fn):
+        def f(*args, **kwargs):
+            conn = sip_connection()
+            resp = fn(conn, *args, **kwargs)
+            conn.close()
+            return resp
+        return f
+
 except ImportError:
     pass
 
@@ -456,7 +506,7 @@ except ImportError:
 if __name__ == '__main__':
     from pprint import pprint
 
-    sip = SipClient('localhost', 6001)
+    sip = SipClient('home', 6001)
     resp = sip.login(uid='scclient',
                      pwd='clientpwd', locn='The basement')
     pprint(resp)
@@ -473,9 +523,20 @@ if __name__ == '__main__':
         result = sip.send(ITEM_INFORMATION, ITEM_INFO_RESP,
                           {'item':item})
         print '%-12s: %s' % (item, result['title'] or '????')
-
+        print sip.send(CHECKOUT, RAW,
+                       {'patron':'scclient-2',
+                        'inst': 'UWOLS',
+                        'item':item})
+        print '\n' * 5
     pprint(sip.send(END_PATRON_SESSION, END_SESSION_RESP,
                    {'patron':'scclient',
                     'inst':'UWOLS'}))
 
+
+
+#checked out a book!
+#"{'raw': '121NNY20090402    220912AOconifer|AA21862000380830|AB31862017120995|AJNo great mischief|AH2009-07-31 00:00:00|CK001|\\r'}"
+
+#checked it back in:
+#"{'raw': '101YNN20090402    222519AO|AB31862017120995|AQLeddy Library|AJNo great mischief|AA21862000380830|CK001|\\r'}"
 

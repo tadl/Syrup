@@ -1241,14 +1241,17 @@ def phys_checkout(request):
             # also, make sure the barcode actually matches with a
             # known barcode in Syrup. We only checkout what we know
             # about.
-            msg = lib_integration.item_info(item)
+            msg = lib_integration.item_status(item)
             item_descrip = '%s &mdash; %s' % (
                 msg['title'], msg['status'])
 
             # do the checkout
+            msg = lib_integration.checkout(patron, item)
+            
             return g.render('phys/checkout.xhtml', step=3, 
                             patron=patron, item=item,
                             patron_descrip=post('patron_descrip'),
+                            checkout_result=msg['raw'],
                             item_descrip=item_descrip)
         elif post('step') == '3':
             # continue after checkout. Go to 'checkout another item'.

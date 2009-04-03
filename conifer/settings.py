@@ -106,8 +106,27 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
+
+# more on this later.
+LIBRARY_INTEGRATION = {
+    'patron_info': 'SIP',
+    'item_status': 'SIP',
+    'item_info'  : 'OpenSRF',
+    'catalogue'  : 'Z39.50',
+}
+
 EVERGREEN_XMLRPC_SERVER = None # evergreen host, for auth, e.g. '192.168.1.10'
 
 if EVERGREEN_XMLRPC_SERVER:
     AUTHENTICATION_BACKENDS.append(
         'conifer.custom.auth_evergreen.EvergreenAuthBackend')
+
+# stuff that I really ought not check into svn...
+#SIP_HOST = ('hostname', 9999)
+#SIP_CREDENTIALS = ('userid', 'password', 'location')
+
+try:
+    # Graham has this right now; it's not official Syrup. Nothing to see here.
+    from private_local_settings import SIP_HOST, SIP_CREDENTIALS
+except:
+    pass
