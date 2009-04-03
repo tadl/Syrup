@@ -1,4 +1,6 @@
 <?python
+import os  # fixme, just for testing.
+sample_item = '31862017122801'  # fixme, just for testing.
 title = _('Patron Checkout of Item')
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
@@ -20,26 +22,27 @@ title = _('Patron Checkout of Item')
       <tr py:choose="defined('patron')">
 	<th>Patron Barcode</th>
 	<td py:when="False">
-	  <input type="text" id="patron" name="patron" style="width: 400;"/>
+	  <input type="text" id="patron" name="patron" style="width: 400;" value="${os.environ['ART']}"/>
 	</td>
 	<td py:when="True">
-	    ${patron}: ${patron_descrip}
+	    ${patron}: ${Markup(patron_descrip)}
 	    <input type="hidden" name="patron" value="${patron}"/>
+	    <input type="hidden" name="patron_descrip" value="${patron_descrip}"/>
 	</td>
       </tr>
       <tr py:if="step>1" py:choose="defined('item')">
 	<th>Item Barcode</th>
 	<td py:when="False">
-	  <input type="text" id="item" name="item" style="width: 400;"/>
+	  <input type="text" id="item" name="item" style="width: 400;" value="${sample_item}"/>
 	</td>
 	<td py:when="True">
-	  ${item}: ${item_descrip}
+	  ${item}: ${Markup(item_descrip)}
 	  <input type="hidden" name="item" value="${item}"/>
 	</td>
       </tr>
       <tr py:if="step==3">
 	<th/>
-	<td><b>Success: Item Checked Out.</b></td>
+	<td><b>Success: Item Checked Out (FOR PRETEND! Not doing checkout yet).</b></td>
       </tr>
       <tr>
 	<th/>

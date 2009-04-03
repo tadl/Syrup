@@ -527,3 +527,19 @@ class Target(m.Model):
 
     def __unicode__(self):
         return self.name
+
+#----------------------------------------------------------------------
+# SIP checkout
+
+class Checkout(m.Model):
+    """A log of checkout events."""
+    
+    patron = m.CharField(max_length=100)
+    patron_descrip = m.CharField(max_length=512)
+    item   = m.CharField(max_length=100, null=True)
+    item_descrip = m.CharField(max_length=512, null=True)
+    staff  = m.ForeignKey(User)
+    initiated = m.DateTimeField(auto_now_add=True)
+    completed = m.DateTimeField(default=None, null=True)
+    outcome  = m.CharField(max_length=100, null=True)
+    

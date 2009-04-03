@@ -374,6 +374,10 @@ class SipClient(object):
         self.socket = so
         self.seqno = self.error_detect and 1 or 0
 
+    def close(self):
+        # fixme, do SIP close first.
+        self.socket.close()
+
     def send(self, outmsg, inmsg, args=None):
         msg_template = MESSAGES[outmsg]
         resp_template = MESSAGES[inmsg]
@@ -395,11 +399,55 @@ class SipClient(object):
     # Common protocol methods
 
     def login(self, uid, pwd, locn):
-        return self.send(LOGIN, LOGIN_RESP, 
-                         dict(uid=uid, pwd=pwd, locn=locn))
+        msg = self.send(LOGIN, LOGIN_RESP, 
+                        dict(uid=uid, pwd=pwd, locn=locn))
+        return msg.get('okay') == '1'
 
     def status(self):
         return self.send(SC_STATUS, ACS_STATUS)
+
+    def patron_info(self, barcode):
+        msg = self.send(PATRON_INFO,PATRON_INFO_RESP,
+                        {'patron':barcode,
+                         'startitem':1, 'enditem':2})
+        return msg
+
+    def item_info(self, barcode):
+        msg = self.send(ITEM_INFORMATION, ITEM_INFO_RESP,
+                        {'item':barcode})
+        decode_status = {
+            '01': 'Other',
+            '02': 'On order',
+            '03': 'Available',
+            '04': 'Charged',
+            '05': 'Charged; not to be recalled until',
+            '06': 'In process',
+            '07': 'Recalled',
+            '08': 'Waiting on hold shelf',
+            '09': 'Waiting to be re-shelved',
+            '10': 'In transit between library locations',
+            '11': 'Claimed returned',
+            '12': 'Lost',
+            '13': 'Missing ',
+            }
+        msg['available'] = msg['circstat'] == '03'
+        msg['status'] = decode_status[msg['circstat']]
+        return msg
+
+
+# ------------------------------------------------------------
+# Django stuff. Optional.
+
+try:
+    from django.conf import settings
+    def sip_connection():
+        sip = SipClient(*settings.SIP_HOST)
+        if not sip.login(*settings.SIP_CREDENTIALS):
+            raise 'SipLoginError'
+        return sip
+
+except ImportError:
+    pass
 
 
 # ------------------------------------------------------------

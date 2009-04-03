@@ -30,7 +30,7 @@ min-height: 300;
     position: relative;
     top: -5px;
     float: right;
-    margin:0.2em 0 1em;
+    margin: 0.2em 0 0 0;
     padding:0 0.2em 0 0.5em;
     color: #ccc;
 }

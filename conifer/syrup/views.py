@@ -34,6 +34,7 @@ import django.forms
 import re
 import sys
 from django.forms.models import modelformset_factory
+from conifer.custom import lib_integration
 
 #-----------------------------------------------------------------------------
 # Z39.50 Support
@@ -1226,23 +1227,32 @@ def phys_checkout(request):
         patron, item = post('patron'), post('item')
         if post('step') == '1':
             # patron entered, need item
-            patron_descrip = 'Fred Example, Jr.' # fixme, lookup
+            # first get patron data.
+            msg = lib_integration.patron_info(patron)
+            patron_descrip = '%s (%s) &mdash; %s' % (
+                msg['personal'], msg['home_library'],
+                msg['screenmsg'])
             return g.render('phys/checkout.xhtml', step=2, 
                             patron=patron, 
                             patron_descrip=patron_descrip)
         elif post('step') == '2':
             # patron + item. do SIP calls.
             # log the checkout in a local table.
-            patron_descrip = 'Fred Example, Jr.' # fixme, lookup
-            item_descrip   = 'War and Peace (Reader\'s Digest edition)'
+            # also, make sure the barcode actually matches with a
+            # known barcode in Syrup. We only checkout what we know
+            # about.
+            msg = lib_integration.item_info(item)
+            item_descrip = '%s &mdash; %s' % (
+                msg['title'], msg['status'])
+
+            # do the checkout
             return g.render('phys/checkout.xhtml', step=3, 
                             patron=patron, item=item,
-                            patron_descrip=patron_descrip,
+                            patron_descrip=post('patron_descrip'),
                             item_descrip=item_descrip)
         elif post('step') == '3':
             # continue after checkout. Go to 'checkout another item'.
-            patron_descrip = 'Fred Example, Jr.' # fixme, lookup
             return g.render('phys/checkout.xhtml', step=2, 
                             patron=patron,
-                            patron_descrip=patron_descrip)
+                            patron_descrip=post('patron_descrip'))
         
