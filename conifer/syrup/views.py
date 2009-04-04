@@ -721,8 +721,8 @@ def item_add_cat_search(request, course_id, item_id):
     if request.method != 'POST':
         return g.render('item_add_cat_search.xhtml', results=[], query='@and dylan thomas')
     query = request.POST.get('query','').strip()
-    pickitem = request.POST.get('pickitem', '').strip()
-    if not pickitem:
+    _pickitem = request.POST.get('pickitem', '').strip()
+    if not _pickitem:
         assert query, 'must provide a query.'
         from conifer.libsystems.z3950 import yaz_search
         host, db, query = ('dwarf.cs.uoguelph.ca:2210', 'conifer', query)
@@ -742,18 +742,19 @@ def item_add_cat_search(request, course_id, item_id):
         if not course.can_edit(request.user):
             return _access_denied(_('You are not an editor.'))
 
-        pickitem = eval(pickitem) # fixme, dangerous. cache result server-side instead, or encrypt it.
+        pickitem = eval(_pickitem) # fixme, dangerous. cache result server-side instead, or encrypt it.
         item = course.item_set.create(parent_heading=parent_item,
                                       title=pickitem.get('245a', 'Untitled'),
                                       item_type='PHYS')
         item.save()
         # these are a temporary hack, must replace
         meta = [('245a', 'dc:title'), ('100a', 'dc:creator'), ('260b', 'dc:publisher'),
-                ('dc:260c', 'dc:date'), ('700a', 'dc:contributor')]
+                ('260c', 'dc:date'), ('700a', 'dc:contributor')]
         for marc, dc in meta:
             value = pickitem.get(marc)
             if value:
                 md = item.metadata_set.create(item=item, name=dc, value=value)
+        item.metadata_set.create(item=item, name='syrup:marc', value=simplejson.dumps(pickitem))
         item.save()
         return HttpResponseRedirect('../../../%d/' % item.id)
 

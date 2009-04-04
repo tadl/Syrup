@@ -468,6 +468,7 @@ metadata_attributes = {
     'dc:title': _('Title'),
     'dc:type': _('Type'),
     'syrup:barcode': _('Barcode'),
+    'syrup:marc': _('MARC'),
     'syrup:enumeration': _('Enumeration'),
     'syrup:chronology': _('Chronology')}
 
