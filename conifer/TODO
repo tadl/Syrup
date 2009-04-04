@@ -1,12 +1,20 @@
+CRITICAL:
+
+IMPORTANT:
+
 * a short-number for physical items. Sort of a barcode, but intended
   for easier communicatinon between patrons and staff.
-
-  * Update views.search() when this is in place.
-
+  (Update views.search() when this is in place)
 
 * Import of reserves data from Leddy voyager. Laurentian, others?
 
-* Generating barcodes in emails, printable screens? (3 of 9 enough?)
-
 * People should be able to register themselves into open courses.
   That is, actually become a member of them.
+
+* delete Item / delete Heading
+
+* testing on broken browsers (you know who you are)
+
+MAYBE:
+
+* Generating barcodes in emails, printable screens? (3 of 9 enough?)

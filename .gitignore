@@ -6,3 +6,5 @@ sip/java/*
 PyZ3950_parsetab.py
 *.mo
 xsip
+TAGS
+private_local_settings.py
