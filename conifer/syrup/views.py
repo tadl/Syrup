@@ -1268,7 +1268,7 @@ def phys_checkout(request):
                             patron=patron,
                             patron_descrip=post('patron_descrip'))
 
-        
+@admin_only        
 def phys_mark_arrived(request):
     if request.method != 'POST':
         return g.render('phys/mark_arrived.xhtml')
