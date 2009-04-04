@@ -115,10 +115,13 @@ searchtext = _('search this course...')
       <span id="i18n-save-order">Save Sequence</span>
       <span id="i18n-resequence-items">Resequence Items</span>
       <span id="i18n-new-order-saved">The new sequence has been saved.</span>
-      <div id="ropanelmessage" style="clear: right; width: 10em;"
+      <div id="eropanelmessage" style="clear: right; width: 10em;"
 	   class="little_action_panel">Drag the items around. Then click Save Sequence, above.</div>
     </div>
     </div>
 
+    <div py:def="offer_to_delete(item)" class="little_action_panel" py:if="item.id">
+      <a href="../delete/">Delete this item</a>
+    </div>
 </html>
 

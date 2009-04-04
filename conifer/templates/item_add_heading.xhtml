@@ -18,6 +18,7 @@ course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
   <body>
     ${course_banner(course)}
     ${nested_title(parent_item)}
+    ${offer_to_delete(item)}
     <h3>${title}</h3>
     <form action=".?item_type=${item_type}" method="POST">
       <table>

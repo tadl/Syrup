@@ -223,7 +223,7 @@ p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: 
 
 #feeds_panel,
 .little_action_panel
-{ float: right; font-size: 95%; margin: 8 0; clear: both; }
+{ float: right; font-size: 95%; margin: 8 0; clear: both; text-align: right; }
 
 
 .breadcrumbs { margin: 8 8 8 0; }

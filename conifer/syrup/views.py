@@ -807,6 +807,24 @@ def item_edit(request, course_id, item_id):
         item.save()
         return HttpResponseRedirect(item.parent_url())
         
+@instructors_only
+def item_delete(request, course_id, item_id):
+    course = get_object_or_404(models.Course, pk=course_id)
+    item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
+    if request.method != 'POST':
+        return g.render('item_delete_confirm.xhtml', **locals())
+    else:
+        if 'yes' in request.POST:
+            # I think Django's ON DELETE CASCADE-like behaviour will
+            # take care of the sub-items.
+            if item.parent_heading:
+                redir = HttpResponseRedirect(item.parent_heading.item_url('meta'))
+            else:
+                redir = HttpResponseRedirect(course.course_url())
+            item.delete()
+            return redir
+        else:
+            return HttpResponseRedirect('../meta')
     
 @members_only
 def item_download(request, course_id, item_id, filename):

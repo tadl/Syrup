@@ -37,6 +37,7 @@ urlpatterns = patterns('conifer.syrup.views',
     (ITEM_PREFIX + r'dl/(?P<filename>.*)$', 'item_download'),
     (ITEM_PREFIX + r'meta$', 'item_metadata'),
     (ITEM_PREFIX + r'edit/$', 'item_edit'),
+    (ITEM_PREFIX + r'delete/$', 'item_delete'),
     (ITEM_PREFIX + r'add/$', 'item_add'), # for adding sub-things
     (ITEM_PREFIX + r'add/cat_search/$', 'item_add_cat_search'),
 

@@ -9,7 +9,7 @@ function make_opener() {
     var menublock = $(this);
     var blockid = 'menublock' + (blocknum++);
     menublock.attr('id', blockid);
-    var opener = '<a class="menublockopener" onmouseout="maybe_cancelblock(\'' + blockid + '\');" onmouseover="maybe_openblock(\'' + blockid + '\');" href="javascript:openblock(\'' + blockid + '\');">&raquo;</a>';
+    var opener = '<a class="menublockopener" onmouseout="maybe_cancelblock(\'' + blockid + '\');" onmouseover="maybe_openblock(\'' + blockid + '\');" href="javascript:maybe_openblock(\'' + blockid + '\');">&raquo;</a>';
     menublock.before(opener);
     menublock.hide();
 }

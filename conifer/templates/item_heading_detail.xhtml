@@ -17,6 +17,17 @@ item_tree = course.item_tree(subtree=item)
   <body>
     ${course_banner(course)}
     ${nested_title(item)}
+    <div py:if="is_editor" class="little_action_panel">
+      <div>
+	<a href="edit/">Edit this heading</a>
+      </div>
+      <div>
+	<a href="delete/">Delete this heading</a>
+      </div>
+      <div>
+	<a href="relocate/">Relocate this heading</a>
+      </div>
+    </div>
     <p py:if="not item_tree">
       There are no items in this section.
     </p>

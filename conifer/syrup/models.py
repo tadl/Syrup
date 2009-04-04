@@ -436,6 +436,9 @@ class Item(m.Model):
         else:
             return self.parent_heading.hierarchy() + [self]
 
+    def children(self):
+        return Item.objects.filter(parent_heading=self)
+
     def needs_meta_link(self):
         """Should an 'About' link be displayed for this item?"""
 

@@ -1,0 +1,41 @@
+<?python
+course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
+hier = item.hierarchy()[:-1]
+if item.item_type == 'HEADING':
+    title = _('Delete this heading?')
+    children = item.children()
+else:
+    title = _('Delete this item?')
+    children = []
+metadata = item.metadata_set.all()
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="master.xhtml"/>
+  <xi:include href="components/course.xhtml"/>
+  <head>
+    <title>${title}</title>
+  </head>
+  <body>
+    ${course_banner(course)}
+    ${nested_title(item)}
+    <h1>${title}</h1>
+    <p>Are you sure you want to delete this?</p>
+    <p py:if="children">
+      <strong>Note: this will also delete all items under the heading!</strong>
+    </p>
+    <table class="metadata_table" style="margin-top: 1em;">
+      <tr><th>Title</th><td>${item.title}</td></tr>
+      <tr><th>Type</th><td>${item.get_item_type_display()}</td></tr>
+      <tr py:if="item.url"><th>URL</th><td><a href="${item.url}">${item.url}</a></td></tr>
+    </table>
+    <p>
+    <form action="." method="POST">
+      <input type="submit" name="yes" value="Yes, delete it" style="padding: 4 12; margin-right: 24;"/>
+      <input type="submit" name="no" value="Cancel"/>
+    </form>
+    </p>
+  </body>
+</html>
+

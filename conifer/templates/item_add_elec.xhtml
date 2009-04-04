@@ -18,6 +18,7 @@ course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
   <body>
     ${course_banner(course)}
     ${nested_title(parent_item)}
+    ${offer_to_delete(item)}
     <h2>${title}</h2>
     <h3>Metadata</h3>
     <div py:if="not is_edit">
