@@ -75,7 +75,7 @@ def cat_search(query, start=1, limit=10):
     # this is a total hack for conifer. If the query is a Conifer
     # title-detail URL, then return just that one item.
     if query.startswith('http://dwarf'):
-        results = [marcxml_to_dictionary(I.url_to_marcxml(query))]
+        results = marcxml_to_dictionary(I.url_to_marcxml(query), multiples=True)
     else:
         cat_host, cat_db = ('dwarf.cs.uoguelph.ca:2210', 'conifer')
         results = yaz_search.search(cat_host, cat_db, query, start, limit)

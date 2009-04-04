@@ -15,12 +15,18 @@ def bib_id_to_marcxml(bib_id):
 def url_to_marcxml(url):
     # this is a hack. Given a opac Title Details url, return marcxml.
     if url.startswith('http://dwarf.cs.uoguelph.ca'):
-        m = re.match(r'.*r=(\d+).*', url)
-        item_id = m and m.group(1) or None
-        if item_id:
-            marc_url = ("http://dwarf.cs.uoguelph.ca/opac/extras"
-                        "/supercat/retrieve/marcxml/record/" + item_id)
-        xml = urllib2.urlopen(marc_url).read()
+        if 'feed/bookbag' in url:
+            #eg http://dwarf.cs.uoguelph.ca/opac/extras/feed/bookbag/marcxml-full/60
+            #http://dwarf.cs.uoguelph.ca/opac/extras/feed/bookbag/html-full/60
+            marc_url = re.sub(r'(.*/bookbag/)(.*?)(/.*)', r'\1marcxml-full\3', url)
+            xml = urllib2.urlopen(marc_url).read()
+        else:
+            m = re.match(r'.*r=(\d+).*', url)
+            item_id = m and m.group(1) or None
+            if item_id:
+                marc_url = ("http://dwarf.cs.uoguelph.ca/opac/extras"
+                            "/supercat/retrieve/marcxml/record/" + item_id)
+            xml = urllib2.urlopen(marc_url).read()
         return xml
 
 if __name__ == '__main__':
