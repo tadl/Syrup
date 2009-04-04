@@ -15,6 +15,8 @@ IMPORTANT:
 
 * testing on broken browsers (you know who you are)
 
+* the code is littered with 'dwarf' refrences. Factor out into config.
+
 MAYBE:
 
 * Generating barcodes in emails, printable screens? (3 of 9 enough?)

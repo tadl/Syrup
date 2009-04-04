@@ -5,6 +5,9 @@ loc_to_unicode = marctools.locToUTF8().replace
 
 def marcxml_to_dictionary(rec):
     tree = ElementTree.fromstring(rec)
+    if tree.tag == '{http://www.loc.gov/MARC21/slim}collection':
+        # thenwe only look at the first record.
+        tree = tree.find('{http://www.loc.gov/MARC21/slim}record')
     dct = {}
     for df in tree.findall('{http://www.loc.gov/MARC21/slim}datafield'):
         t = df.attrib['tag']

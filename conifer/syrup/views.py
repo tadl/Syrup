@@ -729,16 +729,18 @@ def item_add(request, course_id, item_id):
 def item_add_cat_search(request, course_id, item_id):
     if request.method != 'POST':
         return g.render('item_add_cat_search.xhtml', results=[], query='@and dylan thomas')
-    query = request.POST.get('query','').strip()
+
+    # POST handler
+    query     = request.POST.get('query','').strip()
     _pickitem = request.POST.get('pickitem', '').strip()
     if not _pickitem:
+        # process the query.
         assert query, 'must provide a query.'
-        from conifer.libsystems.z3950 import yaz_search
-        host, db, query = ('dwarf.cs.uoguelph.ca:2210', 'conifer', query)
-        #host, db = ('z3950.loc.gov:7090', 'VOYAGER')
-        results = yaz_search.search(host, db, query)
-        return g.render('item_add_cat_search.xhtml', results=results, query=query)
+        results = lib_integration.cat_search(query)
+        return g.render('item_add_cat_search.xhtml', 
+                        results=results, query=query)
     else:
+        # User has selected an item; add it to course site.
         #fixme, this block copied from item_add. refactor.
         parent_item_id = item_id
         if parent_item_id=='0':
@@ -767,10 +769,12 @@ def item_add_cat_search(request, course_id, item_id):
         item.save()
         return HttpResponseRedirect('../../../%d/' % item.id)
 
+#------------------------------------------------------------
+
+#this is used in item_edit.
 metadata_formset_class = modelformset_factory(models.Metadata, 
                                               fields=['name','value'], 
                                               extra=3, can_delete=True)
-
 
 @instructors_only
 def item_edit(request, course_id, item_id):

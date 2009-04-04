@@ -37,6 +37,8 @@ from django.conf import settings
 
 from conifer.libsystems.evergreen import item_status as I
 from conifer.libsystems.sip.sipclient import SIP
+from conifer.libsystems.z3950 import yaz_search
+from conifer.libsystems.z3950.marcxml import marcxml_to_dictionary
 
 
 @SIP
@@ -67,3 +69,14 @@ def barcode_to_copy(barcode):
 @caching('bimx', timeout=3600)
 def bib_id_to_marcxml(bib_id):
     return I.bib_id_to_marcxml(bib_id)
+
+
+def cat_search(query, start=1, limit=10):
+    # this is a total hack for conifer. If the query is a Conifer
+    # title-detail URL, then return just that one item.
+    if query.startswith('http://dwarf'):
+        results = [marcxml_to_dictionary(I.url_to_marcxml(query))]
+    else:
+        cat_host, cat_db = ('dwarf.cs.uoguelph.ca:2210', 'conifer')
+        results = yaz_search.search(cat_host, cat_db, query, start, limit)
+    return results
