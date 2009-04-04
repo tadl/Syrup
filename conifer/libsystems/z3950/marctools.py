@@ -91,6 +91,8 @@ class locToUTF8(object):
 
     def replace(self, str):
         "Given string str, returns unicode string with correct character replcements"
+        if isinstance(str, unicode): # added by Graham
+            return str
         searchchars = []
         # build subset of search/replace pairs to use based on if first char of search appears in str
         prev = range(0,3)

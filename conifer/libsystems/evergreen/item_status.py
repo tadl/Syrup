@@ -1,29 +1,15 @@
-import warnings
 from support import ER, E1
-from pprint import pprint
 
-# Proposing this as an interface method. Given a bib ID, return a dict
-# giving the item's bibid, barcode, availability (boolean),
-# holdability (boolean), and location (a string description). If the
-# bib ID is invalid, return None.
-
-def lookup_availability(bib_id):
-    rec = E1('open-ils.search.asset.copy.fleshed2.retrieve', bib_id)
-    if 'stacktrace' in rec:
-        warnings.warn(repr(('no such bib id', bib_id, repr(rec))))
+def barcode_to_bib_id(barcode):
+    bib_id = (E1('open-ils.search.bib_id.by_barcode', barcode))
+    if isinstance(bib_id, basestring): # it would be a dict if barcode not found.
+        return bib_id
+    else:
         return None
-    resp = {
-        'bibid':     bib_id,
-        'barcode':   rec['barcode'],
-        'available': rec['status']['name'] == 'Available',
-        'holdable':  rec['status']['holdable'] == 't',
-        'location':  rec['location']['name']}
-    return resp
 
+def bib_id_to_marcxml(bib_id):
+    return E1('open-ils.supercat.record.marcxml.retrieve', bib_id)
 
 if __name__ == '__main__':
-    DYLAN = 1321798
-    #print lookup_availability(DYLAN)
-
-    MISCHIEF = 2063351
-    pprint(E1('open-ils.search.biblio.record.mods_slim.retrieve', MISCHIEF))
+    from pprint import pprint
+    print bib_id_to_marcxml(barcode_to_bib_id(31862016799294))

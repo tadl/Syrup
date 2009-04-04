@@ -35,6 +35,8 @@ import re
 import sys
 from django.forms.models import modelformset_factory
 from conifer.custom import lib_integration
+from conifer.libsystems.z3950.marcxml import marcxml_to_dictionary, marcxml_dictionary_to_dc
+from fuzzy_match import rank_pending_items
 
 #-----------------------------------------------------------------------------
 # Z39.50 Support
@@ -268,6 +270,7 @@ def z3950_test(request):
     return g.render('z3950_test.xhtml', res_str=res_str)
 
 def graham_z3950_test(request):
+    raise NotImplementedError   # delete this function, its template, etc.
     query = request.GET.get('query', '@and "Denis" "Gravel"')
     from conifer.libsystems.z3950 import yaz_search
     from conifer.libsystems.evergreen.item_status import lookup_availability
@@ -743,18 +746,18 @@ def item_add_cat_search(request, course_id, item_id):
             return _access_denied(_('You are not an editor.'))
 
         pickitem = eval(_pickitem) # fixme, dangerous. cache result server-side instead, or encrypt it.
+        dublin = marcxml_dictionary_to_dc(pickitem)
+
         item = course.item_set.create(parent_heading=parent_item,
                                       title=pickitem.get('245a', 'Untitled'),
                                       item_type='PHYS')
         item.save()
-        # these are a temporary hack, must replace
-        meta = [('245a', 'dc:title'), ('100a', 'dc:creator'), ('260b', 'dc:publisher'),
-                ('260c', 'dc:date'), ('700a', 'dc:contributor')]
-        for marc, dc in meta:
-            value = pickitem.get(marc)
-            if value:
-                md = item.metadata_set.create(item=item, name=dc, value=value)
-        item.metadata_set.create(item=item, name='syrup:marc', value=simplejson.dumps(pickitem))
+
+        for dc, value in dublin.items():
+            md = item.metadata_set.create(item=item, name=dc, value=value)
+        # store the whole darn MARC-dict as well.
+        json = simplejson.dumps(pickitem)
+        item.metadata_set.create(item=item, name='syrup:marc', value=json)
         item.save()
         return HttpResponseRedirect('../../../%d/' % item.id)
 
@@ -1264,4 +1267,24 @@ def phys_checkout(request):
             return g.render('phys/checkout.xhtml', step=2, 
                             patron=patron,
                             patron_descrip=post('patron_descrip'))
+
         
+def phys_mark_arrived(request):
+    if request.method != 'POST':
+        return g.render('phys/mark_arrived.xhtml')
+    else:
+        barcode = request.POST.get('item', '').strip()
+        bib_id  = lib_integration.barcode_to_bib_id(barcode)
+        marcxml = lib_integration.bib_id_to_marcxml(bib_id)
+        dct     = marcxml_to_dictionary(marcxml)
+        dublin  = marcxml_dictionary_to_dc(dct)
+        # merge them
+        dct.update(dublin)
+        ranked = rank_pending_items(dct)
+        return g.render('phys/mark_arrived_choose.xhtml', 
+                        barcode=barcode,
+                        bib_id=bib_id,
+                        ranked=ranked,
+                        metadata=dct)
+
+    

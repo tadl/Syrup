@@ -281,6 +281,10 @@ class Course(m.Model):
     def get_students(self):
         return User.objects.filter(member__course__exact=self, member__role__exact='STUDT') \
             .order_by('last_name', 'first_name')
+    
+    def get_instructors(self):
+        return User.objects.filter(member__course__exact=self, member__role__exact='INSTR') \
+            .order_by('last_name', 'first_name')
 
 def _merge_sections(secs):
     delim = course_sections.sections_tuple_delimiter
@@ -544,3 +548,4 @@ class Checkout(m.Model):
     completed = m.DateTimeField(default=None, null=True)
     outcome  = m.CharField(max_length=100, null=True)
     
+

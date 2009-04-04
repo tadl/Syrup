@@ -6,18 +6,14 @@
 
 import warnings
 import re
-from xml.etree import ElementTree
 import pexpect
-import marctools
 import sys
-
-loc_to_unicode = marctools.locToUTF8().replace
+from marcxml import marcxml_to_dictionary
 
 LOG = sys.stderr #None              #  for pexpect debugging, try LOG = sys.stderr
 YAZ_CLIENT = 'yaz-client'
 GENERAL_TIMEOUT = 10
 PRESENT_TIMEOUT = 30
-
 
 def search(host, database, query, start=1, limit=None):
 
@@ -60,26 +56,18 @@ def search(host, database, query, start=1, limit=None):
 
     parsed = []
     for rec in raw_records:
-        dct = {}
-        parsed.append(dct)
         try:
-            tree = ElementTree.fromstring(rec)
+            dct = marcxml_to_dictionary(rec)
         except:
             raise rec
-        for df in tree.findall('{http://www.loc.gov/MARC21/slim}datafield'):
-            t = df.attrib['tag']
-            for sf in df.findall('{http://www.loc.gov/MARC21/slim}subfield'):
-                c = sf.attrib['code']
-                v = sf.text
-                dct[t+c] = loc_to_unicode(v)
-
+        parsed.append(dct)
     return parsed
+
 
 #------------------------------------------------------------
 # some tests
 
 if __name__ == '__main__':
-    print loc_to_unicode('A\\XCC\\X81n')
     tests = [
         ('dwarf.cs.uoguelph.ca:2210', 'conifer', '@and "Musson" "Evil"'),
         ('dwarf.cs.uoguelph.ca:2210', 'conifer', '@and "Denis" "Gravel"'),

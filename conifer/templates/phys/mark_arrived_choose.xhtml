@@ -1,0 +1,58 @@
+<?python
+import re
+sample_item = '31862016799294'  # fixme, just for testing.
+title = _('Mark Items as Arrived: Choose Match')
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="../master.xhtml"/>
+<head>
+  <title>${title}</title>
+  <script>
+    $(function() { $('form:last input:visible:first').focus(); });
+  </script>
+  <style>
+    .success { background-color: #dfd; }
+    .failure { background-color: #fdd; }
+    .likely { background-color: #dfd; }
+    .doubtful { font-size: 75%; }
+  </style>
+</head>
+<body>
+  <h1>${title}</h1>
+  <form action="." method="POST">
+    <div>
+      <table class="metadata_table">
+	<tr><th>Item Barcode</th><td>${barcode}</td></tr>
+	<tr py:for="k in ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']" py:if="k in metadata">
+	  <th>${k}</th><td>${metadata[k]}</td>
+	</tr>
+	<tr><th/><td><a href="javascript:$('#more_detail').toggle(); void(0);">Detail</a></td></tr>
+      </table>
+      <table id="more_detail" style="display: none;" class="metadata_table">
+      <tr py:for="k in metadata">
+	<th>${k}</th><td>${metadata[k]}</td>
+      </tr>
+    </table>
+    <h2>Matches</h2>
+    <p><button>Associate with matches selected below</button></p>
+    <table class="metadata_table">
+      <thead style="font-size: 70%;">
+	<tr><th py:for="v in 'Select Title Author Course Instructor Score'.split(' ')">${v}</th></tr>
+      </thead>
+      <tbody>
+      <tr py:for="score, item in ranked" class="${score &lt; 5 and 'likely' or score &lt; 50 and 'maybe' or 'doubtful'}">
+	<td><input type="checkbox" name="choose_${item.id}" id="choose_${item.id}"/></td>
+	<td><label for="choose_${item.id}">${item}</label></td>
+	<td>${item.author()}</td>
+	<td>${item.course.title}</td>
+	<td>${','.join(n.last_name for n in item.course.get_instructors())}</td>
+	<td>${repr(score)}</td>
+	</tr>
+	</tbody>
+    </table>
+  </div>
+  </form>
+</body>
+</html>
