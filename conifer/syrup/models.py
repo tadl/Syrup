@@ -409,6 +409,11 @@ class Item(m.Model):
         bc = self.metadata_set.filter(name='syrup:barcode')
         return bc and bc[0].value or None
 
+    @classmethod
+    def with_barcode(cls, barcode):
+        return cls.objects.filter(metadata__name='syrup:barcode', 
+                                  metadata__value=barcode)
+
     def author_hl(self, terms):
         hl_author = self.author()
 
@@ -536,16 +541,17 @@ class Target(m.Model):
 #----------------------------------------------------------------------
 # SIP checkout
 
-class Checkout(m.Model):
+class CheckInOut(m.Model):
     """A log of checkout events."""
     
-    patron = m.CharField(max_length=100)
-    patron_descrip = m.CharField(max_length=512)
+    is_checkout = m.BooleanField()       # in or out?
+    is_successful = m.BooleanField()     # did the transaction work?
+    staff  = m.ForeignKey(User)          # who processed the request?
+    patron = m.CharField(max_length=100) # barcode
+    patron_descrip = m.CharField(max_length=512) # ILS descrip
     item   = m.CharField(max_length=100, null=True)
     item_descrip = m.CharField(max_length=512, null=True)
-    staff  = m.ForeignKey(User)
-    initiated = m.DateTimeField(auto_now_add=True)
-    completed = m.DateTimeField(default=None, null=True)
-    outcome  = m.CharField(max_length=100, null=True)
+    outcome = m.CharField(max_length=1024, null=True) # text msg from ILS about transaction
+    processed = m.DateTimeField(auto_now_add=True)
     
 

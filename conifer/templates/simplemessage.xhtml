@@ -8,5 +8,6 @@
 <body>
   <h1>${title}</h1>
   ${content}
+  <p py:if="defined('go_back')"><a href="javascript:history.go(-1);">Go back</a></p>
 </body>
 </html>

@@ -137,10 +137,8 @@ def _access_denied(request, message):
         dest = '/accounts/login/?next=' + request.environ['PATH_INFO']
         return HttpResponseRedirect(dest)
     else:
-        return g.render('simplemessage.xhtml',
-                        title=_(_('Access denied.')), 
-                        content=message,
-                        _django_type=HttpResponseForbidden)
+        return simple_message(_('Access denied.'), message,
+                              _django_type=HttpResponseForbidden)
 
 # todo, these decorators could be refactored.
 
@@ -195,6 +193,14 @@ def public(handler):
     # A no-op! Just here to be used to explicitly decorate methods
     # that are supposed to be public.
     return handler
+
+#-----------------------------------------------------------------------------
+# Simple Message: just a quick title-and-message web page.
+
+def simple_message(title, content, go_back=True, **kwargs):
+    kwargs.update(**locals())
+    return g.render('simplemessage.xhtml', **kwargs)
+
 #-----------------------------------------------------------------------------
 
 def welcome(request):
@@ -1208,9 +1214,8 @@ def item_relocate(request, course_id, item_id):
             new_parent = course.item_set.get(pk=newheading)
             if item in new_parent.hierarchy():
                 # then we would create a cycle. Bail out.
-                return g.render('simplemessage.xhtml',
-                                title=_(_('Impossible item-move!')), 
-                                content=_('You cannot make an item a descendant of itself!'))
+                return simple_message(_('Impossible item-move!'), 
+                                      _('You cannot make an item a descendant of itself!'))
         item.parent_heading = new_parent
         item.save()
         if new_parent:
@@ -1233,40 +1238,73 @@ def phys_checkout(request):
         return g.render('phys/checkout.xhtml', step=1)
     else:
         post = lambda k: request.POST.get(k, '').strip()
-        patron, item = post('patron'), post('item')
-        if post('step') == '1':
-            # patron entered, need item
-            # first get patron data.
-            msg = lib_integration.patron_info(patron)
-            patron_descrip = '%s (%s) &mdash; %s' % (
-                msg['personal'], msg['home_library'],
-                msg['screenmsg'])
-            return g.render('phys/checkout.xhtml', step=2, 
-                            patron=patron, 
-                            patron_descrip=patron_descrip)
-        elif post('step') == '2':
-            # patron + item. do SIP calls.
-            # log the checkout in a local table.
-            # also, make sure the barcode actually matches with a
-            # known barcode in Syrup. We only checkout what we know
-            # about.
-            msg = lib_integration.item_status(item)
-            item_descrip = '%s &mdash; %s' % (
-                msg['title'], msg['status'])
+        # dispatch based on what 'step' we are at.
+        step = post('step')     
+        func = {'1': _phys_checkout_get_patron,
+                '2':_phys_checkout_do_checkout,
+                '3':_phys_checkout_do_another,
+                }[step]
+        return func(request)
 
-            # do the checkout
-            msg = lib_integration.checkout(patron, item)
-            
-            return g.render('phys/checkout.xhtml', step=3, 
-                            patron=patron, item=item,
-                            patron_descrip=post('patron_descrip'),
-                            checkout_result=msg,
-                            item_descrip=item_descrip)
-        elif post('step') == '3':
-            # continue after checkout. Go to 'checkout another item'.
-            return g.render('phys/checkout.xhtml', step=2, 
-                            patron=patron,
-                            patron_descrip=post('patron_descrip'))
+def _phys_checkout_get_patron(request):
+    post           = lambda k: request.POST.get(k, '').strip()
+    patron, item   = post('patron'), post('item')
+    msg            = lib_integration.patron_info(patron)
+    patron_descrip = '%s (%s) &mdash; %s' % (
+        msg['personal'], msg['home_library'], msg['screenmsg'])
+    return g.render('phys/checkout.xhtml', step=2, 
+                    patron=patron, patron_descrip=patron_descrip)
+
+def _phys_checkout_do_checkout(request):
+    post           = lambda k: request.POST.get(k, '').strip()
+    patron, item   = post('patron'), post('item')
+    patron_descrip = post('patron_descrip')
+
+    # make sure the barcode actually matches with a known barcode in
+    # Syrup. We only checkout what we know about.
+    matches = models.Item.with_barcode(item)
+    if not matches:
+        is_successful = False
+        item_descrip  = None
+    else:
+        msg_status   = lib_integration.item_status(item)
+        msg_checkout = lib_integration.checkout(patron, item)
+        is_successful = msg_checkout['success']
+        item_descrip = '%s &mdash; %s' % (
+            msg_status['title'], msg_status['status'])
+
+    # log the checkout attempt.
+    log_entry = models.CheckInOut.objects.create(
+        is_checkout = True,
+        is_successful = is_successful,
+        staff = request.user,
+        patron = patron,
+        patron_descrip = patron_descrip,
+        item = item,
+        item_descrip = item_descrip)
+    log_entry.save()
+
+    if not matches:
+        return simple_message(
+            _('Item not found in Reserves'),
+            _('This item does not exist in the Reserves database! '
+              'Cannot check it out.'))
+    else:
+        return g.render('phys/checkout.xhtml', step=3, 
+                        patron=patron, item=item,
+                        patron_descrip=patron_descrip,
+                        checkout_result=msg,
+                        item_descrip=item_descrip)
+
+def _phys_checkout_do_another(request):
+    post           = lambda k: request.POST.get(k, '').strip()
+    patron         = post('patron')
+    patron_descrip = post('patron_descrip')
+    return g.render('phys/checkout.xhtml', step=2, 
+                    patron=patron,
+                    patron_descrip=patron_descrip)
+
+#------------------------------------------------------------
 
 @admin_only        
 def phys_mark_arrived(request):
@@ -1286,5 +1324,3 @@ def phys_mark_arrived(request):
                         bib_id=bib_id,
                         ranked=ranked,
                         metadata=dct)
-
-    
