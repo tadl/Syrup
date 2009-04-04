@@ -31,7 +31,7 @@ item_tree = course.item_tree(subtree=item)
     <p py:if="not item_tree">
       There are no items in this section.
     </p>
-    ${item_resequence_panel()}
+    <div py:if="is_editor">${item_resequence_panel()}</div>
     ${show_tree(item_tree, edit=is_editor)}
     <div py:if="is_editor">${add_subs(item)}</div>
   </body>
