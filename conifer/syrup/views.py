@@ -1334,8 +1334,11 @@ def phys_mark_arrived(request):
             msg = _('This item has already been marked as received. Date received: %s')
             msg = msg % str(already.received)
             return simple_message(_('Item already marked as received'), msg)
-                                  
         bib_id  = lib_integration.barcode_to_bib_id(barcode)
+        if not bib_id:
+            return simple_message(_('Item not found'), 
+                                  _('No item matching this barcode could be found.'))
+
         marcxml = lib_integration.bib_id_to_marcxml(bib_id)
         dct     = marcxml_to_dictionary(marcxml)
         dublin  = marcxml_dictionary_to_dc(dct)

@@ -10,6 +10,7 @@ from conifer.custom import course_sections # fixme, not sure if conifer.custom i
 from conifer.custom import lib_integration
 import re
 import random
+from django.utils import simplejson
 
 def highlight(text, phrase,
               highlighter='<strong class="highlight">\\1</strong>'):
@@ -409,6 +410,10 @@ class Item(m.Model):
     def barcode(self):
         bc = self.metadata_set.filter(name='syrup:barcode')
         return bc and bc[0].value or None
+ 
+    def marc(self):
+        m = self.metadata_set.filter(name='syrup:marc')
+        return m and simplejson.loads(m[0].value) or None
 
     def smallint(self):
         bc = self.barcode()

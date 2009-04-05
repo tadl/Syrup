@@ -1,6 +1,5 @@
 <?python
 import re
-sample_item = '31862016799294'  # fixme, just for testing.
 title = _('Mark Items as Arrived: Choose Match')
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
@@ -46,16 +45,34 @@ title = _('Mark Items as Arrived: Choose Match')
       <thead style="font-size: 70%;">
 	<tr><th py:for="v in 'Select Title Author Course Instructor Score'.split(' ')">${v}</th></tr>
       </thead>
-      <tbody>
-      <tr py:for="score, item in ranked" class="${score &lt; 5 and 'likely' or score &lt; 50 and 'maybe' or 'doubtful'}">
+      <tbody py:for="n, (score, item) in enumerate(ranked)"
+	  class="${score &lt; 5 and 'likely' or score &lt; 50 and 'maybe' or 'doubtful'}"
+	  py:with="marc=item.marc()">
+	<tr>
 	<td><input type="checkbox" name="choose_${item.id}" id="choose_${item.id}"/></td>
-	<td><label for="choose_${item.id}">${item}</label></td>
-	<td>${item.author()}</td>
+	<td><label for="choose_${item.id}">${item}</label>
+	<span py:if="marc"><a href="javascript:$('#marcdata${n}').toggle();void(0);">detail</a></span>
+	</td>
+	<td>${item.author() or '&mdash;'}</td>	
 	<td>${item.course.title}</td>
 	<td>${','.join(n.last_name for n in item.course.get_instructors())}</td>
 	<td>${repr(score)}</td>
 	</tr>
-	</tbody>
+	<tr id="marcdata${n}"  style="display: none;">
+	  <td/>
+	  <td colspan="3">
+	    <div>
+	      <?python keys=marc.keys(); keys.sort() ?>
+	      <table>
+		<tr py:for="k in keys">
+		  <th>${k}</th>
+		  <td>${marc[k]}</td>
+		</tr>
+	      </table>
+	    </div>
+	  </td>
+	</tr>
+      </tbody>
     </table>
     </form>
   </div>

@@ -70,7 +70,9 @@ def evergreen_request(method, *args, **kwargs):
 
 def evergreen_request_single_result(method, *args):
     resp = evergreen_request(method, *args)
-    if len(resp) > 1:
+    if not resp:
+        return None
+    elif len(resp) > 1:
         warnings.warn('taking single value from multivalue evergreen response')
         print >> sys.stderr, repr(resp)
     return resp[0]
