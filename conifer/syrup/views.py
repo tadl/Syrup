@@ -710,8 +710,20 @@ def item_add(request, course_id, item_id):
 
 @instructors_only
 def item_add_cat_search(request, course_id, item_id):
+    # this chunk stolen from item_add(). Refactor.
+    parent_item_id = item_id
+    if parent_item_id=='0':
+        parent_item = None
+        course = get_object_or_404(models.Course, pk=course_id)
+    else:
+        parent_item = get_object_or_404(models.Item, pk=parent_item_id, course__id=course_id)
+        assert parent_item.item_type == 'HEADING', _('You can only add items to headings!')
+        course = parent_item.course
+    #----------
+
     if request.method != 'POST':
-        return g.render('item_add_cat_search.xhtml', results=[], query='')
+        return g.render('item_add_cat_search.xhtml', results=[], query='', 
+                        course=course, parent_item=parent_item)
 
     # POST handler
     query     = request.POST.get('query','').strip()
@@ -721,7 +733,8 @@ def item_add_cat_search(request, course_id, item_id):
         assert query, 'must provide a query.'
         results = lib_integration.cat_search(query)
         return g.render('item_add_cat_search.xhtml', 
-                        results=results, query=query)
+                        results=results, query=query, 
+                        course=course, parent_item=parent_item)
     else:
         # User has selected an item; add it to course site.
         #fixme, this block copied from item_add. refactor.

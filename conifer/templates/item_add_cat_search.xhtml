@@ -9,6 +9,7 @@ dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
       xmlns:py="http://genshi.edgewall.org/">
 <xi:include href="master.xhtml"/>
 <xi:include href="paginate.xhtml"/>
+<xi:include href="components/course.xhtml"/>
 <head>
   <title>${title}</title>
   <script type="text/javascript">
@@ -20,7 +21,9 @@ dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
   </script>
 </head>
 <body>
-    <h1>${title}</h1>
+    ${course_banner(course)}
+    ${nested_title(parent_item)}
+    <h2>${title}</h2>
     <form method="POST" action=".">
       <input type="text" id="query" name="query" value="${query}" 
 	     style="font-size: larger; width: 600;"/>

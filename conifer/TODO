@@ -2,6 +2,9 @@ CRITICAL:
 
 IMPORTANT:
 
+* finish the physical-item received workflow.
+  * how to model 'received' in the database?
+
 * does 'move to new heading' show up in the right places? Should be like 'edit'.
 
 * a short-number for physical items. Sort of a barcode, but intended

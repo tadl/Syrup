@@ -7,6 +7,7 @@ from genshi import Markup
 from django.utils.translation import ugettext as _
 from conifer.custom import course_codes # fixme, not sure if conifer.custom is a good parent.
 from conifer.custom import course_sections # fixme, not sure if conifer.custom is a good parent.
+from conifer.custom import lib_integration
 import re
 import random
 
@@ -461,7 +462,19 @@ class Item(m.Model):
         else:
             return self.course.course_url()
 
-
+    def describe_physical_item_status(self):
+        """Return a (bool,str) tuple: whether the item is available,
+        and a friendly description of the physical item's status"""
+        if self.item_type != 'PHYS':
+            return False, _('(Not a physical item)')
+        
+        #fixme: just having barcode in item-metadata doesn't mean 'in Reserves'
+        bc = self.barcode()
+        if not bc:
+            return False, _('On order')
+        else:
+            status = lib_integration.item_status(bc)
+            return status['available'], _(status['status'])
 
 metadata_attributes = {
     'dc:contributor': _('Contributor'),

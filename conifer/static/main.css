@@ -54,7 +54,7 @@ tbody td, tbody th { vertical-align: top; }
 /* heading sizes and colours. */
 
 h1 { font-size: 150%;  }
-h2 { font-size: 135%; }
+h2 { font-size: 125%; }
 h3 { font-size: 120%; }
 
 h1 { color: navy; }
@@ -226,7 +226,8 @@ p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: 
 { float: right; font-size: 95%; margin: 8 0; clear: both; text-align: right; }
 
 
-.breadcrumbs { margin: 8 8 8 0; }
+.breadcrumbs { margin: 8 8 8 0; width: 800; 
+	     text-indent: -24; padding-left: 24; }
 
 .errorlist { float: right; }
 .errorlist li { color: red; font-size: 90%; }
@@ -273,3 +274,4 @@ li.sort_item:hover { background-color: #eee; }
 ul.heading_tree li  { list-style: none; }
 ul.heading_tree { margin: 0; padding-left: 0; }
 ul.heading_tree ul { margin: 0; padding-left: 25; }
+

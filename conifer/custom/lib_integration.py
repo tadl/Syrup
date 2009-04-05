@@ -41,10 +41,12 @@ from conifer.libsystems.z3950 import yaz_search
 from conifer.libsystems.z3950.marcxml import marcxml_to_dictionary
 
 
+@caching('itemstatus', timeout=300)
 @SIP
 def patron_info(conn, barcode):
     return conn.patron_info(barcode)
 
+@caching('itemstatus', timeout=300)
 @SIP
 def item_status(conn, barcode):
     return conn.item_info(barcode)
