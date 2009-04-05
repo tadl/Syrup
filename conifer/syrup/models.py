@@ -596,19 +596,20 @@ class PhysicalObject(m.Model):
     # an optional small-integer used as a human-shareable barcode by some institutions.
     smallint    = m.IntegerField(blank=True, null=True)
 
+    def __unicode__(self):
+        return '%s (%s) %s' % (self.barcode, self.smallint, self.departed and 'gone' or 'live')
 
     def save(self, force_insert=False, force_update=False):
         # Must ensure that barcode is unique for non-departed items. Same with smallint
-        try:
-            unique_thing = 'barcode'
-            already = PhysicalObject.objects.exclude(pk=self.id).get(departed=None)
-            unique_thing = 'smallint'
-            if self.smallint:
-                already = PhysicalObject.objects.exclude(pk=self.id).get(smallint=self.smallint)
-        except PhysicalObject.DoesNotExist:
-            super(PhysicalObject, self).save(force_insert, force_update)
-        else:
-            raise AssertionError, '%s is not unique in active PhysicalObject collection.' % unique_thing
+        live_objs = PhysicalObject.objects.exclude(pk=self.id).filter(departed=None)
+        same_barcode = live_objs.filter(barcode=self.barcode)
+        assert not same_barcode, \
+            'Barcode is not unique in active PhysicalObject collection.'
+        if self.smallint:
+            same_smallint = live_objs.filter(smallint=self.smallint)
+            assert not same_smallint, \
+                'Small Number is not unique in active PhysicalObject collection.'
+        super(PhysicalObject, self).save(force_insert, force_update)
 
     @classmethod
     def by_smallint(cls, smallint):

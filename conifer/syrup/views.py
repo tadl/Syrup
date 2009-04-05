@@ -1359,16 +1359,19 @@ def phys_mark_arrived_match(request):
         barcode = request.POST.get('barcode', '').strip()
         assert barcode
         smallint = request.POST.get('smallint', '').strip() or None
-        phys = models.PhysicalObject(barcode=barcode,
-                                     receiver = request.user,
-                                     smallint = smallint)
-        phys.save()
+        try:
+            phys = models.PhysicalObject(barcode=barcode,
+                                         receiver = request.user,
+                                         smallint = smallint)
+            phys.save()
+        except Exception, e:
+            return simple_message(_('Error'), repr(e), go_back=True)
 
         for c in choices:
             item = models.Item.objects.get(pk=c)
             if not item.barcode():
                 item.metadata_set.create(name='syrup:barcode', value=barcode)
             item.save()
-    return simple_message(_('Matches saved.'), '', go_back=False)
+    return g.render('phys/mark_arrived_outcome.xhtml')
 
 
