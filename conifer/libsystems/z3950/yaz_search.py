@@ -12,7 +12,7 @@ from marcxml import marcxml_to_dictionary
 
 LOG = sys.stderr #None              #  for pexpect debugging, try LOG = sys.stderr
 YAZ_CLIENT = 'yaz-client'
-GENERAL_TIMEOUT = 10
+GENERAL_TIMEOUT = 20
 PRESENT_TIMEOUT = 30
 
 def search(host, database, query, start=1, limit=None):

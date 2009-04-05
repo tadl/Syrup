@@ -732,8 +732,8 @@ def item_add_cat_search(request, course_id, item_id):
 
     # POST handler
     query     = request.POST.get('query','').strip()
-    _pickitem = request.POST.get('pickitem', '').strip()
-    if not _pickitem:
+    raw_pickitem = request.POST.get('pickitem', '').strip()
+    if not raw_pickitem:
         # process the query.
         assert query, 'must provide a query.'
         results = lib_integration.cat_search(query)
@@ -753,7 +753,7 @@ def item_add_cat_search(request, course_id, item_id):
         if not course.can_edit(request.user):
             return _access_denied(_('You are not an editor.'))
 
-        pickitem = eval(_pickitem) # fixme, dangerous. cache result server-side instead, or encrypt it.
+        pickitem = simplejson.loads(raw_pickitem)
         dublin = marcxml_dictionary_to_dc(pickitem)
 
         item = course.item_set.create(parent_heading=parent_item,
@@ -765,7 +765,7 @@ def item_add_cat_search(request, course_id, item_id):
             md = item.metadata_set.create(item=item, name=dc, value=value)
         # store the whole darn MARC-dict as well.
         json = simplejson.dumps(pickitem)
-        item.metadata_set.create(item=item, name='syrup:marc', value=json)
+        item.metadata_set.create(item=item, name='syrup:marc', value=raw_pickitem)
         item.save()
         return HttpResponseRedirect('../../../%d/' % item.id)
 

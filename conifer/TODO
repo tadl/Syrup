@@ -2,6 +2,8 @@ CRITICAL:
 
 IMPORTANT:
 
+* does 'move to new heading' show up in the right places? Should be like 'edit'.
+
 * a short-number for physical items. Sort of a barcode, but intended
   for easier communicatinon between patrons and staff.
   (Update views.search() when this is in place)
@@ -10,14 +12,6 @@ IMPORTANT:
 
 * People should be able to register themselves into open courses.
   That is, actually become a member of them.
-
-* delete Item / delete Heading
-
-* testing on broken browsers (you know who you are)
-
-* the code is littered with 'dwarf' refrences. Factor out into config.
-
-* allow for bulk-import on add-physical-item
 
 MAYBE:
 

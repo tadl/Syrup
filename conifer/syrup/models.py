@@ -480,7 +480,7 @@ metadata_attributes = {
     'dc:title': _('Title'),
     'dc:type': _('Type'),
     'syrup:barcode': _('Barcode'),
-    'syrup:marc': _('MARC'),
+    'syrup:marc': _('MARC'),    # MARC in JSON format.
     'syrup:enumeration': _('Enumeration'),
     'syrup:chronology': _('Chronology')}
 
@@ -493,7 +493,7 @@ class Metadata(m.Model):
     item = m.ForeignKey(Item)
     #fixme, arbitrary sizes.
     name = m.CharField('Attribute', max_length=128, choices=metadata_attribute_choices)
-    value = m.CharField(max_length=4096)
+    value = m.CharField(max_length=8192) # on postgres it doesn't matter how big.
 
 #------------------------------------------------------------
 # News items
