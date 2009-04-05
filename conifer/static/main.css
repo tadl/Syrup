@@ -245,6 +245,7 @@ p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: 
 .metadata_table tbody td {
     padding: 8; border: #ddd 1px solid;
 }
+.metadata_table input { width: 600; }
 
 .metadata_table tbody th {
     background-color: #eee;

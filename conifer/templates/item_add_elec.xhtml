@@ -24,7 +24,7 @@ course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
     <div py:if="not is_edit">
       <form action=".?item_type=${item_type}" method="POST"
 	    enctype="multipart/form-data">
-	<table>
+	<table class="metadata_table">
 	  <tr><th>Title of document</th><td><input type="text" 
 	  name="title"
 	  value="${item.title}"/></td></tr>

@@ -12,14 +12,26 @@ from marcxml import marcxml_to_dictionary
 
 LOG = sys.stderr #None              #  for pexpect debugging, try LOG = sys.stderr
 YAZ_CLIENT = 'yaz-client'
-GENERAL_TIMEOUT = 20
-PRESENT_TIMEOUT = 30
+GENERAL_TIMEOUT = 40
+PRESENT_TIMEOUT = 60
 
 def search(host, database, query, start=1, limit=None):
 
+    # first, let's look at our query. I'm assuming @prefix queries for
+    # now, so we need to put queries in that form if they aren't
+    # yet. I'm also assuming query is a conjunction (terms are
+    # AND'ed) if a '@' query isn't provided.
+    if not query.startswith('@'):
+        words = [w for w in query.split(' ') if w.strip()]
+        tmp   = (['@and'] * (len(words) - 1)) + words
+        query = ' '.join(tmp)
+    query = query.encode('utf-8') # is this okay? Is it enough??
+
     server = pexpect.spawn('yaz-client', timeout=GENERAL_TIMEOUT, logfile=LOG)
     #server.expect('Z>')
-    for line in ('open %s' % host, 'base %s' % database, 'format xml'):
+    for line in ('open %s' % host, 
+                 'base %s' % database, 
+                 'format xml'):
         server.sendline(line)
         server.expect('Z>')
 

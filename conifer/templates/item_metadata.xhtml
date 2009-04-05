@@ -1,4 +1,5 @@
 <?python
+from django.utils.simplejson import loads
 course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
 hier = item.hierarchy()[:-1]
 title = item.title
@@ -41,7 +42,22 @@ is_editor = course.can_edit(request.user)
       <h2 class="metadata_subhead">Additional metadata</h2>
       <table class="metadata_table">
 	<tr py:for="attr in metadata">
-	  <th>${attr.get_name_display()}</th><td>${attr.value}</td>
+	  <th>${attr.get_name_display()}</th>
+	  <td py:if="attr.name != 'syrup:marc'">
+	    ${attr.value}
+	  </td>
+	  <td py:if="attr.name == 'syrup:marc'">
+	    <div id="marcdatashow"><a href="javascript:$('#marcdata').show();$('#marcdatashow').hide();void(0);">show</a></div>
+	    <div id="marcdata" style="display: none;">
+	      <?python dct = loads(attr.value); keys=dct.keys(); keys.sort() ?>
+	      <table>
+		<tr py:for="k in keys">
+		  <th>${k}</th>
+		  <td>${dct[k]}</td>
+		</tr>
+	      </table>
+	    </div>
+	  </td>
 	</tr>
       </table>
       </div>

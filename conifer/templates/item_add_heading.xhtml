@@ -21,7 +21,7 @@ course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
     ${offer_to_delete(item)}
     <h3>${title}</h3>
     <form action=".?item_type=${item_type}" method="POST">
-      <table>
+      <table class="metadata_table">
 	<tr><th>Heading</th><td>
 	<input type="text" name="title"
 	       value="${item.title}"/>

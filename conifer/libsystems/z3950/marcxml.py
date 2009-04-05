@@ -38,8 +38,16 @@ def marcxml_dictionary_to_dc(dct):
         value = dct.get(marc)
         if value:
             out[dc] = value
-    if '245b' in meta and 'dc:title' in out:
-        out['dc:title'] += (' %s' % meta['245b'])
+    title = out.get('dc:title')
+    if title:
+        if '245b' in dct:
+            title += (' %s' % dct['245b'])
+        # if title ends with a single character, strip it. usually a
+        # spurious punctuation character.
+        init, last = title.rsplit(' ',1)
+        if len(last) == 1:
+            title = init
+        out['dc:title'] = title
     return out
 
     

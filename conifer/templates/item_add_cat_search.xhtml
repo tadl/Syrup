@@ -1,8 +1,8 @@
 <?python
 from django.utils.simplejson import dumps
+from conifer.libsystems.z3950.marcxml import marcxml_dictionary_to_dc as to_dublin
 title = _('Add physical item: Catalogue search')
-# I just made up these keys...
-keys = [('245a', 'Title'), ('100a', 'Author'), ('260b', 'Publisher'), ('260c', 'PubDate'), ('700a', 'Editor')]
+dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -11,9 +11,6 @@ keys = [('245a', 'Title'), ('100a', 'Author'), ('260b', 'Publisher'), ('260c', '
 <xi:include href="paginate.xhtml"/>
 <head>
   <title>${title}</title>
-  <style>
-    .lesser { font-size: smaller; color: gray; display: none; }
-  </style>
   <script type="text/javascript">
     <!-- !This ought to be in paginate.xhtml, not here. how to do? -->
     $(function() { $('.pagetable').tablesorter(); });
@@ -25,28 +22,41 @@ keys = [('245a', 'Title'), ('100a', 'Author'), ('260b', 'Publisher'), ('260c', '
 <body>
     <h1>${title}</h1>
     <form method="POST" action=".">
-      <input type="text" id="query" name="query" value="${query}" style="font-size: larger;"/>
+      <input type="text" id="query" name="query" value="${query}" 
+	     style="font-size: larger; width: 600;"/>
       <input type="submit" value="Search"/>
     </form>
-    <p><a href="javascript:$('.lesser').show(); void(0);">show more detail</a></p>
-    <table py:for="res in results" style="margin: 1em 0; border: black 1px solid;">
-      <tbody>
-      <tr py:for="k, title in keys" py:if="k in res">
-	<th>${title}</th><td>${res[k]}</td>
-      </tr>
-      <tr>
-	<th/><td>
-	<form action="." method="POST">
-	  <input type="hidden" name="pickitem" value="${dumps(res)}"/>
-	  <input type="submit" value="Pick this item"/>
-	</form>
-      </td>
-      </tr>
-      <?python allkeys = res.keys(); allkeys.sort(); ?>
-      <tr py:for="k in allkeys" class="lesser">
-	<th>${k}</th><td>${res[k]}</td>
-      </tr>
+
+    <table class="pagetable">
+      <thead>
+	<tr><th>Title</th><th>Author</th><th>Publisher</th><th>PubDate</th></tr>
+      </thead>
+      <tbody py:for="resultnum, res in enumerate(results)"
+	     py:with="dc=to_dublin(res)">
+	<tr>
+	  <td>
+	    ${dc.get('dc:title', '???')}
+	    <a href="javascript:$('#full_${resultnum}').toggle(); void(0);">details</a>
+	  </td>
+	  <td py:for="k in dc_keys[1:]">${dc.get(k) or '&mdash;'}</td>
+	  <td>
+	    <form action="." method="POST">
+	      <input type="hidden" name="pickitem" value="${dumps(res)}"/>
+	      <input type="submit" value="Pick this item"/>
+	    </form>
+	  </td>
+	</tr>
+	<tr id="full_${resultnum}" style="display: none;">
+	  <td colspan="4" style="padding-left: 36;">
+	    <table class="metadata_table">
+	      <?python allkeys = res.keys(); allkeys.sort(); ?>
+	      <tr py:for="k in allkeys">
+		<th>${k}</th><td>${res[k]}</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
       </tbody>
     </table>
-</body>
+ </body>
 </html>

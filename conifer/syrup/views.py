@@ -275,23 +275,6 @@ def z3950_test(request):
     res_str = "" . join(collector)
     return g.render('z3950_test.xhtml', res_str=res_str)
 
-def graham_z3950_test(request):
-    raise NotImplementedError   # delete this function, its template, etc.
-    query = request.GET.get('query', '@and "Denis" "Gravel"')
-    from conifer.libsystems.z3950 import yaz_search
-    from conifer.libsystems.evergreen.item_status import lookup_availability
-    host, db, query = ('dwarf.cs.uoguelph.ca:2210', 'conifer', query)
-    #host, db, query = ('z3950.loc.gov:7090', 'VOYAGER', '@attr 1=4 @attr 4=1 "dylan"')
-    results = yaz_search.search(host, db, query)
-    for result in results:
-        bibid = result.get('901c')
-        if bibid:
-            # it would be better to do these asynchronously.
-            avail = lookup_availability(bibid) 
-            if avail:
-                result['avail'] = avail
-    return g.render('graham_z3950_test.xhtml', results=results, query=query)
-
 def browse(request, browse_option=''):
     #the defaults should be moved into a config file or something...
     page_num = int(request.GET.get('page', 1))
@@ -728,7 +711,7 @@ def item_add(request, course_id, item_id):
 @instructors_only
 def item_add_cat_search(request, course_id, item_id):
     if request.method != 'POST':
-        return g.render('item_add_cat_search.xhtml', results=[], query='@and dylan thomas')
+        return g.render('item_add_cat_search.xhtml', results=[], query='')
 
     # POST handler
     query     = request.POST.get('query','').strip()
@@ -743,7 +726,8 @@ def item_add_cat_search(request, course_id, item_id):
         # User has selected an item; add it to course site.
         #fixme, this block copied from item_add. refactor.
         parent_item_id = item_id
-        if parent_item_id=='0':
+        if parent_item_id == '0': 
+            # no heading (toplevel)
             parent_item = None
             course = get_object_or_404(models.Course, pk=course_id)
         else:
@@ -757,14 +741,13 @@ def item_add_cat_search(request, course_id, item_id):
         dublin = marcxml_dictionary_to_dc(pickitem)
 
         item = course.item_set.create(parent_heading=parent_item,
-                                      title=pickitem.get('245a', 'Untitled'),
+                                      title=dublin.get('dc:title','Untitled'),
                                       item_type='PHYS')
         item.save()
 
         for dc, value in dublin.items():
             md = item.metadata_set.create(item=item, name=dc, value=value)
-        # store the whole darn MARC-dict as well.
-        json = simplejson.dumps(pickitem)
+        # store the whole darn MARC-dict as well (JSON)
         item.metadata_set.create(item=item, name='syrup:marc', value=raw_pickitem)
         item.save()
         return HttpResponseRedirect('../../../%d/' % item.id)
