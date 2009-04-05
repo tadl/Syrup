@@ -558,16 +558,43 @@ class Target(m.Model):
 # SIP checkout
 
 class CheckInOut(m.Model):
-    """A log of checkout events."""
+    """A log of checkout-to-patron and item-return events."""
     
     is_checkout = m.BooleanField()       # in or out?
     is_successful = m.BooleanField()     # did the transaction work?
     staff  = m.ForeignKey(User)          # who processed the request?
     patron = m.CharField(max_length=100) # barcode
     patron_descrip = m.CharField(max_length=512) # ILS descrip
-    item   = m.CharField(max_length=100, null=True)
+    item   = m.CharField(max_length=100, null=True) # item barcode
     item_descrip = m.CharField(max_length=512, null=True)
     outcome = m.CharField(max_length=1024, null=True) # text msg from ILS about transaction
     processed = m.DateTimeField(auto_now_add=True)
     
 
+class PhysicalObject(m.Model):
+    """A record of a physical object entering and leaving the Reserves area."""
+    barcode     = m.CharField(max_length=100) # item barcode
+    receiver = m.ForeignKey(User, related_name='receiver') # who received the item?
+    received    = m.DateTimeField(auto_now_add=True)
+    departer = m.ForeignKey(User, blank=True, null=True, related_name='departer') # who sent it away?
+    departed    = m.DateTimeField(blank=True, null=True)
+    # an optional small-integer used as a human-shareable barcode by some institutions.
+    smallint    = m.IntegerField(blank=True, null=True)
+
+
+    def save(self, force_insert=False, force_update=False):
+        # Must ensure that barcode is unique for non-departed items. Same with smallint
+        try:
+            already = PhysicalObject.objects.exclude(pk=self.id).get(departed=None)
+            if self.smallint:
+                already = PhysicalObject.objects.exclude(pk=self.id).get(smallint=smallint)
+        except PhysicalObject.DoesNotExist:
+            super(PhysicalObject, self).save(force_insert, force_update)
+        else:
+            raise AssertionError, 'barcode is not unique in active PhysicalObject collection.'
+
+    @classmethod
+    def by_barcode(cls, barcode):
+        """Find object by barcode, searching *only* the non-departed items."""
+        res = cls.objects.filter(departed=None, barcode=barcode)
+        return res and res[0] or None

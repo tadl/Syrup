@@ -6,7 +6,7 @@ import django.db.models
 from conifer.syrup.models import *
 
 for m in [LibraryUnit, ServiceDesk, Member, Department, Course, Term, UserProfile, NewsItem, 
-          Target]:
+          Target, PhysicalObject]:
     admin.site.register(m)
 
 

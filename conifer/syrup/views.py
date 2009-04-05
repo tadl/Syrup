@@ -1330,6 +1330,12 @@ def phys_mark_arrived(request):
         return g.render('phys/mark_arrived.xhtml')
     else:
         barcode = request.POST.get('item', '').strip()
+        already = models.PhysicalObject.by_barcode(barcode)
+        if already:
+            msg = _('This item has already been marked as received. Date received: %s')
+            msg = msg % str(already.received)
+            return simple_message(_('Item already marked as received'), msg)
+                                  
         bib_id  = lib_integration.barcode_to_bib_id(barcode)
         marcxml = lib_integration.bib_id_to_marcxml(bib_id)
         dct     = marcxml_to_dictionary(marcxml)
@@ -1342,3 +1348,28 @@ def phys_mark_arrived(request):
                         bib_id=bib_id,
                         ranked=ranked,
                         metadata=dct)
+
+@admin_only        
+def phys_mark_arrived_match(request):
+    #[(u'barcode', u'30007000110717'), (u'choose_27', u'on')]
+    choices = [int(k.split('_')[1]) for k in request.POST if k.startswith('choose_')]
+    if not choices:
+        return simple_message(_('No matching items selected!'),
+                              _('You must select one or more matching items from the list.'))
+    else:
+        barcode = request.POST.get('barcode', '').strip()
+        assert barcode
+        smallint = request.POST.get('smallint', '').strip() # will be '' for now.
+        phys = models.PhysicalObject(barcode=barcode,
+                                     receiver = request.user,
+                                     smallint = smallint or None)
+        phys.save()
+
+        for c in choices:
+            item = models.Item.objects.get(pk=c)
+            if not item.barcode():
+                item.metadata_set.create(name='syrup:barcode', value=barcode)
+                item.save()
+    return simple_message(_('Matches saved.'), '', go_back=False)
+
+

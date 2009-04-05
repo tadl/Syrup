@@ -21,7 +21,6 @@ title = _('Mark Items as Arrived: Choose Match')
 </head>
 <body>
   <h1>${title}</h1>
-  <form action="." method="POST">
     <div>
       <table class="metadata_table">
 	<tr><th>Item Barcode</th><td>${barcode}</td></tr>
@@ -36,7 +35,13 @@ title = _('Mark Items as Arrived: Choose Match')
       </tr>
     </table>
     <h2>Matches</h2>
-    <p><button>Associate with matches selected below</button></p>
+    <form action="match/" method="POST">
+    <div style="float: right;">
+      Optional: Small-number ID for this item: 
+      <input type="text" name="smallint"/>
+    </div>
+    <p><input type="submit" value="Associate item with matches selected below"/></p>
+    <input type="hidden" name="barcode" value="${barcode}"/>
     <table class="metadata_table">
       <thead style="font-size: 70%;">
 	<tr><th py:for="v in 'Select Title Author Course Instructor Score'.split(' ')">${v}</th></tr>
@@ -52,7 +57,7 @@ title = _('Mark Items as Arrived: Choose Match')
 	</tr>
 	</tbody>
     </table>
+    </form>
   </div>
-  </form>
 </body>
 </html>

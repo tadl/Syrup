@@ -50,6 +50,7 @@ urlpatterns = patterns('conifer.syrup.views',
     (r'^phys/$', 'phys_index'),
     (r'^phys/checkout/$', 'phys_checkout'),
     (r'^phys/mark_arrived/$', 'phys_mark_arrived'),
+    (r'^phys/mark_arrived/match/$', 'phys_mark_arrived_match'),
 
     (r'^course/(?P<course_id>\d+)/reseq$', 'course_reseq'),
     (ITEM_PREFIX + r'reseq', 'item_heading_reseq'),
