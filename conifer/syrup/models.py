@@ -599,13 +599,15 @@ class PhysicalObject(m.Model):
     def save(self, force_insert=False, force_update=False):
         # Must ensure that barcode is unique for non-departed items. Same with smallint
         try:
+            unique_thing = 'barcode'
             already = PhysicalObject.objects.exclude(pk=self.id).get(departed=None)
+            unique_thing = 'smallint'
             if self.smallint:
-                already = PhysicalObject.objects.exclude(pk=self.id).get(smallint=smallint)
+                already = PhysicalObject.objects.exclude(pk=self.id).get(smallint=self.smallint)
         except PhysicalObject.DoesNotExist:
             super(PhysicalObject, self).save(force_insert, force_update)
         else:
-            raise AssertionError, 'barcode is not unique in active PhysicalObject collection.'
+            raise AssertionError, '%s is not unique in active PhysicalObject collection.' % unique_thing
 
     @classmethod
     def by_smallint(cls, smallint):

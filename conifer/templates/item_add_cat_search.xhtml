@@ -30,7 +30,7 @@ dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
       <input type="submit" value="Search"/>
     </form>
 
-    <table class="pagetable">
+    <table class="pagetable" py:if="request.method == 'POST'">
       <thead>
 	<tr><th>Title</th><th>Author</th><th>Publisher</th><th>PubDate</th></tr>
       </thead>
