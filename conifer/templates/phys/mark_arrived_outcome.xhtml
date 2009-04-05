@@ -1,0 +1,21 @@
+<?python
+title = _('Matches saved; item marked as received')
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="../master.xhtml"/>
+<head>
+  <title>${title}</title>
+  <script>
+    $(function() { $('form:last input:visible:first').focus(); });
+  </script>
+  <style>
+    .success { background-color: #dfd; }
+    .failure { background-color: #fdd; }
+  </style>
+</head>
+<body>
+  <h1>${title}</h1>
+</body>
+</html>
