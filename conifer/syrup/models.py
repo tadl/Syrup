@@ -481,12 +481,13 @@ class Item(m.Model):
         and a friendly description of the physical item's status"""
         if self.item_type != 'PHYS':
             return False, _('(Not a physical item)')
-        
-        #fixme: just having barcode in item-metadata doesn't mean 'in Reserves'
+        # An item is 'in Reserves' if we know its barcode, and if we
+        # have a live PhysicalObject record for it.
         bc = self.barcode()
-        if not bc:
+        if (not bc) or (not PhysicalObject.by_barcode(bc)):
             return False, _('On order')
         else:
+            # We need to check with the ILS to see if anyone has it out.
             status = lib_integration.item_status(bc)
             return status['available'], _(status['status'])
 
