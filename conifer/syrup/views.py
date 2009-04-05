@@ -1353,7 +1353,6 @@ def phys_mark_arrived(request):
 
 @admin_only        
 def phys_mark_arrived_match(request):
-    #[(u'barcode', u'30007000110717'), (u'choose_27', u'on')]
     choices = [int(k.split('_')[1]) for k in request.POST if k.startswith('choose_')]
     if not choices:
         return simple_message(_('No matching items selected!'),
@@ -1372,8 +1371,10 @@ def phys_mark_arrived_match(request):
 
         for c in choices:
             item = models.Item.objects.get(pk=c)
-            if not item.barcode():
-                item.metadata_set.create(name='syrup:barcode', value=barcode)
+            current_bc = item.barcode()
+            if current_bc:
+                item.metadata_set.filter(name='syrup:barcode').delete()
+            item.metadata_set.create(name='syrup:barcode', value=barcode)
             item.save()
     return g.render('phys/mark_arrived_outcome.xhtml')
 

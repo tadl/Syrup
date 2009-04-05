@@ -1,4 +1,5 @@
 from conifer.syrup import models
+from django.db.models import Q
 
 #http://www.poromenos.org/node/87. Credit to Poromenos. It's under BSD.
 def levenshtein_distance(first, second):
@@ -27,7 +28,13 @@ def rank_pending_items(dct):
     publisher = dct.get('dc:publisher','')
     pubdate  = dct.get('dc:pubdate','')
 
-    all_pending_items = models.Item.objects.filter(item_type='PHYS') # not right... also, prefetch metadata
+    # not right... also, prefetch metadata
+    all_items = models.Item.objects.select_related('metadata')
+    all_pending_items = all_items.filter(Q(item_type='PHYS'), 
+                                         ~Q(metadata__name='syrup:barcode'))
+    all_pending_items = all_items.filter(Q(item_type='PHYS'), 
+                                         ~Q(metadata__name='syrup:barcode',
+                                            metadata__value__in=[p.barcode for p in models.PhysicalObject.live_objects()]))
     results = []
     # not sure I like these weights, but let's play a bit.
     METRICS = (('dc:title', 1), ('dc:creator', 1), ('dc:publisher', 0.5), ('dc:pubdate', 0.25))

@@ -628,3 +628,7 @@ class PhysicalObject(m.Model):
         """Find object by barcode, searching *only* the non-departed items."""
         res = cls.objects.filter(departed=None, barcode=barcode)
         return res and res[0] or None
+
+    @classmethod
+    def live_objects(cls):
+        return cls.objects.filter(departed=None)
