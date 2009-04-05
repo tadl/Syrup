@@ -29,7 +29,8 @@ def search(host, database, query, start=1, limit=None):
 
     server = pexpect.spawn('yaz-client', timeout=GENERAL_TIMEOUT, logfile=LOG)
     #server.expect('Z>')
-    for line in ('open %s' % host, 
+    for line in ('charset UTF-8',
+                 'open %s' % host, 
                  'base %s' % database, 
                  'format xml'):
         server.sendline(line)
