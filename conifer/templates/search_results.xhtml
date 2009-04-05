@@ -74,7 +74,7 @@ courses = course_list
         <td>${Markup(item.author_hl(norm_query))}</td>
         <td><a href="${item.item_url('meta')}">${Markup(item.title_hl(norm_query))}</a></td>
 	<td><a href="${item.course.course_url()}">${item.course.title}</a></td>
-	<td><span py:if="item.item_type=='PHYS'">${item.id} &bull; ${item.barcode()}</span></td>
+	<td><span py:if="item.item_type=='PHYS'">${item.smallint()} &bull; ${item.barcode()}</span></td>
     </span>
     ${pagetable(paginator, count, pagerow, pageheader)}
 

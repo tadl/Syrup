@@ -903,8 +903,7 @@ def search(request, in_course=None):
 
         if re.match(r'\d+', query_string):
             # Search by short ID.
-            results_list = models.Item.objects.filter(pk=query_string,
-                                                      item_type='PHYS')
+            results_list = models.Item.with_smallint(query_string)
             if not results_list:
                 # Search by barcode.
                 results_list = models.Item.objects.filter(
@@ -1359,17 +1358,17 @@ def phys_mark_arrived_match(request):
     else:
         barcode = request.POST.get('barcode', '').strip()
         assert barcode
-        smallint = request.POST.get('smallint', '').strip() # will be '' for now.
+        smallint = request.POST.get('smallint', '').strip() or None
         phys = models.PhysicalObject(barcode=barcode,
                                      receiver = request.user,
-                                     smallint = smallint or None)
+                                     smallint = smallint)
         phys.save()
 
         for c in choices:
             item = models.Item.objects.get(pk=c)
             if not item.barcode():
                 item.metadata_set.create(name='syrup:barcode', value=barcode)
-                item.save()
+            item.save()
     return simple_message(_('Matches saved.'), '', go_back=False)
 
 

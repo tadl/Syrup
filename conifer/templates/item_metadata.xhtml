@@ -3,6 +3,7 @@ from django.utils.simplejson import loads
 course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
 hier = item.hierarchy()[:-1]
 title = item.title
+smallint = item.smallint()
 metadata = item.metadata_set.all()
 is_editor = course.can_edit(request.user)
 ?>
@@ -35,6 +36,9 @@ is_editor = course.can_edit(request.user)
       <tr py:if="item.item_type=='PHYS'"
 	  py:with="avail, status = item.describe_physical_item_status()">
 	<th>Status</th><td><div class="${avail and 'available' or 'unavailable'}">${status}</div></td>
+      </tr>
+      <tr py:if="smallint">
+	<th>Small Number</th><td>${smallint}</td>
       </tr>
       <tr py:if="item.url"><th>URL</th><td><a href="${item.url}">${item.url}</a></td></tr>
     </table>

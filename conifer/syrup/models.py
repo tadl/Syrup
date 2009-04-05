@@ -410,6 +410,20 @@ class Item(m.Model):
         bc = self.metadata_set.filter(name='syrup:barcode')
         return bc and bc[0].value or None
 
+    def smallint(self):
+        bc = self.barcode()
+        phys = PhysicalObject.by_barcode(bc)
+        return phys and phys.smallint or None
+
+    @classmethod
+    def with_smallint(cls, smallint):
+        phys = PhysicalObject.by_smallint(smallint)
+        barcode = phys and phys.barcode or None
+        if not barcode:
+            return cls.objects.filter(pk=-1) # empty set
+        else:
+            return cls.with_barcode(barcode)
+        
     @classmethod
     def with_barcode(cls, barcode):
         return cls.objects.filter(metadata__name='syrup:barcode', 
@@ -592,6 +606,13 @@ class PhysicalObject(m.Model):
             super(PhysicalObject, self).save(force_insert, force_update)
         else:
             raise AssertionError, 'barcode is not unique in active PhysicalObject collection.'
+
+    @classmethod
+    def by_smallint(cls, smallint):
+        """Find object by smallint, searching *only* the non-departed items."""
+        assert smallint
+        res = cls.objects.filter(departed=None, smallint=smallint)
+        return res and res[0] or None
 
     @classmethod
     def by_barcode(cls, barcode):
