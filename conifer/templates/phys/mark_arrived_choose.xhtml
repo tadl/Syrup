@@ -58,7 +58,7 @@ title = _('Mark Items as Arrived: Choose Match')
 	<td>${','.join(n.last_name for n in item.course.get_instructors())}</td>
 	<td>${repr(score)}</td>
 	</tr>
-	<tr id="marcdata${n}"  style="display: none;">
+	<tr py:if="marc" id="marcdata${n}"  style="display: none;">
 	  <td/>
 	  <td colspan="3">
 	    <div>
