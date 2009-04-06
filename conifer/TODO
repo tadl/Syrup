@@ -2,21 +2,20 @@ CRITICAL:
 
 IMPORTANT:
 
-* finish the physical-item received workflow.
-  * nicer error-message if smallint already taken.
-
-* if someone has item checked out, show due date/time on item-about page.
+* mod_python deployment testing.
 
 * does 'move to new heading' show up in the right places? Should be like 'edit'.
 
-* Import of reserves data from Leddy voyager. Laurentian, others?
+* need more than 10 results on physical-item search results.
 
 * People should be able to register themselves into open courses.
   That is, actually become a member of them.
 
-* accented characters in z3950 queries seem to fail. More tests needed.
+* if someone has item checked out, show due date/time on item-about page.
 
-* need more than 10 results on physical-item search results.
+* Import of reserves data from Leddy voyager. Laurentian, others?
+
+* accented characters in z3950 queries seem to fail. More tests needed.
 
 MAYBE:
 
