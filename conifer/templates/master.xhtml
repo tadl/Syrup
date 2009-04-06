@@ -1,6 +1,7 @@
 <?python
 app_name = _('Syrup E-Reserve System')
 search = _('search...')
+import os
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
@@ -22,6 +23,7 @@ search = _('search...')
       <div id="outer">
       <div id="brandheader">
 	<div style="float: right; font-size: x-large; padding: 12; color: #888;">
+	  ${os.getpid()}
 	  ${app_name}
 	</div>
 	<img src="/static/institution-logo.png" style="height: 50;"/>

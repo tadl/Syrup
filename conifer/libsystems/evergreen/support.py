@@ -4,7 +4,7 @@ from urllib import quote
 import simplejson as json
 from xml.etree import ElementTree
 import re
-import sys
+import sys, os
 
 #------------------------------------------------------------
 # Configuration
@@ -24,6 +24,8 @@ LOCALE = 'en-US'
 # FM_IDL_LOCATION = 'file:fm_IDL.xml'
 
 FM_IDL_LOCATION = 'http://dwarf.cs.uoguelph.ca/reports/fm_IDL.xml'
+here = lambda s: os.path.join(os.path.dirname(__file__), s)
+FM_IDL_LOCATION = 'file:' + here('fm_IDL.xml')
 
 #------------------------------------------------------------
 # parse fm_IDL, to build a field-name-lookup service.

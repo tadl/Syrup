@@ -26,7 +26,7 @@ def template_loaded(template):
         template.filters.insert(0, Translator(_))
 
 
-dirs = ['templates']
+dirs = [settings.HERE('templates')]
 
 loader = TemplateLoader(dirs, auto_reload=True, callback=template_loaded)
 

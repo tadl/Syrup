@@ -1379,3 +1379,9 @@ def phys_mark_arrived_match(request):
     return g.render('phys/mark_arrived_outcome.xhtml')
 
 
+
+def custom_error_handler(request):
+    cls, inst, tb = sys.exc_info()
+    #fixme, set 50x code.
+    return simple_message(_('Error: %s') % repr(inst),
+                          repr((request.__dict__, inst)))

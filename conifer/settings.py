@@ -5,10 +5,10 @@
 
 import os
 
-BASE_DIRECTORY = os.path.abspath(os.getcwd())
+BASE_DIRECTORY = os.path.abspath(os.path.dirname(__file__))
 HERE = lambda s: os.path.join(BASE_DIRECTORY, s)
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -130,3 +130,5 @@ try:
     from private_local_settings import SIP_HOST, SIP_CREDENTIALS
 except:
     pass
+
+CACHE_BACKEND = 'locmem:///'
