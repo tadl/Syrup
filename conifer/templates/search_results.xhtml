@@ -76,7 +76,7 @@ courses = course_list
 	<td><a href="${item.course.course_url()}">${item.course.title}</a></td>
 	<td><span py:if="item.item_type=='PHYS'">${item.smallint()} &bull; ${item.barcode()}</span></td>
     </span>
-    ${pagetable(paginator, count, pagerow, pageheader)}
+    ${pagetable(paginator, count, pagerow, pageheader, query=query_string)}
 
 </body>
 </html>

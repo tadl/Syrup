@@ -18,16 +18,16 @@
   </table>
   <div class="pagination_controls" py:if="paginator.num_pages > 1">
     <span py:if="page.has_previous()" class="prev">
-      <a href=".?page=${page.previous_page_number()}&amp;count=${count}&amp;query=${query}&amp;target=${target}">Previous</a>
+      <a href=".?page=${page.previous_page_number()}&amp;count=${count}&amp;q=${query}&amp;target=${target}">Previous</a>
     </span>
     <span class="nums">
       <span py:for="pp in range(1, 1+paginator.num_pages)">
 	<a style="font-weight: ${pp == page_num and 'bold' or 'normal'}"
-	   href=".?page=${pp}&amp;count=${count}&amp;query=${query}&amp;target=${target}">${pp}</a>
+	   href=".?page=${pp}&amp;count=${count}&amp;q=${query}&amp;target=${target}">${pp}</a>
       </span>
     </span>
     <span py:if="page.has_next()" class="next">
-      <a href=".?page=${page.next_page_number()}&amp;count=${count}&amp;query=${query}&amp;target=${target}">Next</a>
+      <a href=".?page=${page.next_page_number()}&amp;count=${count}&amp;q=${query}&amp;target=${target}">Next</a>
     </span>
   </div>
 </div>
