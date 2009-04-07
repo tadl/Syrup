@@ -11,6 +11,7 @@ from conifer.custom import lib_integration
 import re
 import random
 from django.utils import simplejson
+from conifer.middleware import genshi_locals
 
 def highlight(text, phrase,
               highlighter='<strong class="highlight">\\1</strong>'):
@@ -241,7 +242,9 @@ class Course(m.Model):
         return mbr.role in (u'INSTR', u'PROXY')
 
     def course_url(self, suffix=''):
-        return '/syrup/course/%d/%s' % (self.id, suffix)
+        req = genshi_locals.get_request()
+        prefix = req.META['SCRIPT_NAME']
+        return '%s/course/%d/%s' % (prefix, self.id, suffix)
 
     def generate_new_passkey(self):
         # todo: have a pluggable passkey algorithm.
@@ -465,15 +468,17 @@ class Item(m.Model):
         return self.item_type in ('ELEC', 'URL', 'PHYS')
 
     def item_url(self, suffix='', force_local_url=False):
+        req = genshi_locals.get_request()
+        prefix = req.META['SCRIPT_NAME']
         if self.item_type == 'ELEC' and suffix == '':
-            return '/syrup/course/%d/item/%d/dl/%s' % (
-                self.course_id, self.id, 
+            return '%s/course/%d/item/%d/dl/%s' % (
+                prefix, self.course_id, self.id, 
                 self.fileobj.name.split('/')[-1])
         if self.item_type == 'URL' and suffix == '' and not force_local_url:
             return self.url
-        else:
-            return '/syrup/course/%d/item/%d/%s' % (
-                self.course_id, self.id, suffix)
+        else: 
+            return '%s/course/%d/item/%d/%s' % (
+                prefix, self.course_id, self.id, suffix)
     
     def parent_url(self, suffix=''):
         if self.parent_heading:

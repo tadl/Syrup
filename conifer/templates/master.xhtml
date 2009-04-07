@@ -2,6 +2,7 @@
 app_name = _('Syrup E-Reserve System')
 search = _('search...')
 import os
+rooted = lambda url: request.META['SCRIPT_NAME'] + url
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
@@ -11,10 +12,10 @@ import os
     <head py:attrs="select('@*')"
 	  py:with="t=list(select('title/text()'))">
       <title>${app_name}<py:if test="t">: ${t}</py:if></title>
-    <link rel="stylesheet" type="text/css" href="/syrup/static/main.css"/>
-    <script type="text/javascript" src="/syrup/static/jquery/js/jquery-1.3.2.min.js"/>
-    <script type="text/javascript" src="/syrup/static/jquery/js/jquery-ui-1.7.1.custom.min.js"/>
-    <script type="text/javascript" src="/syrup/static/jquery/js/jquery.tablesorter.min.js"/>
+    <link rel="stylesheet" type="text/css" href="${rooted('/static/main.css')}"/>
+    <script type="text/javascript" src="${rooted('/static/jquery/js/jquery-1.3.2.min.js')}"/>
+    <script type="text/javascript" src="${rooted('/static/jquery/js/jquery-ui-1.7.1.custom.min.js')}"/>
+    <script type="text/javascript" src="${rooted('/static/jquery/js/jquery.tablesorter.min.js')}"/>
     ${select('*[local-name()!="title"]')}
     </head>
   </py:match>
@@ -26,7 +27,7 @@ import os
 	  ${os.getpid()}
 	  ${app_name}
 	</div>
-	<img src="/syrup/static/institution-logo.png" style="height: 50;"/>
+	<img src="${rooted('/static/institution-logo.png')}" style="height: 50;"/>
       </div>
         <!--
       <div id="header" py:if="user.is_authenticated()">
@@ -34,7 +35,7 @@ import os
         -->
       <div id="header">
         <div id="search">
-            <form method="get" action="/syrup/search" 
+            <form method="get" action="${rooted('/search')}" 
                 onsubmit="if(q.value.replace(/^\s*/, '').replace(/\s*$/, '') =='') return false;"
             >
             <input id="q" name="q" maxlength="100" size="25" type="text" 
@@ -44,13 +45,13 @@ import os
         </div>
       <span py:if="user.is_authenticated()">
 	<strong style="padding-right: 18;">Welcome, ${user.first_name or user.username}!</strong>
-	<a href="/syrup/accounts/logout">Log Out</a>
-	&bull; <a href="/syrup/prefs/">Preferences</a>
+	<a href="${rooted('/accounts/logout')}">Log Out</a>
+	&bull; <a href="${rooted('/prefs/')}">Preferences</a>
       </span>
       <span py:if="not user.is_authenticated()">
 	<strong style="padding-right: 18;">Welcome!</strong>
-	<a class="loginbutton" href="/syrup/accounts/login/">Log In</a>
-	&bull; <a href="/syrup/prefs/">Preferences</a>
+	<a class="loginbutton" href="${rooted('/accounts/login/')}">Log In</a>
+	&bull; <a href="${rooted('/prefs/')}">Preferences</a>
       </span>
     </div>
       <xi:include py:if="user.is_authenticated()" href="tabbar.xhtml"/>
@@ -60,15 +61,6 @@ import os
       </div>
       <div id="footer">
 	<div> 
-    <!--
-        !We may eventually have a tab bar for non authenticated users,
-        but we definitely need a start over option for now. There is
-        probably a more elegant way of detecting whether we are on
-        the front page but this works for the short term
-    -->
-    <span py:if="not user.is_authenticated() and not request.META.PATH_INFO == '/syrup/'">
-        <a href="/syrup">Start Over</a>  -
-    </span>
     Syrup is a subproject of <a href="http://conifer.mcmaster.ca/">Project Conifer</a> &copy; 2009
     </div>
       </div>

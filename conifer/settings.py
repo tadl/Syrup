@@ -121,14 +121,13 @@ if EVERGREEN_XMLRPC_SERVER:
     AUTHENTICATION_BACKENDS.append(
         'conifer.custom.auth_evergreen.EvergreenAuthBackend')
 
-# stuff that I really ought not check into svn...
-#SIP_HOST = ('hostname', 9999)
-#SIP_CREDENTIALS = ('userid', 'password', 'location')
-
 try:
     # Graham has this right now; it's not official Syrup. Nothing to see here.
     from private_local_settings import SIP_HOST, SIP_CREDENTIALS
 except:
+    # stuff that I really ought not check into svn...
+    #SIP_HOST = ('hostname', 9999)
+    #SIP_CREDENTIALS = ('userid', 'password', 'location')
     pass
 
 #CACHE_BACKEND = 'memcached://127.0.0.1:11211/'

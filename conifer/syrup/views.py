@@ -37,6 +37,7 @@ from django.forms.models import modelformset_factory
 from conifer.custom import lib_integration
 from conifer.libsystems.z3950.marcxml import marcxml_to_dictionary, marcxml_dictionary_to_dc
 from fuzzy_match import rank_pending_items
+from django.core.urlresolvers import reverse
 
 #-----------------------------------------------------------------------------
 # Z39.50 Support
@@ -78,9 +79,10 @@ def log(level, msg):
 # Authentication
 
 def auth_handler(request, path):
+    default_url = reverse(welcome) #request.META['SCRIPT_NAME'] + '/'
     if path == 'login/':
         if request.method == 'GET':
-            next=request.GET.get('next', '/syrup/')
+            next=request.GET.get('next', default_url)
             if request.user.is_authenticated():
                 return HttpResponseRedirect(next)
             else:
@@ -106,10 +108,10 @@ def auth_handler(request, path):
                 except models.UserProfile.DoesNotExist:
                     profile = models.UserProfile.objects.create(user=user)
                     profile.save()
-                return HttpResponseRedirect(request.POST.get('next', '/syrup/'))
+                return HttpResponseRedirect(request.POST.get('next', default_url))
     elif path == 'logout':
         logout(request)
-        return HttpResponseRedirect('/syrup/')
+        return HttpResponseRedirect(default_url)
     else:
         return HttpResponse('auth_handler: ' + path)
 
@@ -134,7 +136,7 @@ def _fast_user_membership_query(user_id, course_id, where=None):
 def _access_denied(request, message):
     if request.user.is_anonymous():
         # then take them to login screen....
-        dest = '/syrup/accounts/login/?next=' + request.environ['PATH_INFO']
+        dest = request.META['SCRIPT_NAME'] + '/accounts/login/?next=' + request.environ['PATH_INFO']
         return HttpResponseRedirect(dest)
     else:
         return simple_message(_('Access denied.'), message,
@@ -525,7 +527,7 @@ def delete_course(request, course_id):
     course = get_object_or_404(models.Course, pk=course_id)
     if request.POST.get('confirm_delete'):
         course.delete()
-        return HttpResponseRedirect('/syrup/course/')
+        return HttpResponseRedirect(reverse('my_courses'))
     else:
         return HttpResponseRedirect('../')
 

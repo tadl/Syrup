@@ -18,19 +18,19 @@ urlpatterns = patterns('',
 
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:
-    (r'^syrup/djadmin/doc/', include('django.contrib.admindocs.urls')),
+    (r'^djadmin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
-    (r'^syrup/djadmin/(.*)', admin.site.root),
-    (r'^syrup/djmedia/(.*)', 'django.views.static.serve',
+    (r'^djadmin/(.*)', admin.site.root),
+    (r'^djmedia/(.*)', 'django.views.static.serve',
         {'document_root': ADMIN_MEDIA_ROOT}),
-    (r'^syrup/static/(?P<path>.*)$', 'django.views.static.serve',
+    (r'^static/(?P<path>.*)$', 'django.views.static.serve',
         {'document_root': settings.MEDIA_ROOT}),
-    (r'^syrup/accounts/(?P<path>.*)$', 'conifer.syrup.views.auth_handler'),
+    (r'^accounts/(?P<path>.*)$', 'conifer.syrup.views.auth_handler'),
 
 #    (r'^syrup/setlang', 'conifer.syrup.views.setlang'),
-    (r'^syrup/i18n/', include('django.conf.urls.i18n')),
-    (r'^syrup/', include('conifer.syrup.urls')),
+    (r'^i18n/', include('django.conf.urls.i18n')),
+    (r'', include('conifer.syrup.urls')),
 
 )
 
