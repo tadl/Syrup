@@ -9,7 +9,7 @@ instructors = [m for m in models.Member.objects.filter(course=course) if m.role 
   <xi:include href="components/course.xhtml"/>
 <head>
   <title>${title}</title>
-  <script type="text/javascript" src="/static/edit_course_permissions.js"/>
+  <script type="text/javascript" src="/syrup/static/edit_course_permissions.js"/>
 </head>
 <body>
   ${course_banner(course)}

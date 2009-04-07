@@ -16,16 +16,22 @@
 # define a @caching decorator to exploit the Django cache. Fixme, move
 # this somewhere else.
 from django.core.cache import cache
+import cPickle 
 def caching(prefix, timeout=60):
     def g(func):
         def f(*args):
-            v = cache.get((prefix, args))
+            # wtf! Django encodes string-values as
+            # unicode-strings. That's bad, like stupid-bad! I'm
+            # putting explicit utf8-conversions here to make debugging
+            # easier if this code dies.
+            key = ','.join([prefix] + map(str, args))
+            v = cache.get(key)
             if v:
-                return v
+                return cPickle.loads(v.encode('utf-8'))
             else:
                 v = func(*args)
                 if v:
-                    cache.set((prefix, args), v, timeout)
+                    cache.set(key, unicode(cPickle.dumps(v), 'utf-8'), timeout)
                     return v
         return f
     return g
@@ -41,7 +47,7 @@ from conifer.libsystems.z3950 import yaz_search
 from conifer.libsystems.z3950.marcxml import marcxml_to_dictionary
 
 
-@caching('itemstatus', timeout=300)
+@caching('patroninfo', timeout=300)
 @SIP
 def patron_info(conn, barcode):
     return conn.patron_info(barcode)

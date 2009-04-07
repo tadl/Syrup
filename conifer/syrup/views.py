@@ -22,7 +22,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, SiteProfileNotAvailable
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.utils import simplejson
@@ -134,7 +134,7 @@ def _fast_user_membership_query(user_id, course_id, where=None):
 def _access_denied(request, message):
     if request.user.is_anonymous():
         # then take them to login screen....
-        dest = '/accounts/login/?next=' + request.environ['PATH_INFO']
+        dest = '/syrup/accounts/login/?next=' + request.environ['PATH_INFO']
         return HttpResponseRedirect(dest)
     else:
         return simple_message(_('Access denied.'), message,
@@ -1379,9 +1379,13 @@ def phys_mark_arrived_match(request):
     return g.render('phys/mark_arrived_outcome.xhtml')
 
 
-
-def custom_error_handler(request):
+def custom_500_handler(request):
     cls, inst, tb = sys.exc_info()
-    #fixme, set 50x code.
-    return simple_message(_('Error: %s') % repr(inst),
-                          repr((request.__dict__, inst)))
+    msg = simple_message(_('Error: %s') % repr(inst),
+                         repr((request.__dict__, inst)))
+    return HttpResponse(msg._container, status=501)
+
+def custom_400_handler(request):
+    msg = simple_message(_('Not found'), 
+                          _('The page you requested could not be found'))
+    return HttpResponse(msg._container, status=404)

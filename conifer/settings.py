@@ -8,7 +8,7 @@ import os
 BASE_DIRECTORY = os.path.abspath(os.path.dirname(__file__))
 HERE = lambda s: os.path.join(BASE_DIRECTORY, s)
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -59,7 +59,7 @@ MEDIA_URL = ''
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/'
+ADMIN_MEDIA_PREFIX = '/syrup/djmedia/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'j$dnxqbi3iih+(@il3m@vv(tuvt2+yu2r-$dxs$s7=iqjz_s!&'
@@ -102,9 +102,9 @@ INSTALLED_APPS = (
 AUTH_PROFILE_MODULE = 'syrup.UserProfile'
 
 
-AUTHENTICATION_BACKENDS = [
+AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-]
+)
 
 
 # more on this later.
@@ -131,4 +131,6 @@ try:
 except:
     pass
 
-CACHE_BACKEND = 'locmem:///'
+#CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
+#CACHE_BACKEND = 'db://test_cache_table'
+#CACHE_BACKEND = 'locmem:///'
