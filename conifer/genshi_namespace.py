@@ -9,11 +9,11 @@ import django.forms
 
 # this probably ought to be a method on User, or another model class.
 def instructor_url(instructor, suffix=''):
-    return '/syrup/instructor/%d/%s' % (instructor.id, suffix)
+    return '/instructor/%d/%s' % (instructor.id, suffix)
 
 # added to make department browse
 def department_url(department, suffix=''):
-    return '/syrup/department/%d/%s' % (department.id, suffix)
+    return '/department/%d/%s' % (department.id, suffix)
 
 
 def call_or_value(obj, dflt=None):

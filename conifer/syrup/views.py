@@ -136,7 +136,7 @@ def _fast_user_membership_query(user_id, course_id, where=None):
 def _access_denied(request, message):
     if request.user.is_anonymous():
         # then take them to login screen....
-        dest = request.META['SCRIPT_NAME'] + '/accounts/login/?next=' + request.environ['PATH_INFO']
+        dest = request.META['SCRIPT_NAME'] + '/accounts/login/?next=' + request.META['PATH_INFO']
         return HttpResponseRedirect(dest)
     else:
         return simple_message(_('Access denied.'), message,
