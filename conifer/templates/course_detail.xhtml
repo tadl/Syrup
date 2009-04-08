@@ -24,7 +24,9 @@ is_editor = course.can_edit(request.user)
       <a href="javascript:doToggleItemTree();">Show/hide tree</a>
     </div>
     <div py:if="is_editor">${item_resequence_panel()}</div>
-    ${show_tree(item_tree, edit=is_editor)}
+    <div id="treepanel">
+      ${show_tree(item_tree, edit=is_editor)}
+    </div>
     <div py:if="is_editor">${add_subs()}</div>
 
 

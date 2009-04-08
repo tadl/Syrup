@@ -106,6 +106,8 @@ span.final_item { font-weight: bold; font-size: 110%; }
 
 /* item trees (tree of headings and items in a course */
 
+#treepanel { width: 750px; }
+
 .itemtree { 
 padding-left: 15;
     list-style-type: none; 
@@ -213,7 +215,7 @@ p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: 
 }
 
 .menublockopener { margin-left: 0.25em; color: #bbb !important; font-weight: normal !important; }
-.menublock { background-color: #f0f0e0; font-size: 95%; padding: 1 4; }
+.menublock { background-color: #f2e4cc; font-size: 95%; padding: 1 4; }
 
 #coursebanner { background-color: #f2e4cc; margin: -12 -12 0 -12; padding: 8; }
 
