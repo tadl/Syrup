@@ -10,7 +10,7 @@ is_editor = course.can_edit(request.user)
   <xi:include href="components/course.xhtml"/>
   <head>
     <title>${title}</title>
-    <script type="text/javascript" src="/syrup/static/menublocks.js"/>
+    <script type="text/javascript" src="${ROOT}/static/menublocks.js"/>
   </head>
   <body>
     ${course_banner(course)}

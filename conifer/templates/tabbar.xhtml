@@ -7,13 +7,13 @@
     use one for now
 -->
 <ul id="tabbar">
-  <li><a href="${rooted('/')}">Home</a></li>
-  <li><a href="${rooted('/browse/')}">Browse</a></li>
-  <li class="active"><a href="${rooted('/course/')}">My Courses</a></li>
+  <li><a href="${ROOT}/">Home</a></li>
+  <li><a href="${ROOT}/browse/">Browse</a></li>
+  <li class="active"><a href="${ROOT}/course/">My Courses</a></li>
   <div py:strip="True"
        py:if="request.user.is_staff">
-    <li><a href="${rooted('/admin/')}">Admin Options</a></li>
-    <li><a href="${rooted('/phys/')}">Physical Items</a></li>
+    <li><a href="${ROOT}/admin/">Admin Options</a></li>
+    <li><a href="${ROOT}/phys/">Physical Items</a></li>
   </div>
 </ul>
 </html>

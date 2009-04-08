@@ -13,7 +13,7 @@ title = _('Preferences')
 <h1>${title}</h1>
 <h2>Preferred Language</h2>
 <form action="../i18n/setlang/" method="post">
-<input name="next" type="hidden" value="/syrup/" />
+<input name="next" type="hidden" value="${ROOT}/" />
 <select name="language">
 <option py:for="code,descr in settings.LANGUAGES"
 	value="${code}">${_(descr)}</option>

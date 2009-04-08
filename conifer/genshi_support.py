@@ -37,6 +37,7 @@ def template(tname):
 def _inject_django_things_into_namespace(request, ns):
     ns['_'] = _
     ns['request'] = request
+    ns['ROOT']    = request.META['SCRIPT_NAME']
     ns['user'] = getattr(request, 'user', None)
     ns.update(genshi_namespace.__dict__)
 
