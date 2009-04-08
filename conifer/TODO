@@ -2,7 +2,7 @@ CRITICAL:
 
 IMPORTANT:
 
-* mod_python deployment testing.
+* if someone has item checked out, show due date/time on item-about page.
 
 * does 'move to new heading' show up in the right places? Should be like 'edit'.
 
@@ -10,8 +10,6 @@ IMPORTANT:
 
 * People should be able to register themselves into open courses.
   That is, actually become a member of them.
-
-* if someone has item checked out, show due date/time on item-about page.
 
 * Import of reserves data from Leddy voyager. Laurentian, others?
 

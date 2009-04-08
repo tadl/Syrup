@@ -1269,10 +1269,14 @@ def _phys_checkout_get_patron(request):
     post           = lambda k: request.POST.get(k, '').strip()
     patron, item   = post('patron'), post('item')
     msg            = lib_integration.patron_info(patron)
-    patron_descrip = '%s (%s) &mdash; %s' % (
-        msg['personal'], msg['home_library'], msg['screenmsg'])
-    return g.render('phys/checkout.xhtml', step=2, 
-                    patron=patron, patron_descrip=patron_descrip)
+    if not msg['success']:
+        return simple_message(_('Invalid patron barcode'),
+                              _('No such patron could be found.'))
+    else:
+        patron_descrip = '%s (%s) &mdash; %s' % (
+            msg['personal'], msg['home_library'], msg['screenmsg'])
+        return g.render('phys/checkout.xhtml', step=2, 
+                        patron=patron, patron_descrip=patron_descrip)
 
 def _phys_checkout_do_checkout(request):
     post           = lambda k: request.POST.get(k, '').strip()
@@ -1312,7 +1316,7 @@ def _phys_checkout_do_checkout(request):
         return g.render('phys/checkout.xhtml', step=3, 
                         patron=patron, item=item,
                         patron_descrip=patron_descrip,
-                        checkout_result=msg,
+                        checkout_result=msg_checkout,
                         item_descrip=item_descrip)
 
 def _phys_checkout_do_another(request):

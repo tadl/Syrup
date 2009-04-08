@@ -478,6 +478,8 @@ class SipClient(object):
         msg = self.send(PATRON_INFO,PATRON_INFO_RESP,
                         {'patron':barcode,
                          'startitem':1, 'enditem':2})
+        # fixme, this may not be the best test of okayness
+        msg['success'] = msg.get('valid_patron') == 'Y'
         return msg
 
     def checkout(self, patron, item, inst=''):

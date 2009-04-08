@@ -242,6 +242,8 @@ class Course(m.Model):
         return mbr.role in (u'INSTR', u'PROXY')
 
     def course_url(self, suffix=''):
+        # I'm not fond of this being here. I think I'll leave this and
+        # item_url non-implemented, and monkey-patch them in views.py.
         req = genshi_locals.get_request()
         prefix = req.META['SCRIPT_NAME']
         return '%s/course/%d/%s' % (prefix, self.id, suffix)
@@ -468,6 +470,8 @@ class Item(m.Model):
         return self.item_type in ('ELEC', 'URL', 'PHYS')
 
     def item_url(self, suffix='', force_local_url=False):
+        # I'm not fond of this being here. I think I'll leave this and
+        # course_url non-implemented, and monkey-patch them in views.py.
         req = genshi_locals.get_request()
         prefix = req.META['SCRIPT_NAME']
         if self.item_type == 'ELEC' and suffix == '':
