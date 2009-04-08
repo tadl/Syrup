@@ -1,6 +1,6 @@
 <?python
 is_edit = bool(item.id)
-title = is_edit and _('Edit (electronic document)') or _('Add a new electronic document')
+title = is_edit and _('Edit an electronic document') or _('Add a new electronic document')
 course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
@@ -20,7 +20,6 @@ course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
     ${nested_title(parent_item)}
     ${offer_to_delete(item)}
     <h2>${title}</h2>
-    <h3>Metadata</h3>
     <div py:if="not is_edit">
       <form action=".?item_type=${item_type}" method="POST"
 	    enctype="multipart/form-data">
@@ -37,16 +36,16 @@ course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
 
     <div py:if="is_edit">
       <form action="." method="POST">
-	<table>
+	<table class="metadata_table">
 	  <tr><th>Title of document</th><td><input type="text" name="title"
 	  value="${item.title}"/></td></tr>
 	</table>
 	${item_metadata_formset()}
 	<p><input type="submit" value="Update title and metadata"/></p>
       </form>
-      <h3>File contents</h3>
+      <h2>File contents</h2>
       <form action="." method="POST" enctype="multipart/form-data">
-	<table>
+	<table class="metadata_table">
 	  <tr><th>File</th><td><input type="file" name="file"/></td></tr>
 	</table>
 	<p><input type="submit" value="Upload new file contents"/></p>

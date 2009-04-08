@@ -17,6 +17,10 @@ IMPORTANT:
 
 * accented characters in z3950 queries seem to fail. More tests needed.
 
+* manage z3950 targets? Search z3950 targets?
+
+* Send me email when my sites change?
+
 MAYBE:
 
 * Generating barcodes in emails, printable screens? (3 of 9 enough?)

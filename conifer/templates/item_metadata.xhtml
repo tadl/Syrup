@@ -54,7 +54,7 @@ is_editor = course.can_edit(request.user)
       </table>
     </div>
     <div py:if="metadata">
-      <h3>Additional metadata</h3>
+      <h2 class="metadata_subhead">Additional metadata</h2>
       <table class="metadata_table">
 	<tr py:for="attr in metadata">
 	  <th>${attr.get_name_display()}</th>
