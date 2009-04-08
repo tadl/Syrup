@@ -22,13 +22,16 @@ is_editor = course.can_edit(request.user)
   <body>
     ${course_banner(course)}
     ${nested_title(item)}
-    <div py:if="is_editor">
-    <div class="little_action_panel">
-      <a href="edit/">Edit this item</a>
-    </div>
-    <div class="little_action_panel">
-      <a href="delete/">Delete this item</a>
-    </div>
+    <div py:if="is_editor" class="little_action_panel">
+      <div>
+	<a href="edit/">Edit this item</a>
+      </div>
+      <div>
+	<a href="delete/">Delete this item</a>
+      </div>
+      <div>
+	<a href="relocate/">Relocate this item</a>
+      </div>
     </div>
     <table class="metadata_table" style="margin-top: 1em;">
       <tr><th>Title</th><td>${item.title}</td></tr>

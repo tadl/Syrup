@@ -2,9 +2,11 @@ CRITICAL:
 
 IMPORTANT:
 
-* if someone has item checked out, show due date/time on item-about page.
-
 * does 'move to new heading' show up in the right places? Should be like 'edit'.
+
+* CSS fixes for Internet Explorer. It looks crappy in IE.
+
+* if someone has item checked out, show due date/time on item-about page.
 
 * need more than 10 results on physical-item search results.
 
