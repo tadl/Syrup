@@ -49,13 +49,13 @@ courses = course_list
         <!-- courses -->
         <td py:if="courses" valign="top" class="topbox">
         <table class="topheading">
-        <tr>
-        <th align="left">Course</th>
-        </tr>
-        <tr py:for="course in courses">
-            <!-- will highlight this, probably pull in dept info -->
-            <td><a href="../course/${course.id}/">${course.title}</a></td>
-        </tr>
+	  <tr>
+	    <th align="left">Course</th>
+	  </tr>
+	  <tr py:for="course in courses">
+	    <!-- will highlight this, probably pull in dept info -->
+	    <td><a href="../course/${course.id}/">${course.title}</a></td>
+	  </tr>
         <tr py:if="course_len > count">
         <td></td>
         <!-- will tap into open list here -->

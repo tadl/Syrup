@@ -47,11 +47,11 @@ import os
 	<a href="${ROOT}/accounts/logout">Log Out</a>
 	&bull; <a href="${ROOT}/prefs/">Preferences</a>
       </div>
-      <span py:if="not user.is_authenticated()">
+      <div id="welcome" py:if="not user.is_authenticated()">
 	<strong style="padding-right: 18px;">Welcome!</strong>
 	<a class="loginbutton" href="${ROOT}/accounts/login/">Log In</a>
 	&bull; <a href="${ROOT}/prefs/}">Preferences</a>
-      </span>
+      </div>
     </div>
       <xi:include py:if="user.is_authenticated()" href="tabbar.xhtml"/>
       <xi:include py:if="not user.is_authenticated()" href="tabbar_anonymous.xhtml"/>
