@@ -254,6 +254,9 @@ li.item_HEADING  .headingmainline a.mainlink:hover {
 
 p.todo, div.todo { background-color: #fdd; padding: 6px; margin: 12px; border-left: #d99 6px solid; }
 
+.newsitem p { margin: 12px 0; }
+.newsitem ul { list-style: circle; margin-left: 30px; }
+.newsitem ul li { margin: 8px; }
 
 .newsitem { 
     max-width: 600px;
