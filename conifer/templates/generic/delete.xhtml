@@ -11,7 +11,7 @@ title = _('Delete %s?') % form.Meta.model.__name__
 <body>
   <h1>${title}</h1>
   <form action="delete" method="POST">
-  <table>
+  <table class="metadata_table">
     <tr>
       <th>${form.Meta.model.__name__}</th>
       <td>${instance}</td>

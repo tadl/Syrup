@@ -6,8 +6,7 @@ searchtext = _('search this course...')
       xmlns:xi="http://www.w3.org/2001/XInclude"
       py:strip="">
   
-  <div py:def="course_search(course)"
-       id="coursesearch" style="float: right;">
+  <div py:def="course_search(course)" id="coursesearch" style="float: right;">
     <form method="get" action="${course.course_url('search')}" 
 	  onsubmit="if(q.value.replace(/^\s*/, '').replace(/\s*$/, '') =='') return false;">
       <input id="q" name="q" maxlength="100" size="25" type="text" 
@@ -18,11 +17,10 @@ searchtext = _('search this course...')
   
   <div py:def="course_banner(course)" py:strip="True">
     <div id="coursebanner">
-      <div class="deptident">${course.department}</div>
       ${course_search(course)}
+      <div class="deptident">${course.department}</div>
       <h1><a href="${course.course_url()}"><span py:if="course.code">${course.code}: </span>${course.title}</a></h1>
     </div>
-      <div id="feeds_panel"><a href="${course.course_url('feeds/')}">Feeds</a></div>
   </div>
   
   <!-- !show_tree: display a tree of items in a hierarchical style. -->
@@ -31,7 +29,7 @@ searchtext = _('search this course...')
       class="itemtree">
     <li py:for="item, subs in tree" class="item_${item.item_type} an_item"
 	id="item_${item.id}">
-      <div class="mainline">
+      <div class="mainline ${item.item_type=='HEADING' and 'headingmainline' or ''}">
 	<a href="${item.item_url()}" class="mainlink">${item}</a> 
 	<span class="menublock" py:if="not (item.item_type=='HEADING' and not edit)">
 
@@ -62,7 +60,7 @@ searchtext = _('search this course...')
        py:if="item"
        py:with="hier=item.hierarchy()[:-1]; lastnum=len(hier)"
        class="nestedtitle">
-    <div class="breadcrumbs">
+    <div id="breadcrumbs">
       <span><a href="${item.course.course_url()}">Top</a></span> &raquo;
       <span py:for="n, x in enumerate(hier)"><a href="${x.item_url()}">${x.title}</a> &raquo; </span>
       <span class="final_item">${item.title}</span>
@@ -99,8 +97,7 @@ searchtext = _('search this course...')
 	</thead>
 	<tbody>
 	<tr py:for="form in metadata_formset.forms">
-	  <!-- <td style="border: gray 1px solid; padding: 4; ">${Markup(form.as_p())}</td> -->
-	  <td py:for="cell in form">${Markup(cell)}</td>
+	  <td py:if="cell" class="meta${n}" py:for="n, cell in enumerate(form)">${Markup(cell)}</td>
 	</tr>
 	</tbody>
       </table>

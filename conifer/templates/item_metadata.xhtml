@@ -22,7 +22,7 @@ is_editor = course.can_edit(request.user)
   <body>
     ${course_banner(course)}
     ${nested_title(item)}
-    <div py:if="is_editor" class="little_action_panel">
+    <div py:if="is_editor" id="sidepanel">
       <div>
 	<a href="edit/">Edit this item</a>
       </div>

@@ -2,8 +2,6 @@ CRITICAL:
 
 IMPORTANT:
 
-* does 'move to new heading' show up in the right places? Should be like 'edit'.
-
 * CSS fixes for Internet Explorer. It looks crappy in IE.
 
 * if someone has item checked out, show due date/time on item-about page.

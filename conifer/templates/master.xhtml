@@ -22,11 +22,11 @@ import os
     <body py:attrs="select('@*')">
       <div id="outer">
       <div id="brandheader">
-	<div style="float: right; font-size: x-large; padding: 12; color: #888;">
+	<div style="float: right; font-size: x-large; padding: 12px; color: #888;">
 	  ${os.getpid()}
 	  ${app_name}
 	</div>
-	<img src="${ROOT}/static/institution-logo.png" style="height: 50;"/>
+	<img src="${ROOT}/static/institution-logo.png" style="height: 50px;"/>
       </div>
         <!--
       <div id="header" py:if="user.is_authenticated()">
@@ -42,13 +42,13 @@ import os
                 onfocus="if(this.value=='${search}') this.value='';"/>
             </form>
         </div>
-      <span py:if="user.is_authenticated()">
-	<strong style="padding-right: 18;">Welcome, ${user.first_name or user.username}!</strong>
+      <div id="welcome" py:if="user.is_authenticated()">
+	<strong style="padding-right: 18px;">Welcome, ${user.first_name or user.username}!</strong>
 	<a href="${ROOT}/accounts/logout">Log Out</a>
 	&bull; <a href="${ROOT}/prefs/">Preferences</a>
-      </span>
+      </div>
       <span py:if="not user.is_authenticated()">
-	<strong style="padding-right: 18;">Welcome!</strong>
+	<strong style="padding-right: 18px;">Welcome!</strong>
 	<a class="loginbutton" href="${ROOT}/accounts/login/">Log In</a>
 	&bull; <a href="${ROOT}/prefs/}">Preferences</a>
       </span>

@@ -7,6 +7,7 @@ import genshi.output
 from django.conf import settings
 import gettext
 from conifer.middleware.genshi_locals import get_request
+import genshi
 
 #------------------------------------------------------------
 # set up internationalization
@@ -47,5 +48,5 @@ def _inject_django_things_into_namespace(request, ns):
 def render(tname, _django_type=HttpResponse, _serialization='xhtml', **kwargs):
     request = get_request()
     _inject_django_things_into_namespace(request, kwargs)
-    return _django_type(template(tname).generate(**kwargs).render(_serialization))
+    return _django_type(template(tname).generate(**kwargs).render(_serialization, doctype='xhtml'))
 

@@ -10,6 +10,7 @@ news_items = models.NewsItem.objects.all().order_by('-published','-id')[0:5]
   <title>${title}</title>
 </head>
 <body>
+  <div id="treepanel">
   <p>Welcome! Please use the links above to browse the reserves, or to join and visit your course sites.</p>
   <div class="newsitem" py:for="news in news_items">
     <h2>${news.subject}</h2>
@@ -18,5 +19,6 @@ news_items = models.NewsItem.objects.all().order_by('-published','-id')[0:5]
     <span py:if="user.has_perm('change_newsitem')">&bull; <a href="admin/news/${news.id}/">edit</a></span></div>
   </div>
   <p py:if="user.has_perm('add_newsitem')"><a href="admin/news/0/">Add a news item</a></p>
+  </div>
 </body>
 </html>

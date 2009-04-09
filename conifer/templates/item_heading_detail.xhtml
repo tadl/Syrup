@@ -16,8 +16,7 @@ item_tree = course.item_tree(subtree=item)
   </head>
   <body>
     ${course_banner(course)}
-    ${nested_title(item)}
-    <div py:if="is_editor" class="little_action_panel">
+    <div py:if="is_editor" id="sidepanel" class="little_action_panel">
       <div>
 	<a href="edit/">Edit this heading</a>
       </div>
@@ -27,11 +26,13 @@ item_tree = course.item_tree(subtree=item)
       <div>
 	<a href="relocate/">Relocate this heading</a>
       </div>
+      <div>${item_resequence_panel()}</div>
     </div>
+    ${nested_title(item)}
+
     <p py:if="not item_tree">
       There are no items in this section.
     </p>
-    <div py:if="is_editor">${item_resequence_panel()}</div>
     <div id="treepanel">
       ${show_tree(item_tree, edit=is_editor)}
     </div>

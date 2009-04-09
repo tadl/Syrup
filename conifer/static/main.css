@@ -1,6 +1,53 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	font-weight: inherit;
+	font-style: inherit;
+	font-size: 100%;
+	font-family: inherit;
+	vertical-align: baseline;
+}
+/* remember to define focus styles! */
+:focus {
+	outline: 0;
+}
+body {
+	line-height: 1;
+	color: black;
+	background: white;
+}
+ol, ul {
+	list-style: none;
+}
+/* tables still need 'cellspacing="0"' in the markup */
+table {
+	border-collapse: separate;
+	border-spacing: 0;
+}
+caption, th, td {
+	text-align: left;
+	font-weight: normal;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: "";
+}
+blockquote, q {
+	quotes: "" "";
+}
+
 /* General look and feel */
 
-* {  font-family: sans-serif; }
+body * {  font-family: Verdana, sans-serif; }
 pre, code { font-family: monospace; }
 
 body, html { margin: 0; padding: 0; }
@@ -12,40 +59,41 @@ body {
 
 div#outer {
     background-color: white; 
-    width: 960; margin-bottom: 50;
+    width: 960px; margin-bottom: 50px;
     margin-left: auto; margin-right: auto;
 }
-#mainpanel {  background-color: white; padding: 0 12 24 12; 
-min-height: 300; 
+#mainpanel {  background-color: white; padding: 0 12px 24px 12px; 
+min-height: 300px; 
 }
 
 /* General headers and footers */
 
 #header, #footer {
-    color: white; padding: 8 8 8 8;
+    color: white; padding: 8px 4px 12px 8px;
     background-color: #448;
 }
 
 #header div#search {
-    position: relative;
-    top: -5px;
     float: right;
-    margin: 0.2em 0 0 0;
-    padding:0 0.2em 0 0.5em;
+    margin: 0;
     color: #ccc;
 }
 
-#brandheader { background-color: white; padding: 8; }
+#header #welcome {
+    margin-top: 4px;
+}
 
-#header a { color: #fff; font-weight: bold;  padding: 8 6; }
-#header a.loginbutton { background-color: #a44; padding: 8 16; }
+#brandheader { background-color: white; padding: 8px; }
+
+#header a { color: #fff; font-weight: bold;  padding: 8px 6px; }
+#header a.loginbutton { background-color: #a44; padding: 8px 16px; }
 #header a:hover { background-color: #fb7; color: black; text-decoration: none; }
 
 tbody td, tbody th { vertical-align: top; }
 
 #footer {  
-    margin: 12;
-    padding-bottom: 12;
+    margin: 12px;
+    padding-bottom: 12px;
     background-color: #ddf; 
     color: black;
     border-bottom: white 10px solid;
@@ -53,12 +101,12 @@ tbody td, tbody th { vertical-align: top; }
 
 /* heading sizes and colours. */
 
-h1 { font-size: 150%;  }
-h2 { font-size: 125%; }
-h3 { font-size: 120%; }
-
-h1 { color: navy; }
-h2 { color: #336; }
+h1 { font-size: 150%; font-weight: bold; }
+h2 { font-size: 125%; font-weight: bold; }
+h3 { font-size: 120%; font-weight: bold; }
+p { margin: 12px 0px; }
+h1 { color: navy; margin: 36px 0 18px 0; }
+h2 { color: #336; margin: 24px 0 12px 0; }
 h3, h4 { color: darkgreen; }
 h1 a, h2 a { color: navy; }
 
@@ -73,9 +121,9 @@ a:hover {  text-decoration: underline;  }
 /* actions (e.g. "edit user" link) */
 .action a { font-weight: bold; }
 
-#tabbar { margin: 18 0; padding: 0; clear: both; }
+#tabbar { margin: 18px 0; padding: 0; clear: both; }
 #tabbar li { display: inline; }
-#tabbar li a { padding: 18 18 4 18; background-color: #ddf; color: black; text-decoration: none; }
+#tabbar li a { padding: 16px 18px 5px 18px; background-color: #ddf; color: black; text-decoration: none; }
 #tabbar li a:hover { background-color: #fc8; }
 
 /* 
@@ -87,96 +135,97 @@ a:hover {  text-decoration: underline;  }
 }
 
 .pagination_controls .nums {
-    padding: 0 24; 
+    padding: 0 24px; 
 }
 
-.pagetable td { border: #ddd 1px solid; padding: 4 8; }
+.pagetable td { border: #ddd 1px solid; padding: 4px 8px; }
 .pagetable .odd {
     background-color: #F8F8F8;
 }
-.pagetable thead th { font-size: smaller; text-align: left; padding: 2 8; }
+.pagetable thead th { font-size: smaller; text-align: left; padding: 2px 8px; }
 
 
 /* nested titles: like breadcrumbs when drilling into an itemtree */
 
-.nestedtitle h2 { margin-top: 8; }
+.nestedtitle h2 { margin-top: 8px; }
 .nestedtitle a { color: navy; }
 
 span.final_item { font-weight: bold; font-size: 110%; }
 
 /* item trees (tree of headings and items in a course */
 
-#treepanel { width: 750px; }
+#sidepanel { width: 183px; float: right; text-align: right;}
+#sidepanel div { margin: 6px 0; }
+
+#treepanel { width: 740px; }
 
 .itemtree { 
-padding-left: 15;
+    margin-left: 20px;
+    padding-left: 20px;
     list-style-type: none; 
-    list-style-position: inside;
 }
 
-.itemtree .itemtree li { 
-    padding-left: 25;
-}
+.itemtree .itemtree { margin-left: 30px; padding-left: 0; }
 
-.itemtree .itemtree { margin-left: 0;}
+.itemtree li { padding-left: 0; margin-left: 0; } 
 
-/* .itemtree li { width: 400; } */
+.itemtree li { margin: 12px 8px; }
+.itemtree li .mainline { padding-left: 8px; }
 
-.itemtree .metalink { padding-left: 8; color: gray; }
+.itemtree .metalink { padding-left: 8px; color: gray; }
 .itemtree .metalink a {
     color: gray; 
 }
 
-.itemtree .editlinks   { padding-left: 12; color: gray; 
+.itemtree .editlinks   { padding-left: 12px; color: gray; 
 			 font-size: small;
 		     }
 .itemtree .editlinks a { color: navy; }
 
 .itemadd { 
-    margin-top: 30; font-size: 90%;
-    padding: 10; background-color: #eef; 
+    margin-top: 30px; font-size: 90%;
+    padding: 10px; 
+    background-color: #eef; 
     clear: both;
 }
-.itemadd a { color: navy; }
+.itemadd li {     
+    margin: 10px; 
+}
 
-.itemtree li .mainline { margin-left: 24; }
+.itemadd a { color: navy; }
 
 /* specialized display of items in tree, by type */
 
 .itemtree li.item_HEADING { 
     list-style-image: url(tango/folder.png);
-    margin: 9 0; 
 }
 .itemtree li.item_HEADING > a { 
     color: navy; 
 }
 
-li.item_HEADING > .mainline {
-    margin-bottom: 12;
+li.item_HEADING .headingmainline {
+    margin-bottom: 12px;
 }
 
-li.item_HEADING > div.mainline  a.mainlink {
+li.item_HEADING .headingmainline  a.mainlink {
     border-bottom: #aaa 1px solid; 
 }
 
-li.item_HEADING > .mainline a.mainlink:hover {
+li.item_HEADING  .headingmainline a.mainlink:hover {
     border-bottom: none;
 }
 
 .itemtree li.item_ELEC { 
     list-style-image: url(tango/document.png);
-    margin-top: 4;
 }
 
 .itemtree li.item_URL { 
     list-style-image: url(tango/applications-internet.png);
-    margin-top: 4;
 }
 
 .itemtree li.item_PHYS { 
     /* fixme: need a better icon */
     list-style-image: url(tango/x-office-address-book.png);
-    margin-top: 4;
 }
 
 
@@ -203,33 +252,29 @@ li.item_HEADING > .mainline a.mainlink:hover {
 }
 
 
-p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: #d99 6px solid; }
+p.todo, div.todo { background-color: #fdd; padding: 6px; margin: 12px; border-left: #d99 6px solid; }
 
 
 .newsitem { 
-    max-width: 600;
+    max-width: 600px;
 }
 .newsitem .newsdate { 
-    margin: 4 0 8 0; text-align: right; 
+    margin: 4px 0 8px 0; text-align: right; 
     font-size: 80%; color: navy;
 }
 
 .menublockopener { margin-left: 0.25em; color: #bbb !important; font-weight: normal !important; }
-.menublock { background-color: #f2e4cc; font-size: 95%; padding: 1 4; }
+.menublock { background-color: #f2e4cc; font-size: 95%; padding: 1px 4px; }
 
-#coursebanner { background-color: #f2e4cc; margin: -12 -12 0 -12; padding: 8; }
+#coursebanner { background-color: #f2e4cc; margin: -12px -12px 12px -12px; padding: 8px; }
+#coursesearch { float: right; }
+#coursebanner h1 { margin: 12px 0; font-size: 125%; }
 
-#coursebanner h1 { padding: 0; font-size: 125%; }
-
-#edit_course_link { margin: 8 0 8 0; font-size: 95%; }
-
-#feeds_panel,
-.little_action_panel
-{ float: right; font-size: 95%; margin: 8 0; clear: both; text-align: right; }
+#edit_course_link { margin: 8px 0 8px 0; font-size: 95%; }
 
 
-.breadcrumbs { margin: 8 8 8 0; width: 800; 
-	     text-indent: -24; padding-left: 24; }
+#breadcrumbs { margin: 8px 0px 16px 0; width: 716px;  
+	     text-indent: -24px; padding-left: 24px; }
 
 .errorlist { float: right; }
 .errorlist li { color: red; font-size: 90%; }
@@ -237,43 +282,45 @@ p.todo, div.todo { background-color: #fdd; padding: 6; margin: 12; border-left: 
 
 /* a nice table-style for forms. */
 .formtable tbody th { 
-    padding: 0 8 16 0;
-    width: 200; 
+    padding: 0 8px 16px 0;
+    width: 200px; 
     text-align: left; 
     font-size: 90%;
     font-weight: normal; 
 }
 
+thead th { padding: 8px; font-weight: bold; font-size: 90%; }
 .metadata_table tbody th,
 .metadata_table tbody td {
-    padding: 8; border: #ddd 1px solid;
+    padding: 8px; border: #ddd 1px solid;
 }
-.metadata_table input { width: 600; }
+.metadata_table input { width: 600px; }
+.metadata_table .meta3 input { width: 10px; }
 
 .metadata_table tbody th {
     background-color: #eee;
 }
    
-.metadata_table a.bigdownload { padding: 8 58; font-weight: bold; font-size: 105%; }
+.metadata_table a.bigdownload { padding: 8px 58px; font-weight: bold; font-size: 105%; }
 .metadata_table a.bigdownload:hover { background-color: #dfd; color: black; }
 
-h2.metadata_subhead {font-size: 105%; padding: 0; margin: 18 0 9 0;}
+h2.metadata_subhead {font-size: 105%; padding: 0; margin: 18px 0 9px 0;}
 
 .metadata_table tbody th {
-    text-align: left; width: 120;
+    text-align: left; width: 120px;
 }
-.gap { height: 24; }
+.gap { height: 24px; }
 
 /* panels that appear when specific OPTIONs or radio-buttons are selected. */
-.specific { padding: 8; margin: 0 16; background-color: #eef; }
+.specific { padding: 8px; margin: 0 16px; background-color: #eef; }
 
 
 li.sort_item { margin-top: 20px !important;
-	     border: gray 1px dotted; width: 400; }
+	     border: gray 1px dotted; width: 400px; }
 
 li.sort_item:hover { background-color: #eee; }
 
 ul.heading_tree li  { list-style: none; }
 ul.heading_tree { margin: 0; padding-left: 0; }
-ul.heading_tree ul { margin: 0; padding-left: 25; }
+ul.heading_tree ul { margin: 0; padding-left: 25px; }
 
