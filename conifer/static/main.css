@@ -123,7 +123,7 @@ a:hover {  text-decoration: underline;  }
 
 #tabbar { margin: 18px 0; padding: 0; clear: both; }
 #tabbar li { display: inline; }
-#tabbar li a { padding: 16px 18px 5px 18px; background-color: #ddf; color: black; text-decoration: none; }
+#tabbar li a { padding: 15px 18px 5px 18px; background-color: #ddf; color: black; text-decoration: none; }
 #tabbar li a:hover { background-color: #fc8; }
 
 /* 
