@@ -1,7 +1,7 @@
 import warnings
 import urllib2
 from urllib import quote
-import simplejson as json
+from django.utils import simplejson as json
 from xml.etree import ElementTree
 import re
 import sys, os
