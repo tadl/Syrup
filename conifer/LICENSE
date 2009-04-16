@@ -1,6 +1,6 @@
 TODO: License for this work?
 
-Notes on component licenses.
+Notes on component licenses:
 
 JQuery
  * Copyright (c) 2008 John Resig (jquery.com)
@@ -15,3 +15,34 @@ JQuery tablesorter
  * Copyright (c) 2007 Christian Bach
  * Examples and docs at: http://tablesorter.com
  * Dual licensed under the MIT and GPL licenses:
+
+Levenshtein Distance implementation by Poromenos, http://www.poromenos.org/node/87. 
+Licensed under BSD.
+
+marctools.py:
+    Public Domain 2007 public.resource.org
+    Author: Joel Hardi <joel@hardi.org>
+
+----------------------------------------------------------------------
+SIP support:
+
+Some code borrowed from and/or inspired by the OpenNCIP project.
+
+# Copyright (C) 2006-2008  Georgia Public Library Service
+# 
+# Author: David J. Fiander
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of version 2 of the GNU General Public
+# License as published by the Free Software Foundation.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public
+# License along with this program; if not, write to the Free
+# Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+# MA 02111-1307 USA
+----------------------------------------------------------------------

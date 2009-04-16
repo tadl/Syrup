@@ -2,8 +2,6 @@ CRITICAL:
 
 IMPORTANT:
 
-* regoranize views.py and other stuff.
-
 * set up a proper issue-tracker?
 
 * CSS fixes for Internet Explorer. It looks crappy in IE.
@@ -23,14 +21,11 @@ IMPORTANT:
 
 * Send me email when my sites change?
 
+* "create course site" (not "add course")
+
 MAYBE:
 
 * Generating barcodes in emails, printable screens? (3 of 9 enough?)
 
 * add a hook for a MARC-record-to-maybe-cover-image-URL function
 
-apt-get install libyaz3 yaz
-easy_install pexpect
-
-create course site (not add course)
-capitalizing labels...

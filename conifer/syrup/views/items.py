@@ -21,7 +21,7 @@ def item_metadata(request, course_id, item_id):
     if item.item_type == 'HEADING':
         return _heading_detail(request, item)
     else:
-        return g.render('item_metadata.xhtml', course=item.course,
+        return g.render('item/item_metadata.xhtml', course=item.course,
                         item=item)
 
 def _heading_url(request, item):
@@ -29,7 +29,7 @@ def _heading_url(request, item):
 
 def _heading_detail(request, item):
     """Display a heading. Show the subitems for this heading."""
-    return g.render('item_heading_detail.xhtml', item=item)
+    return g.render('item/item_heading_detail.xhtml', item=item)
 
 
 @instructors_only
@@ -65,7 +65,7 @@ def item_add(request, course_id, item_id):
     if request.method != 'POST':
         item = models.Item()    # dummy object
         metadata_formset = metadata_formset_class(queryset=item.metadata_set.all())
-        return g.render('item_add_%s.xhtml' % item_type.lower(),
+        return g.render('item/item_add_%s.xhtml' % item_type.lower(),
                         **locals())
     else:
         # fixme, this will need refactoring. But not yet.
@@ -148,7 +148,7 @@ def item_add_cat_search(request, course_id, item_id):
     #----------
 
     if request.method != 'POST':
-        return g.render('item_add_cat_search.xhtml', results=[], query='', 
+        return g.render('item/item_add_cat_search.xhtml', results=[], query='', 
                         course=course, parent_item=parent_item)
 
     # POST handler
@@ -158,7 +158,7 @@ def item_add_cat_search(request, course_id, item_id):
         # process the query.
         assert query, 'must provide a query.'
         results = lib_integration.cat_search(query)
-        return g.render('item_add_cat_search.xhtml', 
+        return g.render('item/item_add_cat_search.xhtml', 
                         results=results, query=query, 
                         course=course, parent_item=parent_item)
     else:
@@ -234,7 +234,7 @@ def item_delete(request, course_id, item_id):
     course = get_object_or_404(models.Course, pk=course_id)
     item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
     if request.method != 'POST':
-        return g.render('item_delete_confirm.xhtml', **locals())
+        return g.render('item/item_delete_confirm.xhtml', **locals())
     else:
         if 'yes' in request.POST:
             # I think Django's ON DELETE CASCADE-like behaviour will
@@ -298,7 +298,7 @@ def item_relocate(request, course_id, item_id):
     course = get_object_or_404(models.Course, pk=course_id)
     item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
     if request.method != 'POST':
-        return g.render('item_relocate.xhtml', **locals())
+        return g.render('item/item_relocate.xhtml', **locals())
     else:
         newheading = int(request.POST['heading'])
         if newheading == 0:

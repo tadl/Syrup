@@ -1,39 +1,35 @@
 <?python
 is_edit = bool(item.id)
-title = is_edit and _('Edit a physical-item request') or _('Add a physical-item request')
+title = is_edit and _('Edit a URL') or _('Add a new URL')
 course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
-  <xi:include href="master.xhtml"/>
-  <xi:include href="components/course.xhtml"/>
+  <xi:include href="../master.xhtml"/>
+  <xi:include href="../components/course.xhtml"/>
   <head>
     <title>${title}</title>
     <script type="text/javascript">
       $(function() {$('input[name="title"]').focus();});
     </script>
+    ${item_metadata_formset_header()}
   </head>
   <body>
     ${course_banner(course)}
     ${nested_title(parent_item)}
-    <div id="sidepanel">${offer_to_delete(item)}</div>
+    ${offer_to_delete(item)}
     <h2>${title}</h2>
-
     <form action=".?item_type=${item_type}" method="POST">
       <table class="metadata_table">
-	<tr>
-	  <th>Display name</th>
-	  <td><input type="text" name="title" value="${item.title}"/></td>
-	</tr>
+	<tr><th>Title</th><td><input type="text" name="title" value="${item.title}"/></td></tr>
+	<tr><th>URL</th><td><input type="text" name="url" value="${item.url}"/></td></tr>
       </table>
-      <h2>Metadata</h2>
-      ${item_metadata_formset(show_more=False)}
+      ${item_metadata_formset()}
       <p>
-    	<input py:if="not is_edit" type="submit" value="Add heading"/>
-    	<input py:if="is_edit" type="submit" value="Update physical-item request"/>
+	<input py:if="not is_edit" type="submit" value="Add URL"/>
+	<input py:if="is_edit" type="submit" value="Update URL"/>
       </p>
-
     </form>
 </body>
 </html>
