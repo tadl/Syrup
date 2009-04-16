@@ -79,7 +79,7 @@ def log(level, msg):
 # Authentication
 
 def auth_handler(request, path):
-    default_url = reverse(welcome) #request.META['SCRIPT_NAME'] + '/'
+    default_url = request.META['SCRIPT_NAME'] + '/'
     if path == 'login/':
         if request.method == 'GET':
             next=request.GET.get('next', default_url)
