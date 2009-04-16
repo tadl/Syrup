@@ -1,0 +1,10 @@
+Just a quick note on the directory structure here. 
+
+views/__init__.py is the equivalent of 'views.py' from Django's
+perspective.
+
+__init__.py loads each of the submodules, which represent the various
+components of the user interface.
+
+_common.py is a common set of functions which are used by many of the
+other modules. When in doubt, put your imports in _common.py.
