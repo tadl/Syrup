@@ -43,11 +43,17 @@ def item_add(request, course_id, item_id):
     if parent_item_id=='0':
         parent_item = None
         course = get_object_or_404(models.Course, pk=course_id)
+        siblings = course.item_set.filter(parent_heading=None)
     else:
         parent_item = get_object_or_404(models.Item, pk=parent_item_id, course__id=course_id)
         assert parent_item.item_type == 'HEADING', _('You can only add items to headings!')
         course = parent_item.course
+        siblings = course.item_set.filter(parent_heading=parent_item)
 
+    try:
+        next_order = 1 + max(i.sort_order for i in siblings)
+    except:
+        next_order = 0
     if not course.can_edit(request.user):
         return _access_denied(_('You are not an editor.'))
 
@@ -87,6 +93,7 @@ def item_add(request, course_id, item_id):
                 item = models.Item(
                     course=course,
                     item_type='HEADING',
+                    sort_order = next_order,
                     parent_heading=parent_item,
                     title=title,
                     )
@@ -104,6 +111,7 @@ def item_add(request, course_id, item_id):
                     course=course,
                     item_type='URL',
                     parent_heading=parent_item,
+                    sort_order = next_order,
                     title=title,
                     url = url)
                 item.save()
@@ -119,6 +127,7 @@ def item_add(request, course_id, item_id):
                 course=course,
                 item_type='ELEC',
                 parent_heading=parent_item,
+                sort_order = next_order,
                 title=title,
                 fileobj_mimetype = upload.content_type,
                 )
@@ -141,10 +150,18 @@ def item_add_cat_search(request, course_id, item_id):
     if parent_item_id=='0':
         parent_item = None
         course = get_object_or_404(models.Course, pk=course_id)
+        siblings = course.item_set.filter(parent_heading=None)
     else:
         parent_item = get_object_or_404(models.Item, pk=parent_item_id, course__id=course_id)
         assert parent_item.item_type == 'HEADING', _('You can only add items to headings!')
         course = parent_item.course
+        siblings = course.item_set.filter(parent_heading=parent_item)
+
+    try:
+        next_order = 1 + max(i.sort_order for i in siblings)
+    except:
+        next_order = 0
+
     #----------
 
     if request.method != 'POST':
@@ -180,6 +197,7 @@ def item_add_cat_search(request, course_id, item_id):
         dublin = marcxml_dictionary_to_dc(pickitem)
 
         item = course.item_set.create(parent_heading=parent_item,
+                                      sort_order=next_order,
                                       title=dublin.get('dc:title','Untitled'),
                                       item_type='PHYS')
         item.save()
