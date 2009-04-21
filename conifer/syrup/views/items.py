@@ -203,7 +203,7 @@ def item_edit(request, course_id, item_id):
     course = get_object_or_404(models.Course, pk=course_id)
     item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
     item_type = item.item_type
-    template = 'item_add_%s.xhtml' % item_type.lower()
+    template = 'item/item_add_%s.xhtml' % item_type.lower()
     parent_item = item.parent_heading
 
     if request.method != 'POST':
