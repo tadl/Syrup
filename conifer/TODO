@@ -2,13 +2,15 @@ CRITICAL:
 
 IMPORTANT:
 
+* "create course site" (not "add course")
+
+* save-sequence fails on IE6.
+
 * set up a proper issue-tracker?
 
-* CSS fixes for Internet Explorer. It looks crappy in IE.
+* need more than 10 results on physical-item search results.
 
 * if someone has item checked out, show due date/time on item-about page.
-
-* need more than 10 results on physical-item search results.
 
 * People should be able to register themselves into open courses.
   That is, actually become a member of them.
@@ -20,8 +22,6 @@ IMPORTANT:
 * manage z3950 targets? Search z3950 targets?
 
 * Send me email when my sites change?
-
-* "create course site" (not "add course")
 
 MAYBE:
 

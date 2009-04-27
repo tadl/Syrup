@@ -85,16 +85,19 @@ def browse(request, browse_option=''):
         template = 'browse_index.xhtml'
     elif browse_option == 'instructors':
         queryset = models.User.active_instructors()
+        queryset = queryset.filter(user_filters(request.user)['instructors'])
         template = 'instructors.xhtml'
     elif browse_option == 'departments':
         queryset = models.Department.objects.filter(active=True)
         template = 'departments.xhtml'
     elif browse_option == 'courses':
         # fixme, course filter should not be (active=True) but based on user identity.
-        queryset = models.Course.objects.all()
+        for_courses = user_filters(request.user)['courses']
+        queryset = models.Course.objects.filter(for_courses)
         template = 'courses.xhtml'
 
-    paginator = queryset and Paginator(queryset, count) or None # index has no queryset.
+    queryset = queryset and queryset.distinct()
+    paginator = Paginator(queryset, count)
     return g.render(template, paginator=paginator,
                     page_num=page_num,
                     count=count)
@@ -112,6 +115,8 @@ def instructor_detail(request, instructor_id):
     '''
     courses = models.Course.objects.filter(member__user=instructor_id,
                                            member__role='INSTR')
+    filters = user_filters(request.user)
+    courses = courses.filter(filters['courses'])
     paginator = Paginator(courses.order_by('title'), count)
 
     '''

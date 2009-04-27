@@ -164,8 +164,8 @@ def members_only(handler):
         allowed = user.is_superuser
         if not allowed:
             course = models.Course.objects.get(pk=course_id)
-            allowed = ((user.is_anonymous() and course.access=='ANON') or \
-                       (user.is_authenticated() and course.access=='LOGIN'))
+            allowed = course.access=='ANON' or \
+                (user.is_authenticated() and course.access=='LOGIN')
         if not allowed:
             allowed = _fast_user_membership_query(user.id, course_id)
         if allowed:
@@ -216,3 +216,26 @@ def custom_400_handler(request):
     msg = simple_message(_('Not found'), 
                           _('The page you requested could not be found'))
     return HttpResponse(msg._container, status=404)
+
+#-----------------------------------------------------------
+
+def user_filters(user):
+    """Returns a dict of filters for Item, Course, etc. querysets,
+    based on the given user's permissions."""
+    # TODO, figure out a way of EXPLAIN'ing these queries! I have no
+    # idea of their complexity.
+    if user.is_anonymous():
+        # then only anonymous-access courses are available.
+        filters = {'items': Q(course__access='ANON'),
+                   'courses': Q(access='ANON'),
+                   'instructors': Q(member__course__access='ANON'),
+                   }
+    else:
+        # logged-in users have access to courses which are of the
+        # LOGIN class ('all logged-in users') or in which they
+        # have explicit Member-ship.
+        filters = {'items': (Q(course__access__in=('LOGIN','ANON')) | Q(course__member__user=user)),
+                   'courses': (Q(access__in=('LOGIN','ANON')) | Q(member__user=user)),
+                   'instructors': (Q(member__course__access__in=('LOGIN','ANON')) | Q(member__course__member__user=user)),
+                   }
+    return filters

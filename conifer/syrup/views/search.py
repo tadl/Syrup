@@ -63,11 +63,14 @@ def search(request, in_course=None):
         # we start with an empty results_list, as a default
         results_list = models.Item.objects.filter(pk=-1)
 
+        # Next, we filter based on user permissions.
+        flt = user_filters(request.user)
+        user_filter_for_items, user_filter_for_courses = flt['items'], flt['courses'] 
+        # Note, we haven't user-filtered anything yet; we've just set
+        # up the filters.
+
         # numeric search: If the query-string is a single number, then
-        # we do an item-ID search, or a barcode search.  fixme:
-        # item-ID is not a good short-id, since the physical item may
-        # be represented in multiple Item records. We need a
-        # short-number for barcodes.
+        # we do a short-number search, or a barcode search.
 
         if re.match(r'\d+', query_string):
             # Search by short ID.
@@ -85,7 +88,13 @@ def search(request, in_course=None):
             results_list = models.Item.objects.filter(item_query)
 
         if in_course:
+            # For an in-course search, we know the user has
+            # permissions to view the course; no need for
+            # user_filter_for_items.
             results_list = results_list.filter(course=in_course)
+        else:
+            results_list = results_list.filter(user_filter_for_items)
+
         results_list = results_list.order_by('title')
         results_len = len(results_list)
         paginator = Paginator(results_list, count)
@@ -96,22 +105,21 @@ def search(request, in_course=None):
             course_list = []; course_len = 0
         else:
             course_query = get_query(query_string, ['title', 'department__name'])
-            print 'course_query'
-            print course_query
-            course_results = models.Course.objects.filter(course_query).all()
-            # course_list = models.Course.objects.filter(course_query).filter(active=True).order_by('title')[0:5]
-            course_list = course_results.order_by('title')[0:5]
-            #there might be a better way of doing this, though instr and course tables should not be expensive to query
-            #len directly on course_list will reflect limit
+            # apply the search-filter and the user-filter
+            course_results = models.Course.objects.filter(course_query).filter(user_filter_for_courses)
+            course_list = course_results.order_by('title')
             course_len = len(course_results)
 
         #instructor search
-        instr_query = get_query(query_string, ['user__last_name'])
-        instructor_results = models.Member.objects.filter(instr_query).filter(role='INSTR')
         if in_course:
-            instructor_results = instructor_results.filter(course=in_course)
-        instructor_list = instructor_results.order_by('user__last_name')[0:5]
-        instr_len = len(instructor_results)
+            instructor_list = []; instr_len = 0
+        else:
+            instr_query = get_query(query_string, ['user__last_name'])
+            instructor_results = models.Member.objects.filter(instr_query).filter(role='INSTR')
+            if in_course:
+                instructor_results = instructor_results.filter(course=in_course)
+            instructor_list = instructor_results.order_by('user__last_name')[0:5]
+            instr_len = len(instructor_results)
     elif in_course:
         # we are in a course, but have no query? Return to the course-home page.
         return HttpResponseRedirect('../')

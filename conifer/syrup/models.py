@@ -56,7 +56,7 @@ class UserExtensionHack(object):
         """Return a queryset of all active instructors."""
         # We are using the Django is_active flag to model activeness.
         return cls.objects.filter(member__role='INSTR', is_active=True) \
-            .order_by('-last_name','-first_name')
+            .order_by('-last_name','-first_name').distinct()
     
 for k,v in [(k,v) for k,v in UserExtensionHack.__dict__.items() \
                 if not k.startswith('_')]:

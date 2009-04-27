@@ -91,6 +91,7 @@ def edit_course_permissions(request, course_id):
     # the ones in 'models'.
     choices = [
         # note: I'm leaving ANON out for now, until we discuss it further.
+        (u'ANON', _(u'Anyone on the planet may access this site.')),
         (u'CLOSE', _(u'No students: this site is closed.')),
         (u'STUDT', _(u'Students in my course -- I will provide section numbers')),
         (u'INVIT', _(u'Students in my course -- I will share an Invitation Code with them')),
