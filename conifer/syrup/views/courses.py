@@ -217,7 +217,7 @@ def course_invitation(request):
             # think. Should we temporarily disable accounts after
             # multiple failures?
             log('WARN', 'Invitation failure, user %r gave code %r' % \
-                (datetime.now(), request.user.username, code))
+                (request.user.username, code))
             error = _('The code you provided is not valid.')
             return g.render('course_invitation.xhtml', **locals())
 

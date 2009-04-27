@@ -7,6 +7,11 @@ title = _('Join a course using an Invitation Code')
 <xi:include href="master.xhtml"/>
 <head>
   <title>${title}</title>
+  <script>
+    $(function() {
+    $('#code').focus();
+    });
+  </script>
 </head>
 <body>
   <h1>${title}</h1>
@@ -17,10 +22,10 @@ title = _('Join a course using an Invitation Code')
   more information.</p>
   <div class="errors" py:if="error">${error}</div>
   <form action="." method="POST">
-  <table>
-    <tr><th>Invitation Code:</th><td><input type="text" name="code" size="30" value="${code}"/></td></tr>
-    <tr><th/><td><input type="submit" value="Continue"/> <a style="margin-left: 12;" href="../">Go back</a></td></tr>
+  <table class="metadata_table">
+    <tr><th>Invitation Code:</th><td><input type="text" id="code" name="code" size="30" value="${code}"/></td></tr>
   </table>
+<p><input type="submit" value="Continue"/> <a style="margin-left: 12px;" href="../">or go back</a></p>
   </form>
   <div class="gap"/>
 </body>
