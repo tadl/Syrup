@@ -2,8 +2,6 @@ CRITICAL:
 
 IMPORTANT:
 
-* "create course site" (not "add course")
-
 * save-sequence fails on IE6.
 
 * set up a proper issue-tracker?
@@ -59,6 +57,7 @@ RECENTLY DONE:
 > Add term: what's the format for adding a date? Can it prompt or have
 > fielded entry? (just added Y-M-D label for now.)
 
+* "create course site" (not "add course")
 
 
 
