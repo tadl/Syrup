@@ -11,7 +11,7 @@ import sys, os
 
 # where is our evergreen server's opensrf http gateway?
 
-BASE = 'http://dwarf.cs.uoguelph.ca/osrf-gateway-v1'
+BASE = 'http://concat.ca/osrf-gateway-v1'
 LOCALE = 'en-US'
 
 # where can I find a copy of fm_IDL.xml from Evergreen?
@@ -23,7 +23,7 @@ LOCALE = 'en-US'
 # # or, if you have a local copy...
 # FM_IDL_LOCATION = 'file:fm_IDL.xml'
 
-FM_IDL_LOCATION = 'http://dwarf.cs.uoguelph.ca/reports/fm_IDL.xml'
+FM_IDL_LOCATION = 'http://concat.ca/reports/fm_IDL.xml'
 here = lambda s: os.path.join(os.path.dirname(__file__), s)
 FM_IDL_LOCATION = 'file:' + here('fm_IDL.xml')
 

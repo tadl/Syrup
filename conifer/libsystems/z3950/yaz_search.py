@@ -82,8 +82,8 @@ def search(host, database, query, start=1, limit=None):
 
 if __name__ == '__main__':
     tests = [
-        ('dwarf.cs.uoguelph.ca:2210', 'conifer', '@and "Musson" "Evil"'),
-        ('dwarf.cs.uoguelph.ca:2210', 'conifer', '@and "Denis" "Gravel"'),
+        ('concat.ca:2210', 'conifer', '@and "Musson" "Evil"'),
+        ('concat.ca:2210', 'conifer', '@and "Denis" "Gravel"'),
         ('z3950.loc.gov:7090', 'VOYAGER', '@attr 1=4 @attr 4=1 "dylan"')]
     for host, db, query in tests:
         print (host, db, query)
