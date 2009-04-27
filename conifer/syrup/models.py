@@ -133,8 +133,8 @@ class ServiceDesk(m.Model):
 class Term(m.Model):
     code   = m.CharField(max_length=16, blank=True, null=True, unique=True)
     name   = m.CharField(max_length=255)
-    start  = m.DateField()
-    finish = m.DateField()
+    start  = m.DateField('Start (Y-M-D)')
+    finish = m.DateField('Finish (Y-M-D)')
 
     def __unicode__(self):
         return self.code or self.name

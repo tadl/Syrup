@@ -32,23 +32,13 @@ MAYBE:
 
 FROM KGS:
 
-> As prof, can't view Renaissance, 2009W -- why is it listed if I
-> can't view it? Can it be marked off in some way to indicate I don't
-> have access?
+> Functions need "cancel" or "go back"
 
 > Course details -- seems a little terse -- but may be what folks use
 
-> Sequencing -- easy! Save -- maybe make a  button?  (where's my narrative?)
-
-> Functions need "cancel" or "go back"
-
-> "Browse the Reserves (Note: some course materials may require you to
-> log in)" -- (But I *am* logged in!)
+> Sequencing -- easy! Save -- maybe make a  button?  [where's my narrative?]
 
 > Notify circulation of wanted items -- FAIL
-
-> Add term: what's the format for adding a date? Can it prompt or have
-> fielded entry?
 
 > Why is staff a member of a course? is that a requirement? (proxy
 > instructor makes more sense).
@@ -56,4 +46,19 @@ FROM KGS:
 > Okay, I'll add a TODO for an alternate add-physical-item form, with
 > a suitably-intimidating warning to encourage catalogue-use wherever
 > possible.
+
+RECENTLY DONE:
+
+> As prof, can't view Renaissance, 2009W -- why is it listed if I
+> can't view it? Can it be marked off in some way to indicate I don't
+> have access?
+
+> "Browse the Reserves (Note: some course materials may require you to
+> log in)" -- (But I *am* logged in!)
+
+> Add term: what's the format for adding a date? Can it prompt or have
+> fielded entry? (just added Y-M-D label for now.)
+
+
+
 
