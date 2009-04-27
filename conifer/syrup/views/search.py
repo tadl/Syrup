@@ -95,7 +95,7 @@ def search(request, in_course=None):
         else:
             results_list = results_list.filter(user_filter_for_items)
 
-        results_list = results_list.order_by('title')
+        results_list = results_list.distinct().order_by('title')
         results_len = len(results_list)
         paginator = Paginator(results_list, count)
 
