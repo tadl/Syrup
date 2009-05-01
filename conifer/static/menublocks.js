@@ -69,15 +69,17 @@ function doResequence() {
 	$('.itemtree').sortable('destroy');
 	resequencing = false;
 	// get the LI item ids. Send them to the server.
-	var new_sequence = $('.an_item').map(function() { return $(this).attr('id') });
-	var new_seq_string = Array.join(new_sequence, ',');
-	$.post('reseq', {'new_order':new_seq_string}, 
+	var new_sequence_str = '';
+	$('.an_item').each(function() { new_sequence_str += $(this).attr('id') + ' '; });
+	$.post('reseq', {'new_order':new_sequence_str}, 
 		   function() {
 		       $('#resequence_panel a').text($('#i18n-resequence-items').text());
 		       alert($('#i18n-new-order-saved').text());
 		   });
     }
 };
+
+var xxx = null;
 
 function doToggleItemTree() {
     if ($('.itemtree:hidden').length > 0) {

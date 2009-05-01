@@ -283,7 +283,7 @@ def item_download(request, course_id, item_id, filename):
 # resequencing items
 
 def _reseq(request, course, parent_heading):
-    new_order = request.POST['new_order'].split(',')
+    new_order = request.POST['new_order'].strip().split(' ')
     # new_order is now a list like this: ['item_3', 'item_8', 'item_1', ...].
     # get at the ints.
     new_order = [int(n.split('_')[1]) for n in new_order]
