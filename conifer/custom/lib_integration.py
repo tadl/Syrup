@@ -85,6 +85,6 @@ def cat_search(query, start=1, limit=10):
     if query.startswith('http://concat'):
         results = marcxml_to_dictionary(I.url_to_marcxml(query), multiples=True)
     else:
-        cat_host, cat_db = ('concat.ca:2210', 'conifer')
+        cat_host, cat_db = ('zed.concat.ca:210', 'OWA')
         results = yaz_search.search(cat_host, cat_db, query, start, limit)
     return results
