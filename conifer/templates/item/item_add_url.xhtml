@@ -29,6 +29,7 @@ course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
       <p>
 	<input py:if="not is_edit" type="submit" value="Add URL"/>
 	<input py:if="is_edit" type="submit" value="Update URL"/>
+	${go_back_link('../meta')}
       </p>
     </form>
 </body>

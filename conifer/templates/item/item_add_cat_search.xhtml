@@ -26,8 +26,10 @@ dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
     <h2>${title}</h2>
     <form method="POST" action=".">
       <input type="text" id="query" name="query" value="${query}" 
-	     style="font-size: larger; width: 600;"/>
+	     style="font-size: larger; width: 600px;"/>
       <input type="submit" value="Search"/>
+	${go_back_link()}
+
     </form>
 
     <table class="pagetable" py:if="request.method == 'POST'">

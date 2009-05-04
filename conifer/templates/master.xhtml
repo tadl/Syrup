@@ -65,4 +65,9 @@ import os
       </div>
     </body>
   </py:match>
+
+  <span py:def="go_back_link(url=None, msg=_('or Cancel'))" py:with="url=url or request.META.get('HTTP_REFERER', '../')">
+    <a style="margin-left: 12px;" href="${url}">${msg}</a>
+  </span>
+
 </html>

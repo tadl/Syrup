@@ -15,9 +15,8 @@ else:
   <h1>${title}</h1>
   <form action="." method="POST">
   <table class="metadata_table">${Markup(form.as_table())}</table>
-  <p><input type="submit" value="Save changes"/></p>
-  <p><a href="../">Cancel changes</a></p>
-  <p><a href="delete">Delete this record</a></p>
+  <p><input type="submit" value="Save changes"/> ${go_back_link()}</p>
+  <p py:if="instance is not None"><a href="delete">Delete this record</a></p>
   </form>
 </body>
 </html>

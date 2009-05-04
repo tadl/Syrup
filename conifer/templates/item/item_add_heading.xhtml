@@ -31,6 +31,7 @@ course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
       <p>
 	<input py:if="not is_edit" type="submit" value="Add heading"/>
 	<input py:if="is_edit" type="submit" value="Update heading"/>
+	${go_back_link()}
       </p>
 
     </form>

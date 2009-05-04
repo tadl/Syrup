@@ -60,7 +60,7 @@ title = _('Patron Checkout of Item')
       </tr>
       <tr>
 	<th/>
-	<td><input type="submit" value="${step==3 and _('Check out another item') or _('Continue')}"/></td>
+	<td><input type="submit" value="${step==3 and _('Check out another item') or _('Continue')}"/> ${go_back_link()}</td>
       </tr>
       <tr py:if="step==3">
 	<th/>

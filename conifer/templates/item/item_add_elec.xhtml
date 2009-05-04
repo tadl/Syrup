@@ -30,7 +30,9 @@ course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
 	  <tr><th>File</th><td><input type="file" name="file"/></td></tr>
 	</table>
 	${item_metadata_formset()}
-	<p><input type="submit" value="Upload file and Create item"/></p>
+	<p><input type="submit" value="Upload file and Create item"/>
+	${go_back_link()}
+	</p>
       </form>
     </div>
 

@@ -36,7 +36,7 @@ else:
     ${field_row(form.department)}
     <!-- <tr><th>Department</th><td>${Markup(form.department)} ${errorlist(form.department)}</td></tr> -->
   </table>
-  <p><input type="submit" value="Continue"/></p>
+  <p><input type="submit" value="Continue"/> ${go_back_link()}</p>
   </form>
   <div class="gap"/>
   <div py:if="instance.id">
@@ -45,7 +45,7 @@ else:
       <p><input type="checkbox" name="confirm_delete" id="confirm_delete"/>
       <label for="confirm_delete">Yes, I want to delete this course site and all of its contents.</label>
       </p>
-      <p><input type="submit" value="Delete this course"/></p>
+      <p><input type="submit" value="Delete this course"/> ${go_back_link()}</p>
     </form>
   </div>
 </body>

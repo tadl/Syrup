@@ -17,8 +17,7 @@ title = _('Delete %s?') % form.Meta.model.__name__
       <td>${instance}</td>
     </tr>
   </table>
-  <p><input type="submit" value="Delete"/></p>
-  <p><a href="../">Cancel</a></p>
+  <p><input type="submit" value="Delete"/>${go_back_link('../')}</p>
   </form>
 </body>
 </html>

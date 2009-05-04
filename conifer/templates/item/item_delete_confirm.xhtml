@@ -33,7 +33,7 @@ metadata = item.metadata_set.all()
     <p>
     <form action="." method="POST">
       <input type="submit" name="yes" value="Yes, delete it" style="padding: 4 12; margin-right: 24;"/>
-      <input type="submit" name="no" value="Cancel"/>
+      ${go_back_link()}
     </form>
     </p>
   </body>
