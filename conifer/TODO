@@ -2,24 +2,32 @@ CRITICAL:
 
 IMPORTANT:
 
-* Z39.50 may return e-journal records (with 856u hyperlinks) and other non-physical items. 
- 
+* factor out hardcoded references to the EG server.
+
+* People should be able to register themselves into open courses.
+  That is, actually become a member of them.
+
+* Notify circulation of wanted items. What should it do?
+
 * set up a proper issue-tracker?
+
+* Z39.50 may return e-journal records (with 856u hyperlinks) and other
+  non-physical items. 859$9 is a definitive indicator in the Conifer
+  (Evergreen?) context.
+
+* opensrf alternatives for SIP calls?
 
 * need more than 10 results on physical-item search results.
 
 * if someone has item checked out, show due date/time on item-about page.
 
-* People should be able to register themselves into open courses.
-  That is, actually become a member of them.
+* Send me email when my sites change?
 
 * Import of reserves data from Leddy voyager. Laurentian, others?
 
 * accented characters in z3950 queries seem to fail. More tests needed.
 
 * manage z3950 targets? Search z3950 targets?
-
-* Send me email when my sites change?
 
 MAYBE:
 
@@ -39,11 +47,11 @@ FROM KGS:
 > Notify circulation of wanted items -- FAIL
 
 > Why is staff a member of a course? is that a requirement? (proxy
-> instructor makes more sense).
+> instructor makes more sense; but how to accomplish that?).
 
-> Okay, I'll add a TODO for an alternate add-physical-item form, with
-> a suitably-intimidating warning to encourage catalogue-use wherever
-> possible.
+> an alternate add-physical-item form, with a suitably-intimidating
+> warning to encourage catalogue-use wherever possible.
+
 
 RECENTLY DONE:
 

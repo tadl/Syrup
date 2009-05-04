@@ -293,6 +293,14 @@ class Course(m.Model):
         return User.objects.filter(member__course__exact=self, member__role__exact='INSTR') \
             .order_by('last_name', 'first_name')
 
+    def is_joinable_by(self, user):
+        """Return True if the user could feasibly register into this
+        course: she's not already in it, and the course allows open
+        registration."""
+        return user.is_authenticated() and self.access in ('ANON', 'LOGIN') and \
+            not Member.objects.filter(user=user, course=self)
+
+
 def _merge_sections(secs):
     delim = course_sections.sections_tuple_delimiter
     return delim.join(delim.join(sec) for sec in secs)

@@ -241,3 +241,19 @@ def course_search(request, course_id):
     course = get_object_or_404(models.Course, pk=course_id)
     return search(request, in_course=course)
 
+@login_required
+def course_join(request, course_id):
+    """Self-register into an open-registration course."""
+    course = get_object_or_404(models.Course, pk=course_id)
+    if not course.is_joinable_by(request.user):
+        # user should never see this.
+        return simple_message(_('You cannot join this course.'), 
+                              _('Sorry, but you cannot join this course at this time.'))
+    elif request.method != 'POST':
+        return g.render('course_join.xhtml', course=course)
+    else:
+        mbr = models.Member.objects.create(user=request.user, course=course, role='STUDT')
+        mbr.save()
+        return HttpResponseRedirect(course.course_url())
+
+       

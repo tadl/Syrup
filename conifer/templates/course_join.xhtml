@@ -1,0 +1,24 @@
+<?python
+title = _('Join this course?')
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="master.xhtml"/>
+  <xi:include href="components/course.xhtml"/>
+  <head>
+    <title>${title}</title>
+    <script type="text/javascript" src="${ROOT}/static/menublocks.js"/>
+  </head>
+  <body>
+    ${course_banner(course)}
+    <h2>${title}</h2>
+
+    <p>If you choose to join this course, it will be added to your "My
+    Courses" list.</p>
+    <form action="." method="POST">
+      <p><input type="submit" value="Yes, join this course"/> <a style="margin-left: 12px;" href="../">or go back</a></p>
+    </form>    
+
+  </body>
+</html>

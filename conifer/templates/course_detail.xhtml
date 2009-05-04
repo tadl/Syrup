@@ -2,6 +2,7 @@
 title = '%s: %s (%s)' % (course.code, course.title, course.term)
 item_tree = course.item_tree()
 is_editor = course.can_edit(request.user)
+is_joinable = course.is_joinable_by(request.user)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -20,6 +21,9 @@ is_editor = course.can_edit(request.user)
     <div id="sidepanel">
       <div py:if="is_editor" id="edit_course" class="little_action_panel">
 	<a href="${course.course_url()}edit/">Edit course details</a>
+      </div>
+      <div py:if="is_joinable">
+	<a href="${course.course_url()}join/">Join this course</a>
       </div>
       <div id="showtree_panel" class="little_action_panel">
 	<a href="javascript:doToggleItemTree();">Show/hide tree</a>
