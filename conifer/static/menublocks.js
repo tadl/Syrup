@@ -59,12 +59,13 @@ function doResequence() {
     if (!resequencing)  {
 	$('.itemtree:nth(0)').sortable({axis:'y'});
 	$('.itemtree:nth(0) > .an_item').addClass('sort_item');
-	$('#resequence_panel').after($('#ropanelmessage'));
+	//$('#resequence_panel').after($('#ropanelmessage'));
+	$('#ropanelmessage').show();
 	$('#resequence_panel a').text($('#i18n-save-order').text());
 	resequencing = true;
     } else {
 	$('.an_item').removeClass('sort_item');
-	$('#ropanelmessage').remove();
+	$('#ropanelmessage').hide();
 	$('#resequence_panel a').text('...');
 	$('.itemtree').sortable('destroy');
 	resequencing = false;

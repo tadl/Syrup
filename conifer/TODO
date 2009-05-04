@@ -4,9 +4,6 @@ IMPORTANT:
 
 * factor out hardcoded references to the EG server.
 
-* People should be able to register themselves into open courses.
-  That is, actually become a member of them.
-
 * Notify circulation of wanted items. What should it do?
 
 * set up a proper issue-tracker?
@@ -42,10 +39,8 @@ FROM KGS:
 
 > Course details -- seems a little terse -- but may be what folks use
 
-> Sequencing -- easy! Save -- maybe make a  button?  [where's my narrative?]
-
 > Notify circulation of wanted items -- FAIL
-
+ 
 > Why is staff a member of a course? is that a requirement? (proxy
 > instructor makes more sense; but how to accomplish that?).
 
@@ -68,4 +63,10 @@ RECENTLY DONE:
 * "create course site" (not "add course")
 
 * save-sequence fails on IE6.
+
+* People should be able to register themselves into open courses.
+  That is, actually become a member of them.
+
+> Sequencing -- easy! Save -- maybe make a  button?  [where's my narrative?]
+  [I didn't make it a button, but I did add the narrative back.]
 
