@@ -43,7 +43,7 @@ def search(host, database, query, start=1, limit=10):
     numhits = int(server.match.group(1)) 
     if start > numhits:
         warnings.warn('asked z3950 to start at %d, but only %d results.' % (start, numhits))
-        return []
+        return [], 0
 
     # how many to present? At most 10 for now.
     to_show = min(numhits-1, limit)
@@ -56,7 +56,7 @@ def search(host, database, query, start=1, limit=10):
     if err:
         warnings.warn('error during z3950 conversation.')
         server.close()
-        return []
+        return [], 0
 
     raw_records = []
     err = None
@@ -73,12 +73,11 @@ def search(host, database, query, start=1, limit=10):
     for rec in raw_records:
         try:
             rec = _marc_utf8_pattern.sub(_decode_marc_utf8, rec)
-            print type(rec)
             dct = marcxml_to_dictionary(rec)
         except 'x':
             raise rec
         parsed.append(dct)
-    return parsed
+    return parsed, numhits
 
 
 # decoding MARC \X.. UTF-8 patterns.

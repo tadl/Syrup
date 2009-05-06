@@ -165,22 +165,19 @@ def item_add_cat_search(request, course_id, item_id):
     #----------
 
     if request.method != 'POST':
-        return g.render('item/item_add_cat_search.xhtml', results=[], query='', 
-                        course=course, parent_item=parent_item)
-
-    # POST handler
-    query     = request.POST.get('query','').strip()
-    raw_pickitem = request.POST.get('pickitem', '').strip()
-    if not raw_pickitem:
-        # process the query.
-        assert query, 'must provide a query.'
-        start, limit = (1, 20)
-        results = lib_integration.cat_search(query, start, limit)
+        if not 'query' in request.GET:
+            return g.render('item/item_add_cat_search.xhtml', results=[], query='', 
+                            course=course, parent_item=parent_item)
+        query = request.GET.get('query','').strip()
+        start, limit = (int(request.GET.get(k,v)) for k,v in (('start',1),('limit',10)))
+        results, numhits = lib_integration.cat_search(query, start, limit)
         return g.render('item/item_add_cat_search.xhtml', 
                         results=results, query=query, 
+                        start=start, limit=limit, numhits=numhits,
                         course=course, parent_item=parent_item)
     else:
         # User has selected an item; add it to course site.
+        raw_pickitem = request.POST.get('pickitem', '').strip()
         #fixme, this block copied from item_add. refactor.
         parent_item_id = item_id
         if parent_item_id == '0': 
@@ -197,10 +194,18 @@ def item_add_cat_search(request, course_id, item_id):
         pickitem = simplejson.loads(raw_pickitem)
         dublin = marcxml_dictionary_to_dc(pickitem)
 
+        # one last thing. If this picked item has an 856$9 field, then
+        # it's an electronic resource, not a physical item. In that
+        # case, we add it as a URL, not a PHYS.
+        if '8569' in pickitem:
+            dct = dict(item_type='URL', url=pickitem.get('856u'))
+        else:
+            dct = dict(item_type='PHYS')
+
         item = course.item_set.create(parent_heading=parent_item,
                                       sort_order=next_order,
                                       title=dublin.get('dc:title','Untitled'),
-                                      item_type='PHYS')
+                                      **dct)
         item.save()
 
         for dc, value in dublin.items():
@@ -208,7 +213,7 @@ def item_add_cat_search(request, course_id, item_id):
         # store the whole darn MARC-dict as well (JSON)
         item.metadata_set.create(item=item, name='syrup:marc', value=raw_pickitem)
         item.save()
-        return HttpResponseRedirect('../../../%d/' % item.id)
+        return HttpResponseRedirect('../../../%d/meta' % item.id)
 
 #------------------------------------------------------------
 

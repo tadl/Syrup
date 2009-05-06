@@ -1,7 +1,7 @@
 <?python
 from django.utils.simplejson import dumps
 from conifer.libsystems.z3950.marcxml import marcxml_dictionary_to_dc as to_dublin
-title = _('Add physical item: Catalogue search')
+title = _('Add physical or electronic item, by catalogue search')
 dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
@@ -16,7 +16,7 @@ dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
     <!-- !This ought to be in paginate.xhtml, not here. how to do? -->
     $(function() { $('.pagetable').tablesorter(); });
   </script>
-  <script py:if="request.method != 'POST'">		       <!-- !focus on query box if nothing to scroll. -->
+  <script py:if="not 'query' in request.GET">		       <!-- !focus on query box if nothing to scroll. -->
     $(function() { $('#query').focus(); });
   </script>
 </head>
@@ -24,24 +24,40 @@ dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
     ${course_banner(course)}
     ${nested_title(parent_item)}
     <h2>${title}</h2>
-    <form method="POST" action=".">
+    <form method="GET" action=".">
       <input type="text" id="query" name="query" value="${query}" 
 	     style="font-size: larger; width: 600px;"/>
       <input type="submit" value="Search"/>
 	${go_back_link()}
 
     </form>
-
-    <table class="pagetable" py:if="request.method == 'POST'">
+    <div py:def="page_control" py:if="results">
+      <p>
+	${start}&ndash;${min(numhits, start+limit-1)} of ${numhits} results.
+	<span py:if="start-limit&gt;0">
+	  <a href=".?query=${query}&amp;start=${start-limit}&amp;limit=${limit}">Previous ${limit}</a>
+	  &bull;
+	</span>
+	<span py:if="start+limit&lt;numhits">
+	  <a href=".?query=${query}&amp;start=${start+limit}&amp;limit=${limit}">Next ${limit}</a>
+	</span>
+      </p>
+    </div>
+    ${page_control()}
+    <table class="pagetable" py:if="'query' in request.GET">
       <thead>
-	<tr><th>Title</th><th>Author</th><th>Publisher</th><th>PubDate</th></tr>
+	<tr><th>#</th><th>Title</th><th>Author</th><th>Publisher</th><th>PubDate</th></tr>
       </thead>
       <tbody py:for="resultnum, res in enumerate(results)"
 	     py:with="dc=to_dublin(res)">
 	<tr>
+	  <td>${resultnum+start}.</td>
 	  <td>
 	    ${dc.get('dc:title', '???')}
 	    <a href="javascript:$('#full_${resultnum}').toggle(); void(0);">details</a>
+	    <p py:if="res.get('8569')" style="margin: 8px 0; font-size: 90%; color: darkred;">
+	      Electronic resource. <a href="${res.get('856u')}">view</a>
+	    </p>
 	  </td>
 	  <td py:for="k in dc_keys[1:]">${dc.get(k) or '&mdash;'}</td>
 	  <td>
@@ -63,5 +79,6 @@ dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
 	</tr>
       </tbody>
     </table>
+    ${page_control()}
  </body>
 </html>

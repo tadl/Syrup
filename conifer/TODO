@@ -8,10 +8,6 @@ IMPORTANT:
 
 * set up a proper issue-tracker?
 
-* Z39.50 may return e-journal records (with 856u hyperlinks) and other
-  non-physical items. 859$9 is a definitive indicator in the Conifer
-  (Evergreen?) context.
-
 * opensrf alternatives for SIP calls?
 
 * need more than 10 results on physical-item search results.
@@ -69,4 +65,8 @@ RECENTLY DONE:
 
 > Sequencing -- easy! Save -- maybe make a  button?  [where's my narrative?]
   [I didn't make it a button, but I did add the narrative back.]
+
+* Z39.50 may return e-journal records (with 856u hyperlinks) and other
+  non-physical items. 856$9 is a definitive indicator in the Conifer
+  (Evergreen?) context.
 

@@ -85,7 +85,8 @@ def cat_search(query, start=1, limit=10):
     # title-detail URL, then return just that one item.
     if query.startswith(EG_BASE):
         results = marcxml_to_dictionary(I.url_to_marcxml(query), multiples=True)
+        numhits = len(results)
     else:
         cat_host, cat_db = settings.Z3950_CONFIG
-        results = yaz_search.search(cat_host, cat_db, query, start, limit)
-    return results
+        results, numhits = yaz_search.search(cat_host, cat_db, query, start, limit)
+    return results, numhits
