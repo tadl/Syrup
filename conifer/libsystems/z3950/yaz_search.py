@@ -10,12 +10,12 @@ import pexpect
 import sys
 from marcxml import marcxml_to_dictionary
 
-LOG = sys.stderr #None              #  for pexpect debugging, try LOG = sys.stderr
+LOG = None              #  for pexpect debugging, try LOG = sys.stderr
 YAZ_CLIENT = 'yaz-client'
 GENERAL_TIMEOUT = 40
 PRESENT_TIMEOUT = 60
 
-def search(host, database, query, start=1, limit=None):
+def search(host, database, query, start=1, limit=10):
 
     # first, let's look at our query. I'm assuming @prefix queries for
     # now, so we need to put queries in that form if they aren't
@@ -46,7 +46,7 @@ def search(host, database, query, start=1, limit=None):
         return []
 
     # how many to present? At most 10 for now.
-    to_show = min(numhits-1, 10)    # minus 1 for dwarf ??
+    to_show = min(numhits-1, limit)
     if limit:
         to_show = min(to_show, limit)
     server.expect('Z>')
@@ -60,9 +60,11 @@ def search(host, database, query, start=1, limit=None):
 
     raw_records = []
     err = None
+    server.expect('.*Record type: XML')
     server.expect('nextResultSetPosition')
     pat = re.compile('<record .*?</record>', re.M)
-    raw_records = pat.findall(server.before)
+    raw = server.before.replace('\n','')
+    raw_records = pat.findall(raw)
     server.expect('Z>')
     server.sendline('quit')
     server.close()
@@ -70,11 +72,21 @@ def search(host, database, query, start=1, limit=None):
     parsed = []
     for rec in raw_records:
         try:
+            rec = _marc_utf8_pattern.sub(_decode_marc_utf8, rec)
+            print type(rec)
             dct = marcxml_to_dictionary(rec)
-        except:
+        except 'x':
             raise rec
         parsed.append(dct)
     return parsed
+
+
+# decoding MARC \X.. UTF-8 patterns.
+
+_marc_utf8_pattern = re.compile(r'\\X([0-9A-F]{2})')
+
+def _decode_marc_utf8(regex_match):
+    return chr(int(regex_match.group(1), 16))
 
 
 #------------------------------------------------------------
@@ -82,9 +94,8 @@ def search(host, database, query, start=1, limit=None):
 
 if __name__ == '__main__':
     tests = [
-        ('concat.ca:2210', 'conifer', '@and "Musson" "Evil"'),
-        ('concat.ca:2210', 'conifer', '@and "Denis" "Gravel"'),
-        ('z3950.loc.gov:7090', 'VOYAGER', '@attr 1=4 @attr 4=1 "dylan"')]
+        ('zed.concat.ca:210', 'OSUL', 'chanson'),
+        ]
     for host, db, query in tests:
         print (host, db, query)
-        print search(host, db, query, limit=1)
+        print len(search(host, db, query, limit=33))

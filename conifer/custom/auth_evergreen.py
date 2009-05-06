@@ -5,8 +5,10 @@ from django.conf import settings
 class EvergreenAuthBackend(EvergreenAuthServer):
 
     def __init__(self):
+        assert settings.EVERGREEN_GATEWAY_SERVER, \
+            'EvergreenAuthBackend requires settings.EVERGREEN_GATEWAY_SERVER'
         EvergreenAuthServer.__init__(
-            self, settings.EVERGREEN_XMLRPC_SERVER)
+            self, settings.EVERGREEN_GATEWAY_SERVER)
 
     def authenticate(self, username=None, password=None):
         pwd_valid = self.login(username, password)

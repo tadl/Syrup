@@ -6,32 +6,24 @@ from xml.etree import ElementTree
 import re
 import sys, os
 
-#------------------------------------------------------------
-# Configuration
-
-# where is our evergreen server's opensrf http gateway?
-
-BASE = 'http://concat.ca/osrf-gateway-v1'
 LOCALE = 'en-US'
-
-# where can I find a copy of fm_IDL.xml from Evergreen?
-
-# # This will work always, though maybe you want to up the rev number...
-# FM_IDL_LOCATION = ('http://svn.open-ils.org/trac/ILS/export/12640'
-#                    '/trunk/Open-ILS/examples/fm_IDL.xml')
-
-# # or, if you have a local copy...
-# FM_IDL_LOCATION = 'file:fm_IDL.xml'
-
-FM_IDL_LOCATION = 'http://concat.ca/reports/fm_IDL.xml'
-here = lambda s: os.path.join(os.path.dirname(__file__), s)
-FM_IDL_LOCATION = 'file:' + here('fm_IDL.xml')
 
 #------------------------------------------------------------
 # parse fm_IDL, to build a field-name-lookup service.
 
+fields_for_class = {}
+BASE = None
+
+def initialize(base):
+    global BASE
+    if not BASE:
+        assert base.endswith('/')
+        BASE = base
+        fields_for_class.update(dict(_fields()))
+
 def _fields():
-    tree = ElementTree.parse(urllib2.urlopen(FM_IDL_LOCATION))
+    fm_IDL_location = BASE + 'reports/fm_IDL.xml'
+    tree = ElementTree.parse(urllib2.urlopen(fm_IDL_location))
     NS = '{http://opensrf.org/spec/IDL/base/v1}'
     for c in tree.findall('%sclass' % NS):
         cid = c.attrib['id']
@@ -39,7 +31,6 @@ def _fields():
                   for f in c.findall('%sfields/%sfield' % (NS,NS))]
         yield (cid, fields)
 
-fields_for_class = dict(_fields())
 
 #------------------------------------------------------------
 
@@ -62,7 +53,7 @@ def evergreen_request(method, *args, **kwargs):
     kwargs.update({'service':service, 'method':method})
     params =  ['%s=%s' % (k,quote(v)) for k,v in kwargs.items()] 
     params += ['param=%s' % quote(str(a)) for a in args]
-    url = '%s?%s' % (BASE, '&'.join(params))
+    url = '%sosrf-gateway-v1?%s' % (BASE, '&'.join(params))
     req = urllib2.urlopen(url)
     resp = json.load(req)
     assert resp['status'] == 200, 'error during evergreen request'

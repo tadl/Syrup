@@ -174,7 +174,8 @@ def item_add_cat_search(request, course_id, item_id):
     if not raw_pickitem:
         # process the query.
         assert query, 'must provide a query.'
-        results = lib_integration.cat_search(query)
+        start, limit = (1, 20)
+        results = lib_integration.cat_search(query, start, limit)
         return g.render('item/item_add_cat_search.xhtml', 
                         results=results, query=query, 
                         course=course, parent_item=parent_item)

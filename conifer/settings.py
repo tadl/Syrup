@@ -1,8 +1,5 @@
 # Django settings for conifer project.
 
-# make sure you have a local_settings.py file! Copy from
-# local_settings.py.in and customize that file.
-
 import os
 
 os.environ['PYTHON_EGG_CACHE'] = '/tmp/eggs'
@@ -86,11 +83,7 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'conifer.urls'
 
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-)
+TEMPLATE_DIRS = []
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -106,31 +99,22 @@ AUTH_PROFILE_MODULE = 'syrup.UserProfile'
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
+    # uncomment for EG authentication:
+    #'conifer.custom.auth_evergreen.EvergreenAuthBackend',
 )
 
 
-# more on this later.
-LIBRARY_INTEGRATION = {
-    'patron_info': 'SIP',
-    'item_status': 'SIP',
-    'item_info'  : 'OpenSRF',
-    'catalogue'  : 'Z39.50',
-}
-
-EVERGREEN_XMLRPC_SERVER = None # evergreen host, for auth, e.g. '192.168.1.10'
-
-if EVERGREEN_XMLRPC_SERVER:
-    AUTHENTICATION_BACKENDS.append(
-        'conifer.custom.auth_evergreen.EvergreenAuthBackend')
+EVERGREEN_GATEWAY_SERVER = 'www.concat.ca'
+Z3950_CONFIG = ('zed.concat.ca:210', 'OWA')  #OWA,OSUL,CONIFER
+SIP_HOST = ('dwarf.cs.uoguelph.ca', 8080)
 
 try:
-    # Graham has this right now; it's not official Syrup. Nothing to see here.
-    from private_local_settings import SIP_HOST, SIP_CREDENTIALS
+    from private_local_settings import SIP_CREDENTIALS
 except:
     # stuff that I really ought not check into svn...
-    #SIP_HOST = ('hostname', 9999)
     #SIP_CREDENTIALS = ('userid', 'password', 'location')
     pass
+
 
 #CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 #CACHE_BACKEND = 'db://test_cache_table'

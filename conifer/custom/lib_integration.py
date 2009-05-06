@@ -12,7 +12,6 @@
 # SIP for patron and item_info, and for item checkout and checkin,
 # OpenSRF for extended item info.
 
-
 # define a @caching decorator to exploit the Django cache. Fixme, move
 # this somewhere else.
 from django.core.cache import cache
@@ -38,8 +37,10 @@ def caching(prefix, timeout=60):
 
 
 from django.conf import settings
-#LIBINT = settings.LIBRARY_INTEGRATION # more on this later.
 
+from conifer.libsystems.evergreen.support import initialize
+EG_BASE = 'http://%s/' % settings.EVERGREEN_GATEWAY_SERVER
+initialize(EG_BASE)
 
 from conifer.libsystems.evergreen import item_status as I
 from conifer.libsystems.sip.sipclient import SIP
@@ -82,9 +83,9 @@ def bib_id_to_marcxml(bib_id):
 def cat_search(query, start=1, limit=10):
     # this is a total hack for conifer. If the query is a Conifer
     # title-detail URL, then return just that one item.
-    if query.startswith('http://concat'):
+    if query.startswith(EG_BASE):
         results = marcxml_to_dictionary(I.url_to_marcxml(query), multiples=True)
     else:
-        cat_host, cat_db = ('zed.concat.ca:210', 'OWA')
+        cat_host, cat_db = settings.Z3950_CONFIG
         results = yaz_search.search(cat_host, cat_db, query, start, limit)
     return results

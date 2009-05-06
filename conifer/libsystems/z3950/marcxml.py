@@ -1,7 +1,4 @@
 from xml.etree import ElementTree
-import marctools
-
-loc_to_unicode = marctools.locToUTF8().replace
 
 def marcxml_to_dictionary(rec, multiples=False):
     tree = ElementTree.fromstring(rec)
@@ -19,8 +16,9 @@ def marcxml_to_dictionary(rec, multiples=False):
             t = df.attrib['tag']
             for sf in df.findall('{http://www.loc.gov/MARC21/slim}subfield'):
                 c = sf.attrib['code']
-                v = sf.text
-                dct[t+c] = loc_to_unicode(v)
+                v = sf.text or ''
+                dct.setdefault(t+c, []).append(v)
+        dct = dict((k,'\n'.join(v or [])) for k,v in dct.items())
         out.append(dct)
     if multiples is False:
         return out and out[0] or None
@@ -44,10 +42,11 @@ def marcxml_dictionary_to_dc(dct):
             title += (' %s' % dct['245b'])
         # if title ends with a single character, strip it. usually a
         # spurious punctuation character.
-        init, last = title.rsplit(' ',1)
-        if len(last) == 1:
-            title = init
-        out['dc:title'] = title
+        if ' ' in title:
+            init, last = title.rsplit(' ',1)
+            if len(last) == 1:
+                title = init
+            out['dc:title'] = title
     return out
 
     
