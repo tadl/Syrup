@@ -40,7 +40,11 @@ from django.conf import settings
 
 from conifer.libsystems.evergreen.support import initialize
 EG_BASE = 'http://%s/' % settings.EVERGREEN_GATEWAY_SERVER
-initialize(EG_BASE)
+try:
+    initialize(EG_BASE)
+except:
+    import warnings
+    warnings.warn('Evergreen inaccessible! Integration will suck eggs!')
 
 from conifer.libsystems.evergreen import item_status as I
 from conifer.libsystems.sip.sipclient import SIP
