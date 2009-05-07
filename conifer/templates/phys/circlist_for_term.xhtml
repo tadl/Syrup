@@ -21,19 +21,27 @@ catalogue_pattern = catalogue_pattern % (settings.EVERGREEN_GATEWAY_SERVER, lang
       <thead>
 	<tr><th>#</th><th>Title</th><th>Author</th><th>Publisher</th><th>PubDate</th></tr>
       </thead>
-      <tbody py:for="resultnum, res in enumerate(w.marc() or {} for w in wanted)"
-	     py:with="dc=to_dublin(res)">
+      <tbody py:for="resultnum, w in enumerate(wanted)"
+	     py:with="res = w.marc() or {}; dc=to_dublin(res)">
 	<tr>
 	  <td>${resultnum+1}.</td>
 	  <td>
 	    ${dc.get('dc:title', '???')}
-	    <a href="javascript:$('#full_${resultnum}').toggle(); void(0);">MARC</a>
-	    <p py:if="res.get('8569')" style="margin: 8px 0; font-size: 90%; color: darkred;">
-	      Electronic resource. <a href="${res.get('856u')}">view</a>
+	    <p style="margin: 8px 0; font-size: 90%; color: darkred;">
+	      <a href="javascript:$('#full_${resultnum}').toggle(); void(0);">MARC</a>
+	      &bull;
+	      <span py:if="res.get('901c')" style="margin: 8px 0; font-size: 90%; color: darkred;">
+		<a href="${catalogue_pattern % res.get('901c')}">Catalogue</a>
+		&bull;
+	      </span>
+	      <span py:if="res.get('901c')" style="margin: 8px 0; font-size: 90%; color: darkred;">
+		<a href="${w.item_url()}">Reserves</a>
+	      </span>
+	      <span py:if="res.get('8569')" style="margin: 8px 0; font-size: 90%; color: darkred;">
+		&bull;
+		<a href="${res.get('856u')}">View Electronic</a>
+	      </span>
 	    </p>
-	    <div py:if="res.get('901c')" style="margin: 8px 0; font-size: 90%; color: darkred;">
-	      <a href="${catalogue_pattern % res.get('901c')}">Title details in catalogue</a>
-	    </div>
 	  </td>
 	  <td py:for="k in dc_keys[1:]">${dc.get(k) or '&mdash;'}</td>
 	</tr>
