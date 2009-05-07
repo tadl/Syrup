@@ -1,0 +1,47 @@
+<?python
+title = _('Wanted items: %s') % term
+from conifer.libsystems.z3950.marcxml import marcxml_dictionary_to_dc as to_dublin
+dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="../master.xhtml"/>
+<head>
+  <title>${title}</title>
+</head>
+<body>
+  <h1>${title}</h1>
+
+<table class="pagetable">
+      <thead>
+	<tr><th>#</th><th>Title</th><th>Author</th><th>Publisher</th><th>PubDate</th></tr>
+      </thead>
+      <tbody py:for="resultnum, res in enumerate(w.marc() for w in wanted)"
+	     py:with="dc=to_dublin(res)">
+	<tr>
+	  <td>${resultnum+1}.</td>
+	  <td>
+	    ${dc.get('dc:title', '???')}
+	    <a href="javascript:$('#full_${resultnum}').toggle(); void(0);">details</a>
+	    <p py:if="res.get('8569')" style="margin: 8px 0; font-size: 90%; color: darkred;">
+	      Electronic resource. <a href="${res.get('856u')}">view</a>
+	    </p>
+	  </td>
+	  <td py:for="k in dc_keys[1:]">${dc.get(k) or '&mdash;'}</td>
+	</tr>
+	<tr id="full_${resultnum}" style="display: none;">
+	  <td colspan="5" style="padding-left: 36;">
+	    <table class="metadata_table">
+	      <?python allkeys = res.keys(); allkeys.sort(); ?>
+	      <tr py:for="k in allkeys">
+		<th>${k}</th><td>${res[k]}</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </tbody>
+    </table>
+
+</body>
+</html>

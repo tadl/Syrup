@@ -318,6 +318,7 @@ h2.metadata_subhead {font-size: 105%; padding: 0; margin: 18px 0 9px 0;}
     text-align: left; width: 120px;
 }
 .gap { height: 24px; }
+.metadata_table td { max-width: 800px; overflow: hidden; }
 
 /* panels that appear when specific OPTIONs or radio-buttons are selected. */
 .specific { padding: 8px; margin: 0 16px; background-color: #eef; }

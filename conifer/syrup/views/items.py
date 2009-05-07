@@ -481,3 +481,30 @@ def phys_mark_arrived_match(request):
             item.metadata_set.create(name='syrup:barcode', value=barcode)
             item.save()
     return g.render('phys/mark_arrived_outcome.xhtml')
+
+@admin_only
+def phys_circlist(request):
+    term_code = request.GET.get('term')
+    if not term_code:
+        terms = models.Term.objects.order_by('code')
+        return g.render('phys/circlist_index.xhtml', terms=terms)
+
+    term = get_object_or_404(models.Term, code=term_code)
+
+    # gather the list of wanted items for this term.
+    # Fixme, I need a better way.
+
+    cursor = django.db.connection.cursor()
+    q = "select item_id from syrup_metadata where name='syrup:barcode'"
+    cursor.execute(q)
+    bad_ids = set([r[0] for r in cursor.fetchall()])
+    cursor.close()
+
+    wanted = models.Item.objects.filter(
+        item_type='PHYS', course__term=term).select_related('metadata')
+    wanted = [w for w in wanted if w.id not in bad_ids]
+    return g.render('phys/circlist_for_term.xhtml', 
+                    term=term,
+                    wanted=wanted)
+    
+

@@ -1,0 +1,21 @@
+<?python
+title = _('Notify Circulation of wanted items')
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="../master.xhtml"/>
+<head>
+  <title>${title}</title>
+</head>
+<body>
+  <h1>${title}</h1>
+  <p>Please select a term:</p>
+  <form action="." method="GET">
+    <select name="term">
+      <option py:for="term in terms" value="${term.code}">${term}</option>
+    </select>
+    <input type="submit" value="Continue"/>
+  </form>
+</body>
+</html>
