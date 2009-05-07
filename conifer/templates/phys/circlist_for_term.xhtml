@@ -2,6 +2,10 @@
 title = _('Wanted items: %s') % term
 from conifer.libsystems.z3950.marcxml import marcxml_dictionary_to_dc as to_dublin
 dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
+from django.conf import settings
+lang = settings.LANGUAGE_CODE.replace('_','-')
+catalogue_pattern = 'http://%s/opac/%s/skin/default/xml/rdetail.xml?r=%%s'
+catalogue_pattern = catalogue_pattern % (settings.EVERGREEN_GATEWAY_SERVER, lang)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -17,16 +21,19 @@ dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
       <thead>
 	<tr><th>#</th><th>Title</th><th>Author</th><th>Publisher</th><th>PubDate</th></tr>
       </thead>
-      <tbody py:for="resultnum, res in enumerate(w.marc() for w in wanted)"
+      <tbody py:for="resultnum, res in enumerate(w.marc() or {} for w in wanted)"
 	     py:with="dc=to_dublin(res)">
 	<tr>
 	  <td>${resultnum+1}.</td>
 	  <td>
 	    ${dc.get('dc:title', '???')}
-	    <a href="javascript:$('#full_${resultnum}').toggle(); void(0);">details</a>
+	    <a href="javascript:$('#full_${resultnum}').toggle(); void(0);">MARC</a>
 	    <p py:if="res.get('8569')" style="margin: 8px 0; font-size: 90%; color: darkred;">
 	      Electronic resource. <a href="${res.get('856u')}">view</a>
 	    </p>
+	    <div py:if="res.get('901c')" style="margin: 8px 0; font-size: 90%; color: darkred;">
+	      <a href="${catalogue_pattern % res.get('901c')}">Title details in catalogue</a>
+	    </div>
 	  </td>
 	  <td py:for="k in dc_keys[1:]">${dc.get(k) or '&mdash;'}</td>
 	</tr>

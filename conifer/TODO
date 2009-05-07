@@ -24,6 +24,7 @@ IMPORTANT:
 
 * manage z3950 targets? Search z3950 targets?
 
+* title-details links in circ-needs, that needs to be made non EG specific.
 MAYBE:
 
 * Generating barcodes in emails, printable screens? (3 of 9 enough?)
