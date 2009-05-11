@@ -32,14 +32,16 @@ courses = course_list
         <td py:if="instructors" valign="top" class="topbox">
         <table class="topheading">
         <tr>
+        <!--
         <th>Last Name</th><th>First Name</th>
+        -->
+        <th>Instructors</th>
         </tr>
         <tr py:for="instructor in instructors">
-            <td>${Markup(instructor.instr_name_hl(norm_query))}</td>
-            <td>${instructor.user.first_name}</td>
+            <td> ${Markup(instructor.instr_name_hl(norm_query))},
+            ${instructor.user.first_name}</td>
         </tr>
         <tr py:if="instr_len > count">
-        <td></td>
         <!-- will tap into open list here -->
         <td>(${instr_len - count} more...)</td>
         </tr>

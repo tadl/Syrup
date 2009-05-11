@@ -1,5 +1,6 @@
 from _common import *
 from django.utils.translation import ugettext as _
+from search import *
 
 #-----------------------------------------------------------------------------
 
@@ -29,6 +30,9 @@ def instructors(request):
     return g.render('instructors.xhtml', paginator=paginator,
                     page_num=page_num,
                     count=count)
+
+def instructor_search(request, instructor):
+    return search(request, with_instructor=instructor)
 
 # MARK: propose we get rid of this. We have browse.
 def departments(request):

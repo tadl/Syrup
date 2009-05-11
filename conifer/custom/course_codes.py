@@ -108,18 +108,24 @@
 # Provide your own implementation below.
 
 
-_codes = [('ENG100', 'Introduction to English'),
-          ('ART108', 'English: An Introduction'),
-          ('FRE238', 'Modern French Literature'),
-          ('LIB201', 'Intro to Library Science'),
-          ('WEB203', 'Advanced Web Design'),]
+#_codes = [('ENG100', 'Introduction to English'),
+#          ('ART108', 'English: An Introduction'),
+#          ('FRE238', 'Modern French Literature'),
+#          ('LIB201', 'Intro to Library Science'),
+#          ('WEB203', 'Advanced Web Design'),]
 
-_crosslists = set(['ENG100', 'ART108'])
+_codes = [('BIOL55-350', 'Molecular Cell Biology'),
+          ('CRIM48-567', 'Current Issues in Criminology'),
+          ('ENGL26-280', 'Contemporary Literary Theory'),
+          ('ENGL26-420', 'Word and Image: The Contemporary Graphic Novel'),
+          ('SOCWK47-457', 'Advanced Social Work Research'),]
+
+_crosslists = set(['ENGL26-280', 'ENGL26-420'])
 
 
 course_code_is_valid = None
 
-course_code_example = 'ENG100; FRE238'
+course_code_example = 'BIOL55-350; SOCWK47-457'
 
 def course_code_list():
     return [a for (a,b) in _codes]

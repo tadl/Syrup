@@ -39,18 +39,22 @@ def get_query(query_string, search_fields):
 #-----------------------------------------------------------------------------
 # Search and search support
 
-def search(request, in_course=None):
+def search(request, in_course=None, with_instructor=None):
     ''' Need to work on this, the basic idea is
         - put an entry point for instructor and course listings
         - page through item entries
         If in_course is provided, then limit search to the contents of the specified course.
+        If with_instructor is provided, then limit search to instructors
     '''
+        
+    print("in_couse is %s" % in_course)
+    print("with_instructor is %s" % with_instructor)
     found_entries = None
     page_num = int(request.GET.get('page', 1))
     count = int(request.GET.get('count', 5))
     norm_query = ''
     query_string = ''
-    
+
 
     #TODO: need to block or do something useful with blank query (seems dumb to do entire list)
     #if ('q' in request.GET) and request.GET['q']:
@@ -82,16 +86,20 @@ def search(request, in_course=None):
                     metadata__name='syrup:barcode', 
                     metadata__value=query_string)
         else:
-            # Textual (non-numeric) queries.
-            item_query = get_query(query_string, ['title', 'metadata__value'])
+            if not with_instructor:
+                # Textual (non-numeric) queries.
+                item_query = get_query(query_string, ['title', 'metadata__value'])
                 #need to think about sort order here, probably better by author (will make sortable at display level)
-            results_list = models.Item.objects.filter(item_query)
+                results_list = models.Item.objects.filter(item_query)
 
         if in_course:
             # For an in-course search, we know the user has
             # permissions to view the course; no need for
             # user_filter_for_items.
             results_list = results_list.filter(course=in_course)
+        elif with_instructor:
+            print("in instructor")
+            results_list = results_list.filter(instructor=with_instructor)
         else:
             results_list = results_list.filter(user_filter_for_items)
 
