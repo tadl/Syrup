@@ -23,7 +23,10 @@ dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
 <body>
     ${course_banner(course)}
     ${nested_title(parent_item)}
+    <!-- ugly hack so art can go away next week -->
+    <i>Sorry, catalogue searching is not enabled yet</i>
     <h2>${title}</h2>
+    <!--
     <form method="GET" action=".">
       <input type="text" id="query" name="query" value="${query}" 
 	     style="font-size: larger; width: 600px;"/>
@@ -31,6 +34,7 @@ dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
 	${go_back_link()}
 
     </form>
+    -->
     <div py:def="page_control" py:if="results">
       <p>
 	${start}&ndash;${min(numhits, start+limit-1)} of ${numhits} results.

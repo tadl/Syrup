@@ -106,7 +106,7 @@ AUTHENTICATION_BACKENDS = (
 
 EVERGREEN_GATEWAY_SERVER = 'www.concat.ca'
 Z3950_CONFIG = ('zed.concat.ca:210', 'OWA')  #OWA,OSUL,CONIFER
-SIP_HOST = ('dwarf.cs.uoguelph.ca', 8080)
+SIP_HOST = ('comet.cs.uoguelph.ca', 8080)
 
 try:
     from private_local_settings import SIP_CREDENTIALS
