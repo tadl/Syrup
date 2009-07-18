@@ -48,7 +48,7 @@ except:
 
 from conifer.libsystems.evergreen import item_status as I
 from conifer.libsystems.sip.sipclient import SIP
-from conifer.libsystems.z3950 import yaz_search
+#from conifer.libsystems.z3950 import yaz_search
 from conifer.libsystems.z3950.marcxml import marcxml_to_dictionary
 
 

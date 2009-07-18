@@ -20,10 +20,6 @@ course.
 Required components
 ------------------------------
 
-Most likely you will need a Unix-like system: Linux, BSD, or OS X
-ought all to work. Most development and testing is being done on
-Linux. No testing on Windows has been done.
-
 You need Python. Probably Python 2.5, I haven't tested with other
 versions. You also need sqlite3 or another Django-compatible
 database. Sqlite3 is recommended for kicking the tires, PostgreSQL for
@@ -31,9 +27,13 @@ production.
 
 Third-party Python dependencies:
 
-  sudo easy_install Django Genshi Babel BabelDjango pexpect
+  sudo easy_install Django Genshi Babel BabelDjango
 
 (You'll need 'setuptools' in order to have 'easy_install'.)
+
+Windows is very similar, see:
+
+http://groups.google.com/group/syrup-reserves-discuss/web/installing-syrup-in-windows
 
 Graham has the following versions installed. Not saying you need these
 exact ones, just that they are known to work.
@@ -42,12 +42,6 @@ exact ones, just that they are known to work.
     Babel-0.9.4-py2.5
     BabelDjango-0.2.2-py2.5
     Genshi-0.5.1-py2.5
-    pexpect-2.4-py2.5
-
-You will need 'yaz-client' for the Z39.50 stuff. On Ubuntu, this works:
-
-    sudo apt-get install yaz libyaz3
-
 
 Getting this thing to run
 ------------------------------
@@ -58,6 +52,10 @@ This might work:
   quick test.
 
 * ./manage.py syncdb
+
+Note: don't use the "./" syntax in windows for the commands, e.g.:
+
+C:\src\syrup\trunk\conifer>manage.py syncdb
 
 * During syncdb, create yourself a superuser account.
 
