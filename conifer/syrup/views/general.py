@@ -1,6 +1,15 @@
 from _common import *
 from django.utils.translation import ugettext as _
 from search import *
+from lxml import etree
+import libxml2
+import libxslt
+import os
+
+
+BASE_DIRECTORY = os.path.abspath(os.path.dirname(__file__))
+HERE = lambda s: os.path.join(BASE_DIRECTORY, s)
+
 
 #-----------------------------------------------------------------------------
 
@@ -49,6 +58,11 @@ def user_prefs(request):
         return HttpResponseRedirect('../')
 
 def z3950_test(request):
+    styledoc = libxml2.parseFile('/conifer/syrupsvn/trunk/conifer/static/xslt/test.xsl')
+    styledoc = libxml2.parseFile(HERE('../../static/xslt/test.xsl'))
+    test = libxslt.parseStylesheetDoc(styledoc)
+    #return g.render('z3950_test.xhtml', res_str="")
+
     #testing JZKitZ3950 - it seems to work, but i have a character set problem
     #with the returned marc
     #nope - the problem is weak mapping with the limited solr test set
@@ -57,12 +71,12 @@ def z3950_test(request):
     #conn = zoom.Connection ('z3950.loc.gov', 7090)
     #conn = zoom.Connection ('webvoy.uwindsor.ca', 9000)
     #solr index with JZKitZ3950 wrapping
-    conn = zoom.Connection ('127.0.0.1', 2100)
+    conn = zoom.Connection ('zed.concat.ca', 210)
     # conn = zoom.Connection ('127.0.0.1', 2100)
     print("connecting...")
-    conn.databaseName = 'Test'
-    # conn.preferredRecordSyntax = 'XML'
-    conn.preferredRecordSyntax = 'USMARC'
+    conn.databaseName = 'OWA'
+    conn.preferredRecordSyntax = 'XML'
+    # conn.preferredRecordSyntax = 'USMARC'
     query = zoom.Query ('CCL', 'ti="agar"')
     res = conn.search (query)
     collector = []
@@ -71,9 +85,19 @@ def z3950_test(request):
     for r in res:
         print(type(r.data))
         print(type(m.translate(r.data)))
-        rec = zmarc.MARC (r.data, strict=0)
+        #rec = zmarc.MARC (r.data, strict=0)
         # rec = zmarc.MARC (rec, strict=0)
-        collector.append(str(rec))
+        #collector.append(str(rec))
+	#collector.append((m.translate(r.data)))
+	# print("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+	zhit = str("<?xml version=\"1.0\"?>") + (m.translate(r.data))
+	#zhit = m.translate(r.data)
+	#doc = etree.fromstring(zhit)
+	#doc = libxml2.xmlNode(zhit)
+	doc = libxml2.parseDoc(zhit)
+	#print(str("<?xml version=\"1.0\" encoding=\"UTF-8\"?>") + (m.translate(r.data)))
+	#print(zhit)
+	print(test.applyStylesheet(doc, None))
 
     conn.close ()
     res_str = "" . join(collector)
