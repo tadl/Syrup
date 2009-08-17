@@ -2,6 +2,7 @@
 from django.utils.simplejson import dumps
 from conifer.libsystems.z3950.marcxml import marcxml_dictionary_to_dc as to_dublin
 title = _('Add physical or electronic item, by catalogue search')
+helptext = _('Use keywords or CCL syntax for searching, for example: ti="detroit river" and au="wilgus"')
 dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
@@ -24,6 +25,10 @@ dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
     ${course_banner(course)}
     ${nested_title(parent_item)}
     <h2>${title}</h2>
+    <div class="helptext">
+    ${helptext}
+    </div>
+
     <form method="GET" action=".">
       <input type="text" id="query" name="query" value="${query}" 
 	     style="font-size: larger; width: 600px;"/>

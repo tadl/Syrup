@@ -501,8 +501,10 @@ class SipClient(object):
         return msg
 
     def item_info(self, barcode):
+        print("starting")
         msg = self.send(ITEM_INFORMATION, ITEM_INFO_RESP,
                         {'item':barcode})
+        print(msg['circstat'])
         msg['available'] = msg['circstat'] == '03'
         msg['status'] = ITEM_STATUS_TABLE[msg['circstat']]
         return msg
@@ -538,9 +540,9 @@ except ImportError:
 if __name__ == '__main__':
     from pprint import pprint
 
-    sip = SipClient('home', 6001)
-    resp = sip.login(uid='scclient',
-                     pwd='clientpwd', locn='The basement')
+    sip = SipClient('comet.cs.uoguelph.ca', 8080)
+    resp = sip.login(uid='test',
+                     pwd='test', locn='test')
     pprint(resp)
     pprint(sip.status())
 
