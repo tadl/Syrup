@@ -1,3 +1,6 @@
+/*
+this seems to be causing a disable when we don't want it
+*/
 function do_init() {
     if ($('#id_code')[0].tagName == 'SELECT') {
 	// code is a SELECT, so we add a callback to lookup titles.

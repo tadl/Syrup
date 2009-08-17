@@ -49,6 +49,7 @@ except:
 from conifer.libsystems.evergreen import item_status as I
 from conifer.libsystems.sip.sipclient import SIP
 #from conifer.libsystems.z3950 import yaz_search
+from conifer.libsystems.z3950 import pyz3950_search
 from conifer.libsystems.z3950.marcxml import marcxml_to_dictionary
 
 
@@ -91,6 +92,7 @@ def cat_search(query, start=1, limit=10):
         results = marcxml_to_dictionary(I.url_to_marcxml(query), multiples=True)
         numhits = len(results)
     else:
-        cat_host, cat_db = settings.Z3950_CONFIG
-        results, numhits = yaz_search.search(cat_host, cat_db, query, start, limit)
+        cat_host, cat_port, cat_db = settings.Z3950_CONFIG
+        results, numhits = pyz3950_search.search(cat_host, cat_port, cat_db, query, start, limit)
+        #results, numhits = yaz_search.search(cat_host, cat_db, query, start, limit)
     return results, numhits

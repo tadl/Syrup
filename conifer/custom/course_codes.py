@@ -114,7 +114,8 @@
 #          ('LIB201', 'Intro to Library Science'),
 #          ('WEB203', 'Advanced Web Design'),]
 
-_codes = [('BIOL55-350', 'Molecular Cell Biology'),
+_codes = [('ART99-100', 'Art History'),
+          ('BIOL55-350', 'Molecular Cell Biology'),
           ('CRIM48-567', 'Current Issues in Criminology'),
           ('ENGL26-280', 'Contemporary Literary Theory'),
           ('ENGL26-420', 'Word and Image: The Contemporary Graphic Novel'),
