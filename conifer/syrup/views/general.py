@@ -150,11 +150,16 @@ def instructor_detail(request, instructor_id):
 def department_detail(request, department_id):
     page_num = int(request.GET.get('page', 1))
     count = int(request.GET.get('count', 5))
+
     paginator = Paginator(models.Course.objects.
         filter(department__id=department_id).
-        filter(active=True).order_by('title'), count)
+        order_by('title'), count)
 
-    return g.render('courses.xhtml', paginator=paginator,
+    department = models.Department.objects.get(pk=department_id)
+
+    return g.render('courses.xhtml', 
+            custom_title=_('Courses with Materials in %s') % department.name,
+            paginator=paginator,
             page_num=page_num,
             count=count)
 
