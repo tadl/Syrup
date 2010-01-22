@@ -12,6 +12,10 @@ import os
 	  py:with="t=list(select('title/text()'))">
       <title>${app_name}<py:if test="t">: ${t}</py:if></title>
     <link rel="stylesheet" type="text/css" href="${ROOT}/static/main.css"/>
+    <!-- !We set the webapp ROOT (script name) here, for use in static javascript libraries. -->
+    <script type="text/javascript">
+      var ROOT = '${ROOT}';
+    </script>
     <!--
     using the trunk version of jquery to get around some IE 8 problems
     -->

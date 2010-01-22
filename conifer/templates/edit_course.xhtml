@@ -11,13 +11,7 @@ else:
 <xi:include href="components/course.xhtml"/>
 <head>
   <title>${title}</title>
-  <!--
-  Disabling this title lookup for now, something goes amiss in the browser interaction
-  and the title field is disabled when it shouldn't be - art
-  -->
-  <!--
   <script type="text/javascript" src="${ROOT}/static/edit_course.js"/>
-  -->
 </head>
 <body>
   <div py:if="instance.id">${course_banner(instance)}</div>
