@@ -309,7 +309,7 @@ thead th { padding: 8px; font-weight: bold; font-size: 90%; }
 .metadata_table tbody td {
     padding: 8px; border: #ddd 1px solid;
 }
-.metadata_table input { width: 600px; }
+.metadata_table .textinput { width: 600px; }
 .metadata_table .meta3 input { width: 10px; }
 
 .metadata_table tbody th {
