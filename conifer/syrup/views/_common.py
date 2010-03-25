@@ -38,6 +38,7 @@ from conifer.custom import lib_integration
 from conifer.libsystems.z3950.marcxml import marcxml_to_dictionary, marcxml_dictionary_to_dc
 from conifer.syrup.fuzzy_match import rank_pending_items
 from django.core.urlresolvers import reverse
+from conifer.here import HERE
 
 #-----------------------------------------------------------------------------
 # Z39.50 Support
