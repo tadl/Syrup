@@ -1,14 +1,12 @@
 # Django settings for conifer project.
 
-import os
+# Don't edit this file; edit local_settings.py instead.
 
-os.environ['PYTHON_EGG_CACHE'] = '/tmp/eggs'
+import sys
+from here import HERE
+sys.path.append(HERE('..'))
 
-BASE_DIRECTORY = os.path.abspath(os.path.dirname(__file__))
-HERE = lambda s: os.path.join(BASE_DIRECTORY, s)
-
-DEBUG = True
-TEMPLATE_DEBUG = DEBUG
+DEBUG = False
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -16,8 +14,8 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASE_ENGINE = 'sqlite3' # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = HERE('syrup.sqlite') # Or path to database file if using sqlite3.
+DATABASE_ENGINE = '' # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+DATABASE_NAME = ''   # Or path to database file if using sqlite3.
 DATABASE_USER = ''             # Not used with sqlite3.
 DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
@@ -61,13 +59,12 @@ MEDIA_URL = ''
 ADMIN_MEDIA_PREFIX = '/syrup/djmedia/'
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'j$dnxqbi3iih+(@il3m@vv(tuvt2+yu2r-$dxs$s7=iqjz_s!&'
+SECRET_KEY = 'replace this yourself --- j$dnxqbi3iih+(@il3m@vv(tuvt2+yu2r-$dxs$s7=iqjz_s!&'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.load_template_source',
     'django.template.loaders.app_directories.load_template_source',
-#     'django.template.loaders.eggs.load_template_source',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -77,7 +74,6 @@ MIDDLEWARE_CLASSES = (
     'conifer.middleware.genshi_locals.ThreadLocals',
     'django.middleware.locale.LocaleMiddleware',
     'babeldjango.middleware.LocaleMiddleware',
-    # TransactionMiddleware should be last...
     'django.middleware.transaction.TransactionMiddleware',
 )
 
@@ -97,25 +93,31 @@ INSTALLED_APPS = (
 AUTH_PROFILE_MODULE = 'syrup.UserProfile'
 
 
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    # uncomment for EG authentication:
-    #'conifer.custom.auth_evergreen.EvergreenAuthBackend',
-)
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend'
+]
 
-
-EVERGREEN_GATEWAY_SERVER = 'www.concat.ca'
-Z3950_CONFIG = ('zed.concat.ca', 210, 'OWA')  #OWA,OSUL,CONIFER
-SIP_HOST = ('localhost', 8080)
+#---------------------------------------------------------------------------
+# local_settings.py
 
 try:
-    from private_local_settings import SIP_CREDENTIALS
+    from local_settings import *
+except ImportError:
+    raise Exception('You must create a local_settings.py file, and use it! '
+                    'As a starting point, see local_settings.py.example.')
 except:
-    # stuff that I really ought not check into svn...
-    SIP_CREDENTIALS = ('test', 'test', 'test')
-    pass
+    import sys
+    raise Exception('There is an error in your local_settings.py! '
+                    'Please investigate and repair.', sys.exc_value)
 
 
-#CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
-#CACHE_BACKEND = 'db://test_cache_table'
-#CACHE_BACKEND = 'locmem:///'
+#---------------------------------------------------------------------------
+# Further settings that depend upon local_settings.
+
+TEMPLATE_DEBUG = DEBUG
+
+if EVERGREEN_AUTHENTICATION:
+    AUTHENTICATION_BACKENDS.extend(
+        ['conifer.custom.auth_evergreen.EvergreenAuthBackend',
+         ])
+
