@@ -1,19 +1,3 @@
-#-----------------------------------------------------------------------------
-# todo: break this up. It's getting long. I think we should have
-# something like:
-#
-#   views/__init__.py                     # which imports:
-#   views/course_site_handlers.py
-#   views/search_stuff.py
-#   views/add_edit_course.py
-#   ...
-#   views/common_imports.py              # imported by all.
-#
-# though these are just examples. Everything in views/* would include
-# 'from common_imports import *' just to keep the imports
-# tidy. Views/__init__ would import all the other bits: that ought to
-# satisfy Django.
-
 import warnings
 from conifer.syrup import models
 from datetime import datetime
