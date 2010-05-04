@@ -5,13 +5,16 @@ from django.contrib.auth import get_backends
 from datetime import datetime
 from genshi import Markup
 from django.utils.translation import ugettext as _
-from conifer.custom import course_codes # fixme, not sure if conifer.custom is a good parent.
-from conifer.custom import course_sections # fixme, not sure if conifer.custom is a good parent.
-from conifer.custom import lib_integration
 import re
 import random
 from django.utils import simplejson
 from conifer.middleware import genshi_locals
+
+# campus and library integration
+from django.conf import settings
+campus = settings.CAMPUS_INTEGRATION
+from conifer.custom import lib_integration # fixme, not sure if conifer.custom is a good parent.
+
 
 def highlight(text, phrase,
               highlighter='<strong class="highlight">\\1</strong>'):
@@ -262,7 +265,7 @@ class Course(m.Model):
                 break
 
     def sections(self):
-        delim = course_sections.sections_tuple_delimiter
+        delim = campus.sections_tuple_delimiter
         if not delim:
             return []
         else:
@@ -302,16 +305,16 @@ class Course(m.Model):
 
 
 def _merge_sections(secs):
-    delim = course_sections.sections_tuple_delimiter
+    delim = campus.sections_tuple_delimiter
     return delim.join(delim.join(sec) for sec in secs)
 
 def section_decode_safe(secstring):
     if not secstring:
         return None
-    return tuple(secstring.decode('base64').split(course_sections.sections_tuple_delimiter))
+    return tuple(secstring.decode('base64').split(campus.sections_tuple_delimiter))
 
 def section_encode_safe(section):
-    return course_sections.sections_tuple_delimiter.join(section).encode('base64').strip()
+    return campus.sections_tuple_delimiter.join(section).encode('base64').strip()
 
 class Member(m.Model):
     class Meta:

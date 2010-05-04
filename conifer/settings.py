@@ -8,11 +8,7 @@ sys.path.append(HERE('..'))
 
 DEBUG = False
 
-ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
-)
-
-MANAGERS = ADMINS
+ADMINS = []
 
 DATABASE_ENGINE = '' # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
 DATABASE_NAME = ''   # Or path to database file if using sqlite3.
@@ -97,6 +93,8 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend'
 ]
 
+CAMPUS_INTEGRATION_MODULE = 'conifer.integration.default'
+
 #---------------------------------------------------------------------------
 # local_settings.py
 
@@ -115,9 +113,22 @@ except:
 # Further settings that depend upon local_settings.
 
 TEMPLATE_DEBUG = DEBUG
+MANAGERS       = ADMINS
+
+#----------
 
 if EVERGREEN_AUTHENTICATION:
-    AUTHENTICATION_BACKENDS.extend(
-        ['conifer.custom.auth_evergreen.EvergreenAuthBackend',
-         ])
+    AUTHENTICATION_BACKENDS.append(
+        'conifer.custom.auth_evergreen.EvergreenAuthBackend')
+
+#----------
+
+try:
+    exec 'import %s as CAMPUS_INTEGRATION' % CAMPUS_INTEGRATION_MODULE
+except:
+    raise Exception('There is an error in your campus integration module (%s)! '
+                    'Please investigate and repair.' % CAMPUS_INTEGRATION_MODULE,
+                    sys.exc_value)
+
+#----------
 

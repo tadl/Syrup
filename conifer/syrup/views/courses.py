@@ -12,7 +12,7 @@ class NewCourseForm(ModelForm):
 
     def clean_code(self):
         v = (self.cleaned_data.get('code') or '').strip()
-        is_valid_func = models.course_codes.course_code_is_valid
+        is_valid_func = models.campus.course_code_is_valid
         if (not is_valid_func) or is_valid_func(v):
             return v
         else:
@@ -20,12 +20,12 @@ class NewCourseForm(ModelForm):
 
 # if we have course-code lookup, hack lookup support into the new-course form.
 
-COURSE_CODE_LIST = bool(models.course_codes.course_code_list)
-COURSE_CODE_LOOKUP_TITLE = bool(models.course_codes.course_code_lookup_title)
+COURSE_CODE_LIST = bool(models.campus.course_code_list)
+COURSE_CODE_LOOKUP_TITLE = bool(models.campus.course_code_lookup_title)
 
 if COURSE_CODE_LIST:
     from django.forms import Select
-    course_list = models.course_codes.course_code_list()
+    course_list = models.campus.course_code_list()
     choices = [(a,a) for a in course_list]
     choices.sort()
     empty_label = u'---------'
@@ -52,7 +52,7 @@ def _add_or_edit_course(request, instance=None):
     if is_add:
         instance = models.Course()
     current_access_level = not is_add and instance.access or None
-    example = models.course_codes.course_code_example
+    example = models.campus.course_code_example
     if request.method != 'POST':
         form = NewCourseForm(instance=instance)
         return g.render('edit_course.xhtml', **locals())
@@ -81,7 +81,7 @@ def _add_or_edit_course(request, instance=None):
 # no access-control needed to protect title lookup.
 def add_new_course_ajax_title(request):
     course_code = request.GET['course_code']
-    title = models.course_codes.course_code_lookup_title(course_code)
+    title = models.campus.course_code_lookup_title(course_code)
     return HttpResponse(simplejson.dumps({'title':title}))
 
 @instructors_only
@@ -96,7 +96,7 @@ def edit_course_permissions(request, course_id):
         (u'STUDT', _(u'Students in my course -- I will provide section numbers')),
         (u'INVIT', _(u'Students in my course -- I will share an Invitation Code with them')),
         (u'LOGIN', _(u'All Reserves patrons'))]
-    if models.course_sections.sections_tuple_delimiter is None:
+    if models.campus.sections_tuple_delimiter is None:
         # no course-sections support? Then STUDT cannot be an option.
         del choices[1]
     choose_access = django.forms.Select(choices=choices)
@@ -172,7 +172,7 @@ def edit_course_permissions(request, course_id):
                                  for name in POST \
                                  if name.startswith('remove_section_')]
                 course.drop_sections(*to_remove)
-                student_names = models.course_sections.students_in(*course.sections())
+                student_names = models.campus.students_in(*course.sections())
                 for name in student_names:
                     user = models.maybe_initialize_user(name)
                     if user:

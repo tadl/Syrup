@@ -66,8 +66,8 @@ instructors = [m for m in models.Member.objects.filter(course=course) if m.role 
       <h3>Course section numbers</h3>
 	<?python
 	  current_sections = course.sections()
-	  my_sections = [s for s in models.course_sections.sections_taught_by(user.username) if not s in current_sections]
-	  ct_sections = [s for s in models.course_sections.sections_for_code_and_term(course.code, course.term.code) \
+	  my_sections = [s for s in models.campus.sections_taught_by(user.username) if not s in current_sections]
+	  ct_sections = [s for s in models.campus.sections_for_code_and_term(course.code, course.term.code) \
                          if not s in current_sections]
           encode = lambda t,c,s: models.section_encode_safe((t,c,s))
 	?>
