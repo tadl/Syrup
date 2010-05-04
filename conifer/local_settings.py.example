@@ -34,6 +34,11 @@ SECRET_KEY = 'replace-with-your-own-super-random-key-@vv(tuvt2+yu2r-$dxs$s7=iqjz
 EVERGREEN_AUTHENTICATION = False
 
 #----------------------------------------------------------------------
+#Campus integration
+
+CAMPUS_INTEGRATION_MODULE = 'conifer.integration.default'
+
+#----------------------------------------------------------------------
 # Stuff that probably belongs in a config table in the database, with
 # a nice UI to maintain it all.
 
