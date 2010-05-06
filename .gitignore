@@ -9,3 +9,5 @@ xsip
 TAGS
 private_local_settings.py
 /conifer/.dired
+/conifer/local_settings.py
+*~

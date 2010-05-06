@@ -1,6 +1,7 @@
 import warnings
 from conifer.syrup import models
 from datetime import datetime
+import django.conf
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, SiteProfileNotAvailable
@@ -23,6 +24,7 @@ from conifer.libsystems.z3950.marcxml import marcxml_to_dictionary, marcxml_dict
 from conifer.syrup.fuzzy_match import rank_pending_items
 from django.core.urlresolvers import reverse
 from conifer.here import HERE
+import pdb
 
 #-----------------------------------------------------------------------------
 # Z39.50 Support
@@ -224,3 +226,19 @@ def user_filters(user):
                    'instructors': (Q(member__course__access__in=('LOGIN','ANON')) | Q(member__course__member__user=user)),
                    }
     return filters
+
+#------------------------------------------------------------
+
+# decorator
+def postmortem(func):
+    """Drop into a debugger if an error occurs in the decoratee."""
+    def inner(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception, e:
+            print '!!!!!!', e
+            pdb.post_mortem()
+    if django.conf.settings.DEBUG:
+        return inner
+    else:
+        return func
