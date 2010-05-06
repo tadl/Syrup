@@ -10,9 +10,9 @@ course_code_cross_listings = None
 
 # See COURSE_SECTIONS.txt for information.
 
-sections_tuple_delimiter   = None
-sections_taught_by         = None
-students_in                = None
-instructors_in             = None
-sections_for_code_and_term = None
+sections_tuple_delimiter   = '|'
+sections_taught_by         = lambda u: []
+students_in                = lambda *sections: set()
+instructors_in             = lambda *sections: set()
+sections_for_code_and_term = lambda code, term: []
 
