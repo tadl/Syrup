@@ -1,20 +1,22 @@
-from django.db import models as m
-from django.contrib.auth.models import User
-from django.contrib.auth.models import AnonymousUser
-from datetime import datetime
-from genshi import Markup
-from django.utils.translation import ugettext as _
 import re
 import random
-from django.utils import simplejson
+
+from django.db                       import models as m
+from django.db.models                import Q
+from django.contrib.auth.models      import User
+from django.contrib.auth.models      import AnonymousUser
+from datetime                        import datetime
+from genshi                          import Markup
+from django.utils.translation        import ugettext as _
+from django.utils                    import simplejson
 from conifer.plumbing.genshi_support import get_request
+
 # campus and library integration
-from conifer.plumbing.hooksystem import *
-from django.conf import settings
+from conifer.plumbing.hooksystem     import *
+from django.conf                     import settings
 campus = settings.CAMPUS_INTEGRATION
-# TODO: fixme, not sure if conifer.custom is a good parent.
 import conifer.libsystems.z3950.marcxml as MX
-from django.utils import simplejson as json
+from django.utils                    import simplejson as json
 
 #----------------------------------------------------------------------
 
@@ -178,6 +180,7 @@ class Site(BaseModel):
 
     class Meta:
         unique_together = (('course', 'term', 'owner'))
+        ordering = ['-term__start', 'course__code']
 
     def __unicode__(self):
         return u'%s: %s (%s, %s)' % (
@@ -294,7 +297,24 @@ class Site(BaseModel):
             or (self.access == 'LOGIN' and user.is_authenticated()) \
             or user.is_staff \
             or self.is_member(user)
-            
+
+
+    #--------------------------------------------------
+
+    @classmethod
+    def filter_for_user(cls, user):
+        """
+        Given a user object, return an appropriate Q filter that would
+        filter only Sites that the user has permission to view.
+        """
+        if user.is_anonymous():
+            return Q(access='ANON')
+        elif user.is_staff:
+            return Q()
+        else:
+            return (Q(access__in=('LOGIN','ANON')) \
+                        | Q(group__membership__user=user))
+
 #------------------------------------------------------------
 # User membership in sites
 
@@ -468,6 +488,9 @@ class Item(BaseModel):
     fileobj_mimetype = m.CharField(max_length=128, blank=True, null=True)
 
 
+    class Meta:
+        ordering = ['title', 'author', 'published']
+
     #--------------------------------------------------
     # MARC
     def marc_as_dict(self):
@@ -553,6 +576,21 @@ class Item(BaseModel):
         return hl_author
 
 
+    @classmethod
+    def filter_for_user(cls, user):
+        """
+        Given a user object, return an appropriate Q filter that would
+        filter only Items that the user has permission to view.
+        """
+        if user.is_anonymous():
+            return Q(site__access='ANON')
+        elif user.is_staff:
+            return Q()
+        else:
+            return (Q(site__access__in=('LOGIN','ANON')) \
+                        | Q(site__group__membership__user=user))
+                     
+       
 #------------------------------------------------------------
 # TODO: move this to a utility module.
 

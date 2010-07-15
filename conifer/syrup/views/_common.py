@@ -125,30 +125,6 @@ def custom_400_handler(request):
                           _('The page you requested could not be found'))
     return HttpResponse(msg._container, status=404)
 
-#-----------------------------------------------------------
-
-def user_filters(user):
-    """Returns a dict of filters for Item, Site, etc. querysets,
-    based on the given user's permissions."""
-    # TODO, figure out a way of EXPLAIN'ing these queries! I have no
-    # idea of their complexity.
-    if user.is_anonymous():
-        # then only anonymous-access sites are available.
-        filters = {'items': Q(site__access='ANON'),
-                   'sites': Q(access='ANON'),
-                   'instructors': Q(), # TODO: do we really need a filter here?
-                   }
-    else:
-        # logged-in users have access to sites which are of the
-        # LOGIN class ('all logged-in users') or in which they
-        # have explicit Member-ship.
-        filters = {
-            'items': (Q(site__access__in=('LOGIN','ANON')) \
-                          | Q(site__group__membership__user=user)),
-            'sites': (Q(access__in=('LOGIN','ANON')) | Q(group__membership__user=user)),
-            'instructors': Q(), # TODO: do we really need a filter here?
-            }
-    return filters
 
 #------------------------------------------------------------
 

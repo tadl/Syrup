@@ -96,13 +96,15 @@ def browse(request, browse_option=''):
         template = 'browse_index.xhtml'
     elif browse_option == 'instructors':
         queryset = models.User.active_instructors()
+        # TODO: fixme, user_filters is no more.
         queryset = queryset.filter(user_filters(request.user)['instructors'])
         template = 'instructors.xhtml'
     elif browse_option == 'departments':
         queryset = models.Department.objects.filter(active=True)
         template = 'departments.xhtml'
     elif browse_option == 'courses':
-        # fixme, course filter should not be (active=True) but based on user identity.
+        # TODO: fixme, course filter should not be (active=True) but based on user identity.
+        # TODO: fixme, user_filters is no more.
         for_courses = user_filters(request.user)['courses']
         queryset = models.Site.objects.filter(for_courses)
         template = 'courses.xhtml'
@@ -126,6 +128,7 @@ def instructor_detail(request, instructor_id):
     '''
     sites = models.Site.objects.filter(member__user=instructor_id,
                                            member__role='INSTR')
+    # TODO: fixme, user_filters is no more.
     filters = user_filters(request.user)
     courses = courses.filter(filters['courses'])
     paginator = Paginator(courses.order_by('title'), count)
