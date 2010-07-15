@@ -4,7 +4,8 @@ from xml.etree import ElementTree as ET
 from conifer.libsystems.marcxml import record_to_dictionary
 from conifer.libsystems.marcxml import marcxml_dictionary_to_dc as to_dublin
 title = _('Add physical or electronic item, by catalogue search')
-helptext = _('Use keywords or CCL syntax for searching, for example: ti="detroit river" and au="wilgus"')
+helptext = _('Use keywords or CCL syntax for searching, for example:')
+example = 'ti="detroit river" and au="wilgus"'
 dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
@@ -29,6 +30,7 @@ dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
     <h2>${title}</h2>
     <div class="helptext">
     ${helptext}
+    <a href=".?query=${urllib.quote(example)}">${example}</a>
     </div>
 
     <form method="GET" action=".">

@@ -160,13 +160,13 @@ class Site(BaseModel):
     service_desk = m.ForeignKey(ServiceDesk)
 
     access = m.CharField(max_length=5,
-                         default='CLOSE',
+                         default='LOGIN',
                          choices = [
             ('ANON', _('World-accessible')),
             ('LOGIN', _('Accessible to all logged-in users')),
             ('STUDT', _('Accessible to course students (by section)')),
             ('INVIT', _('Accessible to course students (by invitation code)')),
-            ('CLOSE', _('Accessible only to course owners'))])
+            ('CLOSE', _('Accessible only to course-site owners'))])
 
     # For sites that use a passkey as an invitation (INVIT access).
     # Note: only set this value using 'generate_new_passkey'.

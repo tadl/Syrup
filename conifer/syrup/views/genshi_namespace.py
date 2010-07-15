@@ -9,6 +9,7 @@
 
 import django.forms
 import itertools
+import urllib
 
 from conifer.integration.hooksystem import gethook, callhook
 from conifer.syrup                  import models
