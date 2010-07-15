@@ -8,6 +8,9 @@ import itertools
 from itertools import cycle
 from conifer.syrup import models
 import django.forms
+from django.utils import translation
+
+_ = translation.ugettext
 
 # this probably ought to be a method on User, or another model class.
 def instructor_url(instructor, suffix=''):

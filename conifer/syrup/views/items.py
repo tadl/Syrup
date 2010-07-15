@@ -1,7 +1,8 @@
 from _common import *
 from django.utils.translation import ugettext as _
-from xml.etree import ElementTree as E
+from xml.etree import ElementTree as ET
 from conifer.syrup import integration
+from conifer.plumbing.hooksystem import *
 
 
 @members_only
@@ -173,9 +174,13 @@ def item_add_cat_search(request, site_id, item_id):
         if not site.can_edit(request.user):
             return _access_denied(_('You are not an editor.'))
 
-        pickitem = marcxml_to_dictionary(raw_pickitem)
+        if gethook('get_better_copy_of_marc'):
+            pickitem_xml = callhook('get_better_copy_of_marc', raw_pickitem)
+            raw_pickitem = unicode(ET.tostring(pickitem_xml))
+            pickitem = marcxml_to_dictionary(pickitem_xml)
+        else:
+            pickitem = marcxml_to_dictionary(raw_pickitem)
         dublin = marcxml_dictionary_to_dc(pickitem)
-
         assert dublin
 
         #TODO: this data munging does not belong here. 
@@ -183,8 +188,9 @@ def item_add_cat_search(request, site_id, item_id):
         # one last thing. If this picked item has an 856$9 field, then
         # it's an electronic resource, not a physical item. In that
         # case, we add it as a URL, not a PHYS.
-        if '8569' in pickitem:
-            dct = dict(item_type='URL', url=pickitem.get('856u'))
+        url = callhook('marcxml_to_url', raw_pickitem)
+        if url:
+            dct = dict(item_type='URL', url=url)
         else:
             dct = dict(item_type='PHYS')
         

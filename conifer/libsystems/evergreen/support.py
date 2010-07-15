@@ -22,6 +22,7 @@ def initialize(base):
         fields_for_class.update(dict(_fields()))
 
 def _fields():
+    return
     fm_IDL_location = BASE + 'reports/fm_IDL.xml'
     tree = ElementTree.parse(urllib2.urlopen(fm_IDL_location))
     NS = '{http://opensrf.org/spec/IDL/base/v1}'

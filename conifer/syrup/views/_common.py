@@ -1,128 +1,48 @@
-import warnings
-from conifer.syrup import models
-from datetime import datetime
+#----------------------------------------------------------------------
+# Initialize the Genshi templating system. 'g' is the 'templating
+# system object' used to render Genshi templates. 'genshi_namespace'
+# is a module which acts as a global namespace when expanding a Genshi
+# template.
+
+from conifer.here                    import HERE
+from conifer.plumbing.genshi_support import TemplateSet
+from .                               import genshi_namespace
+
+g = TemplateSet(HERE('templates'), genshi_namespace)
+
+#----------------------------------------------------------------------
+# Common imports shared by all view functions.
+
 import django.conf
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User, SiteProfileNotAvailable
-from django.core.paginator import Paginator
-from django.db.models import Q
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
-from django.http import HttpResponseForbidden
-from django.shortcuts import get_object_or_404
-from django.utils import simplejson
-from generics import *
-#from gettext import gettext as _ # fixme, is this the right function to import?
-from django.utils.translation import ugettext as _
-import conifer.genshi_support as g
 import django.forms
 import re
 import sys
-from django.forms.models import modelformset_factory
-from conifer.libsystems.z3950.marcxml import (marcxml_to_dictionary,
-                                              marcxml_dictionary_to_dc)
-from conifer.syrup.fuzzy_match import rank_pending_items
-from django.core.urlresolvers import reverse
-from conifer.here import HERE
+import warnings
 import pdb
 
-#-----------------------------------------------------------------------------
-# Z39.50 Support
-#
-# This is experimental at this time, and requires some tricky Python
-# imports as far as I can tell. For that reason, let's keep the Z39.50
-# support optional for now. If you have Ply and PyZ3950, we'll load
-# and use it; if not, no worries, everything else will workk.
+from conifer.syrup                  import models
+from datetime                       import datetime
+from django.contrib.auth            import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models     import User, SiteProfileNotAvailable
+from django.core.paginator          import Paginator
+from django.core.urlresolvers       import reverse
+from django.db.models               import Q
+from django.forms.models            import modelformset_factory
+from django.http                    import (HttpResponse, HttpResponseRedirect,
+                                            HttpResponseNotFound,
+                                            HttpResponseForbidden)
+from django.shortcuts               import get_object_or_404
+from django.utils                   import simplejson
+from django.utils.translation       import ugettext as _
+from _generics                      import * # TODO: should not import-star
 
-try:
-    # Graham needs this import hackery to get PyZ3950 working. Presumably
-    # Art can 'import profile; import lex', so this hack won't run for
-    # him.
-    try:
-        import profile
-        import lex
-        import yacc
-    except ImportError:
-        sys.modules['profile'] = sys # just get something called 'profile';
-                                     # it's not actually used.
-        import ply.lex
-        import ply.yacc             # pyz3950 thinks these are toplevel modules.
-        sys.modules['lex'] = ply.lex
-        sys.modules['yacc'] = ply.yacc
+from conifer.libsystems.z3950.marcxml import (marcxml_to_dictionary,
+                                              marcxml_dictionary_to_dc)
 
-    # for Z39.50 support, not sure whether this is the way to go yet but
-    # as generic as it gets
-    from PyZ3950 import zoom, zmarc
-except:
-    warnings.warn('Could not load Z39.50 support.')
-
-#-----------------------------------------------------------------------------
-# poor-man's logging. Not sure we need more yet.
-
-def log(level, msg):
-    print >> sys.stderr, '[%s] %s: %s' % (datetime.now(), level.upper(), msg)
-
-#-----------------------------------------------------------------------------
-# Authentication
-
-def auth_handler(request, path):
-    default_url = request.META['SCRIPT_NAME'] + '/'
-    if path == 'login/':
-        if request.method == 'GET':
-            next=request.GET.get('next', default_url)
-            if request.user.is_authenticated():
-                return HttpResponseRedirect(next)
-            else:
-                return g.render('auth/login.xhtml',
-                                next=request.GET.get('next'))
-        else:
-            userid, password = request.POST['userid'], request.POST['password']
-            next = request.POST['next']
-            user = authenticate(username=userid, password=password)
-            def _error_page(msg):
-                return g.render('auth/login.xhtml', err=msg, next=next)
-            if user is None:
-                return _error_page(
-                    _('Invalid username or password. Please try again.'))
-            elif not user.is_active:
-                return _error_age(
-                    _('Sorry, this account has been disabled.'))
-            else:
-                login(request, user)
-                # initialize the profile if it doesn't exist.
-                try:
-                    user.get_profile()
-                except models.UserProfile.DoesNotExist:
-                    profile = models.UserProfile.objects.create(user=user)
-                    profile.save()
-                return HttpResponseRedirect(
-                    request.POST.get('next', default_url))
-    elif path == 'logout':
-        logout(request)
-        return HttpResponseRedirect(default_url)
-    else:
-        return HttpResponse('auth_handler: ' + path)
 
 #-----------------------------------------------------------------------------
 # Authorization
-
-# TODO: this _fast_user_membership_query is broken.
-
-def _fast_user_membership_query(user_id, site_id, where=None):
-    # I use a raw SQL query here because I want the lookup to be as
-    # fast as possible. Caching would help too, but let's try this
-    # first. (todo, review later.)
-    return True               #  TODO: fixme!!!!
-    query = ('select count(*) from syrup_member '
-             'where user_id=%s and site_id=%s ')
-    if where:
-        query += (' and ' + where)
-    cursor = django.db.connection.cursor()
-    cursor.execute(query, [user_id, int(site_id)])
-    res = cursor.fetchall()
-    cursor.close()
-    allowed = bool(res[0][0])
-    return allowed
 
 def _access_denied(request, message):
     if request.user.is_anonymous():
@@ -139,10 +59,8 @@ def _access_denied(request, message):
 # decorator
 def instructors_only(handler):
     def hdlr(request, site_id, *args, **kwargs):
-        allowed = request.user.is_superuser
-        if not allowed:
-            allowed = _fast_user_membership_query(
-                request.user.id, site_id, "role in ('INSTR','ASSIST')")
+        site = get_object_or_404(models.Site, pk=site_id)
+        allowed = site.can_edit(request.user)
         if allowed:
             return handler(request, site_id, *args, **kwargs)
         else:
@@ -154,13 +72,8 @@ def instructors_only(handler):
 def members_only(handler):
     def hdlr(request, site_id, *args, **kwargs):
         user = request.user
-        allowed = user.is_superuser
-        if not allowed:
-            site = models.Site.objects.get(pk=site_id)
-            allowed = site.access=='ANON' or \
-                (user.is_authenticated() and site.access=='LOGIN')
-        if not allowed:
-            allowed = _fast_user_membership_query(user.id, site_id)
+        site = get_object_or_404(models.Site, pk=site_id)
+        allowed = site.is_open_to(request.user)
         if allowed:
             return handler(request, site_id, *args, **kwargs)
         else:
@@ -189,6 +102,7 @@ def public(handler):
     # A no-op! Just here to be used to explicitly decorate methods
     # that are supposed to be public.
     return handler
+
 
 #-----------------------------------------------------------------------------
 # Simple Message: just a quick title-and-message web page.
@@ -230,8 +144,8 @@ def user_filters(user):
         # have explicit Member-ship.
         filters = {
             'items': (Q(site__access__in=('LOGIN','ANON')) \
-                          | Q(site__member__user=user)),
-            'sites': (Q(access__in=('LOGIN','ANON')) | Q(member__user=user)),
+                          | Q(site__group__membership__user=user)),
+            'sites': (Q(access__in=('LOGIN','ANON')) | Q(group__membership__user=user)),
             'instructors': Q(), # TODO: do we really need a filter here?
             }
     return filters

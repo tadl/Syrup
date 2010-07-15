@@ -15,7 +15,7 @@ def site_feeds(request, site_id, feed_type):
         def render_title(item):
             return item.title
         if feed_type == 'top-level':
-            items = items.filter(parent_heading=None).order_by('-sort_order')
+            items = items.filter(parent_heading=None).order_by('title')
         elif feed_type == 'recent-changes':
             items = items.order_by('-last_modified')
         elif feed_type == 'tree':

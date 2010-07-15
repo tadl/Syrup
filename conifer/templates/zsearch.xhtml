@@ -12,8 +12,8 @@ targets = targets_list
 <body>
     <h1>${title}</h1> 
     <form py:if="targets" action="." method="POST">
-    <select name="target" py:for="target in targets">
-            <option>${target.name}</option>
+    <select name="target">
+            <option  py:for="target in targets">${target.name}</option>
     </select>
     Title: <input id="ztitle" name="ztitle" maxlength="100" size="100" type="text"/>
     <p><input type="submit" value="Search target"/></p>

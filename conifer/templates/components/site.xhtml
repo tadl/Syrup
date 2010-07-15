@@ -55,8 +55,11 @@ searchtext = _('search this site...')
 	  <!-- !I'm really sorry, this is ugly, but I want
 	       non-breaking spaces here, so that on long-named items,
 	       the links will stay togeter. A better way?  -->
-	  <span py:if="item.needs_meta_link()"><a href="${item.item_url('meta')}">about</a>&#160;</span><span py:if="edit">&bull;&#160;<a href="${item.item_url('edit/')}">edit</a></span><span py:if="edit">&#160;&bull;&#160;<a href="${item.item_url('relocate/')}">relocate</a></span>
+	  <span py:if="item.needs_meta_link()"><a href="${item.item_url('meta')}">about&#160;this&#160;item</a>&#160;</span><span py:if="edit"><a href="${item.item_url('edit/')}">edit</a></span><span py:if="edit">&#160;<a href="${item.item_url('relocate/')}">relocate</a>&#160;<a href="${item.item_url('delete/')}">delete</a></span>
 	</span>
+      </div>
+      <div class="author_pub" py:if="item.author or item.publisher">
+	${item.author}. ${item.publisher}.
       </div>
       <!-- !to show a full tree, uncomment the following: -->
       ${show_tree(subs, edit)}

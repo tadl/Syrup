@@ -1,4 +1,4 @@
-from auth_evergreen_support import EvergreenAuthServer
+from eg_xmlrpc import EvergreenAuthServer
 from django.contrib.auth.models import User
 from django.conf import settings
 

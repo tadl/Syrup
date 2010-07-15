@@ -1,7 +1,7 @@
 <?python
 title = _('Search Results')
 instructors = instructor_list
-courses = course_list
+sites = site_list
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -24,48 +24,48 @@ courses = course_list
 
     <!-- not sure if this is the best way to do this -->
     <!-- 
-        probably need a simple css option to hide instructors and course info
+        probably need a simple css option to hide instructors and site info
     -->
-    <table py:if="instructors or courses" width="100%">
-        <tr>
+    <table py:if="instructors or sites" width="100%">
+      <tr>
         <!-- instructors -->
         <td py:if="instructors" valign="top" class="topbox">
-        <table class="topheading">
-        <tr>
-        <!--
-        <th>Last Name</th><th>First Name</th>
-        -->
-        <th>Instructors</th>
-        </tr>
-        <tr py:for="instructor in instructors">
-            <td> ${Markup(instructor.instr_name_hl(norm_query))},
-            ${instructor.user.first_name}</td>
-        </tr>
-        <tr py:if="instr_len > count">
-        <!-- will tap into open list here -->
-        <td>(${instr_len - count} more...)</td>
-        </tr>
-        </table>
+	  <table class="topheading">
+	    <tr>
+	      <!--
+		  <th>Last Name</th><th>First Name</th>
+	      -->
+	      <th>Instructors</th>
+	    </tr>
+	    <tr py:for="instructor in instructors">
+	      <td> ${Markup(instructor.instr_name_hl(norm_query))},
+	      ${instructor.user.first_name}</td>
+	    </tr>
+	    <tr py:if="instr_len > count">
+	      <!-- will tap into open list here -->
+	      <td>(${instr_len - count} more...)</td>
+	    </tr>
+	  </table>
         </td>
-
-        <!-- courses -->
-        <td py:if="courses" valign="top" class="topbox">
-        <table class="topheading">
-	  <tr>
-	    <th align="left">Course</th>
-	  </tr>
-	  <tr py:for="course in courses">
-	    <!-- will highlight this, probably pull in dept info -->
-	    <td><a href="../course/${course.id}/">${course.title}</a></td>
-	  </tr>
-        <tr py:if="course_len > count">
-        <td></td>
-        <!-- will tap into open list here -->
-        <td>(${course_len - count} more...)</td>
-        </tr>
-        </table>
+	
+        <!-- sites -->
+        <td py:if="sites" valign="top" class="topbox">
+	  <table class="topheading">
+	    <tr>
+	      <th align="left">Site</th>
+	    </tr>
+	    <tr py:for="site in sites">
+	      <!-- will highlight this, probably pull in dept info -->
+	      <td><a href="../site/${site.id}/">${site}</a></td>
+	    </tr>
+	    <tr py:if="site_len > count">
+	      <td></td>
+	      <!-- will tap into open list here -->
+	      <td>(${site_len - count} more...)</td>
+	    </tr>
+	  </table>
         </td>
-        </tr>
+      </tr>
     </table>
   
     <tr py:if="results_len > 0" py:def="pageheader()">
@@ -75,7 +75,7 @@ courses = course_list
     <span py:def="pagerow(item)">
         <td>${Markup(item.author_hl(norm_query))}</td>
         <td><a href="${item.item_url('meta')}">${Markup(item.title_hl(norm_query))}</a></td>
-	<td><a href="${item.site.site_url()}">${item.site.title}</a></td>
+	<td><a href="${item.site.site_url()}">${item.site}</a></td>
 	<td><span py:if="item.item_type=='PHYS'">${item.smallint()} &bull; ${item.barcode()}</span></td>
     </span>
     ${pagetable(paginator, count, pagerow, pageheader, query=query_string)}

@@ -65,8 +65,9 @@ def marcxml_dictionary_to_dc(dct):
     extract some Dublin Core elements from it. Fixme, I'm sure this
     could be way improved."""
     out = {}
-    meta = [('245a', 'dc:title'), ('100a', 'dc:creator'),
-            ('260c', 'dc:date'), ('700a', 'dc:contributor')]
+    meta = [('245a', 'dc:title'),
+            ('260c', 'dc:date'), 
+            ('700a', 'dc:contributor')]
     for marc, dc in meta:
         value = dct.get(marc)
         if value:
@@ -79,12 +80,18 @@ def marcxml_dictionary_to_dc(dct):
     title = [v.strip() for k,v in sorted(dct.items()) if k in ('245a', '245b')]
     if title:
         out['dc:title'] = strip_punct(' '.join(title))
+
+    for k in ('100a', '110a', '700a', '710a'):
+        if dct.get(k):
+            out['dc:creator'] = strip_punct(dct[k])
+            break
+
     return out
 
     
 def strip_punct(s):
     # strip whitespace and trailing single punctuation characters
     s = s.strip()
-    if s and s[-1] in ',.;:/':
+    if s and (s[-1] in ',.;:/'):
         s = s[:-1]
     return s.strip()

@@ -7,9 +7,9 @@ from django.utils.translation import ugettext as _
 import re
 import random
 from django.utils import simplejson
-from conifer.middleware import genshi_locals
+from conifer.plumbing.genshi_support import get_request
 # campus and library integration
-from conifer.integration._hooksystem import *
+from conifer.plumbing.hooksystem import *
 from django.conf import settings
 campus = settings.CAMPUS_INTEGRATION
 # TODO: fixme, not sure if conifer.custom is a good parent.
@@ -183,13 +183,10 @@ class Site(BaseModel):
         return u'%s: %s (%s, %s)' % (
             self.course.code, self.course.name,
             self.owner.last_name or self.owner.username,
-            self.term)
+            self.term.name)
 
     def list_display(self):
-        if self.code:
-            return '%s: %s [%s]' % (self.term, self.title, self.code)
-        else:
-            return '%s: %s' % (self.term, self.title)
+            return '%s [%s, %s]' % (self.course.name, self.course.code, self.term.name)
 
     def items(self):
         return self.item_set.all()
@@ -232,7 +229,7 @@ class Site(BaseModel):
     def site_url(self, suffix=''):
         # I'm not fond of this being here. I think I'll leave this and
         # item_url non-implemented, and monkey-patch them in views.py.
-        req = genshi_locals.get_request()
+        req = get_request()
         prefix = req.META['SCRIPT_NAME']
         return '%s/site/%d/%s' % (prefix, self.id, suffix)
 
@@ -292,6 +289,12 @@ class Site(BaseModel):
             user.id == self.owner_id \
                 or bool(self.members().filter(user=user)))
 
+    def is_open_to(self, user):
+        return self.access == 'ANON' \
+            or (self.access == 'LOGIN' and user.is_authenticated()) \
+            or user.is_staff \
+            or self.is_member(user)
+            
 #------------------------------------------------------------
 # User membership in sites
 
@@ -499,7 +502,7 @@ class Item(BaseModel):
     def item_url(self, suffix='', force_local_url=False):
         # I'm not fond of this being here. I think I'll leave this and
         # site_url non-implemented, and monkey-patch them in views.py.
-        req = genshi_locals.get_request()
+        req = get_request()
         prefix = req.META['SCRIPT_NAME']
         if self.item_type == 'ELEC' and suffix == '':
             return '%s/site/%d/item/%d/dl/%s' % (
@@ -542,7 +545,7 @@ class Item(BaseModel):
         return hl_title
 
     def author_hl(self, terms):
-        hl_author = self.author()
+        hl_author = self.author
 
         for term in terms:
             hl_author = highlight(hl_author,term)

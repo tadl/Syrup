@@ -3,8 +3,8 @@ from django.conf import settings
 import django
 import os
 
-# I know it's not recommended, but this lets us mount django-admin's
-# media through Django, through mod_python.
+# I know it's not recommended, but this lets us serve django-admin's
+# media through Django.
 
 ADMIN_MEDIA_ROOT = os.path.join(os.path.dirname(django.__file__), 'contrib/admin/media/')
 

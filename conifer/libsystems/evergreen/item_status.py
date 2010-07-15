@@ -32,4 +32,8 @@ def url_to_marcxml(url):
 
 if __name__ == '__main__':
     support.initialize('http://www.concat.ca/')
-    print url_to_marcxml('http://www.concat.ca/opac/en-US/skin/default/xml/rdetail.xml?r=1082665&t=dylan%20thomas%20ralph&tp=keyword&d=0&hc=14&rt=keyword')
+    #print url_to_marcxml('http://www.concat.ca/opac/en-US/skin/default/xml/rdetail.xml?r=1082665&t=dylan%20thomas%20ralph&tp=keyword&d=0&hc=14&rt=keyword')
+    from xml.etree import ElementTree as ET
+    for t in ET.fromstring(bib_id_to_marcxml('2081089')).getiterator():
+        print t.text
+

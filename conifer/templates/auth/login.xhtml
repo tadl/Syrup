@@ -1,5 +1,5 @@
 <?python
-title = _('Syrup E-Reserves: Please log in')
+title = _('Please log in')
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -7,8 +7,8 @@ title = _('Syrup E-Reserves: Please log in')
 <xi:include href="../master.xhtml"/>
 <head>
   <title>${title}</title>
-  <script>
-    $(function() {$('#userid').focus();});
+  <script type="text/javascript">
+    $(function() { $('#userid').focus(); });
   </script>
 </head>
 <body>
@@ -23,7 +23,7 @@ title = _('Syrup E-Reserves: Please log in')
     </tr>
     <tr>
       <th>Password:</th>
-      <td><input type="password" name="password" style="width: 200px;"/></td>
+      <td><input type="password" id="pwd" name="password" style="width: 200px;"/></td>
     </tr>
     <tr><th style="background-color: white; border: none;"/>
     <td><input type="submit" value="Log in" style="width: 200px;"/></td></tr>

@@ -1,4 +1,0 @@
-This directory is going away.
-
-Default integrations are being moved to 'conifer.integration'. The
-active integration modules are to be specified in local_settings.

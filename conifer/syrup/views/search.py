@@ -1,5 +1,5 @@
 from _common import *
-from django.utils.translation import ugettext as _
+from PyZ3950 import zoom, zmarc
 
 def normalize_query(query_string,
                     findterms=re.compile(r'"([^"]+)"|(\S+)').findall,
@@ -38,7 +38,6 @@ def get_query(query_string, search_fields):
 
 #-----------------------------------------------------------------------------
 # Search and search support
-
 def search(request, in_site=None, with_instructor=None):
     ''' Need to work on this, the basic idea is
         - put an entry point for instructor and site listings
@@ -88,7 +87,7 @@ def search(request, in_site=None, with_instructor=None):
         else:
             if not with_instructor:
                 # Textual (non-numeric) queries.
-                item_query = get_query(query_string, ['title', 'metadata__value'])
+                item_query = get_query(query_string, ['title', 'author', 'publisher', 'marcxml'])
                 #need to think about sort order here, probably better by author (will make sortable at display level)
                 results_list = models.Item.objects.filter(item_query)
 
@@ -103,7 +102,7 @@ def search(request, in_site=None, with_instructor=None):
         else:
             results_list = results_list.filter(user_filter_for_items)
 
-        results_list = results_list.distinct().order_by('title')
+        results_list = results_list.distinct() #.order_by('title')
         results_len = len(results_list)
         paginator = Paginator(results_list, count)
 
@@ -112,10 +111,10 @@ def search(request, in_site=None, with_instructor=None):
             # then no site search is necessary.
             site_list = []; site_len = 0
         else:
-            site_query = get_query(query_string, ['title', 'department__name'])
+            site_query = get_query(query_string, ['course__name', 'course__department__name'])
             # apply the search-filter and the user-filter
             site_results = models.Site.objects.filter(site_query).filter(user_filter_for_sites)
-            site_list = site_results.order_by('title')
+            site_list = site_results.order_by('course__name')
             site_len = len(site_results)
 
         #instructor search
@@ -123,7 +122,7 @@ def search(request, in_site=None, with_instructor=None):
             instructor_list = []; instr_len = 0
         else:
             instr_query = get_query(query_string, ['user__last_name'])
-            instructor_results = models.Member.objects.filter(instr_query).filter(role='INSTR')
+            instructor_results = models.Membership.objects.filter(instr_query).filter(role='INSTR')
             if in_site:
                 instructor_results = instructor_results.filter(site=in_site)
             instructor_list = instructor_results.order_by('user__last_name')[0:5]
@@ -137,7 +136,7 @@ def search(request, in_site=None, with_instructor=None):
         paginator = Paginator( results_list,
             count)
         site_results = models.Site.objects.filter(active=True)
-        site_list = site_results.order_by('title')[0:5]
+        site_list = site_results.order_by('course__name')[0:5]
         site_len = len(site_results)
         instructor_results = models.Member.objects.filter(role='INSTR')
         instructor_list = instructor_results.order_by('user__last_name')[0:5]
@@ -180,7 +179,7 @@ def zsearch(request):
             tquery = request.POST['ztitle']
         search_target= models.Z3950Target.objects.get(name=target)
         conn = zoom.Connection (search_target.host, search_target.port)
-        conn.databaseName = search_target.db
+        conn.databaseName = search_target.database
         conn.preferredRecordSyntax = search_target.syntax
         query = zoom.Query ('CCL', '%s="%s"' % ('ti',tquery))
         res = conn.search (query)
@@ -201,7 +200,7 @@ def zsearch(request):
                 raw = r.data
 
                 # Convert to MARC
-                marcdata = zmarc.MARC(raw)
+                marcdata = zmarc.MARC(raw, strict=False)
                 #print marcdata
 
                 # Convert to MARCXML

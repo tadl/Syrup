@@ -1,6 +1,6 @@
 from _common import *
 from django.utils.translation import ugettext as _
-from conifer.integration._hooksystem import *
+from conifer.plumbing.hooksystem import *
 from datetime import date
 
 #-----------------------------------------------------------------------------

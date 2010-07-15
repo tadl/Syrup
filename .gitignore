@@ -12,3 +12,4 @@ private_local_settings.py
 /conifer/local_settings.py
 /conifer/remodel.sqlite3
 *~
+/conifer/test.db

@@ -1,9 +1,9 @@
-import conifer.genshi_support as g
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.forms import ModelForm, ValidationError
 
+from _common import g           # the Genshi templating system
 
 def generic_handler(form, decorator=lambda x: x):
     def handler(request, obj_id=None, action=None):

@@ -76,6 +76,8 @@ def search(host, port, database, query, start=1, limit=10):
         # TODO: fix this ascii/replace, once our z3950/marc encoding
         # issues are sorted out.
         rec = unicode(rec, 'ascii', 'replace')
+        # replace multiple 'unknown' characters with a single one.
+        rec = re.sub(u'\ufffd+', u'\ufffd', rec)
 
         assert isinstance(rec, unicode) # this must be true.
         parsed.append(ET.fromstring(rec.encode('utf-8')))

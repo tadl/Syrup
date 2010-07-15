@@ -15,7 +15,6 @@ def can_create_sites(user):
     allowed to create new course-reserve sites. Note that users marked
     as 'staff' are always allowed to create new sites.
     """
-    pass
 
 
 @disable
@@ -25,7 +24,6 @@ def department_course_catalogue():
     the departments to which they belong. Each row should be a tuple
     in the form: ('Department name', 'course-code', 'Course name').
     """
-    pass
 
 
 @disable
@@ -36,7 +34,6 @@ def term_catalogue():
     'start-date', 'end-date'), where the dates are instances of the
     datetime.date class.
     """
-    pass
 
 
 @disable
@@ -69,3 +66,37 @@ def item_status(item):
     the item. The ServiceDesk object has an 'external_id' attribute
     which should represent the desk in the ILS.
     """
+
+
+@disable
+def bib_id_to_marcxml(bib_id):
+    """
+    Given a bib_id, return a MARC record in MARCXML format. Return
+    None if the bib_id does not exist.
+    """
+
+    
+@disable
+def get_better_copy_of_marc(marc_string):
+    """
+    This function takes a MARCXML record and returns either the same
+    record, or another instance of the same record from a different
+    source. 
+
+    This is a hack. There is currently at least one Z39.50 server that
+    returns a MARCXML record with broken character encoding. This
+    function declares a point at which we can work around that server.
+    """
+
+
+@disable
+def marcxml_to_url(marc_string):
+    """
+    Given a MARC record, return either a URL (representing the
+    electronic resource) or None.
+
+    Typically this will be the 856$u value; but in Conifer, 856$9 and
+    856$u form an associative array, where $9 holds the institution
+    codes and $u holds the URLs.
+    """
+

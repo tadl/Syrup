@@ -67,7 +67,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'conifer.middleware.genshi_locals.ThreadLocals',
+    'conifer.plumbing.genshi_support.GenshiMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'babeldjango.middleware.LocaleMiddleware',
     'django.middleware.transaction.TransactionMiddleware',
@@ -120,7 +120,7 @@ MANAGERS       = ADMINS
 
 if EVERGREEN_AUTHENTICATION:
     AUTHENTICATION_BACKENDS.append(
-        'conifer.custom.auth_evergreen.EvergreenAuthBackend')
+        'conifer.integration.auth_evergreen.django.EvergreenAuthBackend')
 
 #----------
 

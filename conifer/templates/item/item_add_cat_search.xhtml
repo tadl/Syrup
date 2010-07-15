@@ -63,7 +63,7 @@ dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
 	    ${dc.get('dc:title', '???')}
 	    <a href="javascript:$('#full_${resultnum}').toggle(); void(0);">details</a>
 	    <p py:if="dct.get('8569')" style="margin: 8px 0; font-size: 90%; color: darkred;">
-	      Electronic resource. <a href="${dct.get('856u')}">view</a>
+	      Electronic resource. <a href="${callhook('marcxml_to_url', res)}">view</a>
 	    </p>
 	  </td>
 	  <td py:for="k in dc_keys[1:]">${dc.get(k) or '&mdash;'}</td>
