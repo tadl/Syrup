@@ -43,7 +43,7 @@ title = _('Mark Items as Arrived: Choose Match')
     <input type="hidden" name="barcode" value="${barcode}"/>
     <table class="metadata_table" width="100%;">
       <thead style="font-size: 70%;">
-	<tr><th py:for="v in 'Select Title Author Course Instructor Score'.split(' ')">${v}</th></tr>
+	<tr><th py:for="v in 'Select Title Author Site Instructor Score'.split(' ')">${v}</th></tr>
       </thead>
       <tbody py:for="n, (score, item) in enumerate(ranked)"
 	  class="${score &lt; 5 and 'likely' or score &lt; 50 and 'maybe' or 'doubtful'}"
@@ -54,8 +54,8 @@ title = _('Mark Items as Arrived: Choose Match')
 	<span py:if="marc"><a href="javascript:$('#marcdata${n}').toggle();void(0);">detail</a></span>
 	</td>
 	<td>${item.author() or '&mdash;'}</td>	
-	<td>${item.course.title}</td>
-	<td>${','.join(n.last_name for n in item.course.get_instructors())}</td>
+	<td>${item.site.title}</td>
+	<td>${','.join(n.last_name for n in item.site.get_instructors())}</td>
 	<td>${repr(score)}</td>
 	</tr>
 	<tr py:if="marc" id="marcdata${n}"  style="display: none;">

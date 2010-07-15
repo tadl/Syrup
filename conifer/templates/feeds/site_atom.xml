@@ -2,12 +2,12 @@
 <feed xmlns="http://www.w3.org/2005/Atom"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
-  <title>Reserves (${feed_type}) for ${course.list_display()}</title>
-  <link href="${root}${course.course_url()}"
+  <title>Reserves (${feed_type}) for ${site.list_display()}</title>
+  <link href="${root}${site.site_url()}"
   rel="alternate"/>
-  <link href="${root}${course.course_url('feeds/' + feed_type)}"
+  <link href="${root}${site.site_url('feeds/' + feed_type)}"
   rel="self"/>
-  <id>${root}${course.course_url('feeds/') + feed_type}</id>
+  <id>${root}${site.site_url('feeds/') + feed_type}</id>
   <updated>${lastmod.strftime("%Y-%m-%dT%H:%M:%SZ")}</updated>
   <entry py:for="item in items">
     <title>${render_title(item)}</title>

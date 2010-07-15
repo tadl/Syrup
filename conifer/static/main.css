@@ -152,7 +152,7 @@ a:hover {  text-decoration: underline;  }
 
 span.final_item { font-weight: bold; font-size: 110%; }
 
-/* item trees (tree of headings and items in a course */
+/* item trees (tree of headings and items in a site */
 
 #sidepanel { width: 183px; float: right; text-align: right;}
 #sidepanel div { margin: 6px 0; }
@@ -281,11 +281,11 @@ p.todo, div.todo { background-color: #fdd; padding: 6px; margin: 12px; border-le
 .menublockopener { margin-left: 0.25em; color: #bbb !important; font-weight: normal !important; }
 .menublock { background-color: #f2e4cc; font-size: 95%; padding: 1px 4px; }
 
-#coursebanner { background-color: #f2e4cc; margin: -12px -12px 12px -12px; padding: 8px; }
-#coursesearch { float: right; }
-#coursebanner h1 { margin: 12px 0; font-size: 125%; }
+#sitebanner { background-color: #f2e4cc; margin: -12px -12px 12px -12px; padding: 8px; }
+#sitesearch { float: right; }
+#sitebanner h1 { margin: 12px 0; font-size: 125%; }
 
-#edit_course_link { margin: 8px 0 8px 0; font-size: 95%; }
+#edit_site_link { margin: 8px 0 8px 0; font-size: 95%; }
 
 
 #breadcrumbs { margin: 8px 0px 16px 0; width: 716px;  

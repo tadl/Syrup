@@ -1,5 +1,5 @@
 <?python
-title = _('Open Courses')
+title = _('Open Sites')
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -20,8 +20,8 @@ title = _('Open Courses')
   </tr>
   <span py:def="pagerow(item)">
     <td>${item.term}</td>
-    <td><a href="../course/${item.id}/">${item.code}</a></td>
-    <td><a href="../course/${item.id}/">${item.title}</a></td>
+    <td><a href="../site/${item.id}/">${item.code}</a></td>
+    <td><a href="../site/${item.id}/">${item.title}</a></td>
   </span>
     <!--
   ${pagetable(paginator, start, count, pagerow, pageheader)}

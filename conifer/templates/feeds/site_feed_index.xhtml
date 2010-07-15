@@ -5,13 +5,13 @@ title = _('Available Feeds')
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
   <xi:include href="../master.xhtml"/>
-  <xi:include href="../components/course.xhtml"/>
+  <xi:include href="../components/site.xhtml"/>
   <head>
     <title>${title}</title>
     <script type="text/javascript" src="${ROOT}/static/menublocks.js"/>
   </head>
   <body>
-    ${course_banner(course)}
+    ${site_banner(site)}
     <h2>Available Feeds</h2>
     <ul>
       <li><a href="recent-changes">Recent changes</a></li>

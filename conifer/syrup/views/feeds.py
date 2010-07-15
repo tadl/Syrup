@@ -2,16 +2,16 @@ from _common import *
 from django.utils.translation import ugettext as _
 
 #-----------------------------------------------------------------------------
-# Course feeds
+# Site feeds
 
 @public                         # and proud of it!
-def course_feeds(request, course_id, feed_type):
-    course = get_object_or_404(models.Course, pk=course_id)
+def site_feeds(request, site_id, feed_type):
+    site = get_object_or_404(models.Site, pk=site_id)
     if feed_type == '':
-        return g.render('feeds/course_feed_index.xhtml', 
-                        course=course)
+        return g.render('feeds/site_feed_index.xhtml', 
+                        site=site)
     else:
-        items = course.items()
+        items = site.items()
         def render_title(item):
             return item.title
         if feed_type == 'top-level':
@@ -25,15 +25,15 @@ def course_feeds(request, course_id, feed_type):
                     acc.append(item)
                     flatten(kids, acc)
                 return acc
-            items = flatten(course.item_tree(), [])
+            items = flatten(site.item_tree(), [])
             def render_title(item):
                 if item.parent_heading:
                     return '%s :: %s' % (item.parent_heading.title, item.title)
                 else:
                     return item.title
         lastmod = items and max(i.last_modified for i in items) or datetime.now()
-        resp = g.render('feeds/course_atom.xml',
-                        course=course,
+        resp = g.render('feeds/site_atom.xml',
+                        site=site,
                         feed_type=feed_type,
                         lastmod=lastmod,
                         render_title=render_title,

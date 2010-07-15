@@ -1,29 +1,29 @@
 <?python
-title = '%s: %s (%s)' % (course.code, course.title, course.term)
-item_tree = course.item_tree()
-is_editor = course.can_edit(request.user)
-is_joinable = course.is_joinable_by(request.user)
+title = '%s: %s (%s)' % (site.code, site.title, site.term)
+item_tree = site.item_tree()
+is_editor = site.can_edit(request.user)
+is_joinable = site.is_joinable_by(request.user)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
   <xi:include href="master.xhtml"/>
-  <xi:include href="components/course.xhtml"/>
+  <xi:include href="components/site.xhtml"/>
   <head>
     <title>${title}</title>
     <script type="text/javascript" src="${ROOT}/static/menublocks.js"/>
   </head>
   <body>
-    ${course_banner(course)}
+    ${site_banner(site)}
     <p py:if="not item_tree">
-      There are no items associated with this course yet.
+      There are no items associated with this site yet.
     </p>
     <div id="sidepanel">
-      <div py:if="is_editor" id="edit_course" class="little_action_panel">
-	<a href="${course.course_url()}edit/">Edit course details</a>
+      <div py:if="is_editor" id="edit_site" class="little_action_panel">
+	<a href="${site.site_url()}edit/">Edit site details</a>
       </div>
       <div py:if="is_joinable">
-	<a href="${course.course_url()}join/">Join this course</a>
+	<a href="${site.site_url()}join/">Join this site</a>
       </div>
       <div id="showtree_panel" class="little_action_panel">
 	<a href="javascript:doToggleItemTree();">Show/hide tree</a>

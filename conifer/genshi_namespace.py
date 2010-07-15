@@ -24,9 +24,9 @@ def call_or_value(obj, dflt=None):
         return obj or dflt
 
 
-def instructs(user, course):
+def instructs(user, site):
     try:
-        mbr = models.Member.objects.get(user=user, course=course)
+        mbr = models.Member.objects.get(user=user, site=site)
         return mbr.role in ('INSTR', 'PROXY')
     except:
         return False

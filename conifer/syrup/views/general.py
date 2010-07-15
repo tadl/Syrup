@@ -11,12 +11,12 @@ import os
 def welcome(request):
     return HttpResponseRedirect('browse/')
 
-# MARK: propose we get rid of this. We already have a 'Courses' browser.
-def open_courses(request):
+# MARK: propose we get rid of this. We already have a 'Sites' browser.
+def open_sites(request):
     page_num = int(request.GET.get('page', 1))
     count = int(request.GET.get('count', 5))
-    paginator = Paginator(models.ReadingList.objects.all(), count) # fixme, what filter?
-    return g.render('open_courses.xhtml', paginator=paginator,
+    paginator = Paginator(models.Site.objects.all(), count) # fixme, what filter?
+    return g.render('open_sites.xhtml', paginator=paginator,
                     page_num=page_num,
                     count=count)
 # MARK: propose we drop this too. We have a browse.
@@ -27,9 +27,9 @@ def instructors(request):
     if action == 'join':
         paginator = Paginator(models.User.active_instructors(), count)
     elif action == 'drop':
-        paginator = Paginator(models.ReadingList.objects.all(), count) # fixme, what filter?
+        paginator = Paginator(models.Site.objects.all(), count) # fixme, what filter?
     else:
-        paginator = Paginator(models.ReadingList.objects.all(), count) # fixme, what filter?
+        paginator = Paginator(models.Site.objects.all(), count) # fixme, what filter?
         
     return g.render('instructors.xhtml', paginator=paginator,
                     page_num=page_num,
@@ -104,7 +104,7 @@ def browse(request, browse_option=''):
     elif browse_option == 'courses':
         # fixme, course filter should not be (active=True) but based on user identity.
         for_courses = user_filters(request.user)['courses']
-        queryset = models.ReadingList.objects.filter(for_courses)
+        queryset = models.Site.objects.filter(for_courses)
         template = 'courses.xhtml'
 
     queryset = queryset and queryset.distinct()
@@ -114,17 +114,17 @@ def browse(request, browse_option=''):
                     count=count)
 
 @login_required
-def my_courses(request):
-    return g.render('my_courses.xhtml')
+def my_sites(request):
+    return g.render('my_sites.xhtml')
 
 def instructor_detail(request, instructor_id):
     page_num = int(request.GET.get('page', 1))
     count = int(request.GET.get('count', 5))
     '''
     i am not sure this is the best way to go from instructor
-    to course
+    to site
     '''
-    courses = models.ReadingList.objects.filter(member__user=instructor_id,
+    sites = models.Site.objects.filter(member__user=instructor_id,
                                            member__role='INSTR')
     filters = user_filters(request.user)
     courses = courses.filter(filters['courses'])
@@ -146,7 +146,7 @@ def department_detail(request, department_id):
     page_num = int(request.GET.get('page', 1))
     count = int(request.GET.get('count', 5))
 
-    paginator = Paginator(models.ReadingList.objects.
+    paginator = Paginator(models.Site.objects.
         filter(department__id=department_id).
         order_by('title'), count)
 

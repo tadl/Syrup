@@ -10,7 +10,7 @@ dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
       xmlns:py="http://genshi.edgewall.org/">
 <xi:include href="../master.xhtml"/>
 <xi:include href="../paginate.xhtml"/>
-<xi:include href="../components/course.xhtml"/>
+<xi:include href="../components/site.xhtml"/>
 <head>
   <title>${title}</title>
   <script type="text/javascript">
@@ -22,7 +22,7 @@ dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
   </script>
 </head>
 <body>
-    ${course_banner(course)}
+    ${site_banner(site)}
     ${nested_title(parent_item)}
     <h2>${title}</h2>
     <div class="helptext">

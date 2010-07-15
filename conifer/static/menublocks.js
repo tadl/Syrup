@@ -49,7 +49,7 @@ $(init_blocks);
 
 
 // fixme, I need to rename menublocks.js to something more like
-// 'course-item-stuff.js'.
+// 'site-item-stuff.js'.
 
 // this is some item resequencing code. 
 

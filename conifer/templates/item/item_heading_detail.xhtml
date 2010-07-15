@@ -1,21 +1,21 @@
 <?python
-course = item.course
+site = item.site
 title = item.title
-course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
-is_editor = course.can_edit(request.user)
-item_tree = course.item_tree(subtree=item)
+site_title = '%s: %s (%s)' % (site.code, site.title, site.term)
+is_editor = site.can_edit(request.user)
+item_tree = site.item_tree(subtree=item)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
   <xi:include href="../master.xhtml"/>
-  <xi:include href="../components/course.xhtml"/>
+  <xi:include href="../components/site.xhtml"/>
    <head>
     <title>${title}</title>
     <script type="text/javascript" src="${ROOT}/static/menublocks.js"/>
   </head>
   <body>
-    ${course_banner(course)}
+    ${site_banner(site)}
     <div py:if="is_editor" id="sidepanel" class="little_action_panel">
       <div>
 	<a href="edit/">Edit this heading</a>

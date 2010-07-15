@@ -1,6 +1,6 @@
 from conifer.integration import hooks
 from general import *
-from courses import *
+from sites import *
 from items import *
 from search import *
 from admin import *

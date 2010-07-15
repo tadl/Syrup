@@ -39,15 +39,15 @@ def get_query(query_string, search_fields):
 #-----------------------------------------------------------------------------
 # Search and search support
 
-def search(request, in_course=None, with_instructor=None):
+def search(request, in_site=None, with_instructor=None):
     ''' Need to work on this, the basic idea is
-        - put an entry point for instructor and course listings
+        - put an entry point for instructor and site listings
         - page through item entries
-        If in_course is provided, then limit search to the contents of the specified course.
+        If in_site is provided, then limit search to the contents of the specified site.
         If with_instructor is provided, then limit search to instructors
     '''
         
-    print("in_couse is %s" % in_course)
+    print("in_couse is %s" % in_site)
     print("with_instructor is %s" % with_instructor)
     found_entries = None
     page_num = int(request.GET.get('page', 1))
@@ -69,7 +69,7 @@ def search(request, in_course=None, with_instructor=None):
 
         # Next, we filter based on user permissions.
         flt = user_filters(request.user)
-        user_filter_for_items, user_filter_for_courses = flt['items'], flt['courses'] 
+        user_filter_for_items, user_filter_for_sites = flt['items'], flt['sites'] 
         # Note, we haven't user-filtered anything yet; we've just set
         # up the filters.
 
@@ -92,11 +92,11 @@ def search(request, in_course=None, with_instructor=None):
                 #need to think about sort order here, probably better by author (will make sortable at display level)
                 results_list = models.Item.objects.filter(item_query)
 
-        if in_course:
-            # For an in-course search, we know the user has
-            # permissions to view the course; no need for
+        if in_site:
+            # For an in-site search, we know the user has
+            # permissions to view the site; no need for
             # user_filter_for_items.
-            results_list = results_list.filter(course=in_course)
+            results_list = results_list.filter(site=in_site)
         elif with_instructor:
             print("in instructor")
             results_list = results_list.filter(instructor=with_instructor)
@@ -107,38 +107,38 @@ def search(request, in_course=None, with_instructor=None):
         results_len = len(results_list)
         paginator = Paginator(results_list, count)
 
-        #course search
-        if in_course:
-            # then no course search is necessary.
-            course_list = []; course_len = 0
+        #site search
+        if in_site:
+            # then no site search is necessary.
+            site_list = []; site_len = 0
         else:
-            course_query = get_query(query_string, ['title', 'department__name'])
+            site_query = get_query(query_string, ['title', 'department__name'])
             # apply the search-filter and the user-filter
-            course_results = models.ReadingList.objects.filter(course_query).filter(user_filter_for_courses)
-            course_list = course_results.order_by('title')
-            course_len = len(course_results)
+            site_results = models.Site.objects.filter(site_query).filter(user_filter_for_sites)
+            site_list = site_results.order_by('title')
+            site_len = len(site_results)
 
         #instructor search
-        if in_course:
+        if in_site:
             instructor_list = []; instr_len = 0
         else:
             instr_query = get_query(query_string, ['user__last_name'])
             instructor_results = models.Member.objects.filter(instr_query).filter(role='INSTR')
-            if in_course:
-                instructor_results = instructor_results.filter(course=in_course)
+            if in_site:
+                instructor_results = instructor_results.filter(site=in_site)
             instructor_list = instructor_results.order_by('user__last_name')[0:5]
             instr_len = len(instructor_results)
-    elif in_course:
-        # we are in a course, but have no query? Return to the course-home page.
+    elif in_site:
+        # we are in a site, but have no query? Return to the site-home page.
         return HttpResponseRedirect('../')
     else:
         results_list = models.Item.objects.order_by('title')
         results_len = len(results_list)
         paginator = Paginator( results_list,
             count)
-        course_results = models.ReadingList.objects.filter(active=True)
-        course_list = course_results.order_by('title')[0:5]
-        course_len = len(course_results)
+        site_results = models.Site.objects.filter(active=True)
+        site_list = site_results.order_by('title')[0:5]
+        site_len = len(site_results)
         instructor_results = models.Member.objects.filter(role='INSTR')
         instructor_list = instructor_results.order_by('user__last_name')[0:5]
         instr_len = len(instructor_results)

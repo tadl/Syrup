@@ -2,26 +2,26 @@ from _common import *
 from django.utils.translation import ugettext as _
 
 @members_only
-def item_detail(request, course_id, item_id):
+def item_detail(request, site_id, item_id):
     """Display an item (however that makes sense).""" 
     # really, displaying an item will vary based on what type of item
     # it is -- e.g. a URL item would redirect to the target URL. I'd
     # like this URL to be the generic dispatcher, but for now let's
     # just display some metadata about the item.
-    item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
+    item = get_object_or_404(models.Item, pk=item_id, site__id=site_id)
     if item.url:
         return _heading_url(request, item)
     else:
-        return item_metadata(request, course_id, item_id)
+        return item_metadata(request, site_id, item_id)
 
 @members_only
-def item_metadata(request, course_id, item_id):
+def item_metadata(request, site_id, item_id):
     """Display a metadata page for the item."""
-    item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
+    item = get_object_or_404(models.Item, pk=item_id, site__id=site_id)
     if item.item_type == 'HEADING':
         return _heading_detail(request, item)
     else:
-        return g.render('item/item_metadata.xhtml', course=item.course,
+        return g.render('item/item_metadata.xhtml', site=item.site,
                         item=item)
 
 def _heading_url(request, item):
@@ -33,7 +33,7 @@ def _heading_detail(request, item):
 
 
 @instructors_only
-def item_add(request, course_id, item_id):
+def item_add(request, site_id, item_id):
     # The parent_item_id is the id for the parent-heading item. Zero
     # represents 'top-level', i.e. the new item should have no
     # heading. 
@@ -42,19 +42,19 @@ def item_add(request, course_id, item_id):
     parent_item_id = item_id
     if parent_item_id=='0':
         parent_item = None
-        course = get_object_or_404(models.Course, pk=course_id)
-        siblings = course.item_set.filter(parent_heading=None)
+        site = get_object_or_404(models.Site, pk=site_id)
+        siblings = site.item_set.filter(parent_heading=None)
     else:
-        parent_item = get_object_or_404(models.Item, pk=parent_item_id, course__id=course_id)
+        parent_item = get_object_or_404(models.Item, pk=parent_item_id, site__id=site_id)
         assert parent_item.item_type == 'HEADING', _('You can only add items to headings!')
-        course = parent_item.course
-        siblings = course.item_set.filter(parent_heading=parent_item)
+        site = parent_item.site
+        siblings = site.item_set.filter(parent_heading=parent_item)
 
     try:
         next_order = 1 + max(i.sort_order for i in siblings)
     except:
         next_order = 0
-    if not course.can_edit(request.user):
+    if not site.can_edit(request.user):
         return _access_denied(_('You are not an editor.'))
 
     item_type = request.GET.get('item_type')
@@ -91,7 +91,7 @@ def item_add(request, course_id, item_id):
                 return HttpResponseRedirect(request.get_full_path())
             else:
                 item = models.Item(
-                    course=course,
+                    site=site,
                     item_type='HEADING',
                     sort_order = next_order,
                     parent_heading=parent_item,
@@ -108,7 +108,7 @@ def item_add(request, course_id, item_id):
                 return HttpResponseRedirect(request.get_full_path())
             else:
                 item = models.Item(
-                    course=course,
+                    site=site,
                     item_type='URL',
                     parent_heading=parent_item,
                     sort_order = next_order,
@@ -124,7 +124,7 @@ def item_add(request, course_id, item_id):
                 # fixme, better error handling.
                 return HttpResponseRedirect(request.get_full_path())
             item = models.Item(
-                course=course,
+                site=site,
                 item_type='ELEC',
                 parent_heading=parent_item,
                 sort_order = next_order,
@@ -141,21 +141,21 @@ def item_add(request, course_id, item_id):
         if parent_item:
             return HttpResponseRedirect(parent_item.item_url('meta'))
         else:
-            return HttpResponseRedirect(course.course_url())
+            return HttpResponseRedirect(site.site_url())
 
 @instructors_only
-def item_add_cat_search(request, course_id, item_id):
+def item_add_cat_search(request, site_id, item_id):
     # this chunk stolen from item_add(). Refactor.
     parent_item_id = item_id
     if parent_item_id=='0':
         parent_item = None
-        course = get_object_or_404(models.Course, pk=course_id)
-        siblings = course.item_set.filter(parent_heading=None)
+        site = get_object_or_404(models.Site, pk=site_id)
+        siblings = site.item_set.filter(parent_heading=None)
     else:
-        parent_item = get_object_or_404(models.Item, pk=parent_item_id, course__id=course_id)
+        parent_item = get_object_or_404(models.Item, pk=parent_item_id, site__id=site_id)
         assert parent_item.item_type == 'HEADING', _('You can only add items to headings!')
-        course = parent_item.course
-        siblings = course.item_set.filter(parent_heading=parent_item)
+        site = parent_item.site
+        siblings = site.item_set.filter(parent_heading=parent_item)
 
     try:
         next_order = 1 + max(i.sort_order for i in siblings)
@@ -167,28 +167,28 @@ def item_add_cat_search(request, course_id, item_id):
     if request.method != 'POST':
         if not 'query' in request.GET:
             return g.render('item/item_add_cat_search.xhtml', results=[], query='', 
-                            course=course, parent_item=parent_item)
+                            site=site, parent_item=parent_item)
         query = request.GET.get('query','').strip()
         start, limit = (int(request.GET.get(k,v)) for k,v in (('start',1),('limit',10)))
         results, numhits = lib_integration.cat_search(query, start, limit)
         return g.render('item/item_add_cat_search.xhtml', 
                         results=results, query=query, 
                         start=start, limit=limit, numhits=numhits,
-                        course=course, parent_item=parent_item)
+                        site=site, parent_item=parent_item)
     else:
-        # User has selected an item; add it to course site.
+        # User has selected an item; add it to site.
         raw_pickitem = request.POST.get('pickitem', '').strip()
         #fixme, this block copied from item_add. refactor.
         parent_item_id = item_id
         if parent_item_id == '0': 
             # no heading (toplevel)
             parent_item = None
-            course = get_object_or_404(models.Course, pk=course_id)
+            site = get_object_or_404(models.Site, pk=site_id)
         else:
-            parent_item = get_object_or_404(models.Item, pk=parent_item_id, course__id=course_id)
+            parent_item = get_object_or_404(models.Item, pk=parent_item_id, site__id=site_id)
             assert parent_item.item_type == 'HEADING', _('You can only add items to headings!')
-            course = parent_item.course
-        if not course.can_edit(request.user):
+            site = parent_item.site
+        if not site.can_edit(request.user):
             return _access_denied(_('You are not an editor.'))
 
         pickitem = simplejson.loads(raw_pickitem)
@@ -202,7 +202,7 @@ def item_add_cat_search(request, course_id, item_id):
         else:
             dct = dict(item_type='PHYS')
 
-        item = course.item_set.create(parent_heading=parent_item,
+        item = site.item_set.create(parent_heading=parent_item,
                                       sort_order=next_order,
                                       title=dublin.get('dc:title','Untitled'),
                                       **dct)
@@ -218,9 +218,9 @@ def item_add_cat_search(request, course_id, item_id):
 #------------------------------------------------------------
 
 @instructors_only
-def item_edit(request, course_id, item_id):
-    course = get_object_or_404(models.Course, pk=course_id)
-    item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
+def item_edit(request, site_id, item_id):
+    site = get_object_or_404(models.Site, pk=site_id)
+    item = get_object_or_404(models.Item, pk=item_id, site__id=site_id)
     item_type = item.item_type
     template = 'item/item_add_%s.xhtml' % item_type.lower()
     parent_item = item.parent_heading
@@ -249,9 +249,9 @@ def item_edit(request, course_id, item_id):
         return HttpResponseRedirect(item.parent_url())
         
 @instructors_only
-def item_delete(request, course_id, item_id):
-    course = get_object_or_404(models.Course, pk=course_id)
-    item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
+def item_delete(request, site_id, item_id):
+    site = get_object_or_404(models.Site, pk=site_id)
+    item = get_object_or_404(models.Item, pk=item_id, site__id=site_id)
     if request.method != 'POST':
         return g.render('item/item_delete_confirm.xhtml', **locals())
     else:
@@ -261,16 +261,16 @@ def item_delete(request, course_id, item_id):
             if item.parent_heading:
                 redir = HttpResponseRedirect(item.parent_heading.item_url('meta'))
             else:
-                redir = HttpResponseRedirect(course.course_url())
+                redir = HttpResponseRedirect(site.site_url())
             item.delete()
             return redir
         else:
             return HttpResponseRedirect('../meta')
     
 @members_only
-def item_download(request, course_id, item_id, filename):
-    course = get_object_or_404(models.Course, pk=course_id)
-    item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
+def item_download(request, site_id, item_id, filename):
+    site = get_object_or_404(models.Site, pk=site_id)
+    item = get_object_or_404(models.Item, pk=item_id, site__id=site_id)
     assert item.item_type == 'ELEC', _('Can only download ELEC documents!')
     fileiter = item.fileobj.chunks()
     resp = HttpResponse(fileiter)
@@ -283,13 +283,13 @@ def item_download(request, course_id, item_id, filename):
 #------------------------------------------------------------
 # resequencing items
 
-def _reseq(request, course, parent_heading):
+def _reseq(request, site, parent_heading):
     new_order = request.POST['new_order'].strip().split(' ')
     # new_order is now a list like this: ['item_3', 'item_8', 'item_1', ...].
     # get at the ints.
     new_order = [int(n.split('_')[1]) for n in new_order]
     print >> sys.stderr, new_order
-    the_items = list(course.item_set.filter(parent_heading=parent_heading).order_by('sort_order'))
+    the_items = list(site.item_set.filter(parent_heading=parent_heading).order_by('sort_order'))
     # sort the items by position in new_order
     the_items.sort(key=lambda item: new_order.index(item.id))
     for newnum, item in enumerate(the_items):
@@ -298,24 +298,24 @@ def _reseq(request, course, parent_heading):
     return HttpResponse("'ok'");
 
 @instructors_only
-def course_reseq(request, course_id):
-    course = get_object_or_404(models.Course, pk=course_id)
+def site_reseq(request, site_id):
+    site = get_object_or_404(models.Site, pk=site_id)
     parent_heading = None
-    return _reseq(request, course, parent_heading)
+    return _reseq(request, site, parent_heading)
 
 @instructors_only
-def item_heading_reseq(request, course_id, item_id):
-    course = get_object_or_404(models.Course, pk=course_id)
-    item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
+def item_heading_reseq(request, site_id, item_id):
+    site = get_object_or_404(models.Site, pk=site_id)
+    item = get_object_or_404(models.Item, pk=item_id, site__id=site_id)
     parent_heading = item
-    return _reseq(request, course, parent_heading)
+    return _reseq(request, site, parent_heading)
 
 
 @instructors_only
-def item_relocate(request, course_id, item_id):
+def item_relocate(request, site_id, item_id):
     """Move an item from its current subheading to another one."""
-    course = get_object_or_404(models.Course, pk=course_id)
-    item = get_object_or_404(models.Item, pk=item_id, course__id=course_id)
+    site = get_object_or_404(models.Site, pk=site_id)
+    item = get_object_or_404(models.Item, pk=item_id, site__id=site_id)
     if request.method != 'POST':
         return g.render('item/item_relocate.xhtml', **locals())
     else:
@@ -323,7 +323,7 @@ def item_relocate(request, course_id, item_id):
         if newheading == 0:
             new_parent = None
         else:
-            new_parent = course.item_set.get(pk=newheading)
+            new_parent = site.item_set.get(pk=newheading)
             if item in new_parent.hierarchy():
                 # then we would create a cycle. Bail out.
                 return simple_message(_('Impossible item-move!'), 
@@ -333,7 +333,7 @@ def item_relocate(request, course_id, item_id):
         if new_parent:
             return HttpResponseRedirect(new_parent.item_url('meta'))
         else:
-            return HttpResponseRedirect(course.course_url())
+            return HttpResponseRedirect(site.site_url())
         
         
 
@@ -496,7 +496,7 @@ def phys_circlist(request):
     cursor.close()
 
     wanted = models.Item.objects.filter(
-        item_type='PHYS', course__term=term).select_related('metadata')
+        item_type='PHYS', site__term=term).select_related('metadata')
     wanted = [w for w in wanted if w.id not in bad_ids]
     return g.render('phys/circlist_for_term.xhtml', 
                     term=term,

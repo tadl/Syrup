@@ -1,13 +1,13 @@
 <?python
 is_edit = bool(item.id)
 title = is_edit and _('Edit a physical-item request') or _('Add a physical-item request')
-course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
+site_title = '%s: %s (%s)' % (site.code, site.title, site.term)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
   <xi:include href="../master.xhtml"/>
-  <xi:include href="../components/course.xhtml"/>
+  <xi:include href="../components/site.xhtml"/>
   <head>
     <title>${title}</title>
     <script type="text/javascript">
@@ -15,7 +15,7 @@ course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
     </script>
   </head>
   <body>
-    ${course_banner(course)}
+    ${site_banner(site)}
     ${nested_title(parent_item)}
     <div id="sidepanel">${offer_to_delete(item)}</div>
     <h2>${title}</h2>

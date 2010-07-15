@@ -37,7 +37,7 @@ class BaseModel(m.Model):
 
 # General methods that return sets of users (e.g. all instructors, all
 # staff) -- let's put those on the UserProfile class, as class
-# methods. For now, let's put personal methods (e.g. my courses) on
+# methods. For now, let's put personal methods (e.g. my sites) on
 # the User object (although UserProfile would be another logical
 # candidate).
 
@@ -186,7 +186,7 @@ class Site(BaseModel):
 
     def item_tree(self, subtree=None):
         """
-        Return a list, representing a tree of the course items, in
+        Return a list, representing a tree of the site items, in
         display order.  Every element of the list is an (Item, [Item])
         tuple, where the second element is a list of sub-elements (if
         a heading) or None (if an item).
@@ -214,12 +214,12 @@ class Site(BaseModel):
         walk(subtree, out)
         return out
 
-    def course_url(self, suffix=''):
+    def site_url(self, suffix=''):
         # I'm not fond of this being here. I think I'll leave this and
         # item_url non-implemented, and monkey-patch them in views.py.
         req = genshi_locals.get_request()
         prefix = req.META['SCRIPT_NAME']
-        return '%s/course/%d/%s' % (prefix, self.id, suffix)
+        return '%s/site/%d/%s' % (prefix, self.id, suffix)
 
     def generate_new_passkey(self):
         # todo: have a pluggable passkey algorithm.
@@ -261,7 +261,7 @@ class Site(BaseModel):
 
     def is_joinable_by(self, user):
         """Return True if the user could feasibly register into this
-        course: she's not already in it, and the course allows open
+        site: she's not already in it, and the site allows open
         registration."""
         return user.is_authenticated() \
             and self.access in ('ANON', 'LOGIN') \
@@ -466,24 +466,24 @@ class Item(BaseModel):
 
     def item_url(self, suffix='', force_local_url=False):
         # I'm not fond of this being here. I think I'll leave this and
-        # course_url non-implemented, and monkey-patch them in views.py.
+        # site_url non-implemented, and monkey-patch them in views.py.
         req = genshi_locals.get_request()
         prefix = req.META['SCRIPT_NAME']
         if self.item_type == 'ELEC' and suffix == '':
-            return '%s/course/%d/item/%d/dl/%s' % (
-                prefix, self.course_id, self.id,
+            return '%s/site/%d/item/%d/dl/%s' % (
+                prefix, self.site_id, self.id,
                 self.fileobj.name.split('/')[-1])
         if self.item_type == 'URL' and suffix == '' and not force_local_url:
             return self.url
         else:
-            return '%s/course/%d/item/%d/%s' % (
-                prefix, self.course_id, self.id, suffix)
+            return '%s/site/%d/item/%d/%s' % (
+                prefix, self.site_id, self.id, suffix)
 
     def parent_url(self, suffix=''):
         if self.parent_heading:
             return self.parent_heading.item_url()
         else:
-            return self.course.course_url()
+            return self.site.site_url()
 
     def describe_physical_item_status(self):
         """Return a (bool,str) tuple: whether the item is available,

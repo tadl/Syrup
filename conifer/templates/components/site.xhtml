@@ -1,13 +1,13 @@
 <?python
-searchtext = _('search this course...')
+searchtext = _('search this site...')
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       py:strip="">
   
-  <div py:def="course_search(course)" id="coursesearch" style="float: right;">
-    <form method="get" action="${course.course_url('search')}" 
+  <div py:def="site_search(site)" id="sitesearch" style="float: right;">
+    <form method="get" action="${site.site_url('search')}" 
 	  onsubmit="if(q.value.replace(/^\s*/, '').replace(/\s*$/, '') =='') return false;">
       <input id="q" name="q" maxlength="100" size="25" type="text" 
 	     value="${searchtext}" onblur="if(this.value=='') this.value='${searchtext}';" 
@@ -15,11 +15,11 @@ searchtext = _('search this course...')
     </form>
   </div>
   
-  <div py:def="course_banner(course)" py:strip="True">
-    <div id="coursebanner">
-      ${course_search(course)}
-      <div class="deptident">${course.department}</div>
-      <h1><a href="${course.course_url()}"><span py:if="course.code">${course.code}: </span>${course.title}</a></h1>
+  <div py:def="site_banner(site)" py:strip="True">
+    <div id="sitebanner">
+      ${site_search(site)}
+      <div class="deptident">${site.department}</div>
+      <h1><a href="${site.site_url()}"><span py:if="site.code">${site.code}: </span>${site.title}</a></h1>
     </div>
   </div>
   
@@ -61,7 +61,7 @@ searchtext = _('search this course...')
        py:with="hier=item.hierarchy()[:-1]; lastnum=len(hier)"
        class="nestedtitle">
     <div id="breadcrumbs">
-      <span><a href="${item.course.course_url()}">Top</a></span> &raquo;
+      <span><a href="${item.site.site_url()}">Top</a></span> &raquo;
       <span py:for="n, x in enumerate(hier)"><a href="${x.item_url()}">${x.title}</a> &raquo; </span>
       <span class="final_item">${item.title}</span>
     </div>

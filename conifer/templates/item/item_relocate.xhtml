@@ -5,13 +5,13 @@ title = 'Move item under a different heading'
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
   <xi:include href="../master.xhtml"/>
-  <xi:include href="../components/course.xhtml"/>
+  <xi:include href="../components/site.xhtml"/>
    <head>
     <title>${title}</title>
     <script type="text/javascript" src="${ROOT}/static/menublocks.js"/>
   </head>
   <body>
-    ${course_banner(course)}
+    ${site_banner(site)}
     ${nested_title(item)}
     <h2>${title}</h2>
     <p>Please choose the heading under which this item should be moved:</p>
@@ -24,7 +24,7 @@ title = 'Move item under a different heading'
 	  <div class="gap"/></td></tr>
 	  <tr><th>New heading:</th>
 	  <td>
-	    ${heading_tree(course.item_tree(), stop_at=item)}
+	    ${heading_tree(site.item_tree(), stop_at=item)}
 	    <div class="gap"/>
 	  </td>
 	  </tr>

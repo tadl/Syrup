@@ -1,22 +1,22 @@
 <?python
 if instance.id:
-    title = _('Edit course details')
+    title = _('Edit site details')
 else:
-    title = _('Create a new course site')
+    title = _('Create a new site')
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
 <xi:include href="master.xhtml"/>
-<xi:include href="components/course.xhtml"/>
+<xi:include href="components/site.xhtml"/>
 <head>
   <title>${title}</title>
-  <script type="text/javascript" src="${ROOT}/static/edit_course.js"/>
+  <script type="text/javascript" src="${ROOT}/static/edit_site.js"/>
 </head>
 <body>
-  <div py:if="instance.id">${course_banner(instance)}</div>
+  <div py:if="instance.id">${site_banner(instance)}</div>
   <h1>${title}</h1>
-  <p py:if="instance.id"><a href="permission/">Edit course permissions</a> &bull; <a href="${instance.course_url()}">Return to course page</a></p>
+  <p py:if="instance.id"><a href="permission/">Edit site permissions</a> &bull; <a href="${instance.site_url()}">Return to site page</a></p>
   <form action="." method="POST">
     <tr py:def="field_row(field, example=None)">
       <th>${field.label}</th>
@@ -40,12 +40,12 @@ else:
   </form>
   <div class="gap"/>
   <div py:if="instance.id">
-    <h2>Delete this course</h2>
+    <h2>Delete this site</h2>
     <form action="delete/" method="POST">
       <p><input type="checkbox" name="confirm_delete" id="confirm_delete"/>
-      <label for="confirm_delete">Yes, I want to delete this course site and all of its contents.</label>
+      <label for="confirm_delete">Yes, I want to delete this site and all of its contents.</label>
       </p>
-      <p><input type="submit" value="Delete this course"/> ${go_back_link()}</p>
+      <p><input type="submit" value="Delete this site"/> ${go_back_link()}</p>
     </form>
   </div>
 </body>

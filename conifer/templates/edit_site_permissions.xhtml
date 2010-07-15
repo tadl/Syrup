@@ -1,20 +1,20 @@
 <?python
-title = _('Edit course permissions')
-instructors = [m for m in models.Member.objects.filter(course=course) if m.role in ('PROXY', 'INSTR')]
+title = _('Edit site permissions')
+instructors = [m for m in models.Member.objects.filter(site=site) if m.role in ('PROXY', 'INSTR')]
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
 <xi:include href="master.xhtml"/>
-  <xi:include href="components/course.xhtml"/>
+  <xi:include href="components/site.xhtml"/>
 <head>
   <title>${title}</title>
-  <script type="text/javascript" src="${ROOT}/static/edit_course_permissions.js"/>
+  <script type="text/javascript" src="${ROOT}/static/edit_site_permissions.js"/>
 </head>
 <body>
-  ${course_banner(course)}
+  ${site_banner(site)}
   <h1>${title}</h1>
-  <p><a href="../">Edit course details</a> &bull; <a href="${course.course_url()}">Return to course page</a></p>
+  <p><a href="../">Edit site details</a> &bull; <a href="${site.site_url()}">Return to site page</a></p>
   <form action="." method="POST">
     <h2>Instructor Access</h2>
     <div py:if="defined('instructor_error')" class="errors">${instructor_error}</div>
@@ -47,16 +47,16 @@ instructors = [m for m in models.Member.objects.filter(course=course) if m.role 
     <div class="gap"/>
     <h2 id="student_access">Student Access</h2>
     <p>Who will have student-level access to this site?
-    <span style="margin-left: 12;"/>${Markup(choose_access.render('access', course.access, {'id':'id_access'}, []))}</p>
+    <span style="margin-left: 12;"/>${Markup(choose_access.render('access', site.access, {'id':'id_access'}, []))}</p>
     <div id="INVIT_panel" class="specific">
-      <h3>Course Invitation Code</h3>
-      <p style="font-size: larger;">Your Course Invitation Code is: <strong>${course.passkey}</strong>
+      <h3>Site Invitation Code</h3>
+      <p style="font-size: larger;">Your Site Invitation Code is: <strong>${site.passkey}</strong>
       <span style="margin-left: 16;">
 	  <input type="submit" name="action_change_code" value="Select a new code"/>
       </span>
       </p>
       <p>This invitation code will enable your students to join this
-      course site. Share it only with your students: anyone who has
+      site. Share it only with your students: anyone who has
       the code can join your site.</p>
       <p>You may change the code at any time. This will not block
       students who have already joined, but will prevent new students
@@ -101,9 +101,9 @@ instructors = [m for m in models.Member.objects.filter(course=course) if m.role 
 
     <div class="gap"/>
     <h2>Class List</h2>
-    <p>The following users have student-level access in this course site.</p>
+    <p>The following users have student-level access in this site.</p>
     <ol>
-      <li py:for="student in course.get_students()">
+      <li py:for="student in site.get_students()">
 	${student.get_full_name()} (${student.email})
       </li>
     </ol>

@@ -1,23 +1,23 @@
 <?python
-title = _('Join this course?')
+title = _('Join this site?')
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
   <xi:include href="master.xhtml"/>
-  <xi:include href="components/course.xhtml"/>
+  <xi:include href="components/site.xhtml"/>
   <head>
     <title>${title}</title>
     <script type="text/javascript" src="${ROOT}/static/menublocks.js"/>
   </head>
   <body>
-    ${course_banner(course)}
+    ${site_banner(site)}
     <h2>${title}</h2>
 
-    <p>If you choose to join this course, it will be added to your "My
-    Courses" list.</p>
+    <p>If you choose to join this site, it will be added to your "My
+    Sites" list.</p>
     <form action="." method="POST">
-      <p><input type="submit" value="Yes, join this course"/> ${go_back_link()}</p>
+      <p><input type="submit" value="Yes, join this site"/> ${go_back_link()}</p>
     </form>    
 
   </body>

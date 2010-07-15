@@ -1,17 +1,17 @@
 <?python
 from django.utils.simplejson import loads
-course_title = '%s: %s (%s)' % (course.code, course.title, course.term)
+site_title = '%s: %s (%s)' % (site.code, site.title, site.term)
 hier = item.hierarchy()[:-1]
 title = item.title
 smallint = item.smallint()
 metadata = item.metadata_set.all()
-is_editor = course.can_edit(request.user)
+is_editor = site.can_edit(request.user)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
   <xi:include href="../master.xhtml"/>
-  <xi:include href="../components/course.xhtml"/>
+  <xi:include href="../components/site.xhtml"/>
   <head>
     <title>${title}</title>
     <style>
@@ -20,7 +20,7 @@ is_editor = course.can_edit(request.user)
     </style>
   </head>
   <body>
-    ${course_banner(course)}
+    ${site_banner(site)}
     ${nested_title(item)}
     <div py:if="is_editor" id="sidepanel">
       <div>

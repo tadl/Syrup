@@ -107,16 +107,18 @@ def auth_handler(request, path):
 #-----------------------------------------------------------------------------
 # Authorization
 
-def _fast_user_membership_query(user_id, course_id, where=None):
+# TODO: this _fast_user_membership_query is broken.
+
+def _fast_user_membership_query(user_id, site_id, where=None):
     # I use a raw SQL query here because I want the lookup to be as
     # fast as possible. Caching would help too, but let's try this
     # first. (todo, review later.)
     query = ('select count(*) from syrup_member '
-             'where user_id=%s and course_id=%s ')
+             'where user_id=%s and site_id=%s ')
     if where:
         query += (' and ' + where)
     cursor = django.db.connection.cursor()
-    cursor.execute(query, [user_id, int(course_id)])
+    cursor.execute(query, [user_id, int(site_id)])
     res = cursor.fetchall()
     cursor.close()
     allowed = bool(res[0][0])
@@ -136,13 +138,13 @@ def _access_denied(request, message):
 
 # decorator
 def instructors_only(handler):
-    def hdlr(request, course_id, *args, **kwargs):
+    def hdlr(request, site_id, *args, **kwargs):
         allowed = request.user.is_superuser
         if not allowed:
             allowed = _fast_user_membership_query(
-                request.user.id, course_id, "role in ('INSTR','PROXY')")
+                request.user.id, site_id, "role in ('INSTR','ASSIST')")
         if allowed:
-            return handler(request, course_id, *args, **kwargs)
+            return handler(request, site_id, *args, **kwargs)
         else:
             return _access_denied(request,
                                   _('Only instructors are allowed here.'))
@@ -150,22 +152,22 @@ def instructors_only(handler):
 
 # decorator
 def members_only(handler):
-    def hdlr(request, course_id, *args, **kwargs):
+    def hdlr(request, site_id, *args, **kwargs):
         user = request.user
         allowed = user.is_superuser
         if not allowed:
-            course = models.ReadingList.objects.get(pk=course_id)
-            allowed = course.access=='ANON' or \
-                (user.is_authenticated() and course.access=='LOGIN')
+            site = models.Site.objects.get(pk=site_id)
+            allowed = site.access=='ANON' or \
+                (user.is_authenticated() and site.access=='LOGIN')
         if not allowed:
-            allowed = _fast_user_membership_query(user.id, course_id)
+            allowed = _fast_user_membership_query(user.id, site_id)
         if allowed:
-            return handler(request, course_id, *args, **kwargs)
+            return handler(request, site_id, *args, **kwargs)
         else:
-            if course.access=='LOGIN':
+            if site.access=='LOGIN':
                 msg = _('Please log in, so that you can enter this site.')
             else:
-                msg = _('Only course members are allowed here.')
+                msg = _('Only site members are allowed here.')
             return _access_denied(request, msg)
     return hdlr
 
@@ -212,24 +214,24 @@ def custom_400_handler(request):
 #-----------------------------------------------------------
 
 def user_filters(user):
-    """Returns a dict of filters for Item, ReadingList, etc. querysets,
+    """Returns a dict of filters for Item, Site, etc. querysets,
     based on the given user's permissions."""
     # TODO, figure out a way of EXPLAIN'ing these queries! I have no
     # idea of their complexity.
     if user.is_anonymous():
-        # then only anonymous-access courses are available.
-        filters = {'items': Q(course__access='ANON'),
-                   'courses': Q(access='ANON'),
+        # then only anonymous-access sites are available.
+        filters = {'items': Q(site__access='ANON'),
+                   'sites': Q(access='ANON'),
                    'instructors': Q(), # TODO: do we really need a filter here?
                    }
     else:
-        # logged-in users have access to courses which are of the
+        # logged-in users have access to sites which are of the
         # LOGIN class ('all logged-in users') or in which they
         # have explicit Member-ship.
         filters = {
-            'items': (Q(course__access__in=('LOGIN','ANON')) \
-                          | Q(course__member__user=user)),
-            'courses': (Q(access__in=('LOGIN','ANON')) | Q(member__user=user)),
+            'items': (Q(site__access__in=('LOGIN','ANON')) \
+                          | Q(site__member__user=user)),
+            'sites': (Q(access__in=('LOGIN','ANON')) | Q(member__user=user)),
             'instructors': Q(), # TODO: do we really need a filter here?
             }
     return filters
