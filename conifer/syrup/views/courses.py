@@ -38,7 +38,7 @@ if COURSE_CODE_LIST:
     
 @login_required
 def add_new_course(request):
-    if not request.user.has_perm('add_course'):
+    if not request.user.can_create_reading_lists():
         return _access_denied(_('You are not allowed to create course sites.'))
     return _add_or_edit_course(request)
 

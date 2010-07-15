@@ -8,8 +8,8 @@ import re
 import random
 from django.utils import simplejson
 from conifer.middleware import genshi_locals
-
 # campus and library integration
+from conifer.integration._hooksystem import *
 from django.conf import settings
 campus = settings.CAMPUS_INTEGRATION
 # TODO: fixme, not sure if conifer.custom is a good parent.
@@ -42,8 +42,12 @@ class BaseModel(m.Model):
 # candidate).
 
 class UserExtensionMixin(object):
-    def courses(self):
-        return Course.objects.filter(member__user=self.id)
+    def reading_lists(self):
+        return ReadingList.objects.filter(group__membership__user=self.id)
+
+    def can_create_reading_lists(self):
+        return self.is_staff or \
+            bool(callhook('can_create_reading_lists', self))
 
     @classmethod
     def active_instructors(cls):
@@ -51,6 +55,8 @@ class UserExtensionMixin(object):
         # We are using the Django is_active flag to model activeness.
         return cls.objects.filter(membership__role='INSTR', is_active=True) \
             .order_by('-last_name','-first_name').distinct()
+
+
 
 for k,v in [(k,v) for k,v in UserExtensionMixin.__dict__.items() \
                 if not k.startswith('_')]:
@@ -65,6 +71,7 @@ class UserProfile(BaseModel):
 
     # When we add email notices for new items, this is how we'll set
     # the preference, and how far back we'll need to look.
+
     wants_email_notices = m.BooleanField(default=False)
     last_email_notice   = m.DateTimeField(
         default=datetime.now, blank=True, null=True)
@@ -290,7 +297,8 @@ class Group(BaseModel):
     # external_id) is unique forall external_id != NULL.
 
     reading_list = m.ForeignKey(ReadingList)
-    external_id = m.CharField(default=None, null=True, blank=True,
+    external_id = m.CharField(null=True, blank=True,
+                              db_index=True,
                               max_length=2048)
 
     def __unicode__(self):

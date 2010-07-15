@@ -7,9 +7,9 @@
     use one for now
 -->
 <ul id="tabbar">
-  <li><a href="${ROOT}/">Home</a></li>
+  <!-- <li><a href="${ROOT}/">Home</a></li> -->
   <li><a href="${ROOT}/browse/">Browse</a></li>
-  <li class="active"><a href="${ROOT}/course/">My Courses</a></li>
+  <li class="active"><a href="${ROOT}/course/">My Reserves</a></li>
   <div py:strip="True"
        py:if="request.user.is_staff">
     <li><a href="${ROOT}/admin/">Admin Options</a></li>

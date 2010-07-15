@@ -1,3 +1,4 @@
+from conifer.integration import hooks
 from general import *
 from courses import *
 from items import *

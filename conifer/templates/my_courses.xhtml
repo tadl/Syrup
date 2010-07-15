@@ -1,5 +1,5 @@
 <?python
-title = _('My Courses')
+title = _('My Reserves')
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -12,18 +12,18 @@ title = _('My Courses')
   <h1>${title}</h1>
   <?python
     if user.is_authenticated():
-        my_courses = user.courses()
+        my_courses = user.reading_lists()
     else:
         my_courses = []
   ?>
-  <p py:if="not my_courses">You are not part of any courses at this time.</p>
+  <p py:if="not my_courses">You are not part of any course reserves at this time.</p>
   <p py:for="course in my_courses" style="font-size: large;">
     <a href="${course.id}/">${course.list_display()}</a>
   </p>
   <div class="gap"/>
   <div class="itemadd">
-  <p py:if="user.has_perm('add_course')"><a href="new/">Create a new course site</a></p>
-  <p><a href="invitation/">Join a course using an Invitation Code</a></p>
+  <p py:if="user.can_create_reading_lists()"><a href="new/">Create a new course reserves list</a></p>
+  <p><a href="invitation/">Join a reserves list using an Invitation Code</a></p>
   </div>
 </body>
 </html>
