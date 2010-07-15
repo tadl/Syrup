@@ -1,5 +1,6 @@
 from _common import *
 from django.utils.translation import ugettext as _
+from xml.etree import ElementTree as E
 
 @members_only
 def item_detail(request, site_id, item_id):
@@ -170,8 +171,12 @@ def item_add_cat_search(request, site_id, item_id):
         if not site.can_edit(request.user):
             return _access_denied(_('You are not an editor.'))
 
-        pickitem = simplejson.loads(raw_pickitem)
+        pickitem = marcxml_to_dictionary(raw_pickitem)
         dublin = marcxml_dictionary_to_dc(pickitem)
+
+        assert dublin
+
+        #TODO: this data munging does not belong here. 
 
         # one last thing. If this picked item has an 856$9 field, then
         # it's an electronic resource, not a physical item. In that
@@ -180,19 +185,21 @@ def item_add_cat_search(request, site_id, item_id):
             dct = dict(item_type='URL', url=pickitem.get('856u'))
         else:
             dct = dict(item_type='PHYS')
-
+        
         try:
             pubdate = dublin.get('dc:date')
-            pubdate = re.search('^([0-9]+)', pubdate).group(1)
-            pubdate = '%d-01-01' % int(pubdate)
+            m = re.search('([0-9]+)', pubdate)
+            if m:
+                pubdate = pubdate.group(1)
         except:
-            pubdate = None
+            pubdate = ''
 
         item = site.item_set.create(parent_heading=parent_item,
                                     title=dublin.get('dc:title','Untitled'),
                                     author=dublin.get('dc:creator'),
                                     publisher=dublin.get('dc:publisher',''),
                                     published=pubdate,
+                                    marcxml=raw_pickitem,
                                     **dct)
         item.save()
         return HttpResponseRedirect('../../../%d/meta' % item.id)

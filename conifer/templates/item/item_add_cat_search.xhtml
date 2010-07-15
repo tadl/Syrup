@@ -1,5 +1,7 @@
 <?python
+from xml.etree import ElementTree as E
 from django.utils.simplejson import dumps
+from conifer.libsystems.z3950.marcxml import record_to_dictionary
 from conifer.libsystems.z3950.marcxml import marcxml_dictionary_to_dc as to_dublin
 title = _('Add physical or electronic item, by catalogue search')
 helptext = _('Use keywords or CCL syntax for searching, for example: ti="detroit river" and au="wilgus"')
@@ -54,20 +56,21 @@ dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
 	<tr><th>#</th><th>Title</th><th>Author</th><th>Publisher</th><th>PubDate</th></tr>
       </thead>
       <tbody py:for="resultnum, res in enumerate(results)"
-	     py:with="dc=to_dublin(res)">
+	     py:with="dct=record_to_dictionary(res); dc=to_dublin(dct)">
 	<tr>
 	  <td>${resultnum+start}.</td>
 	  <td>
 	    ${dc.get('dc:title', '???')}
 	    <a href="javascript:$('#full_${resultnum}').toggle(); void(0);">details</a>
-	    <p py:if="res.get('8569')" style="margin: 8px 0; font-size: 90%; color: darkred;">
-	      Electronic resource. <a href="${res.get('856u')}">view</a>
+	    <p py:if="dct.get('8569')" style="margin: 8px 0; font-size: 90%; color: darkred;">
+	      Electronic resource. <a href="${dct.get('856u')}">view</a>
 	    </p>
 	  </td>
 	  <td py:for="k in dc_keys[1:]">${dc.get(k) or '&mdash;'}</td>
 	  <td>
 	    <form action="." method="POST">
-	      <input type="hidden" name="pickitem" value="${dumps(res)}"/>
+	      <!-- !TODO: is utf8 okay here? I shouldn't have to do any decoding here. -->
+	      <input type="hidden" name="pickitem" value="${unicode(res, 'utf8')}"/>
 	      <input type="submit" value="Pick this item"/>
 	    </form>
 	  </td>
@@ -75,9 +78,9 @@ dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
 	<tr id="full_${resultnum}" style="display: none;">
 	  <td colspan="4" style="padding-left: 36;">
 	    <table class="metadata_table">
-	      <?python allkeys = res.keys(); allkeys.sort(); ?>
+	      <?python allkeys = dct.keys(); allkeys.sort(); ?>
 	      <tr py:for="k in allkeys">
-		<th>${k}</th><td>${res[k]}</td>
+		<th>${k}</th><td>${dct[k]}</td>
 	      </tr>
 	    </table>
 	  </td>

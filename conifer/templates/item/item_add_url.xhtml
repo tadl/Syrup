@@ -23,7 +23,25 @@ site.title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
       <table class="metadata_table">
 	<tr><th>Title</th><td><input type="text" name="title" value="${item.title}"/></td></tr>
 	<tr><th>URL</th><td><input type="text" name="url" value="${item.url}"/></td></tr>
+ 	  <tr><th>Author</th><td><input type="text" name="author"
+	  value="${item.author}"/></td></tr>
+	  <tr><th>Publisher</th><td><input type="text" name="publisher"
+	  value="${item.publisher}"/></td></tr>
+	  <tr><th>Published</th><td><input type="text" name="published"
+	  value="${item.published}"/></td></tr>
       </table>
+    <div py:if="item.marcxml">
+      <p id="marcdatashow"><a href="javascript:void($('#marcdata').toggle());">Display MARC Record</a></p>
+	    <div id="marcdata" style="display: none;">
+	      <?python dct = item.marc_as_dict(); keys=dct.keys(); keys.sort() ?>
+	      <table class="metadata_table">
+		<tr py:for="k in keys">
+		  <th>${k}</th>
+		  <td>${dct[k]}</td>
+		</tr>
+	      </table>
+	    </div>
+    </div>
       <p>
 	<input py:if="not is_edit" type="submit" value="Add URL"/>
 	<input py:if="is_edit" type="submit" value="Update URL"/>

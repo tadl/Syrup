@@ -33,6 +33,9 @@ is_editor = site.can_edit(request.user)
     </div>
     <table class="metadata_table" style="margin-top: 1em;">
       <tr><th>Title</th><td>${item.title}</td></tr>
+      <tr py:if="item.author"><th>Author</th><td>${item.author}</td></tr>
+      <tr py:if="item.publisher"><th>Publisher</th><td>${item.publisher}</td></tr>
+      <tr py:if="item.published"><th>Published</th><td>${item.published and item.published.year}</td></tr>
       <tr><th>Type</th><td>${item.get_item_type_display()}</td></tr>
       <tr py:if="item.item_type=='PHYS'"
 	  py:with="avail, status = item.describe_physical_item_status()">
@@ -48,29 +51,17 @@ is_editor = site.can_edit(request.user)
 	<tr><th/><td><a class="bigdownload" href="${item.item_url()}">Download</a></td></tr>
       </table>
     </div>
-    <h2>TODO: get metadata back...</h2>
-    <div py:if="False and metadata">
-      <h2 class="metadata_subhead">Additional metadata</h2>
-      <table class="metadata_table">
-	<tr py:for="attr in metadata">
-	  <th>${attr.get_name_display()}</th>
-	  <td py:if="attr.name != 'syrup:marc'">
-	    ${attr.value}
-	  </td>
-	  <td py:if="attr.name == 'syrup:marc'">
-	    <div id="marcdatashow"><a href="javascript:$('#marcdata').show();$('#marcdatashow').hide();void(0);">show</a></div>
+    <div py:if="item.marcxml">
+      <p id="marcdatashow"><a href="javascript:void($('#marcdata').toggle());">Display MARC Record</a></p>
 	    <div id="marcdata" style="display: none;">
-	      <?python dct = loads(attr.value); keys=dct.keys(); keys.sort() ?>
-	      <table>
+	      <?python dct = item.marc_as_dict(); keys=dct.keys(); keys.sort() ?>
+	      <table class="metadata_table">
 		<tr py:for="k in keys">
 		  <th>${k}</th>
 		  <td>${dct[k]}</td>
 		</tr>
 	      </table>
 	    </div>
-	  </td>
-	</tr>
-      </table>
-      </div>
+    </div>
   </body>
 </html>

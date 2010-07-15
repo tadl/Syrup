@@ -50,7 +50,7 @@ from conifer.libsystems.evergreen import item_status as I
 from conifer.libsystems.sip.sipclient import SIP
 #from conifer.libsystems.z3950 import yaz_search
 from conifer.libsystems.z3950 import pyz3950_search
-from conifer.libsystems.z3950.marcxml import marcxml_to_dictionary
+from conifer.libsystems.z3950.marcxml import marcxml_to_records
 
 
 @caching('patroninfo', timeout=300)
@@ -89,7 +89,7 @@ def cat_search(query, start=1, limit=10):
     # this is a total hack for conifer. If the query is a Conifer
     # title-detail URL, then return just that one item.
     if query.startswith(EG_BASE):
-        results = marcxml_to_dictionary(I.url_to_marcxml(query), multiples=True)
+        results = marcxml_to_records(I.url_to_marcxml(query))
         numhits = len(results)
     else:
         cat_host, cat_port, cat_db = settings.Z3950_CONFIG

@@ -74,16 +74,15 @@ def search(host, port, database, query, start=1, limit=10):
     for rec in raw_records:
         try:
             rec = _marc_utf8_pattern.sub(_decode_marc_utf8, rec)
-            dct = marcxml_to_dictionary(rec)
         except 'x':
             raise rec
-        parsed.append(dct)
+        parsed.append(rec)
     return parsed, len(res)
 
 
 # decoding MARC \X.. UTF-8 patterns.
 
-_marc_utf8_pattern = re.compile(r'\\X([0-9A-F]{2})')
+_marc_utf8_pattern = re.compile(r'\\X([0-9A-F]{2})', re.I)
 
 def _decode_marc_utf8(regex_match):
     return chr(int(regex_match.group(1), 16))

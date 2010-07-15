@@ -1,5 +1,28 @@
 from xml.etree import ElementTree
 
+def marcxml_to_records(rec):
+    tree = ElementTree.fromstring(rec)
+    if tree.tag == '{http://www.loc.gov/MARC21/slim}collection':
+        # then we may have multiple records
+        records = tree.findall('{http://www.loc.gov/MARC21/slim}record')
+    elif tree.tag == '{http://www.loc.gov/MARC21/slim}record':
+        records = [tree]
+    else:
+        return []
+    return records
+    
+def record_to_dictionary(record, multiples=True):
+    tree = ElementTree.fromstring(record)
+    dct = {}
+    for df in tree.findall('{http://www.loc.gov/MARC21/slim}datafield'):
+        t = df.attrib['tag']
+        for sf in df.findall('{http://www.loc.gov/MARC21/slim}subfield'):
+            c = sf.attrib['code']
+            v = sf.text or ''
+            dct.setdefault(t+c, []).append(v)
+    dct = dict((k,'\n'.join(v or [])) for k,v in dct.items())
+    return dct
+
 def marcxml_to_dictionary(rec, multiples=False):
     tree = ElementTree.fromstring(rec)
     if tree.tag == '{http://www.loc.gov/MARC21/slim}collection':
@@ -30,23 +53,26 @@ def marcxml_dictionary_to_dc(dct):
     extract some Dublin Core elements from it. Fixme, I'm sure this
     could be way improved."""
     out = {}
-    meta = [('245a', 'dc:title'), ('100a', 'dc:creator'), ('260b', 'dc:publisher'),
+    meta = [('245a', 'dc:title'), ('100a', 'dc:creator'),
             ('260c', 'dc:date'), ('700a', 'dc:contributor')]
     for marc, dc in meta:
         value = dct.get(marc)
         if value:
             out[dc] = value
-    title = out.get('dc:title')
+
+    pub = [v.strip() for k,v in sorted(dct.items()) if k.startswith('260')]
+    if pub:
+        out['dc:publisher'] = strip_punct(' '.join(pub))
+
+    title = [v.strip() for k,v in sorted(dct.items()) if k in ('245a', '245b')]
     if title:
-        if '245b' in dct:
-            title += (' %s' % dct['245b'])
-        # if title ends with a single character, strip it. usually a
-        # spurious punctuation character.
-        if ' ' in title:
-            init, last = title.rsplit(' ',1)
-            if len(last) == 1:
-                title = init
-            out['dc:title'] = title
+        out['dc:title'] = strip_punct(' '.join(title))
     return out
 
     
+def strip_punct(s):
+    # strip whitespace and trailing single punctuation characters
+    s = s.strip()
+    if s and s[-1] in ',.;:/':
+        s = s[:-1]
+    return s.strip()

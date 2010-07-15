@@ -14,6 +14,9 @@ from django.conf import settings
 campus = settings.CAMPUS_INTEGRATION
 # TODO: fixme, not sure if conifer.custom is a good parent.
 from conifer.custom import lib_integration
+from conifer.libsystems.z3950.marcxml import record_to_dictionary
+from conifer.libsystems.z3950.marcxml import marcxml_dictionary_to_dc
+from django.utils import simplejson as json
 
 #----------------------------------------------------------------------
 
@@ -405,7 +408,7 @@ class Item(BaseModel):
 
     # publisher: "Place: Publisher", as in a bibliography, for display.
     publisher = m.CharField(max_length=8192, null=True, blank=True)
-    published = m.DateField(null=True, blank=True)
+    published = m.CharField(max_length=64, null=True, blank=True)
 
     ITEMTYPE_CHOICES = [
         # From http://www.oclc.org/bibformats/en/fixedfield/type.shtm.
@@ -447,6 +450,15 @@ class Item(BaseModel):
     fileobj_mimetype = m.CharField(max_length=128, blank=True, null=True)
 
 
+    #--------------------------------------------------
+    # MARC
+    def marc_as_dict(self):
+        return record_to_dictionary(self.marcxml)
+        
+    def marc_dc_subset(self):
+        return json.dumps(self.marc_as_dict())
+
+    #--------------------------------------------------
     def __unicode__(self):
         return self.title
 
@@ -495,7 +507,7 @@ class Item(BaseModel):
         and a friendly description of the physical item's status"""
         # TODO: this needs to be reimplemented, based on copy detail
         # lookup in the ILS. It also may not belong here!
-        raise NotImplementedError
+        return (True, 'NOT-IMPLEMENTED')
 
     # TODO: stuff I'm not sure about yet. I don't think it belongs here.
 
