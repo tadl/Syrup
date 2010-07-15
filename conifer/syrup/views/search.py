@@ -114,7 +114,7 @@ def search(request, in_course=None, with_instructor=None):
         else:
             course_query = get_query(query_string, ['title', 'department__name'])
             # apply the search-filter and the user-filter
-            course_results = models.Course.objects.filter(course_query).filter(user_filter_for_courses)
+            course_results = models.ReadingList.objects.filter(course_query).filter(user_filter_for_courses)
             course_list = course_results.order_by('title')
             course_len = len(course_results)
 
@@ -136,7 +136,7 @@ def search(request, in_course=None, with_instructor=None):
         results_len = len(results_list)
         paginator = Paginator( results_list,
             count)
-        course_results = models.Course.objects.filter(active=True)
+        course_results = models.ReadingList.objects.filter(active=True)
         course_list = course_results.order_by('title')[0:5]
         course_len = len(course_results)
         instructor_results = models.Member.objects.filter(role='INSTR')
@@ -165,7 +165,7 @@ def zsearch(request):
     count = int(request.POST.get('count', 5))
 
     if request.GET.get('page')==None and request.method == 'GET':
-        targets_list = models.Target.objects.filter(active=True).order_by('name')
+        targets_list = models.Z3950Target.objects.filter(active=True).order_by('name')
         targets_len = len(targets_list)
         return g.render('zsearch.xhtml', **locals())
     else:
@@ -178,7 +178,7 @@ def zsearch(request):
         tquery = request.GET.get('query')
         if request.method == 'POST':
             tquery = request.POST['ztitle']
-        search_target= models.Target.objects.get(name=target)
+        search_target= models.Z3950Target.objects.get(name=target)
         conn = zoom.Connection (search_target.host, search_target.port)
         conn.databaseName = search_target.db
         conn.preferredRecordSyntax = search_target.syntax

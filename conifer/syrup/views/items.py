@@ -217,11 +217,6 @@ def item_add_cat_search(request, course_id, item_id):
 
 #------------------------------------------------------------
 
-#this is used in item_edit.
-metadata_formset_class = modelformset_factory(models.Metadata, 
-                                              fields=['name','value'], 
-                                              extra=3, can_delete=True)
-
 @instructors_only
 def item_edit(request, course_id, item_id):
     course = get_object_or_404(models.Course, pk=course_id)

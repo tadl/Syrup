@@ -10,13 +10,7 @@ for m in [ServiceDesk, Group, Membership, Course,
           UserProfile, Config, Z3950Target]:
     admin.site.register(m)
 
-
-class MetadataInline(admin.StackedInline):
-    model = Metadata
-    extra = 3
-
 class ItemAdmin(admin.ModelAdmin):
     model = Item
-    inlines = [MetadataInline]
 
 admin.site.register(Item, ItemAdmin)

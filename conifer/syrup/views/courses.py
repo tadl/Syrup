@@ -210,8 +210,8 @@ def course_invitation(request):
             return HttpResponseRedirect('.')
         try:
             # note, we only allow the passkey if access='INVIT'.
-            crs = models.Course.objects.filter(access='INVIT').get(passkey=code)
-        except models.Course.DoesNotExist:
+            crs = models.ReadingList.objects.filter(access='INVIT').get(passkey=code)
+        except models.ReadingList.DoesNotExist:
             # todo, do we need a formal logging system? Or a table for
             # invitation failures? They should be captured somehow, I
             # think. Should we temporarily disable accounts after
@@ -229,22 +229,22 @@ def course_invitation(request):
         return HttpResponseRedirect(crs.course_url())
 
 #-----------------------------------------------------------------------------
-# Course-instance handlers
+# ReadingList-instance handlers
 
 @members_only
 def course_detail(request, course_id):
-    course = get_object_or_404(models.Course, pk=course_id)
+    course = get_object_or_404(models.ReadingList, pk=course_id)
     return g.render('course_detail.xhtml', course=course)
 
 @members_only
 def course_search(request, course_id):
-    course = get_object_or_404(models.Course, pk=course_id)
+    course = get_object_or_404(models.ReadingList, pk=course_id)
     return search(request, in_course=course)
 
 @login_required
 def course_join(request, course_id):
     """Self-register into an open-registration course."""
-    course = get_object_or_404(models.Course, pk=course_id)
+    course = get_object_or_404(models.ReadingList, pk=course_id)
     if not course.is_joinable_by(request.user):
         # user should never see this.
         return simple_message(_('You cannot join this course.'), 

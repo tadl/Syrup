@@ -20,7 +20,8 @@ import re
 import sys
 from django.forms.models import modelformset_factory
 from conifer.custom import lib_integration
-from conifer.libsystems.z3950.marcxml import marcxml_to_dictionary, marcxml_dictionary_to_dc
+from conifer.libsystems.z3950.marcxml import (marcxml_to_dictionary,
+                                              marcxml_dictionary_to_dc)
 from conifer.syrup.fuzzy_match import rank_pending_items
 from django.core.urlresolvers import reverse
 from conifer.here import HERE
@@ -45,7 +46,7 @@ try:
     except ImportError:
         sys.modules['profile'] = sys # just get something called 'profile';
                                      # it's not actually used.
-        import ply.lex              
+        import ply.lex
         import ply.yacc             # pyz3950 thinks these are toplevel modules.
         sys.modules['lex'] = ply.lex
         sys.modules['yacc'] = ply.yacc
@@ -73,7 +74,7 @@ def auth_handler(request, path):
             if request.user.is_authenticated():
                 return HttpResponseRedirect(next)
             else:
-                return g.render('auth/login.xhtml', 
+                return g.render('auth/login.xhtml',
                                 next=request.GET.get('next'))
         else:
             userid, password = request.POST['userid'], request.POST['password']
@@ -95,7 +96,8 @@ def auth_handler(request, path):
                 except models.UserProfile.DoesNotExist:
                     profile = models.UserProfile.objects.create(user=user)
                     profile.save()
-                return HttpResponseRedirect(request.POST.get('next', default_url))
+                return HttpResponseRedirect(
+                    request.POST.get('next', default_url))
     elif path == 'logout':
         logout(request)
         return HttpResponseRedirect(default_url)
@@ -119,11 +121,12 @@ def _fast_user_membership_query(user_id, course_id, where=None):
     cursor.close()
     allowed = bool(res[0][0])
     return allowed
-    
+
 def _access_denied(request, message):
     if request.user.is_anonymous():
         # then take them to login screen....
-        dest = request.META['SCRIPT_NAME'] + '/accounts/login/?next=' + request.META['PATH_INFO']
+        dest = (request.META['SCRIPT_NAME'] + \
+                    '/accounts/login/?next=' + request.META['PATH_INFO'])
         return HttpResponseRedirect(dest)
     else:
         return simple_message(_('Access denied.'), message,
@@ -141,7 +144,8 @@ def instructors_only(handler):
         if allowed:
             return handler(request, course_id, *args, **kwargs)
         else:
-            return _access_denied(request, _('Only instructors are allowed here.'))
+            return _access_denied(request,
+                                  _('Only instructors are allowed here.'))
     return hdlr
 
 # decorator
@@ -150,7 +154,7 @@ def members_only(handler):
         user = request.user
         allowed = user.is_superuser
         if not allowed:
-            course = models.Course.objects.get(pk=course_id)
+            course = models.ReadingList.objects.get(pk=course_id)
             allowed = course.access=='ANON' or \
                 (user.is_authenticated() and course.access=='LOGIN')
         if not allowed:
@@ -174,7 +178,8 @@ def admin_only(handler):
         if allowed:
             return handler(request, *args, **kwargs)
         else:
-            return _access_denied(request, _('Only administrators are allowed here.'))
+            return _access_denied(request, 
+                                  _('Only administrators are allowed here.'))
     return hdlr
 
 #decorator
@@ -200,14 +205,14 @@ def custom_500_handler(request):
     return HttpResponse(msg._container, status=501)
 
 def custom_400_handler(request):
-    msg = simple_message(_('Not found'), 
+    msg = simple_message(_('Not found'),
                           _('The page you requested could not be found'))
     return HttpResponse(msg._container, status=404)
 
 #-----------------------------------------------------------
 
 def user_filters(user):
-    """Returns a dict of filters for Item, Course, etc. querysets,
+    """Returns a dict of filters for Item, ReadingList, etc. querysets,
     based on the given user's permissions."""
     # TODO, figure out a way of EXPLAIN'ing these queries! I have no
     # idea of their complexity.
@@ -215,16 +220,18 @@ def user_filters(user):
         # then only anonymous-access courses are available.
         filters = {'items': Q(course__access='ANON'),
                    'courses': Q(access='ANON'),
-                   'instructors': Q(member__course__access='ANON'),
+                   'instructors': Q(), # TODO: do we really need a filter here?
                    }
     else:
         # logged-in users have access to courses which are of the
         # LOGIN class ('all logged-in users') or in which they
         # have explicit Member-ship.
-        filters = {'items': (Q(course__access__in=('LOGIN','ANON')) | Q(course__member__user=user)),
-                   'courses': (Q(access__in=('LOGIN','ANON')) | Q(member__user=user)),
-                   'instructors': (Q(member__course__access__in=('LOGIN','ANON')) | Q(member__course__member__user=user)),
-                   }
+        filters = {
+            'items': (Q(course__access__in=('LOGIN','ANON')) \
+                          | Q(course__member__user=user)),
+            'courses': (Q(access__in=('LOGIN','ANON')) | Q(member__user=user)),
+            'instructors': Q(), # TODO: do we really need a filter here?
+            }
     return filters
 
 #------------------------------------------------------------

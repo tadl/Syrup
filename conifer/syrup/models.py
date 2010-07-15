@@ -49,7 +49,7 @@ class UserExtensionMixin(object):
     def active_instructors(cls):
         """Return a queryset of all active instructors."""
         # We are using the Django is_active flag to model activeness.
-        return cls.objects.filter(member__role='INSTR', is_active=True) \
+        return cls.objects.filter(membership__role='INSTR', is_active=True) \
             .order_by('-last_name','-first_name').distinct()
 
 for k,v in [(k,v) for k,v in UserExtensionMixin.__dict__.items() \
