@@ -7,6 +7,9 @@ title = _('Administrative Options')
 <xi:include href="../master.xhtml"/>
 <head>
   <title>${title}</title>
+  <style type="text/css">
+    ul { margin-bottom: 2em; }
+  </style>
 </head>
 <body>
   <h1>${title}</h1>
@@ -24,7 +27,7 @@ title = _('Administrative Options')
   <!--   <li><a href="../zsearch/">Search Z39.50 Targets</a></li> -->
   <!-- </ul> -->
   <ul>
-    <li><a href="../djadmin/">Django Administrative UI</a></li>
+    <li><a href="../site/new/">Create a new course site</a></li>
   </ul>
   <ul>
     <li py:if="gethook('department_course_catalogue')">
@@ -33,6 +36,9 @@ title = _('Administrative Options')
     <li py:if="gethook('term_catalogue')">
       <a href="update_terms">Automatically update terms</a>
     </li>
+  </ul>
+  <ul>
+    <li><a href="../djadmin/">Advanced Administration</a></li>
   </ul>
   </div>
 </body>

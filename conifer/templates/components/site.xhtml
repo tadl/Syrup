@@ -18,7 +18,10 @@ searchtext = _('search this site...')
   <div py:def="site_banner(site)" py:strip="True">
     <div id="sitebanner">
       ${site_search(site)}
-      <div class="deptident">${site.course.department} &bull; ${site.term.name}</div>
+      <div class="deptident">
+	${site.owner.last_name} 
+      &bull; ${site.term.name} 
+      &bull; ${site.course.department}</div>
       <h1><a href="${site.site_url()}"><span py:if="site.course">${site.course.code}: </span>${site.course.name}</a></h1>
     </div>
   </div>
@@ -61,9 +64,13 @@ searchtext = _('search this site...')
        py:with="hier=item.hierarchy()[:-1]; lastnum=len(hier)"
        class="nestedtitle">
     <div id="breadcrumbs">
-      <span><a href="${item.site.site_url()}">Top</a></span> &raquo;
-      <span py:for="n, x in enumerate(hier)"><a href="${x.item_url()}">${x.title}</a> &raquo; </span>
-      <span class="final_item">${item.title}</span>
+      <span><a href="${item.site.site_url()}">Top</a></span>
+      <span py:for="n, x in enumerate(hier)">
+	 &raquo; <a href="${x.item_url()}">${x.title}</a>
+      </span>
+      <span py:if="item.item_type=='HEADING'">
+	&raquo; <span class="final_item">${item.title}</span>
+      </span>
     </div>
   </div>
   

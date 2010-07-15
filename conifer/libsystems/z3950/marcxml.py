@@ -1,7 +1,11 @@
 from xml.etree import ElementTree
 
+# Note: the 'record' parameters passed to these functions must be
+# Unicode strings, not plain Python strings.
+
 def marcxml_to_records(rec):
-    tree = ElementTree.fromstring(rec)
+    assert isinstance(rec, unicode)
+    tree = ElementTree.fromstring(rec.encode('utf-8'))
     if tree.tag == '{http://www.loc.gov/MARC21/slim}collection':
         # then we may have multiple records
         records = tree.findall('{http://www.loc.gov/MARC21/slim}record')
@@ -12,7 +16,8 @@ def marcxml_to_records(rec):
     return records
     
 def record_to_dictionary(record, multiples=True):
-    tree = ElementTree.fromstring(record)
+    assert isinstance(record, unicode)
+    tree = ElementTree.fromstring(record.encode('utf-8'))
     dct = {}
     for df in tree.findall('{http://www.loc.gov/MARC21/slim}datafield'):
         t = df.attrib['tag']
@@ -24,7 +29,8 @@ def record_to_dictionary(record, multiples=True):
     return dct
 
 def marcxml_to_dictionary(rec, multiples=False):
-    tree = ElementTree.fromstring(rec)
+    assert isinstance(rec, unicode)
+    tree = ElementTree.fromstring(rec.encode('utf-8'))
     if tree.tag == '{http://www.loc.gov/MARC21/slim}collection':
         # then we may have multiple records
         records = tree.findall('{http://www.loc.gov/MARC21/slim}record')

@@ -18,6 +18,14 @@ class NewSiteForm(ModelForm):
         else:
             raise ValidationError, _('invalid course code')
 
+    def __init__(self, *args, **kwargs):
+        owner = self.base_fields['owner']
+        owner.label_from_instance = lambda u: u.get_list_name()
+        owner.queryset = User.objects.order_by('last_name', 'first_name', 'username')
+
+        super(NewSiteForm, self).__init__(*args, **kwargs)
+
+
 # if we have course-code lookup, hack lookup support into the new-course form.
 
 COURSE_CODE_LIST = bool(models.campus.course_code_list)
@@ -35,7 +43,7 @@ COURSE_CODE_LOOKUP_TITLE = bool(models.campus.course_code_lookup_title)
 #     NewSiteForm.base_fields['code'].empty_label = empty_label
 
 #--------------------
-    
+
 @login_required
 def add_new_site(request):
     if not request.user.can_create_sites():
@@ -46,7 +54,7 @@ def add_new_site(request):
 def edit_site(request, site_id):
     instance = get_object_or_404(models.Site, pk=site_id)
     return _add_or_edit_site(request, instance=instance)
-    
+
 def _add_or_edit_site(request, instance=None):
     is_add = (instance is None)
     if is_add:
@@ -67,11 +75,7 @@ def _add_or_edit_site(request, instance=None):
                 site.generate_new_passkey()
                 site.save()
             assert site.id
-            user_in_site = site.is_member(request.user)
-            if not user_in_site: # for edits, might already be!
-                mbr = site.member_set.create(user=request.user, role='INSTR')
-                mbr.save()
-            
+
             if is_add or (current_access_level != site.access):
                 # we need to configure permissions.
                 return HttpResponseRedirect(site.site_url('edit/permission/'))

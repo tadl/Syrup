@@ -52,6 +52,9 @@ class UserExtensionMixin(object):
         return self.is_staff or \
             bool(callhook('can_create_sites', self))
 
+    def get_list_name(self):
+        return '%s, %s (%s)' % (self.last_name, self.first_name, self.username)
+
     @classmethod
     def active_instructors(cls):
         """Return a queryset of all active instructors."""
@@ -87,7 +90,7 @@ class UserProfile(BaseModel):
 # Lookup tables
 
 class ServiceDesk(BaseModel):
-    name        = m.CharField(max_length=100)
+    name        = m.CharField(max_length=100, unique=True)
     active      = m.BooleanField(default=True)
     external_id = m.CharField(max_length=256, blank=True, null=True)
 
@@ -95,13 +98,17 @@ class ServiceDesk(BaseModel):
         return self.name
 
 class Term(BaseModel):
-    code   = m.CharField(max_length=64)
+    code   = m.CharField(max_length=64, unique=True)
     name   = m.CharField(max_length=256)
     start  = m.DateField('Start (Y-M-D)')
     finish = m.DateField('Finish (Y-M-D)')
 
+    class Meta:
+        ordering = ['start', 'code']
+
     def __unicode__(self):
-        return self.code or self.name
+        return '%s: %s' % (self.code, self.name)
+
 
 class Department(BaseModel):
     name   = m.CharField(max_length=256)
@@ -111,14 +118,19 @@ class Department(BaseModel):
     def __unicode__(self):
         return self.name
 
+
 class Course(BaseModel):
     """An abstract course (not a course offering.)"""
-    code = m.CharField(max_length=64)
+    code = m.CharField(max_length=64, unique=True)
     name = m.CharField(max_length=1024)
     department = m.ForeignKey(Department)
 
+    class Meta:
+        ordering = ['code']
+
     def __unicode__(self):
-        return self.name
+        return '%s: %s' % (self.code, self.name)
+
 
 class Z3950Target(m.Model):
     name     = m.CharField(max_length=100)
@@ -132,7 +144,7 @@ class Z3950Target(m.Model):
         return self.name
 
 class Config(m.Model):
-    name  = m.CharField(max_length=256)
+    name  = m.CharField(max_length=256, unique=True)
     value = m.CharField(max_length=8192)
 
     @classmethod
@@ -254,13 +266,18 @@ class Site(BaseModel):
             'user__last_name', 'user__first_name')
 
     def can_edit(self, user):
+        """
+        Return True if the user has permission to edit this
+        site. Staff, site owners and site instructors all have editing
+        permissions.
+        """
         if user.is_anonymous():
             return False
-        if user.id == self.owner_id:
+        if (user.id == self.owner_id) or user.is_staff:
             return True
         try:
             mbr = self.members().get(user=user)
-        except Member.DoesNotExist:
+        except Membership.DoesNotExist:
             return False
         return mbr.role in (u'INSTR', u'ASSIST')
 
@@ -268,14 +285,14 @@ class Site(BaseModel):
         """Return True if the user could feasibly register into this
         site: she's not already in it, and the site allows open
         registration."""
-        return user.is_authenticated() \
-            and self.access in ('ANON', 'LOGIN') \
+        return self.access in ('ANON', 'LOGIN') \
             and not self.is_member(user)
 
     def is_member(self, user):
         assert user
-        return user.id == self.owner_id \
-            or self.members().filter(user=user).exists()
+        return user.is_authenticated() and (
+            user.id == self.owner_id \
+                or bool(self.members().filter(user=user)))
 
 #------------------------------------------------------------
 # User membership in sites

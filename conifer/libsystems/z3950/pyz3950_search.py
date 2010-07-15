@@ -72,20 +72,13 @@ def search(host, port, database, query, start=1, limit=10):
 
     parsed = []
     for rec in raw_records:
-        try:
-            rec = _marc_utf8_pattern.sub(_decode_marc_utf8, rec)
-        except 'x':
-            raise rec
+        # TODO: fix this ascii/replace, once our z3950/marc encoding
+        # issues are sorted out.
+        rec = unicode(rec, 'ascii', 'replace')
+
+        assert isinstance(rec, unicode) # this must be true.
         parsed.append(rec)
     return parsed, len(res)
-
-
-# decoding MARC \X.. UTF-8 patterns.
-
-_marc_utf8_pattern = re.compile(r'\\X([0-9A-F]{2})', re.I)
-
-def _decode_marc_utf8(regex_match):
-    return chr(int(regex_match.group(1), 16))
 
 
 #------------------------------------------------------------
