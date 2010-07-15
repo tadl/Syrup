@@ -17,6 +17,11 @@ else:
   <div py:if="instance.id">${site_banner(instance)}</div>
   <h1>${title}</h1>
   <p py:if="instance.id"><a href="permission/">Edit site permissions</a> &bull; <a href="${instance.site_url()}">Return to site page</a></p>
+  <div py:with="nfe=form.non_field_errors()">
+    <ul py:if="nfe" class="errorlist">
+      <li py:for="err in nfe">${err}</li>
+    </ul>
+  </div>
   <form action="." method="POST">
     <tr py:def="field_row(field, example=None)">
       <th>${field.label}</th>
@@ -31,8 +36,8 @@ else:
     <h2>General description</h2>
     <table class="metadata_table">
     ${field_row(form.owner)}
-    ${field_row(form.terms)}
-    ${field_row(form.courses)}
+    ${field_row(form.term)}
+    ${field_row(form.course)}
     ${field_row(form.service_desk)}
 
     <!-- ${field_row(form.department)} -->

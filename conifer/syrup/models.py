@@ -144,11 +144,9 @@ class Config(m.Model):
 
 class Site(BaseModel):
     """A a list of materials for one (or more) course offering(s)."""
-    # some courses may be ad-hoc and have no code.
-    # TODO: constrain there is at least one course and one term (deferred).
-    courses = m.ManyToManyField(Course)
-    terms = m.ManyToManyField(Term)
-    owner = m.ForeignKey(User)
+    course       = m.ForeignKey(Course)
+    term         = m.ForeignKey(Term)
+    owner        = m.ForeignKey(User)
     service_desk = m.ForeignKey(ServiceDesk)
 
     access = m.CharField(max_length=5,
@@ -165,11 +163,11 @@ class Site(BaseModel):
     # TODO: for postgres, add UNIQUE constraint on 'passkey'.
     passkey = m.CharField(db_index=True, blank=True, null=True, max_length=256)
 
+    class Meta:
+        unique_together = (('course', 'term', 'owner'))
+
     def __unicode__(self):
-        cc = '%s' % (', '.join([c.code for c in self.courses.all()]))
-        tt = '(%s)' % (', '.join([t.code for t in self.terms.all()]))
-        oo = '(%s)' % self.owner.last_name
-        return u'%s %s %s' % (cc, tt, oo)
+        return u'%s %s %s' % (self.course, self.term, self.owner)
 
     def list_display(self):
         if self.code:
