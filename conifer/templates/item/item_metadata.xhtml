@@ -1,10 +1,8 @@
 <?python
 from django.utils.simplejson import loads
-site_title = '%s: %s (%s)' % (site.code, site.title, site.term)
+site_title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
 hier = item.hierarchy()[:-1]
 title = item.title
-smallint = item.smallint()
-metadata = item.metadata_set.all()
 is_editor = site.can_edit(request.user)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
@@ -40,9 +38,6 @@ is_editor = site.can_edit(request.user)
 	  py:with="avail, status = item.describe_physical_item_status()">
 	<th>Status</th><td><div class="${avail and 'available' or 'unavailable'}">${status}</div></td>
       </tr>
-      <tr py:if="smallint">
-	<th>Small Number</th><td>${smallint}</td>
-      </tr>
       <tr py:if="item.url"><th>URL</th><td><a href="${item.url}">${item.url}</a></td></tr>
     </table>
     <div py:if="item.item_type=='ELEC'">
@@ -53,7 +48,8 @@ is_editor = site.can_edit(request.user)
 	<tr><th/><td><a class="bigdownload" href="${item.item_url()}">Download</a></td></tr>
       </table>
     </div>
-    <div py:if="metadata">
+    <h2>TODO: get metadata back...</h2>
+    <div py:if="False and metadata">
       <h2 class="metadata_subhead">Additional metadata</h2>
       <table class="metadata_table">
 	<tr py:for="attr in metadata">

@@ -16,6 +16,9 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 	font-family: inherit;
 	vertical-align: baseline;
 }
+
+li { margin-left: 16px; }
+
 /* remember to define focus styles! */
 :focus {
 	outline: 0;
@@ -25,9 +28,7 @@ body {
 	color: black;
 	background: white;
 }
-ol, ul {
-	list-style: none;
-}
+
 /* tables still need 'cellspacing="0"' in the markup */
 table {
 	border-collapse: separate;
@@ -73,6 +74,7 @@ min-height: 300px;
     background-color: #448;
 }
 
+
 #header div#search {
     float: right;
     margin: 0;
@@ -92,12 +94,12 @@ min-height: 300px;
 tbody td, tbody th { vertical-align: top; }
 
 #footer {  
-    margin: 12px;
-    padding-bottom: 12px;
-    background-color: #ddf; 
-    color: black;
-    border-bottom: white 10px solid;
+    margin: 0;
+    padding-top: 16px;
+    color: #eee;
+    font-size: small;
 }
+#footer a { color: white; text-decoration: underline; }
 
 /* heading sizes and colours. */
 
@@ -122,7 +124,7 @@ a:hover {  text-decoration: underline;  }
 .action a { font-weight: bold; }
 
 #tabbar { margin: 18px 0; padding: 0; clear: both; }
-#tabbar li { display: inline; }
+#tabbar li { display: inline; margin: 0; }
 #tabbar li a { padding: 15px 18px 5px 18px; background-color: #ddf; color: black; text-decoration: none; }
 #tabbar li a:hover { background-color: #fc8; }
 
@@ -157,7 +159,7 @@ span.final_item { font-weight: bold; font-size: 110%; }
 #sidepanel { width: 183px; float: right; text-align: right;}
 #sidepanel div { margin: 6px 0; }
 
-#treepanel { width: 740px; }
+#treepanel { width: 740px; margin-top: 24px; }
 
 .helptext { 
     margin-top: 30px; font-size: 90%;
@@ -205,6 +207,7 @@ span.final_item { font-weight: bold; font-size: 110%; }
 
 .itemtree li.item_HEADING { 
     list-style-image: url(tango/folder.png);
+    margin-top: 24px;
 }
 .itemtree li.item_HEADING > a { 
     color: navy; 
@@ -215,7 +218,7 @@ li.item_HEADING .headingmainline {
 }
 
 li.item_HEADING .headingmainline  a.mainlink {
-    border-bottom: #aaa 1px solid; 
+    font-size: large; color: navy;
 }
 
 li.item_HEADING  .headingmainline a.mainlink:hover {

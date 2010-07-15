@@ -167,7 +167,10 @@ class Site(BaseModel):
         unique_together = (('course', 'term', 'owner'))
 
     def __unicode__(self):
-        return u'%s %s %s' % (self.course, self.term, self.owner)
+        return u'%s: %s (%s, %s)' % (
+            self.course.code, self.course.name,
+            self.owner.last_name or self.owner.username,
+            self.term)
 
     def list_display(self):
         if self.code:
@@ -200,7 +203,8 @@ class Site(BaseModel):
         for item in items:
             dct.setdefault(item.parent_heading, []).append(item)
         for lst in dct.values():
-            lst.sort(key=lambda item: item.sort_order) # sort in place
+            # TODO: what's the sort order?
+            lst.sort(key=lambda item: (item.item_type=='HEADING', item.title)) # sort in place
         # walk the tree
         out = []
         def walk(parent, accum):
@@ -239,11 +243,11 @@ class Site(BaseModel):
         return Membership.objects.filter(group__site=self)
 
     def get_students(self):
-        return self.memberships(role='STUDT').order_by(
+        return self.members().filter(role='STUDT').order_by(
             'user__last_name', 'user__first_name')
 
     def get_instructors(self):
-        return self.memberships(role='INSTR').order_by(
+        return self.members().filter(role='INSTR').order_by(
             'user__last_name', 'user__first_name')
 
     def can_edit(self, user):
@@ -252,7 +256,7 @@ class Site(BaseModel):
         if user.id == self.owner_id:
             return True
         try:
-            mbr = self.members.get(user=user)
+            mbr = self.members().get(user=user)
         except Member.DoesNotExist:
             return False
         return mbr.role in (u'INSTR', u'ASSIST')
@@ -268,7 +272,7 @@ class Site(BaseModel):
     def is_member(self, user):
         assert user
         return user.id == self.owner_id \
-            or self.members.filter(user=user).exists()
+            or self.members().filter(user=user).exists()
 
 #------------------------------------------------------------
 # User membership in sites

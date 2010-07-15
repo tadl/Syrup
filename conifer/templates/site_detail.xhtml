@@ -1,5 +1,5 @@
 <?python
-title = '%s: %s (%s)' % (site.code, site.title, site.term)
+title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
 item_tree = site.item_tree()
 is_editor = site.can_edit(request.user)
 is_joinable = site.is_joinable_by(request.user)

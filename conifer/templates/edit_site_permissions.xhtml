@@ -1,6 +1,6 @@
 <?python
 title = _('Edit site permissions')
-instructors = [m for m in models.Member.objects.filter(site=site) if m.role in ('PROXY', 'INSTR')]
+instructors = site.get_instructors()
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -64,38 +64,7 @@ instructors = [m for m in models.Member.objects.filter(site=site) if m.role in (
     </div>
     <div id="STUDT_panel" class="specific">
       <h3>Course section numbers</h3>
-	<?python
-	  current_sections = course.sections()
-	  my_sections = [s for s in models.campus.sections_taught_by(user.username) if not s in current_sections]
-	  ct_sections = [s for s in models.campus.sections_for_code_and_term(course.code, course.term.code) \
-                         if not s in current_sections]
-          encode = lambda t,c,s: models.section_encode_safe((t,c,s))
-	?>
-      <table class="pagetable">
-	<thead>
-	  <tr>
-	    <th>Associated section</th><th>Remove?</th>
-	  </tr>
-	</thead>
-	<tbody>	    
-	<tr py:for="(term, code, sec) in current_sections">
-	  <td>${code}, section ${sec}, in term ${term}</td>
-	  <td><input type="checkbox" name="remove_section_${encode(term,code,sec)}"/></td>
-	</tr>
-	</tbody>
-      </table>
-      <p>Add section: 
-      <select name="add_section">
-	<option value="">--------</option>
-	<optgroup py:for="label, sections in ((_('My Courses'), my_sections), (_('%s in term %s') % (course.code, course.term), ct_sections))"
-		  label="${label}" py:if="sections">
-	  <option py:for="(term, code, sec) in sections"
-		  value="${encode(term,code,sec)}">
-	    ${code}, section ${sec}, in term ${term}
-	  </option>
-	</optgroup>
-	</select>
-      </p>
+      <p>Not implemented yet.</p>
     </div>
     <p><input type="submit" name="action_save_student" value="Save changes to student access"/></p>
 

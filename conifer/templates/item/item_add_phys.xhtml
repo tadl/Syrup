@@ -1,7 +1,7 @@
 <?python
 is_edit = bool(item.id)
 title = is_edit and _('Edit a physical-item request') or _('Add a physical-item request')
-site_title = '%s: %s (%s)' % (site.code, site.title, site.term)
+site.title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -19,7 +19,6 @@ site_title = '%s: %s (%s)' % (site.code, site.title, site.term)
     ${nested_title(parent_item)}
     <div id="sidepanel">${offer_to_delete(item)}</div>
     <h2>${title}</h2>
-
     <form action=".?item_type=${item_type}" method="POST">
       <table class="metadata_table">
 	<tr>
@@ -28,7 +27,6 @@ site_title = '%s: %s (%s)' % (site.code, site.title, site.term)
 	</tr>
       </table>
       <h2>Metadata</h2>
-      ${item_metadata_formset(show_more=False)}
       <p>
     	<input py:if="not is_edit" type="submit" value="Add heading"/>
     	<input py:if="is_edit" type="submit" value="Update physical-item request"/>

@@ -113,6 +113,7 @@ def _fast_user_membership_query(user_id, site_id, where=None):
     # I use a raw SQL query here because I want the lookup to be as
     # fast as possible. Caching would help too, but let's try this
     # first. (todo, review later.)
+    return True               #  TODO: fixme!!!!
     query = ('select count(*) from syrup_member '
              'where user_id=%s and site_id=%s ')
     if where:

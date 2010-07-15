@@ -1,5 +1,8 @@
 <?python
-title = _('Browse the Reserves')
+title = _('All Reserves, by Department')
+
+sites = models.Site.objects.order_by('course__department__name', 'course__code', 'owner__last_name').select_related()
+blocks = itertools.groupby(sites, lambda s: s.course.department)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -10,8 +13,21 @@ title = _('Browse the Reserves')
 </head>
 <body>
   <h1>${title}</h1> 
-  (Note: some reserve materials may require you
+  <div py:if="user.is_anonymous()">
+    (Note: some reserve materials may require you
     to <a href="${ROOT}/accounts/login/?next=${ROOT}/">log in</a>)
+  </div>
+
+    
+    <div py:for="(dept, ss) in blocks">
+      <h2>${dept}</h2>
+      <p py:for="site in ss" style="margin-left: 16px;">
+	<a href="${site.site_url()}">${site}</a>
+      </p>
+
+    </div>
+
+    <div style="background-color: #dcc; margin: 16px; padding: 8px;">
     <h2>Choose from one of the options below:</h2>
     <div class="itemadd">
     <ul>
@@ -21,6 +37,7 @@ title = _('Browse the Reserves')
         <li><a  
 		href="departments">Browse by Department</a></li>
     </ul>
+    </div>
     </div>
   <div class="gap"/>
 </body>

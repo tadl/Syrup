@@ -1,7 +1,7 @@
 <?python
 is_edit = bool(item.id)
 title = is_edit and _('Edit an electronic document') or _('Add a new electronic document')
-site_title = '%s: %s (%s)' % (site.code, site.title, site.term)
+site.title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -13,7 +13,6 @@ site_title = '%s: %s (%s)' % (site.code, site.title, site.term)
     <script type="text/javascript">
       $(function() {$('input[name="title"]').focus();});
     </script>
-    ${item_metadata_formset_header()}
   </head>
   <body>
     ${site_banner(site)}
@@ -29,7 +28,6 @@ site_title = '%s: %s (%s)' % (site.code, site.title, site.term)
 	  value="${item.title}"/></td></tr>
 	  <tr><th>File</th><td><input type="file" name="file"/></td></tr>
 	</table>
-	${item_metadata_formset()}
 	<p><input type="submit" value="Upload file and Create item"/>
 	${go_back_link()}
 	</p>
@@ -41,8 +39,13 @@ site_title = '%s: %s (%s)' % (site.code, site.title, site.term)
 	<table class="metadata_table">
 	  <tr><th>Title of document</th><td><input type="text" name="title"
 	  value="${item.title}"/></td></tr>
+ 	  <tr><th>Author</th><td><input type="text" name="author"
+	  value="${item.author}"/></td></tr>
+	  <tr><th>Publisher</th><td><input type="text" name="publisher"
+	  value="${item.publisher}"/></td></tr>
+	  <tr><th>Published</th><td><input type="text" name="published"
+	  value="${item.published}"/></td></tr>
 	</table>
-	${item_metadata_formset()}
 	<p><input type="submit" value="Update title and metadata"/></p>
       </form>
       <h2>File contents</h2>

@@ -1,7 +1,7 @@
 <?python
 site = item.site
 title = item.title
-site_title = '%s: %s (%s)' % (site.code, site.title, site.term)
+site_title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
 is_editor = site.can_edit(request.user)
 item_tree = site.item_tree(subtree=item)
 ?>

@@ -70,19 +70,12 @@ def item_add(request, site_id, item_id):
 
     if request.method != 'POST':
         item = models.Item()    # dummy object
-        metadata_formset = metadata_formset_class(queryset=item.metadata_set.all())
         return g.render('item/item_add_%s.xhtml' % item_type.lower(),
                         **locals())
     else:
         # fixme, this will need refactoring. But not yet.
         author = request.user.get_full_name() or request.user.username
         item = models.Item()    # dummy object
-        metadata_formset = metadata_formset_class(request.POST, queryset=item.metadata_set.all())
-        assert metadata_formset.is_valid()
-        def do_metadata(item):
-            for obj in [obj for obj in metadata_formset.cleaned_data if obj]: # ignore empty dicts
-                if not obj.get('DELETE'):
-                    item.metadata_set.create(name=obj['name'], value=obj['value'])
             
         if item_type == 'HEADING':
             title = request.POST.get('title', '').strip()
@@ -93,12 +86,9 @@ def item_add(request, site_id, item_id):
                 item = models.Item(
                     site=site,
                     item_type='HEADING',
-                    sort_order = next_order,
                     parent_heading=parent_item,
                     title=title,
                     )
-                item.save()
-                do_metadata(item)
                 item.save()
         elif item_type == 'URL':
             title = request.POST.get('title', '').strip()
@@ -111,11 +101,8 @@ def item_add(request, site_id, item_id):
                     site=site,
                     item_type='URL',
                     parent_heading=parent_item,
-                    sort_order = next_order,
                     title=title,
                     url = url)
-                item.save()
-                do_metadata(item)
                 item.save()
         elif item_type == 'ELEC':
             title = request.POST.get('title', '').strip()
@@ -127,13 +114,10 @@ def item_add(request, site_id, item_id):
                 site=site,
                 item_type='ELEC',
                 parent_heading=parent_item,
-                sort_order = next_order,
                 title=title,
                 fileobj_mimetype = upload.content_type,
                 )
             item.fileobj.save(upload.name, upload)
-            item.save()
-            do_metadata(item)
             item.save()
         else:
             raise NotImplementedError
@@ -156,11 +140,6 @@ def item_add_cat_search(request, site_id, item_id):
         assert parent_item.item_type == 'HEADING', _('You can only add items to headings!')
         site = parent_item.site
         siblings = site.item_set.filter(parent_heading=parent_item)
-
-    try:
-        next_order = 1 + max(i.sort_order for i in siblings)
-    except:
-        next_order = 0
 
     #----------
 
@@ -202,16 +181,19 @@ def item_add_cat_search(request, site_id, item_id):
         else:
             dct = dict(item_type='PHYS')
 
-        item = site.item_set.create(parent_heading=parent_item,
-                                      sort_order=next_order,
-                                      title=dublin.get('dc:title','Untitled'),
-                                      **dct)
-        item.save()
+        try:
+            pubdate = dublin.get('dc:date')
+            pubdate = re.search('^([0-9]+)', pubdate).group(1)
+            pubdate = '%d-01-01' % int(pubdate)
+        except:
+            pubdate = None
 
-        for dc, value in dublin.items():
-            md = item.metadata_set.create(item=item, name=dc, value=value)
-        # store the whole darn MARC-dict as well (JSON)
-        item.metadata_set.create(item=item, name='syrup:marc', value=raw_pickitem)
+        item = site.item_set.create(parent_heading=parent_item,
+                                    title=dublin.get('dc:title','Untitled'),
+                                    author=dublin.get('dc:creator'),
+                                    publisher=dublin.get('dc:publisher',''),
+                                    published=pubdate,
+                                    **dct)
         item.save()
         return HttpResponseRedirect('../../../%d/meta' % item.id)
 
@@ -226,11 +208,8 @@ def item_edit(request, site_id, item_id):
     parent_item = item.parent_heading
 
     if request.method != 'POST':
-        metadata_formset = metadata_formset_class(queryset=item.metadata_set.all())
         return g.render(template, **locals())
     else:
-        metadata_formset = metadata_formset_class(request.POST, queryset=item.metadata_set.all())
-        assert metadata_formset.is_valid()
         if 'file' in request.FILES:
             # this is a 'replace-current-file' action.
             upload = request.FILES.get('file')
@@ -239,11 +218,6 @@ def item_edit(request, site_id, item_id):
         else:
             # generally update the item.
             [setattr(item, k, v) for (k,v) in request.POST.items()]
-            # generally update the metadata
-            item.metadata_set.all().delete()
-            for obj in [obj for obj in metadata_formset.cleaned_data if obj]: # ignore empty dicts
-                if not obj.get('DELETE'):
-                    item.metadata_set.create(name=obj['name'], value=obj['value'])
                     
         item.save()
         return HttpResponseRedirect(item.parent_url())
@@ -289,7 +263,8 @@ def _reseq(request, site, parent_heading):
     # get at the ints.
     new_order = [int(n.split('_')[1]) for n in new_order]
     print >> sys.stderr, new_order
-    the_items = list(site.item_set.filter(parent_heading=parent_heading).order_by('sort_order'))
+    # TODO .orderBy, now there is no sort_order.
+    the_items = list(site.item_set.filter(parent_heading=parent_heading))
     # sort the items by position in new_order
     the_items.sort(key=lambda item: new_order.index(item.id))
     for newnum, item in enumerate(the_items):

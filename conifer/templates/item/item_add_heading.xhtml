@@ -1,7 +1,7 @@
 <?python
 is_edit = bool(item.id)
 title = is_edit and _('Edit a subheading') or _('Add a new subheading')
-site_title = '%s: %s (%s)' % (site.code, site.title, site.term)
+site.title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -13,7 +13,6 @@ site_title = '%s: %s (%s)' % (site.code, site.title, site.term)
     <script type="text/javascript">
       $(function() {$('input[name="title"]').focus();});
     </script>
-    ${item_metadata_formset_header()}
   </head>
   <body>
     ${site_banner(site)}
@@ -27,7 +26,6 @@ site_title = '%s: %s (%s)' % (site.code, site.title, site.term)
 	       value="${item.title}"/>
 	</td></tr>
       </table>
-      ${item_metadata_formset()}
       <p>
 	<input py:if="not is_edit" type="submit" value="Add heading"/>
 	<input py:if="is_edit" type="submit" value="Update heading"/>

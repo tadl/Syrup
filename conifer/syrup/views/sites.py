@@ -159,7 +159,7 @@ def edit_site_permissions(request, site_id):
             access = POST.get('access')
             site.access = access
             # drop all provided users. fixme, this could be optimized to do add/drops.
-            models.Membership.objects.filter(site=site, provided=True).delete()
+            #models.Membership.objects.filter(site=site, provided=True).delete()
             if site.access == u'STUDT':
                 initial_sections = site.sections()
                 # add the 'new section' if any

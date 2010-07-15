@@ -1,5 +1,5 @@
 <?python
-site_title = '%s: %s (%s)' % (site.code, site.title, site.term)
+site_title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
 hier = item.hierarchy()[:-1]
 if item.item_type == 'HEADING':
     title = _('Delete this heading?')
@@ -7,7 +7,6 @@ if item.item_type == 'HEADING':
 else:
     title = _('Delete this item?')
     children = []
-metadata = item.metadata_set.all()
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"

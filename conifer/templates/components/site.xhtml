@@ -18,8 +18,8 @@ searchtext = _('search this site...')
   <div py:def="site_banner(site)" py:strip="True">
     <div id="sitebanner">
       ${site_search(site)}
-      <div class="deptident">${site.department}</div>
-      <h1><a href="${site.site_url()}"><span py:if="site.code">${site.code}: </span>${site.title}</a></h1>
+      <div class="deptident">${site.course.department} &bull; ${site.term.name}</div>
+      <h1><a href="${site.site_url()}"><span py:if="site.course">${site.course.code}: </span>${site.course.name}</a></h1>
     </div>
   </div>
   
