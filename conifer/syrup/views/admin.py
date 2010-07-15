@@ -1,5 +1,6 @@
 from _common import *
 from django.utils.translation import ugettext as _
+from conifer.integration._hooksystem import *
 
 #-----------------------------------------------------------------------------
 # Administrative options
@@ -109,3 +110,24 @@ class ConfigForm(ModelForm):
     clean_host = strip_and_nonblank('value')
 
 admin_configs = generic_handler(ConfigForm, decorator=admin_only)
+
+def admin_update_depts_courses(request):
+    HOOKNAME = 'department_course_catalogue'
+    catalogue = callhook(HOOKNAME)
+
+    # we can only assign them to the default service desk.
+    defaultdesk = models.Config.get('default.desk', 1, int)
+    desk = models.ServiceDesk.objects.get(pk=defaultdesk)
+
+    if catalogue is None:
+        return HttpResponse('Sorry, cannot perform this operation at this time: '
+                            'hook %r not found.' % HOOKNAME)
+    else:
+        for deptname, ccode, cname in catalogue:
+            if not (deptname.strip() and ccode.strip() and cname.strip()):
+                continue
+            dept, x = models.Department.objects.get_or_create(
+                name=deptname, service_desk=desk)
+            course, x = models.Course.objects.get_or_create(
+                department=dept, name=cname, code=ccode)
+        return HttpResponse('Updated.') # TODO: make a nice confirmation message.

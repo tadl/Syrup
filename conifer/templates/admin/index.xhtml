@@ -26,6 +26,11 @@ title = _('Administrative Options')
   <ul>
     <li><a href="../djadmin/">Django Administrative UI</a></li>
   </ul>
+  <ul>
+    <li py:if="gethook('department_course_catalogue')">
+      <a href="update_depts_courses">Automatically update departments and courses</a>
+    </li>
+  </ul>
   </div>
 </body>
 </html>
