@@ -125,6 +125,14 @@ class Config(m.Model):
     name  = m.CharField(max_length=256)
     value = m.CharField(max_length=8192)
 
+    @classmethod
+    def get(cls, name, default=None, translator=lambda x: x):
+        try:
+            c = cls.objects.get(name=name)
+            return translator(c.value)
+        except cls.DoesNotExist:
+            return default
+
 #------------------------------------------------------------
 
 class ReadingList(BaseModel):
