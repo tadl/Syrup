@@ -5,8 +5,9 @@ from django.contrib import admin
 import django.db.models
 from conifer.syrup.models import *
 
-for m in [LibraryUnit, ServiceDesk, Member, Department, Course, Term, UserProfile, NewsItem, 
-          Target, PhysicalObject]:
+for m in [ServiceDesk, Group, Membership, Course,
+          Department, ReadingList, Term, 
+          UserProfile, Config, Z3950Target]:
     admin.site.register(m)
 
 

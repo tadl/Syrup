@@ -1,7 +1,6 @@
 from django.db import models as m
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AnonymousUser
-from django.contrib.auth import get_backends
 from datetime import datetime
 from genshi import Markup
 from django.utils.translation import ugettext as _
@@ -13,25 +12,17 @@ from conifer.middleware import genshi_locals
 # campus and library integration
 from django.conf import settings
 campus = settings.CAMPUS_INTEGRATION
-from conifer.custom import lib_integration # fixme, not sure if conifer.custom is a good parent.
+# TODO: fixme, not sure if conifer.custom is a good parent.
+from conifer.custom import lib_integration
 
+#----------------------------------------------------------------------
 
-def highlight(text, phrase,
-              highlighter='<strong class="highlight">\\1</strong>'):
-    ''' This may be a lame way to do this, but will want to highlight matches somehow
+class BaseModel(m.Model):
+    class Meta:
+        abstract = True
 
-        >>> highlight('The River is Wide', 'wide')
-        'The River is <strong class="highlight">Wide</strong>'
-
-    '''
-    if not phrase or not text:
-        return text
-    highlight_re = re.compile('(%s)' % re.escape(phrase), re.I)
-    if hasattr(text, '__html__'):
-        return literal(highlight_re.sub(highlighter, text))
-    else:
-        return highlight_re.sub(highlighter, text)
-
+    created = m.DateTimeField(auto_now_add=True)
+    last_modified = m.DateTimeField(auto_now=True)
 
 #----------------------------------------------------------------------
 # USERS
@@ -50,7 +41,7 @@ def highlight(text, phrase,
 # the User object (although UserProfile would be another logical
 # candidate).
 
-class UserExtensionHack(object):
+class UserExtensionMixin(object):
     def courses(self):
         return Course.objects.filter(member__user=self.id)
 
@@ -60,136 +51,110 @@ class UserExtensionHack(object):
         # We are using the Django is_active flag to model activeness.
         return cls.objects.filter(member__role='INSTR', is_active=True) \
             .order_by('-last_name','-first_name').distinct()
-    
-for k,v in [(k,v) for k,v in UserExtensionHack.__dict__.items() \
+
+for k,v in [(k,v) for k,v in UserExtensionMixin.__dict__.items() \
                 if not k.startswith('_')]:
     setattr(User, k, v)
 
+#------------------------------------------------------------
 
-class UserProfile(m.Model):
-    user         = m.ForeignKey(User, unique=True)
-    home_phone   = m.CharField(max_length=100, blank=True)
-    home_address = m.TextField(blank=True)
-    ils_userid   = m.CharField(_('Alternate userid in the ILS, if any'),
-                               max_length=50, blank=True)
+class UserProfile(BaseModel):
+    user         = m.ForeignKey(User)
+    ils_userid   = m.CharField(_('ILS patron ID'),
+                               max_length=50, blank=True, null=True)
 
     # When we add email notices for new items, this is how we'll set
     # the preference, and how far back we'll need to look.
     wants_email_notices = m.BooleanField(default=False)
-    last_email_notice   = m.DateTimeField(default=datetime.now,
-                                          blank=True, null=True)
+    last_email_notice   = m.DateTimeField(
+        default=datetime.now, blank=True, null=True)
 
     def __unicode__(self):
         return 'UserProfile(%s)' % self.user
 
-#----------------------------------------------------------------------
-# Initializing an external user account
-
-# For usernames that come from external authentication sources (LDAP,
-# Evergreen, etc.) we need a general way to look up a user who may not
-# yet have a Django account.  For example, you might want to add user
-# 'xsmith' as the instructor for a course. If 'xsmith' is in LDAP but
-# not yet in Django, it would be nice if a Django record were lazily
-# created for him upon lookup. 
-
-# That's what 'maybe_initialize_user' is for: participating backends
-# provide a 'maybe_initialize_user' method which creates a new User
-# record if one doesn't exist. Otherwise, 'maybe_initialize_user' is
-# equivalent to 'User.objects.get(username=username)'.
-
-_backends_that_can_initialize_users = [
-    be for be in get_backends() if hasattr(be, 'maybe_initialize_user')]
-
-def maybe_initialize_user(username):
-    try:
-        return User.objects.get(username=username)
-    except User.DoesNotExist:
-        for be in _backends_that_can_initialize_users:
-            user = be.maybe_initialize_user(username, look_local=False)
-            if user:
-                return user
 
 #----------------------------------------------------------------------
-# LIBRARIES, SERVICE DESKS
+# Lookup tables
 
-class LibraryUnit(m.Model):
-    name = m.CharField(max_length=100)
-    nickname = m.CharField(max_length=15,blank=True,default='')
-    url = m.URLField()
-    contact_email = m.EmailField()
+class ServiceDesk(BaseModel):
+    name        = m.CharField(max_length=100)
+    active      = m.BooleanField(default=True)
+    external_id = m.CharField(max_length=256)
 
     def __unicode__(self):
         return self.name
 
-class ServiceDesk(m.Model):
-    library = m.ForeignKey(LibraryUnit)
-    abbreviation = m.CharField(max_length=8,db_index=True)
-    name = m.CharField(max_length=100)
-    active = m.BooleanField(default=True)
-
-    def __unicode__(self):
-        return self.name
-
-#----------------------------------------------------------------------
-# TERMS, COURSES, MEMBERSHIP
-
-class Term(m.Model):
-    code   = m.CharField(max_length=16, blank=True, null=True, unique=True)
-    name   = m.CharField(max_length=255)
+class Term(BaseModel):
+    code   = m.CharField(max_length=64)
+    name   = m.CharField(max_length=256)
     start  = m.DateField('Start (Y-M-D)')
     finish = m.DateField('Finish (Y-M-D)')
 
     def __unicode__(self):
         return self.code or self.name
 
-class Department(m.Model):
-    abbreviation = m.CharField(max_length=8,db_index=True)
-    name   = m.CharField(max_length=255)
+class Department(BaseModel):
+    name   = m.CharField(max_length=256)
     active = m.BooleanField(default=True)
+    service_desk = m.ForeignKey(ServiceDesk)
 
     def __unicode__(self):
         return self.name
 
-class Course(m.Model):
-    """An offering of a course."""
-    # some courses may be ad-hoc and have no code.
-    code = m.CharField(max_length=64, blank=True, null=True)
+class Course(BaseModel):
+    """An abstract course (not a course offering.)"""
+    code = m.CharField(max_length=64)
+    name = m.CharField(max_length=1024)
     department = m.ForeignKey(Department)
-    term = m.ForeignKey(Term)
-    title = m.CharField(max_length=1024)
-    access = m.CharField(max_length=5,
-                         choices = [
-                                 ('ANON', _('World-accessible')),
-                                 ('LOGIN', _('Accessible to all logged-in users')),
-                                 ('STUDT', _('Accessible to course students (by section)')),
-                                 ('INVIT', _('Accessible to course students (by invitation code)')),
-                                 ('CLOSE', _('Accessible only to course owners'))],
-                         default='CLOSE')
-
-    # For sites that use a passkey as an invitation (INVIT access).
-    passkey = m.CharField(db_index=True, blank=True, null=True, max_length=255)
-
-    # For sites that have registration-lists from an external system
-    # (STUDT access).
-    enrol_codes  = m.CharField(_('Registrar keys for class lists'),
-                               max_length=4098, 
-                               blank=True, null=True)
-
-
-    def save(self, force_insert=False, force_update=False):
-        # We need to override save() to ensure unique passkey
-        # values. Django (and some backend databases) will not allow
-        # multiple NULL values in a unique column.
-        if self.passkey:
-            try:
-                already = Course.objects.exclude(pk=self.id).get(passkey=self.passkey)
-            except Course.DoesNotExist:
-                super(Course, self).save(force_insert, force_update)
-        else:
-            super(Course, self).save(force_insert, force_update)
 
     def __unicode__(self):
-        return self.code or self.title
+        return self.name
+
+class Z3950Target(m.Model):
+    name     = m.CharField(max_length=100)
+    host     = m.CharField(max_length=50)
+    database = m.CharField(max_length=50)
+    port     = m.IntegerField(default=210)
+    syntax   = m.CharField(max_length=10, default='USMARC')
+    active   = m.BooleanField(default=True)
+
+    def __unicode__(self):
+        return self.name
+
+class Config(m.Model):
+    name  = m.CharField(max_length=256)
+    value = m.CharField(max_length=8192)
+
+#------------------------------------------------------------
+
+class ReadingList(BaseModel):
+    """A a list of materials for one (or more) course offering(s)."""
+    # some courses may be ad-hoc and have no code.
+    # TODO: constrain there is at least one course and one term (deferred).
+    courses = m.ManyToManyField(Course)
+    terms = m.ManyToManyField(Term)
+    owner = m.ForeignKey(User)
+    service_desk = m.ForeignKey(ServiceDesk)
+
+    access = m.CharField(max_length=5,
+                         default='CLOSE',
+                         choices = [
+            ('ANON', _('World-accessible')),
+            ('LOGIN', _('Accessible to all logged-in users')),
+            ('STUDT', _('Accessible to course students (by section)')),
+            ('INVIT', _('Accessible to course students (by invitation code)')),
+            ('CLOSE', _('Accessible only to course owners'))])
+
+    # For sites that use a passkey as an invitation (INVIT access).
+    # Note: only set this value using 'generate_new_passkey'.
+    # TODO: for postgres, add UNIQUE constraint on 'passkey'.
+    passkey = m.CharField(db_index=True, blank=True, null=True, max_length=256)
+
+    def __unicode__(self):
+        cc = '%s' % (', '.join([c.code for c in self.courses]))
+        tt = '(%s)' % (', '.join([t.code for t in self.terms]))
+        oo = '(%s)' % self.owner.last_name
+        return u'%s %s %s' % (cc, tt, oo)
 
     def list_display(self):
         if self.code:
@@ -202,7 +167,6 @@ class Course(m.Model):
 
     def headings(self):
         """A list of all items which are headings."""
-        #fixme, not sure 'title' is the best ordering.
         return self.item_set.filter(item_type='HEADING').order_by('title')
 
     def item_tree(self, subtree=None):
@@ -219,7 +183,7 @@ class Course(m.Model):
         """
         items = self.items()
         # make a node-lookup table
-        dct = {}                
+        dct = {}
         for item in items:
             dct.setdefault(item.parent_heading, []).append(item)
         for lst in dct.values():
@@ -234,15 +198,6 @@ class Course(m.Model):
                 accum.append((item, sub))
         walk(subtree, out)
         return out
-
-    def can_edit(self, user):
-        if user.is_anonymous():
-            return False
-        try:
-            mbr = Member.objects.get(course=self, user=user)
-        except Member.DoesNotExist:
-            return False
-        return mbr.role in (u'INSTR', u'PROXY')
 
     def course_url(self, suffix=''):
         # I'm not fond of this being here. I think I'll leave this and
@@ -259,82 +214,102 @@ class Course(m.Model):
         while True:
             key = algorithm()
             try:
-                crs = Course.objects.get(passkey=key)
-            except Course.DoesNotExist:
+                crs = ReadingList.objects.get(passkey=key)
+            except ReadingList.DoesNotExist:
                 self.passkey = key
                 break
 
-    def sections(self):
-        delim = campus.sections_tuple_delimiter
-        if not delim:
-            return []
-        else:
-            def inner():
-                parts = self.enrol_codes.split(delim)
-                while len(parts) > 2:
-                    yield tuple(parts[:3])
-                    del parts[:3]
-            return set(inner())
+    #--------------------------------------------------
+    # membership-related functions
 
-    def add_sections(self, *sections):
-        assert all(len(s)==3 for s in sections), repr(sections)
-        current = self.sections()
-        sections = set(sections).union(current)
-        self.enrol_codes = _merge_sections(sections)
-
-    def drop_sections(self, *sections):
-        assert all(len(s)==3 for s in sections), repr(sections)
-        current = self.sections()
-        sections = current - set(sections)
-        self.enrol_codes = _merge_sections(sections)
+    def members(self):
+        return Membership.objects.filter(group__reading_list=self)
 
     def get_students(self):
-        return User.objects.filter(member__course__exact=self, member__role__exact='STUDT') \
-            .order_by('last_name', 'first_name')
-    
+        return self.memberships(role='STUDT').order_by(
+            'user__last_name', 'user__first_name')
+
     def get_instructors(self):
-        return User.objects.filter(member__course__exact=self, member__role__exact='INSTR') \
-            .order_by('last_name', 'first_name')
+        return self.memberships(role='INSTR').order_by(
+            'user__last_name', 'user__first_name')
+
+    def can_edit(self, user):
+        if user.is_anonymous():
+            return False
+        if user.id == self.owner_id:
+            return True
+        try:
+            mbr = self.members.get(user=user)
+        except Member.DoesNotExist:
+            return False
+        return mbr.role in (u'INSTR', u'ASSIST')
 
     def is_joinable_by(self, user):
         """Return True if the user could feasibly register into this
         course: she's not already in it, and the course allows open
         registration."""
-        return user.is_authenticated() and self.access in ('ANON', 'LOGIN') and \
-            not Member.objects.filter(user=user, course=self)
+        return user.is_authenticated() \
+            and self.access in ('ANON', 'LOGIN') \
+            and not user.id == self.owner_id \
+            and not self.members.filter(user=user).exists()
 
 
-def _merge_sections(secs):
-    delim = campus.sections_tuple_delimiter
-    return delim.join(delim.join(sec) for sec in secs)
+#------------------------------------------------------------
+# User membership in reading lists
 
-def section_decode_safe(secstring):
-    if not secstring:
-        return None
-    return tuple(secstring.decode('base64').split(campus.sections_tuple_delimiter))
+class Group(BaseModel):
+    """
+    A group of users associated with a ReadingList. A ReadingList will
+    have one internal group, but may have zero or more external
+    groups.
 
-def section_encode_safe(section):
-    return campus.sections_tuple_delimiter.join(section).encode('base64').strip()
+    Each ReadingList will have exactly one Group with a NULL
+    external_id, intended for internal memberships. It may have zero
+    or more Groups with non-NULL external_ids, representing various
+    external user-groups that should have access to this ReadingList.
 
-class Member(m.Model):
+    A consequence of this design is that a user may appear in a
+    ReadingList more than once, with different roles.
+
+    Note, a ReadingList may be open-access, but still have members
+    with 'student' access. In this case memberships won't imply
+    authorization, but can be used for personalization (e.g. to show a
+    list of "my reading lists").
+    """
+
+    # TODO: add constraints to ensure that each ReadingList has
+    # exactly one Group with external_id=NULL, and that (readinglist,
+    # external_id) is unique forall external_id != NULL.
+
+    reading_list = m.ForeignKey(ReadingList)
+    external_id = m.CharField(default=None, null=True, blank=True,
+                              max_length=2048)
+
+    def __unicode__(self):
+        return u"Group('%s', '%s')" % (self.reading_list,
+                                       self.external_id or '(internal)')
+
+class Membership(BaseModel):
+
     class Meta:
-        unique_together = (('course', 'user'))
+        unique_together = (('group', 'user'))
 
-    course = m.ForeignKey(Course)
     user = m.ForeignKey(User)
+    group = m.ForeignKey(Group)
+
     role = m.CharField(
         choices = (
-                ('INSTR', _('Instructor')),
-                ('PROXY', _('Proxy Instructor')),
-                ('STUDT', _('Student'))),
+            ('INSTR', _('Instructor')),
+            ('ASSIST', _('Assistant/Support')),
+            ('STUDT', _('Student'))),
         default = 'STUDT',
-        max_length = 5)
+        max_length = 6)
 
-    # a user is 'provided' if s/he was added automatically due to
-    # membership in an external registration system. The notion is
-    # that these students can be automatically removed by add/drop
-    # processors.
-    provided = m.BooleanField(default=False)
+
+    def __unicode__(self):
+        return '%s; %s; %s' % (self.user, self.role, self.group)
+
+    # TODO: these belong elsewhere.
 
     def instr_name_hl(self, terms):
         hl_instr = self.user.last_name
@@ -346,125 +321,119 @@ class Member(m.Model):
     def instr_name(self):
         return self.user.last_name
 
-    def __unicode__(self):
-        return '%s--%s--%s' % (self.user, self.role, self.course)
-
 
 #------------------------------------------------------------
 # ITEMS
 
-class Item(m.Model):
+class Item(BaseModel):
     """
     A reserve item, physical or electronic, as it appears in a given
-    course instance.
+    ReadingList instance. If an item appears on multiple reading
+    lists, it will have multiple Item records associated with it.
     """
-    
+
     # Structure
 
-    # Items comprise both items-proper, as well as headings. In the
+    # Items comprise both items proper, as well as headings. In the
     # database, all items are stored as a flat list; the sort_order
     # dictates the sequencing of items within their parent group.
-    
-    course = m.ForeignKey(Course)
+
+    reading_list = m.ForeignKey(ReadingList)
+
     ITEM_TYPE_CHOICES = (
         ('ELEC', _('Attached Electronic Document')), # PDF, Doc, etc.
         ('PHYS', _('Physical Book or Document')),
         ('URL',  _('URL')),
         ('HEADING', _('Heading')))
+
     item_type = m.CharField(max_length=7, choices=ITEM_TYPE_CHOICES)
-    sort_order = m.IntegerField(default=0)
+
+    # TODO: If we want support for ephemeral physical objects, we
+    # might need to add a catalogue model for tracking local
+    # Ephemerals, and add an EPHEM item-type to refer to them. The
+    # contract would be that an ephmeral ID could be reused over time,
+    # and so it might resolve to the wrong item (or no item at all) if
+    # deferenced after the active timeframe of the ReadingList.
+
+    #--------------------------------------------------
+    # ILS integration
+
+    # Ultimately every physical Item needs a bib_id so that we can
+    # process ILS requests. During creation, the bib_id may be absent;
+    # we may only have a MARCXML record (e.g. if the item was
+    # discovered in an external catalogue.) Even that may not be true:
+    # we may only know a few DC attributes (title, creator) if the
+    # Item was manually entered.
+
+    # Remember that electronic (ELEC and URL) items may also have
+    # bib_id's and MARC records.
+
+    bib_id = m.CharField('Bib Record ID', max_length=256, blank=True, null=True)
+    marcxml = m.TextField('MARCXML', blank=True, null=True)
+
+    # Fundamental metadata. These attributes may be populated from
+    # MARCXML or DC attributes. Even if these attributes exist in the
+    # metadata record, we copy them here so that we can efficiently
+    # display search-results in lists.
+
+    title     = m.CharField(max_length=8192, db_index=True)
+
+    # Author(s) in Surname, given. Surname, given. format, for display.
+    author    = m.CharField(max_length=8192, db_index=True,
+                            null=True, blank=True)
+
+    # publisher: "Place: Publisher", as in a bibliography, for display.
+    publisher = m.CharField(max_length=8192, null=True, blank=True)
+    published = m.DateField(null=True, blank=True)
+
+    ITEMTYPE_CHOICES = [
+        # From http://www.oclc.org/bibformats/en/fixedfield/type.shtm.
+        # It is hoped that this can be harvested from the 006 field in
+        # the MARC record.
+        (None, 'Unknown/not specified'),
+        ('a', 'Text'),
+        ('c', 'Notated music'),
+        ('d', 'Manuscript notated music'),
+        ('e', 'Cartographic material'),
+        ('f', 'Manuscript cartographic material'),
+        ('g', 'Projected medium'),
+        ('i', 'Sound recording: non-musical'),
+        ('j', 'Sound recording: musical'),
+        ('k', 'Two-dimensional graphic'),
+        ('m', 'Electronic resource'),
+        ('o', 'Kit'),
+        ('p', 'Mixed materials'),
+        ('r', 'Three-dimensional object'),
+        ('t', 'Manuscript'),
+        ]
+    itemtype  = m.CharField('Type', max_length=1, db_index=True,
+                            null=True, blank=True,
+                            choices=ITEMTYPE_CHOICES)
 
     # parent must be a heading. could use ForeignKey.limit_choices_to,
     # to enforce this in the admin ui.
     parent_heading = m.ForeignKey('Item', blank=True, null=True)
 
-    # the display title may not be the same as the dc:title.
-    title = m.CharField(max_length=255,db_index=True) 
+    #--------------------------------------------------
+    # Electronic items
 
-    # ditto the URL: this is for display items that are links.
+    # For items of type URL
     url = m.URLField(blank=True, null=True)
 
     # for items of type ELEC (attached electronic document)
     fileobj = m.FileField(upload_to='uploads/%Y/%m/%d', max_length=255,
                           blank=True, null=True, default=None)
-
-    fileobj_mimetype = m.CharField(max_length=128, blank=True, null=True, default=None)
-
-    # basic timestamps
-    date_created = m.DateTimeField(auto_now_add=True)
-    last_modified = m.DateTimeField(auto_now=True)
+    fileobj_mimetype = m.CharField(max_length=128, blank=True, null=True)
 
 
-    # stuff I'm not sure about yet. I don't think it belongs here.
-
-    STATUS_CHOICE = (('INPROCESS', _('In Process')), # physical, pending
-                     ('ACTIVE', _('Active')),        # available
-                     ('INACTIVE', _('Inactive')))    # no longer on rsrv.
-    phys_status = m.CharField(max_length=9, 
-                              null=True, blank=True,
-                              choices=STATUS_CHOICE, 
-                              default=None) # null if not physical item.
-
-    activation_date = m.DateField(auto_now=False, blank=True, null=True)
-    expiration_date = m.DateField(auto_now=False, blank=True, null=True)
-    
-    # requested_loan_period: why is this a text field?
-    requested_loan_period = m.CharField(max_length=255,blank=True,default='', null=True)
-
-
-    def title_hl(self, terms):
-        hl_title = self.title
-        for term in terms:
-            hl_title = highlight(hl_title,term)
-
-        return hl_title
-
-    def author(self):
-        creators = self.metadata_set.filter(name='dc:creator')
-        return creators and creators[0].value or None
-
-    def barcode(self):
-        bc = self.metadata_set.filter(name='syrup:barcode')
-        return bc and bc[0].value or None
- 
-    def marc(self):
-        m = self.metadata_set.filter(name='syrup:marc')
-        return m and simplejson.loads(m[0].value) or None
-
-    def smallint(self):
-        bc = self.barcode()
-        phys = PhysicalObject.by_barcode(bc)
-        return phys and phys.smallint or None
-
-    @classmethod
-    def with_smallint(cls, smallint):
-        phys = PhysicalObject.by_smallint(smallint)
-        barcode = phys and phys.barcode or None
-        if not barcode:
-            return cls.objects.filter(pk=-1) # empty set
-        else:
-            return cls.with_barcode(barcode)
-        
-    @classmethod
-    def with_barcode(cls, barcode):
-        return cls.objects.filter(metadata__name='syrup:barcode', 
-                                  metadata__value=barcode)
-
-    def author_hl(self, terms):
-        hl_author = self.author()
-
-        for term in terms:
-            hl_author = highlight(hl_author,term)
-
-        return hl_author
-
-    
     def __unicode__(self):
         return self.title
 
+
     def hierarchy(self):
-        """Return a list of items; the first is the topmost ancestor
-        of this item in the heading hierarchy; the last is the current
+        """
+        Return a list of items: the first is the topmost ancestor of
+        this item in the heading hierarchy; the last is the current
         item.
         """
         if self.parent_heading is None:
@@ -477,7 +446,6 @@ class Item(m.Model):
 
     def needs_meta_link(self):
         """Should an 'About' link be displayed for this item?"""
-
         return self.item_type in ('ELEC', 'URL', 'PHYS')
 
     def item_url(self, suffix='', force_local_url=False):
@@ -487,14 +455,14 @@ class Item(m.Model):
         prefix = req.META['SCRIPT_NAME']
         if self.item_type == 'ELEC' and suffix == '':
             return '%s/course/%d/item/%d/dl/%s' % (
-                prefix, self.course_id, self.id, 
+                prefix, self.course_id, self.id,
                 self.fileobj.name.split('/')[-1])
         if self.item_type == 'URL' and suffix == '' and not force_local_url:
             return self.url
-        else: 
+        else:
             return '%s/course/%d/item/%d/%s' % (
                 prefix, self.course_id, self.id, suffix)
-    
+
     def parent_url(self, suffix=''):
         if self.parent_heading:
             return self.parent_heading.item_url()
@@ -504,151 +472,41 @@ class Item(m.Model):
     def describe_physical_item_status(self):
         """Return a (bool,str) tuple: whether the item is available,
         and a friendly description of the physical item's status"""
-        if self.item_type != 'PHYS':
-            return False, _('(Not a physical item)')
-        # An item is 'in Reserves' if we know its barcode, and if we
-        # have a live PhysicalObject record for it.
-        bc = self.barcode()
-        if (not bc) or (not PhysicalObject.by_barcode(bc)):
-            return False, _('On order')
-        else:
-            # We need to check with the ILS to see if anyone has it out.
-            status = lib_integration.item_status(bc)
-            return status['available'], _(status['status'])
+        # TODO: this needs to be reimplemented, based on copy detail
+        # lookup in the ILS. It also may not belong here!
+        raise NotImplementedError
 
-metadata_attributes = {
-    'dc:contributor': _('Contributor'),
-    'dc:coverage': _('Coverage'),
-    'dc:creator': _('Creator'),
-    'dc:date': _('Date'),
-    'dc:description': _('Description'),
-    'dc:format': _('Format'),
-    'dc:identifier': _('Identifier'),
-    'dc:language': _('Language'),
-    'dc:publisher': _('Publisher'),
-    'dc:relation': _('Relation'),
-    'dc:rights': _('Rights'),
-    'dc:source': _('Source'),
-    'dc:subject': _('Subject'),
-    'dc:title': _('Title'),
-    'dc:type': _('Type'),
-    'syrup:barcode': _('Barcode'),
-    'syrup:marc': _('MARC'),    # MARC in JSON format.
-    'syrup:enumeration': _('Enumeration'),
-    'syrup:chronology': _('Chronology')}
+    # TODO: stuff I'm not sure about yet. I don't think it belongs here.
 
+    def title_hl(self, terms):
+        hl_title = self.title
+        for term in terms:
+            hl_title = highlight(hl_title,term)
 
-metadata_attribute_choices = metadata_attributes.items()
-metadata_attribute_choices.sort(key=lambda (a,b): b)
-class Metadata(m.Model):
-    """Metadata for items."""
+        return hl_title
 
-    item = m.ForeignKey(Item)
-    #fixme, arbitrary sizes.
-    name = m.CharField('Attribute', max_length=128, choices=metadata_attribute_choices)
-    value = m.CharField(max_length=8192) # on postgres it doesn't matter how big.
+    def author_hl(self, terms):
+        hl_author = self.author()
+
+        for term in terms:
+            hl_author = highlight(hl_author,term)
+
+        return hl_author
+
 
 #------------------------------------------------------------
-# News items
+# TODO: move this to a utility module.
 
-try:
-    import markdown
-    def do_markdown(txt):
-        return markdown.markdown(txt)
-except ImportError:
-    def do_markdown(txt):
-        return _('(Markdown not installed).')
-
-class NewsItem(m.Model):
-    subject = m.CharField(max_length=200)
-    body = m.TextField()
-    published = m.DateTimeField(default=datetime.now, blank=True, null=True)
-    encoding = m.CharField(max_length=10,
-                           choices = (('plain', _('plain text')),
-                                      ('html', _('HTML')),
-                                      ('markdown', _('Markdown'))),
-                           default = 'plain')
-
-    def __unicode__(self):
-        return u'%s (%s)' % (self.subject, self.published)
-
-    def generated_body(self):
-        if self.encoding == 'plain':
-            return self.body
-        elif self.encoding == 'html':
-            return Markup(self.body)
-        elif self.encoding == 'markdown':
-            return Markup(do_markdown(self.body))
-
-#----------------------------------------------------------------------
-# Z39.50 Support
-
-class Target(m.Model):
-    name = m.CharField(max_length=100)
-    host = m.CharField(max_length=50)
-    db = m.CharField(max_length=50)
-    port = m.IntegerField(default=210)
-    syntax = m.CharField(max_length=10,default='USMARC')
-    active = m.BooleanField(default=True)
-
-    def __unicode__(self):
-        return self.name
-
-#----------------------------------------------------------------------
-# SIP checkout
-
-class CheckInOut(m.Model):
-    """A log of checkout-to-patron and item-return events."""
-    
-    is_checkout = m.BooleanField()       # in or out?
-    is_successful = m.BooleanField()     # did the transaction work?
-    staff  = m.ForeignKey(User)          # who processed the request?
-    patron = m.CharField(max_length=100) # barcode
-    patron_descrip = m.CharField(max_length=512) # ILS descrip
-    item   = m.CharField(max_length=100, null=True) # item barcode
-    item_descrip = m.CharField(max_length=512, null=True)
-    outcome = m.CharField(max_length=1024, null=True) # text msg from ILS about transaction
-    processed = m.DateTimeField(auto_now_add=True)
-    
-
-class PhysicalObject(m.Model):
-    """A record of a physical object entering and leaving the Reserves area."""
-    barcode     = m.CharField(max_length=100) # item barcode
-    receiver = m.ForeignKey(User, related_name='receiver') # who received the item?
-    received    = m.DateTimeField(auto_now_add=True)
-    departer = m.ForeignKey(User, blank=True, null=True, related_name='departer') # who sent it away?
-    departed    = m.DateTimeField(blank=True, null=True)
-    # an optional small-integer used as a human-shareable barcode by some institutions.
-    smallint    = m.IntegerField(blank=True, null=True)
-
-    def __unicode__(self):
-        return '%s (%s) %s' % (self.barcode, self.smallint, self.departed and 'gone' or 'live')
-
-    def save(self, force_insert=False, force_update=False):
-        # Must ensure that barcode is unique for non-departed items. Same with smallint
-        live_objs = PhysicalObject.objects.exclude(pk=self.id).filter(departed=None)
-        same_barcode = live_objs.filter(barcode=self.barcode)
-        assert not same_barcode, \
-            'Barcode is not unique in active PhysicalObject collection.'
-        if self.smallint:
-            same_smallint = live_objs.filter(smallint=self.smallint)
-            assert not same_smallint, \
-                'Small Number is not unique in active PhysicalObject collection.'
-        super(PhysicalObject, self).save(force_insert, force_update)
-
-    @classmethod
-    def by_smallint(cls, smallint):
-        """Find object by smallint, searching *only* the non-departed items."""
-        assert smallint
-        res = cls.objects.filter(departed=None, smallint=smallint)
-        return res and res[0] or None
-
-    @classmethod
-    def by_barcode(cls, barcode):
-        """Find object by barcode, searching *only* the non-departed items."""
-        res = cls.objects.filter(departed=None, barcode=barcode)
-        return res and res[0] or None
-
-    @classmethod
-    def live_objects(cls):
-        return cls.objects.filter(departed=None)
+def highlight(text, phrase,
+              highlighter='<strong class="highlight">\\1</strong>'):
+    """
+    >>> highlight('The River is Wide', 'wide')
+    'The River is <strong class="highlight">Wide</strong>'
+    """
+    if not phrase or not text:
+        return text
+    highlight_re = re.compile('(%s)' % re.escape(phrase), re.I)
+    if hasattr(text, '__html__'):
+        return literal(highlight_re.sub(highlighter, text))
+    else:
+        return highlight_re.sub(highlighter, text)
