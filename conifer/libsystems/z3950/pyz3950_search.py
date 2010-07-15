@@ -8,6 +8,7 @@ import warnings
 import re
 import sys
 from marcxml import marcxml_to_dictionary
+from xml.etree import ElementTree as ET
 
 try:
 
@@ -77,7 +78,7 @@ def search(host, port, database, query, start=1, limit=10):
         rec = unicode(rec, 'ascii', 'replace')
 
         assert isinstance(rec, unicode) # this must be true.
-        parsed.append(rec)
+        parsed.append(ET.fromstring(rec.encode('utf-8')))
     return parsed, len(res)
 
 

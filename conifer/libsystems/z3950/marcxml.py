@@ -1,11 +1,19 @@
 from xml.etree import ElementTree
 
 # Note: the 'record' parameters passed to these functions must be
-# Unicode strings, not plain Python strings.
+# Unicode strings, not plain Python strings; or ElementTree instances.
+
+def _to_tree(unicode_or_etree):
+    if isinstance(unicode_or_etree, unicode):
+        tree = ElementTree.fromstring(unicode_or_etree.encode('utf-8'))
+    elif isinstance(unicode_or_etree, ElementTree._ElementInterface):
+        tree = unicode_or_etree
+    else:
+        raise Exception('Bad parameter', unicode_or_etree)
+    return tree
 
 def marcxml_to_records(rec):
-    assert isinstance(rec, unicode)
-    tree = ElementTree.fromstring(rec.encode('utf-8'))
+    tree = _to_tree(rec)
     if tree.tag == '{http://www.loc.gov/MARC21/slim}collection':
         # then we may have multiple records
         records = tree.findall('{http://www.loc.gov/MARC21/slim}record')
@@ -15,9 +23,8 @@ def marcxml_to_records(rec):
         return []
     return records
     
-def record_to_dictionary(record, multiples=True):
-    assert isinstance(record, unicode)
-    tree = ElementTree.fromstring(record.encode('utf-8'))
+def record_to_dictionary(rec, multiples=True):
+    tree = _to_tree(rec)
     dct = {}
     for df in tree.findall('{http://www.loc.gov/MARC21/slim}datafield'):
         t = df.attrib['tag']
@@ -29,8 +36,7 @@ def record_to_dictionary(record, multiples=True):
     return dct
 
 def marcxml_to_dictionary(rec, multiples=False):
-    assert isinstance(rec, unicode)
-    tree = ElementTree.fromstring(rec.encode('utf-8'))
+    tree = _to_tree(rec)
     if tree.tag == '{http://www.loc.gov/MARC21/slim}collection':
         # then we may have multiple records
         records = tree.findall('{http://www.loc.gov/MARC21/slim}record')

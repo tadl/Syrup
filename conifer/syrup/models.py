@@ -13,9 +13,7 @@ from conifer.integration._hooksystem import *
 from django.conf import settings
 campus = settings.CAMPUS_INTEGRATION
 # TODO: fixme, not sure if conifer.custom is a good parent.
-from conifer.custom import lib_integration
-from conifer.libsystems.z3950.marcxml import record_to_dictionary
-from conifer.libsystems.z3950.marcxml import marcxml_dictionary_to_dc
+import conifer.libsystems.z3950.marcxml as MX
 from django.utils import simplejson as json
 
 #----------------------------------------------------------------------
@@ -470,7 +468,7 @@ class Item(BaseModel):
     #--------------------------------------------------
     # MARC
     def marc_as_dict(self):
-        return record_to_dictionary(self.marcxml)
+        return MX.record_to_dictionary(self.marcxml)
         
     def marc_dc_subset(self):
         return json.dumps(self.marc_as_dict())
@@ -524,7 +522,15 @@ class Item(BaseModel):
         and a friendly description of the physical item's status"""
         # TODO: this needs to be reimplemented, based on copy detail
         # lookup in the ILS. It also may not belong here!
-        return (True, 'NOT-IMPLEMENTED')
+        #return (True, 'NOT-IMPLEMENTED')
+        stat = callhook('item_status', self)
+        if not stat:
+            return (False, 'Status information not available.')
+        else:
+            lib, desk, avail = stat
+            return (avail > 0,
+                    '%d of %d copies available at reserves desk; %d total copies in library system' % (
+                    avail, desk, lib))
 
     # TODO: stuff I'm not sure about yet. I don't think it belongs here.
 
@@ -560,3 +566,13 @@ def highlight(text, phrase,
         return literal(highlight_re.sub(highlighter, text))
     else:
         return highlight_re.sub(highlighter, text)
+
+
+
+if hasattr(settings, 'INTEGRATION_MODULE'):
+    import conifer.syrup.integration
+    hooks = __import__(settings.INTEGRATION_MODULE, fromlist=[''])
+    for k,v in hooks.__dict__.items():
+        if callable(v):
+            setattr(conifer.syrup.integration, k, v)
+

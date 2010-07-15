@@ -343,3 +343,7 @@ ul.heading_tree li  { list-style: none; }
 ul.heading_tree { margin: 0; padding-left: 0; }
 ul.heading_tree ul { margin: 0; padding-left: 25px; }
 
+
+.availability { float: right; color: darkred; background-color: #eee; padding: 4px; min-width: 24px; }
+.availability .available { color: green; }
+.avail_nonphys { background-color: white; }

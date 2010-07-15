@@ -1,16 +1,10 @@
-from conifer.integration._hooksystem import *
 from datetime import date
+from django.conf import settings
+from conifer.libsystems.evergreen.support import initialize
+from conifer.libsystems.z3950 import marcxml as M
+from conifer.libsystems.evergreen import item_status as I
+from conifer.libsystems.z3950 import pyz3950_search as PZ
 
-#----------------------------------------------------------------------
-# Your hooks go here.
-
-# @hook
-# def can_create_sites(user):
-#     ...
-
-#TODO: this is for testing purposes only! Remove.
-
-@hook
 def department_course_catalogue():
     """
     Return a list of rows representing all known, active courses and
@@ -28,7 +22,6 @@ def department_course_catalogue():
         ('Social Work','02-47-456','Social Work and Health'),
         ]
 
-@hook
 def term_catalogue():
     """
     Return a list of rows representing all known terms. Each row
@@ -40,3 +33,27 @@ def term_catalogue():
         ('2011S', '2011 Summer', date(2011,5,1), date(2011,9,1)),
         ('2011F', '2011 Fall', date(2011,9,1), date(2011,12,31)),
         ]
+
+
+#--------------------------------------------------
+# ILS integration
+
+EG_BASE = 'http://%s/' % settings.EVERGREEN_GATEWAY_SERVER
+initialize(EG_BASE)
+
+
+def item_status(item):
+    if 'psychology' in item.title.lower():
+        return (8, 4, 2)
+    else:
+        return (2, 0, 0)
+
+
+def cat_search(query, start=1, limit=10):
+    if query.startswith(EG_BASE):
+        results = M.marcxml_to_records(I.url_to_marcxml(query))
+        numhits = len(results)
+    else:
+        cat_host, cat_port, cat_db = settings.Z3950_CONFIG
+        results, numhits = PZ.search(cat_host, cat_port, cat_db, query, start, limit)
+    return results, numhits

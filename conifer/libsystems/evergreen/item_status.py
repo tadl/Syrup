@@ -27,7 +27,7 @@ def url_to_marcxml(url):
             if item_id:
                 marc_url = ("%s/opac/extras/supercat/"
                             "retrieve/marcxml/record/%s" % (support.BASE, item_id))
-            xml = urllib2.urlopen(marc_url).read()
+            xml = unicode(urllib2.urlopen(marc_url).read(), 'utf-8')
         return xml
 
 if __name__ == '__main__':

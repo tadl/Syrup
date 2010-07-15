@@ -1,4 +1,3 @@
-from conifer.integration import hooks
 from general import *
 from sites import *
 from items import *

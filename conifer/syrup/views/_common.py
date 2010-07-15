@@ -19,7 +19,6 @@ import django.forms
 import re
 import sys
 from django.forms.models import modelformset_factory
-from conifer.custom import lib_integration
 from conifer.libsystems.z3950.marcxml import (marcxml_to_dictionary,
                                               marcxml_dictionary_to_dc)
 from conifer.syrup.fuzzy_match import rank_pending_items
