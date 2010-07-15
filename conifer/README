@@ -42,6 +42,7 @@ exact ones, just that they are known to work.
     Babel-0.9.4-py2.5
     BabelDjango-0.2.2-py2.5
     Genshi-0.5.1-py2.5
+    South-0.7
 
 Getting this thing to run
 ------------------------------
@@ -58,6 +59,8 @@ Note: don't use the "./" syntax in windows for the commands, e.g.:
 C:\src\syrup\trunk\conifer>manage.py syncdb
 
 * During syncdb, create yourself a superuser account.
+
+* ./manage.py migrate
 
 * ./pybabel-extract  (currently, this is optional)
 
