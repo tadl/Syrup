@@ -42,12 +42,12 @@ class BaseModel(m.Model):
 # candidate).
 
 class UserExtensionMixin(object):
-    def reading_lists(self):
-        return ReadingList.objects.filter(group__membership__user=self.id)
+    def sites(self):
+        return Site.objects.filter(group__membership__user=self.id)
 
-    def can_create_reading_lists(self):
+    def can_create_sites(self):
         return self.is_staff or \
-            bool(callhook('can_create_reading_lists', self))
+            bool(callhook('can_create_sites', self))
 
     @classmethod
     def active_instructors(cls):
@@ -142,7 +142,7 @@ class Config(m.Model):
 
 #------------------------------------------------------------
 
-class ReadingList(BaseModel):
+class Site(BaseModel):
     """A a list of materials for one (or more) course offering(s)."""
     # some courses may be ad-hoc and have no code.
     # TODO: constrain there is at least one course and one term (deferred).
@@ -229,8 +229,8 @@ class ReadingList(BaseModel):
         while True:
             key = algorithm()
             try:
-                crs = ReadingList.objects.get(passkey=key)
-            except ReadingList.DoesNotExist:
+                crs = Site.objects.get(passkey=key)
+            except Site.DoesNotExist:
                 self.passkey = key
                 break
 
@@ -238,7 +238,7 @@ class ReadingList(BaseModel):
     # membership-related functions
 
     def members(self):
-        return Membership.objects.filter(group__reading_list=self)
+        return Membership.objects.filter(group__site=self)
 
     def get_students(self):
         return self.memberships(role='STUDT').order_by(
@@ -270,39 +270,39 @@ class ReadingList(BaseModel):
 
 
 #------------------------------------------------------------
-# User membership in reading lists
+# User membership in sites
 
 class Group(BaseModel):
     """
-    A group of users associated with a ReadingList. A ReadingList will
+    A group of users associated with a Site. A Site will
     have one internal group, but may have zero or more external
     groups.
 
-    Each ReadingList will have exactly one Group with a NULL
+    Each Site will have exactly one Group with a NULL
     external_id, intended for internal memberships. It may have zero
     or more Groups with non-NULL external_ids, representing various
-    external user-groups that should have access to this ReadingList.
+    external user-groups that should have access to this Site.
 
     A consequence of this design is that a user may appear in a
-    ReadingList more than once, with different roles.
+    Site more than once, with different roles.
 
-    Note, a ReadingList may be open-access, but still have members
+    Note, a Site may be open-access, but still have members
     with 'student' access. In this case memberships won't imply
     authorization, but can be used for personalization (e.g. to show a
-    list of "my reading lists").
+    list of "my sites").
     """
 
-    # TODO: add constraints to ensure that each ReadingList has
-    # exactly one Group with external_id=NULL, and that (readinglist,
+    # TODO: add constraints to ensure that each Site has
+    # exactly one Group with external_id=NULL, and that (site,
     # external_id) is unique forall external_id != NULL.
 
-    reading_list = m.ForeignKey(ReadingList)
+    site = m.ForeignKey(Site)
     external_id = m.CharField(null=True, blank=True,
                               db_index=True,
                               max_length=2048)
 
     def __unicode__(self):
-        return u"Group('%s', '%s')" % (self.reading_list,
+        return u"Group('%s', '%s')" % (self.site,
                                        self.external_id or '(internal)')
 
 class Membership(BaseModel):
@@ -344,8 +344,8 @@ class Membership(BaseModel):
 class Item(BaseModel):
     """
     A reserve item, physical or electronic, as it appears in a given
-    ReadingList instance. If an item appears on multiple reading
-    lists, it will have multiple Item records associated with it.
+    Site instance. If an item appears on multiple sites, it will have
+    multiple Item records associated with it.
     """
 
     # Structure
@@ -354,7 +354,7 @@ class Item(BaseModel):
     # database, all items are stored as a flat list; the sort_order
     # dictates the sequencing of items within their parent group.
 
-    reading_list = m.ForeignKey(ReadingList)
+    site = m.ForeignKey(Site)
 
     ITEM_TYPE_CHOICES = (
         ('ELEC', _('Attached Electronic Document')), # PDF, Doc, etc.
@@ -369,7 +369,7 @@ class Item(BaseModel):
     # Ephemerals, and add an EPHEM item-type to refer to them. The
     # contract would be that an ephmeral ID could be reused over time,
     # and so it might resolve to the wrong item (or no item at all) if
-    # deferenced after the active timeframe of the ReadingList.
+    # deferenced after the active timeframe of the Site.
 
     #--------------------------------------------------
     # ILS integration
