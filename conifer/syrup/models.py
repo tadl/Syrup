@@ -79,7 +79,7 @@ class UserProfile(BaseModel):
 class ServiceDesk(BaseModel):
     name        = m.CharField(max_length=100)
     active      = m.BooleanField(default=True)
-    external_id = m.CharField(max_length=256)
+    external_id = m.CharField(max_length=256, blank=True, null=True)
 
     def __unicode__(self):
         return self.name
