@@ -1,6 +1,6 @@
 <?python
 title = _('Wanted items: %s') % term
-from conifer.libsystems.z3950.marcxml import marcxml_dictionary_to_dc as to_dublin
+from conifer.libsystems.marcxml import marcxml_dictionary_to_dc as to_dublin
 dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
 from django.conf import settings
 lang = settings.LANGUAGE_CODE.replace('_','-')

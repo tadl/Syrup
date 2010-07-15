@@ -12,7 +12,7 @@ class NewSiteForm(ModelForm):
 
     def clean_code(self):
         v = (self.cleaned_data.get('code') or '').strip()
-        is_valid_func = models.campus.course_code_is_valid
+        is_valid_func = gethook('course_code_is_valid')
         if (not is_valid_func) or is_valid_func(v):
             return v
         else:
@@ -25,22 +25,6 @@ class NewSiteForm(ModelForm):
 
         super(NewSiteForm, self).__init__(*args, **kwargs)
 
-
-# if we have course-code lookup, hack lookup support into the new-course form.
-
-COURSE_CODE_LIST = bool(models.campus.course_code_list)
-COURSE_CODE_LOOKUP_TITLE = bool(models.campus.course_code_lookup_title)
-
-# if COURSE_CODE_LIST:
-#     from django.forms import Select
-#     course_list = models.campus.course_code_list()
-#     choices = [(a,a) for a in course_list]
-#     choices.sort()
-#     empty_label = u'---------'
-#     choices.insert(0, ('', empty_label))
-#     NewSiteForm.base_fields['code'].widget = Select(
-#         choices = choices)
-#     NewSiteForm.base_fields['code'].empty_label = empty_label
 
 #--------------------
 
@@ -60,7 +44,6 @@ def _add_or_edit_site(request, instance=None):
     if is_add:
         instance = models.Site()
     current_access_level = not is_add and instance.access or None
-    example = models.campus.course_code_example
     if request.method != 'POST':
         form = NewSiteForm(instance=instance)
         return g.render('edit_site.xhtml', **locals())
@@ -82,12 +65,6 @@ def _add_or_edit_site(request, instance=None):
             else:
                 return HttpResponseRedirect('../') # back to main view.
 
-# no access-control needed to protect title lookup.
-def add_new_site_ajax_title(request):
-    course_code = request.GET['course_code']
-    title = models.campus.course_code_lookup_title(course_code)
-    return HttpResponse(simplejson.dumps({'title':title}))
-
 @instructors_only
 def edit_site_permissions(request, site_id):
     site = get_object_or_404(models.Site, pk=site_id)
@@ -100,6 +77,7 @@ def edit_site_permissions(request, site_id):
         (u'STUDT', _(u'Students in my course -- I will provide section numbers')),
         (u'INVIT', _(u'Students in my course -- I will share an Invitation Code with them')),
         (u'LOGIN', _(u'All Reserves patrons'))]
+    # TODO: fixme, campus module no longer exists.
     if models.campus.sections_tuple_delimiter is None:
         # no course-sections support? Then STUDT cannot be an option.
         del choices[1]

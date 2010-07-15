@@ -1,6 +1,11 @@
 <?python
 index = form.Index
 title = index.title
+def call_or_value(obj, dflt=None):
+    if callable(obj):
+        return obj() or dflt
+    else:
+        return obj or dflt
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"

@@ -95,8 +95,6 @@ def _search(query_string, for_site=None, for_owner=None, user=None):
     site_filter  = Q(site=for_site)         if for_site  else Q()
 
     _items       = models.Item.objects.select_related()
-    print (term_filter & user_filter &
-                                 site_filter & owner_filter)
     items        = _items.filter(term_filter & user_filter &
                                  site_filter & owner_filter)
 
@@ -138,9 +136,6 @@ def search(request, in_site=None, for_owner=None):
         for_owner is provided, then limit search to sites owned by
         this instructor.
     '''
-
-    print("in_site is %s" % in_site)
-    print("for_owner is %s" % for_owner)
 
     query_string = request.GET.get('q', '').strip()
 

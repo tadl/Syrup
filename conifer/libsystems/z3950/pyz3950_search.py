@@ -7,7 +7,7 @@
 import warnings
 import re
 import sys
-from marcxml import marcxml_to_dictionary
+from ..marcxml import marcxml_to_dictionary
 from xml.etree import ElementTree as ET
 
 try:

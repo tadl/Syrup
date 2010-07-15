@@ -1,5 +1,5 @@
 <?python
-title = _('Please log in')
+title = _('Please log in.')
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -12,7 +12,8 @@ title = _('Please log in')
   </script>
 </head>
 <body>
-  <h1>Please log in.</h1>
+  <h1>${title}</h1>
+  <p>You must log in to access this resource.</p>
   <form action="." method="post">
     <input type="hidden" name="next" value="${next}"/>
     <div class="errors" py:if="defined('err')">${err}</div>

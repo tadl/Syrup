@@ -3,6 +3,8 @@
 import os
 from here import HERE
 
+DEBUG = False
+
 #----------------------------------------------------------------------
 # You may need to set the PYTHON_EGG_CACHE directory, depending on how
 # you installed Syrup.
@@ -19,7 +21,6 @@ DATABASE_HOST     = '' # Set to empty string for localhost. Not used with sqlite
 DATABASE_PORT     = '' # Set to empty string for default. Not used with sqlite3.
 
 #----------------------------------------------------------------------
-DEBUG = False
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -31,12 +32,8 @@ SECRET_KEY = 'replace-with-your-own-super-random-key-@vv(tuvt2+yu2r-$dxs$s7=iqjz
 
 #----------------------------------------------------------------------
 
-EVERGREEN_AUTHENTICATION = False
-
-#----------------------------------------------------------------------
-#Campus integration
-
-CAMPUS_INTEGRATION_MODULE = 'conifer.integration.default'
+EVERGREEN_AUTHENTICATION = False # Evergreen ILS authentication
+LINKTOOL_AUTHENTICATION  = False # Sakai LMS Linktool authentication
 
 #----------------------------------------------------------------------
 # Stuff that probably belongs in a config table in the database, with
@@ -44,5 +41,11 @@ CAMPUS_INTEGRATION_MODULE = 'conifer.integration.default'
 
 EVERGREEN_GATEWAY_SERVER = 'www.concat.ca'
 Z3950_CONFIG             = ('zed.concat.ca', 210, 'OWA')  #OWA,OSUL,CONIFER
-SIP_HOST                 = ('localhost', 8080)
-SIP_CREDENTIALS          = ('sipclient', 'c0n1fi3', 'graham home workstation')
+
+#----------------------------------------------------------------------
+# INTEGRATION_MODULE: name of a module to import after the database
+# models have been initialized. This can be used for defining 'hook'
+# functions, and other late initializations. 
+# See the 'conifer.syrup.integration' module for more information.
+
+INTEGRATION_MODULE = 'name.of.our.integration.module'

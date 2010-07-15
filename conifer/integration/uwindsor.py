@@ -1,7 +1,7 @@
 from datetime import date
 from django.conf import settings
 from conifer.libsystems.evergreen.support import initialize, E1
-from conifer.libsystems.z3950 import marcxml as M
+from conifer.libsystems import marcxml as M
 from conifer.libsystems.evergreen import item_status as I
 from conifer.libsystems.z3950 import pyz3950_search as PZ
 from xml.etree import ElementTree as ET

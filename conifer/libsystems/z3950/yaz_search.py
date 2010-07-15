@@ -8,7 +8,7 @@ import warnings
 import re
 import pexpect
 import sys
-from marcxml import marcxml_to_dictionary
+from ..marcxml import marcxml_to_dictionary
 
 LOG = None              #  for pexpect debugging, try LOG = sys.stderr
 YAZ_CLIENT = 'yaz-client'

@@ -1,22 +1,17 @@
-import re
 import random
+import re
 
+from conifer.libsystems              import marcxml as MX
+from conifer.plumbing.genshi_support import get_request
+from conifer.plumbing.hooksystem     import *
+from datetime                        import datetime
+from django.conf                     import settings
+from django.contrib.auth.models      import AnonymousUser, User
 from django.db                       import models as m
 from django.db.models                import Q
-from django.contrib.auth.models      import User
-from django.contrib.auth.models      import AnonymousUser
-from datetime                        import datetime
-from genshi                          import Markup
-from django.utils.translation        import ugettext as _
-from django.utils                    import simplejson
-from conifer.plumbing.genshi_support import get_request
-
-# campus and library integration
-from conifer.plumbing.hooksystem     import *
-from django.conf                     import settings
-campus = settings.CAMPUS_INTEGRATION
-import conifer.libsystems.z3950.marcxml as MX
 from django.utils                    import simplejson as json
+from django.utils.translation        import ugettext as _
+from genshi                          import Markup
 
 #----------------------------------------------------------------------
 

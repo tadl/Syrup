@@ -4,7 +4,7 @@
       py:strip="">
 <div py:def="pagetable(paginator, count, pagerow, pagehead=None, query=None, target=None)"
      py:with="page = paginator.page(page_num)">
-  <table class="pagetable" py:with="cls = cycle(('odd', 'even'))"> 
+  <table class="pagetable" py:with="cls = itertools.cycle(('odd', 'even'))"> 
     <thead py:if="pagehead">
       ${pagehead()}
     </thead>

@@ -94,8 +94,6 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend'
 ]
 
-CAMPUS_INTEGRATION_MODULE = 'conifer.integration.default'
-
 #---------------------------------------------------------------------------
 # local_settings.py
 
@@ -121,15 +119,6 @@ MANAGERS       = ADMINS
 if EVERGREEN_AUTHENTICATION:
     AUTHENTICATION_BACKENDS.append(
         'conifer.integration.auth_evergreen.django.EvergreenAuthBackend')
-
-#----------
-
-try:
-    exec 'import %s as CAMPUS_INTEGRATION' % CAMPUS_INTEGRATION_MODULE
-except:
-    raise Exception('There is an error in your campus integration module (%s)! '
-                    'Please investigate and repair.' % CAMPUS_INTEGRATION_MODULE,
-                    sys.exc_value)
 
 #----------
 

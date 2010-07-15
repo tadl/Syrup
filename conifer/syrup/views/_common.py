@@ -20,6 +20,7 @@ import sys
 import warnings
 import pdb
 
+from conifer.integration.hooksystem import gethook, callhook, callhook_required
 from conifer.syrup                  import models
 from datetime                       import datetime
 from django.contrib.auth            import authenticate, login, logout
@@ -37,8 +38,8 @@ from django.utils                   import simplejson
 from django.utils.translation       import ugettext as _
 from _generics                      import * # TODO: should not import-star
 
-from conifer.libsystems.z3950.marcxml import (marcxml_to_dictionary,
-                                              marcxml_dictionary_to_dc)
+from conifer.libsystems.marcxml     import (marcxml_to_dictionary,
+                                            marcxml_dictionary_to_dc)
 
 
 #-----------------------------------------------------------------------------
