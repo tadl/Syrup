@@ -1,7 +1,5 @@
 <?python
 title = _('Search Results')
-instructors = instructor_list
-sites = site_list
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -18,67 +16,47 @@ sites = site_list
 <body>
     <h1>${title}</h1>
     
-    <h2 py:if="query_string">
-        You searched: <i>${query_string}</i>
-    </h2>
+    <img py:def="lock(condition=True)" 
+	 py:if="condition"
+	 src="${ROOT}/static/tango/lock.png"
+	 alt="lock" title="This resource is access-controlled."/>
+    
 
-    <!-- not sure if this is the best way to do this -->
-    <!-- 
-        probably need a simple css option to hide instructors and site info
-    -->
-    <table py:if="instructors or sites" width="100%">
-      <tr>
-        <!-- instructors -->
-        <td py:if="instructors" valign="top" class="topbox">
-	  <table class="topheading">
-	    <tr>
-	      <!--
-		  <th>Last Name</th><th>First Name</th>
-	      -->
-	      <th>Instructors</th>
-	    </tr>
-	    <tr py:for="instructor in instructors">
-	      <td> ${Markup(instructor.instr_name_hl(norm_query))},
-	      ${instructor.user.first_name}</td>
-	    </tr>
-	    <tr py:if="instr_len > count">
-	      <!-- will tap into open list here -->
-	      <td>(${instr_len - count} more...)</td>
-	    </tr>
-	  </table>
-        </td>
-	
-        <!-- sites -->
-        <td py:if="sites" valign="top" class="topbox">
-	  <table class="topheading">
-	    <tr>
-	      <th align="left">Site</th>
-	    </tr>
-	    <tr py:for="site in sites">
-	      <!-- will highlight this, probably pull in dept info -->
-	      <td><a href="../site/${site.id}/">${site}</a></td>
-	    </tr>
-	    <tr py:if="site_len > count">
-	      <td></td>
-	      <!-- will tap into open list here -->
-	      <td>(${site_len - count} more...)</td>
-	    </tr>
-	  </table>
-        </td>
-      </tr>
-    </table>
+    <h2 py:if="query_string">
+        You searched for: <i>${query_string}.</i>
+	Found ${len(results)} matches.
+    </h2>
   
-    <tr py:if="results_len > 0" py:def="pageheader()">
-        <th>Author</th><th>Title</th>
+    <tr py:if="results" py:def="pageheader()">
+        <th>Author</th><th>Title</th><th>Site</th>
     </tr>
-  
+
     <span py:def="pagerow(item)">
+      <tr py:strip="True" py:if="isinstance(item, models.Item)">
+	<?python
+	  maybe_lock = list(lock(not item.site.is_open_to(request.user)))
+	?>
         <td>${Markup(item.author_hl(norm_query))}</td>
-        <td><a href="${item.item_url('meta')}">${Markup(item.title_hl(norm_query))}</a></td>
-	<td><a href="${item.site.site_url()}">${item.site}</a></td>
-	<td><span py:if="item.item_type=='PHYS'">${item.smallint()} &bull; ${item.barcode()}</span></td>
+        <td>${maybe_lock} <a href="${item.item_url('meta')}">${Markup(item.title_hl(norm_query))}</a></td>
+	<td>${maybe_lock} <a href="${item.site.site_url()}">${item.site}</a></td>
+      </tr>
+      <tr py:strip="True" py:if="isinstance(item, models.Site)">
+	<?python
+	  maybe_lock = list(lock(not item.is_open_to(request.user)))
+	?>
+	<td>&mdash;</td>
+	<td>&mdash;</td>
+        <td>${maybe_lock} <a href="${item.site_url()}">${item}</a></td>
+      </tr>
     </span>
     ${pagetable(paginator, count, pagerow, pageheader, query=query_string)}
+
+    <div py:if="user.is_anonymous()">
+      Your searches may return more results if you <a
+      href="${ROOT}/accounts/login/?next=${ROOT}/">log in</a> before
+      searching.
+    </div>
+
 
 </body>
 </html>
