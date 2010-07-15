@@ -1,4 +1,5 @@
 from conifer.integration._hooksystem import *
+from datetime import date
 
 #----------------------------------------------------------------------
 # Your hooks go here.
@@ -25,4 +26,17 @@ def department_course_catalogue():
         ('Social Work','02-47-362','Field Practice I - B'),
         ('Social Work','02-47-370','Mothering and Motherhood'),
         ('Social Work','02-47-456','Social Work and Health'),
+        ]
+
+@hook
+def term_catalogue():
+    """
+    Return a list of rows representing all known terms. Each row
+    should be a tuple in the form: ('term-code', 'term-name',
+    'start-date', 'end-date'), where the dates are instances of the
+    datetime.date class.
+    """
+    return [
+        ('2011S', '2011 Summer', date(2011,5,1), date(2011,9,1)),
+        ('2011F', '2011 Fall', date(2011,9,1), date(2011,12,31)),
         ]

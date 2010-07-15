@@ -1,6 +1,7 @@
 from _common import *
 from django.utils.translation import ugettext as _
 from conifer.integration._hooksystem import *
+from datetime import date
 
 #-----------------------------------------------------------------------------
 # Administrative options
@@ -120,14 +121,33 @@ def admin_update_depts_courses(request):
     desk = models.ServiceDesk.objects.get(pk=defaultdesk)
 
     if catalogue is None:
-        return HttpResponse('Sorry, cannot perform this operation at this time: '
-                            'hook %r not found.' % HOOKNAME)
+        return HttpResponse(
+            'Sorry, cannot perform this operation at this time: '
+            'hook %r not found.' % HOOKNAME)
     else:
         for deptname, ccode, cname in catalogue:
             if not (deptname.strip() and ccode.strip() and cname.strip()):
                 continue
             dept, x = models.Department.objects.get_or_create(
                 name=deptname, service_desk=desk)
-            course, x = models.Course.objects.get_or_create(
+            models.Course.objects.get_or_create(
                 department=dept, name=cname, code=ccode)
-        return HttpResponse('Updated.') # TODO: make a nice confirmation message.
+        return simple_message('Courses and departments updated.', '')
+
+def admin_update_terms(request):
+    HOOKNAME = 'term_catalogue'
+    catalogue = callhook(HOOKNAME)
+    if catalogue is None:
+        return HttpResponse(
+            'Sorry, cannot perform this operation at this time: '
+            'hook %r not found.' % HOOKNAME)
+    else:
+        for tcode, tname, start, finish in catalogue:
+            tcode = tcode.strip(); tname = tname.strip()
+            if not (tcode and tname and isinstance(start, date) \
+                        and isinstance(finish, date)):
+                raise Exception(('bad-row', tcode, tname, start, finish))
+            models.Term.objects.get_or_create(
+                code = tcode, 
+                defaults = dict(name=tname, start=start, finish=finish))
+        return simple_message('Terms updated.', '')

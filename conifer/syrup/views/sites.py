@@ -23,16 +23,16 @@ class NewSiteForm(ModelForm):
 COURSE_CODE_LIST = bool(models.campus.course_code_list)
 COURSE_CODE_LOOKUP_TITLE = bool(models.campus.course_code_lookup_title)
 
-if COURSE_CODE_LIST:
-    from django.forms import Select
-    course_list = models.campus.course_code_list()
-    choices = [(a,a) for a in course_list]
-    choices.sort()
-    empty_label = u'---------'
-    choices.insert(0, ('', empty_label))
-    NewSiteForm.base_fields['code'].widget = Select(
-        choices = choices)
-    NewSiteForm.base_fields['code'].empty_label = empty_label
+# if COURSE_CODE_LIST:
+#     from django.forms import Select
+#     course_list = models.campus.course_code_list()
+#     choices = [(a,a) for a in course_list]
+#     choices.sort()
+#     empty_label = u'---------'
+#     choices.insert(0, ('', empty_label))
+#     NewSiteForm.base_fields['code'].widget = Select(
+#         choices = choices)
+#     NewSiteForm.base_fields['code'].empty_label = empty_label
 
 #--------------------
     

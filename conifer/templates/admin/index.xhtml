@@ -30,6 +30,9 @@ title = _('Administrative Options')
     <li py:if="gethook('department_course_catalogue')">
       <a href="update_depts_courses">Automatically update departments and courses</a>
     </li>
+    <li py:if="gethook('term_catalogue')">
+      <a href="update_terms">Automatically update terms</a>
+    </li>
   </ul>
   </div>
 </body>
