@@ -30,10 +30,12 @@ else:
     </tr>
     <h2>General description</h2>
     <table class="metadata_table">
-    ${field_row(form.code, example)}
-    ${field_row(form.title)}
-    ${field_row(form.term)}
-    ${field_row(form.department)}
+    ${field_row(form.owner)}
+    ${field_row(form.terms)}
+    ${field_row(form.courses)}
+    ${field_row(form.service_desk)}
+
+    <!-- ${field_row(form.department)} -->
     <!-- <tr><th>Department</th><td>${Markup(form.department)} ${errorlist(form.department)}</td></tr> -->
   </table>
   <p><input type="submit" value="Continue"/> ${go_back_link()}</p>

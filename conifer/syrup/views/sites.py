@@ -67,7 +67,7 @@ def _add_or_edit_site(request, instance=None):
                 site.generate_new_passkey()
                 site.save()
             assert site.id
-            user_in_site = models.Member.objects.filter(user=request.user,site=site)
+            user_in_site = site.is_member(request.user)
             if not user_in_site: # for edits, might already be!
                 mbr = site.member_set.create(user=request.user, role='INSTR')
                 mbr.save()
@@ -122,9 +122,9 @@ def edit_site_permissions(request, site_id):
                 instr = models.maybe_initialize_user(iname)
                 if instr:
                     try:
-                        return models.Member.objects.get(user=instr, site=site)
-                    except models.Member.DoesNotExist:
-                        return models.Member.objects.create(user=instr, site=site)
+                        return models.Membership.objects.get(user=instr, site=site)
+                    except models.Membership.DoesNotExist:
+                        return models.Membership.objects.create(user=instr, site=site)
 
             # add a new instructor
             if iname:
@@ -144,12 +144,12 @@ def edit_site_permissions(request, site_id):
                              for name in POST if name.startswith('instructor_remove_')]
             for instr_id, newrole in to_change_role:
                 if not instr_id in to_remove:
-                    instr = models.Member.objects.get(pk=instr_id, site=site)
+                    instr = models.Membership.objects.get(pk=instr_id, site=site)
                     instr.role = newrole
                     instr.save()
             for instr_id in to_remove:
                 # todo, should warn if deleting yourself!
-                instr = models.Member.objects.get(pk=instr_id, site=site)
+                instr = models.Membership.objects.get(pk=instr_id, site=site)
                 instr.delete()
             # todo, should have some error-reporting.
             return HttpResponseRedirect('.')
@@ -159,7 +159,7 @@ def edit_site_permissions(request, site_id):
             access = POST.get('access')
             site.access = access
             # drop all provided users. fixme, this could be optimized to do add/drops.
-            models.Member.objects.filter(site=site, provided=True).delete()
+            models.Membership.objects.filter(site=site, provided=True).delete()
             if site.access == u'STUDT':
                 initial_sections = site.sections()
                 # add the 'new section' if any
@@ -176,8 +176,8 @@ def edit_site_permissions(request, site_id):
                 for name in student_names:
                     user = models.maybe_initialize_user(name)
                     if user:
-                        if not models.Member.objects.filter(site=site, user=user):
-                            mbr = models.Member.objects.create(
+                        if not models.Membership.objects.filter(site=site, user=user):
+                            mbr = models.Membership.objects.create(
                                 site=site, user=user, 
                                 role='STUDT', provided=True)
                             mbr.save()
@@ -222,8 +222,8 @@ def site_invitation(request):
             return g.render('site_invitation.xhtml', **locals())
 
         # the passkey is good; add the user if not already a member.
-        if not models.Member.objects.filter(user=request.user, site=crs):
-            mbr = models.Member.objects.create(user=request.user, site=crs, 
+        if not models.Membership.objects.filter(user=request.user, site=crs):
+            mbr = models.Membership.objects.create(user=request.user, site=crs, 
                                                role='STUDT')
             mbr.save()
         return HttpResponseRedirect(crs.site_url())
@@ -252,7 +252,7 @@ def site_join(request, site_id):
     elif request.method != 'POST':
         return g.render('site_join.xhtml', site=site)
     else:
-        mbr = models.Member.objects.create(user=request.user, site=site, role='STUDT')
+        mbr = models.Membership.objects.create(user=request.user, site=site, role='STUDT')
         mbr.save()
         return HttpResponseRedirect(site.site_url())
 

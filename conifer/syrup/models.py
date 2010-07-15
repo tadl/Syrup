@@ -166,8 +166,8 @@ class Site(BaseModel):
     passkey = m.CharField(db_index=True, blank=True, null=True, max_length=256)
 
     def __unicode__(self):
-        cc = '%s' % (', '.join([c.code for c in self.courses]))
-        tt = '(%s)' % (', '.join([t.code for t in self.terms]))
+        cc = '%s' % (', '.join([c.code for c in self.courses.all()]))
+        tt = '(%s)' % (', '.join([t.code for t in self.terms.all()]))
         oo = '(%s)' % self.owner.last_name
         return u'%s %s %s' % (cc, tt, oo)
 
@@ -265,9 +265,12 @@ class Site(BaseModel):
         registration."""
         return user.is_authenticated() \
             and self.access in ('ANON', 'LOGIN') \
-            and not user.id == self.owner_id \
-            and not self.members.filter(user=user).exists()
+            and not self.is_member(user)
 
+    def is_member(self, user):
+        assert user
+        return user.id == self.owner_id \
+            or self.members.filter(user=user).exists()
 
 #------------------------------------------------------------
 # User membership in sites
