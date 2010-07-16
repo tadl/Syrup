@@ -9,6 +9,6 @@ def linktool_welcome(request):
     else:
         login(request, user)
         request.session['clew-site'] = request.GET['site']
-        return HttpResponse("""<html><head/><body onload="top.location='/%s';">"""
-                            """Redirecting to the library system...</body></html>""" % (
+        return HttpResponse("""<html><head/><body onload="top.location='%s';">"""
+                            """Redirecting to the library reserves system...</body></html>""" % (
                 request.META['SCRIPT_NAME']))
