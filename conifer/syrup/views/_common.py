@@ -20,7 +20,7 @@ import sys
 import warnings
 import pdb
 
-from conifer.integration.hooksystem import gethook, callhook, callhook_required
+from conifer.plumbing.hooksystem    import gethook, callhook, callhook_required
 from conifer.syrup                  import models
 from datetime                       import datetime
 from django.contrib.auth            import authenticate, login, logout
@@ -41,6 +41,7 @@ from _generics                      import * # TODO: should not import-star
 from conifer.libsystems.marcxml     import (marcxml_to_dictionary,
                                             marcxml_dictionary_to_dc)
 
+from django.utils.translation       import ugettext as _
 
 #-----------------------------------------------------------------------------
 # Authorization
@@ -49,7 +50,9 @@ def _access_denied(request, message):
     if request.user.is_anonymous():
         # then take them to login screen....
         dest = (request.META['SCRIPT_NAME'] + \
-                    '/accounts/login/?next=' + request.META['PATH_INFO'])
+                    '/accounts/login/?next=%s%s' % (
+                request.META['SCRIPT_NAME'],
+                request.META['PATH_INFO']))
         return HttpResponseRedirect(dest)
     else:
         return simple_message(_('Access denied.'), message,

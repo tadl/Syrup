@@ -11,8 +11,8 @@ import django.forms
 import itertools
 import urllib
 
-from conifer.integration.hooksystem import gethook, callhook
-from conifer.syrup                  import models
-from django.utils                   import translation
+from conifer.plumbing.hooksystem import gethook, callhook
+from conifer.syrup               import models
+from django.utils                import translation
 
 _ = translation.ugettext

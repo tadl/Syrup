@@ -35,7 +35,7 @@ is_editor = site.can_edit(request.user)
       <tr><th>Title</th><td>${item.title}</td></tr>
       <tr py:if="item.author"><th>Author</th><td>${item.author}</td></tr>
       <tr py:if="item.publisher"><th>Publisher</th><td>${item.publisher}</td></tr>
-      <tr py:if="item.published"><th>Published</th><td>${item.published and item.published.year}</td></tr>
+      <tr py:if="item.published"><th>Published</th><td>${item.published}</td></tr>
       <tr><th>Type</th><td>${item.get_item_type_display()}</td></tr>
       <tr py:if="item.item_type=='PHYS'"
 	  py:with="avail, status = item.describe_physical_item_status()">
