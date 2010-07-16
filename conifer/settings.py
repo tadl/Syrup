@@ -77,7 +77,7 @@ ROOT_URLCONF = 'conifer.urls'
 
 TEMPLATE_DIRS = []
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -85,7 +85,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'south',
     'conifer.syrup',
-)
+]
 
 AUTH_PROFILE_MODULE = 'syrup.UserProfile'
 
@@ -93,6 +93,9 @@ AUTH_PROFILE_MODULE = 'syrup.UserProfile'
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend'
 ]
+
+EVERGREEN_AUTHENTICATION = False
+LINKTOOL_AUTHENTICATION  = False
 
 #---------------------------------------------------------------------------
 # local_settings.py
@@ -120,5 +123,9 @@ if EVERGREEN_AUTHENTICATION:
     AUTHENTICATION_BACKENDS.append(
         'conifer.integration.auth_evergreen.django.EvergreenAuthBackend')
 
-#----------
+if LINKTOOL_AUTHENTICATION:
+    AUTHENTICATION_BACKENDS.append(
+        'conifer.integration.linktool.backend.LinktoolAuthBackend')
+    INSTALLED_APPS.append(
+        'conifer.integration.linktool.app')
 

@@ -6,7 +6,7 @@ from conifer.libsystems.evergreen import item_status as I
 from conifer.libsystems.z3950 import pyz3950_search as PZ
 from xml.etree import ElementTree as ET
 import re
-
+import uwindsor_campus_info
 
 def department_course_catalogue():
     """
@@ -111,3 +111,13 @@ def marcxml_to_url(marc_string):
         return None
 
     
+def external_person_lookup(userid):
+    """
+    Given a userid, return either None (if the user cannot be found),
+    or a dictionary representing the user. The dictionary must contain
+    the keys ('given_name', 'surname') and should contain 'email' if
+    an email address is known.
+    """
+    return uwindsor_campus_info.call('person_lookup', userid)
+
+

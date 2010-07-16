@@ -100,3 +100,12 @@ def marcxml_to_url(marc_string):
     codes and $u holds the URLs.
     """
 
+@disable
+def external_person_lookup(userid):
+    """
+    Given a userid, return either None (if the user cannot be found),
+    or a dictionary representing the user. The dictionary must contain
+    the keys ('given_name', 'surname') and should contain 'email' if
+    an email address is known.
+    """
+

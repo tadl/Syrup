@@ -37,3 +37,10 @@ urlpatterns = patterns('',
 if not settings.DEBUG:
     handler500 = 'conifer.syrup.views.custom_500_handler'
     handler404b = 'conifer.syrup.views.custom_400_handler'
+
+
+if settings.LINKTOOL_AUTHENTICATION:
+    urlpatterns += patterns(
+        'conifer.integration.linktool.app',
+        (r'^linktool-welcome/$', 'linktool_welcome'))
+
