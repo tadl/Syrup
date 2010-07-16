@@ -1,7 +1,6 @@
-from _common                  import *
-from conifer.syrup            import integration
-from django.utils.translation import ugettext as _
-from xml.etree                import ElementTree as ET
+from _common       import *
+from conifer.syrup import integration
+from xml.etree     import ElementTree as ET
 
 @members_only
 def item_detail(request, site_id, item_id):

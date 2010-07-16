@@ -1,10 +1,6 @@
-from _common import *
-from django.utils.translation import ugettext as _
-from search import *
-#from lxml import etree
-#import libxml2
-#import libxslt
 import os
+from _common import *
+from search  import *
 
 #-----------------------------------------------------------------------------
 

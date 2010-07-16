@@ -1,5 +1,4 @@
-from _common import *
-from django.utils.translation import ugettext as _
+from _common  import *
 from datetime import date
 
 #-----------------------------------------------------------------------------

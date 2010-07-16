@@ -1,6 +1,5 @@
 from _common import *
-from django.utils.translation import ugettext as _
-from search import *
+from search  import *
 
 #-----------------------------------------------------------------------------
 # Creating a new site

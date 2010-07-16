@@ -35,14 +35,13 @@ from django.http                    import (HttpResponse, HttpResponseRedirect,
                                             HttpResponseForbidden)
 from django.shortcuts               import get_object_or_404
 from django.utils                   import simplejson
-from django.utils.translation       import ugettext as _
+from django.utils                   import translation
 from _generics                      import * # TODO: should not import-star
 
 from conifer.libsystems.marcxml     import (marcxml_to_dictionary,
                                             marcxml_dictionary_to_dc)
 
-from django.utils.translation       import ugettext as _
-
+__builtins__['_'] = translation.ugettext
 #-----------------------------------------------------------------------------
 # Authorization
 

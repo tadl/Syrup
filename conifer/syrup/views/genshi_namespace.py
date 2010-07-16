@@ -13,6 +13,4 @@ import urllib
 
 from conifer.plumbing.hooksystem import gethook, callhook
 from conifer.syrup               import models
-from django.utils                import translation
-
-_ = translation.ugettext
+from django.utils.translation    import ugettext as _
