@@ -7,7 +7,7 @@ from search  import *
 class NewSiteForm(ModelForm):
     class Meta:
         model = models.Site
-        exclude = ('passkey','access')
+        exclude = ('access',)
 
     def clean_code(self):
         v = (self.cleaned_data.get('code') or '').strip()
@@ -53,9 +53,6 @@ def _add_or_edit_site(request, instance=None):
         else:
             form.save()
             site = form.instance
-            if site.access == u'INVIT' and not site.passkey:
-                site.generate_new_passkey()
-                site.save()
             assert site.id
 
             if is_add or (current_access_level != site.access):
@@ -70,31 +67,20 @@ def edit_site_permissions(request, site_id):
     # choices: make the access-choice labels more personalized than
     # the ones in 'models'.
     choices = [
-        # note: I'm leaving ANON out for now, until we discuss it further.
-        (u'ANON', _(u'Anyone on the planet may access this site.')),
-        (u'CLOSE', _(u'No students: this site is closed.')),
-        (u'STUDT', _(u'Students in my course -- I will provide section numbers')),
-        (u'INVIT', _(u'Students in my course -- I will share an Invitation Code with them')),
-        (u'LOGIN', _(u'All Reserves patrons'))]
-    # TODO: fixme, campus module no longer exists.
-    if models.campus.sections_tuple_delimiter is None:
-        # no course-sections support? Then STUDT cannot be an option.
-        del choices[1]
-    choose_access = django.forms.Select(choices=choices)
+        (u'ANON',  _(u'Everyone: no login required.')),
+        (u'LOGIN', _(u'Members and non-members: login required.')),
+        (u'MEMBR', _(u'Members only.')),
+        (u'CLOSE', _(u'Instructors only: this site is closed.')),
+        ]
+
+    choose_access = django.forms.RadioSelect(choices=choices)
         
     if request.method != 'POST':
         return g.render('edit_site_permissions.xhtml', **locals())
     else:
         POST = request.POST
 
-        if 'action_change_code' in POST:
-            # update invitation code -------------------------------------
-            site.generate_new_passkey()
-            site.access = u'INVIT'
-            site.save()
-            return HttpResponseRedirect('.#student_access')
-
-        elif 'action_save_instructor' in POST:
+        if 'action_save_instructor' in POST:
             # update instructor details ----------------------------------
             iname = POST.get('new_instructor_name','').strip()
             irole = POST.get('new_instructor_role')
@@ -181,31 +167,7 @@ def delete_site(request, site_id):
 
 @login_required                 # must be, to avoid/audit brute force attacks.
 def site_invitation(request):
-    if request.method != 'POST':
-        return g.render('site_invitation.xhtml', code='', error='',
-                        **locals())
-    else:
-        code = request.POST.get('code', '').strip()
-        # todo, a pluggable passkey implementation would normalize the code here.
-        if not code:
-            return HttpResponseRedirect('.')
-        try:
-            # note, we only allow the passkey if access='INVIT'.
-            crs = models.Site.objects.filter(access='INVIT').get(passkey=code)
-        except models.Site.DoesNotExist:
-            # todo, do we need a formal logging system? Or a table for
-            # invitation failures? They should be captured somehow, I
-            # think. Should we temporarily disable accounts after
-            # multiple failures?
-            error = _('The code you provided is not valid.')
-            return g.render('site_invitation.xhtml', **locals())
-
-        # the passkey is good; add the user if not already a member.
-        if not models.Membership.objects.filter(user=request.user, site=crs):
-            mbr = models.Membership.objects.create(user=request.user, site=crs, 
-                                               role='STUDT')
-            mbr.save()
-        return HttpResponseRedirect(crs.site_url())
+    raise NotImplementedError
 
 #-----------------------------------------------------------------------------
 # Site-instance handlers

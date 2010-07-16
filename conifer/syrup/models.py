@@ -48,7 +48,7 @@ class UserExtensionMixin(object):
             bool(callhook('can_create_sites', self))
 
     def get_list_name(self):
-        return '%s, %s (%s)' % (self.last_name, self.first_name, self.username)
+        return '%s, %s' % (self.last_name, self.first_name)
 
     @classmethod
     def active_instructors(cls):
@@ -164,18 +164,22 @@ class Site(BaseModel):
                          choices = [
             ('ANON', _('World-accessible')),
             ('LOGIN', _('Accessible to all logged-in users')),
-            ('STUDT', _('Accessible to course students (by section)')),
-            ('INVIT', _('Accessible to course students (by invitation code)')),
+            ('MEMBR', _('Accessible to course-site members')),
             ('CLOSE', _('Accessible only to course-site owners'))])
-
-    # For sites that use a passkey as an invitation (INVIT access).
-    # Note: only set this value using 'generate_new_passkey'.
-    # TODO: for postgres, add UNIQUE constraint on 'passkey'.
-    passkey = m.CharField(db_index=True, blank=True, null=True, max_length=256)
 
     class Meta:
         unique_together = (('course', 'term', 'owner'))
         ordering = ['-term__start', 'course__code']
+
+    def save(self, *args, **kwargs):
+        # Ensure there is always an internal Group.
+        super(Site, self).save(*args, **kwargs)
+        internal, just_created = Group.objects.get_or_create(
+            site=self, external_id=None)
+        # ..and that the owner is an instructor in the site.
+        Membership.objects.get_or_create(group    = internal,
+                                         user     = self.owner,
+                                         defaults = {'role':'INSTR'})
 
     def __unicode__(self):
         return u'%s: %s (%s, %s)' % (
@@ -184,7 +188,8 @@ class Site(BaseModel):
             self.term.name)
 
     def list_display(self):
-            return '%s [%s, %s]' % (self.course.name, self.course.code, self.term.name)
+            return '%s [%s, %s]' % (self.course.name, self.course.code,
+                                    self.term.name)
 
     def items(self):
         return self.item_set.all()
@@ -292,7 +297,6 @@ class Site(BaseModel):
             or (self.access == 'LOGIN' and user.is_authenticated()) \
             or user.is_staff \
             or self.is_member(user)
-
 
     #--------------------------------------------------
 

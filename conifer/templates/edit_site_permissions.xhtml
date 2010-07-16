@@ -1,6 +1,8 @@
 <?python
 title = _('Edit site permissions')
 instructors = site.get_instructors()
+members = models.Membership.objects.select_related().filter(group__site=site).order_by('user__last_name', 'user__first_name')
+extgroups = site.group_set.filter(external_id__isnull=False)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -10,72 +12,66 @@ instructors = site.get_instructors()
 <head>
   <title>${title}</title>
   <script type="text/javascript" src="${ROOT}/static/edit_site_permissions.js"/>
+  <style type="text/css">
+    #access_level li { list-style-type: none; }
+  </style>
 </head>
 <body>
   ${site_banner(site)}
   <h1>${title}</h1>
   <p><a href="../">Edit site details</a> &bull; <a href="${site.site_url()}">Return to site page</a></p>
   <form action="." method="POST">
-    <h2>Instructor Access</h2>
-    <div py:if="defined('instructor_error')" class="errors">${instructor_error}</div>
-    <table class="pagetable">
-      <thead>
-	<tr><th>Person</th><th>Role</th><th>Remove?</th></tr>
-      </thead>
-      <tbody>
-	<select py:def="select_role(mbr)" 
-		py:replace="Markup(django.forms.Select(choices=
-			    [(u'INSTR',_('Instructor')), (u'PROXY', _('Proxy instructor'))])
-			    .render('instructor_role_%d' % mbr.id, mbr.role))"/>
-      <tr py:for="mbr in instructors">
-	<td>${mbr.user.get_full_name() or ''} <code>(${mbr.user.username})</code></td>
-	<td>${select_role(mbr)}</td>
-	<td><input type="checkbox" name="instructor_remove_${mbr.id}"/></td>
-      </tr>
-      <tr style="vertical-align: bottom;">
-	<td><p>Username of the new instructor.</p><input type="text" name="new_instructor_name"/></td>
-	<td><select name="new_instructor_role">
-	  <option value="INSTR">Instructor</option>
-	  <option value="PROXY">Proxy instructor</option>
-	  </select>
-	</td>
-	<td/>
-      </tr>
-      </tbody>
-    </table>
-    <p>	  <input type="submit" name="action_save_instructor" value="Save changes to instructors"/></p>
-    <div class="gap"/>
-    <h2 id="student_access">Student Access</h2>
-    <p>Who will have student-level access to this site?
-    <span style="margin-left: 12;"/>${Markup(choose_access.render('access', site.access, {'id':'id_access'}, []))}</p>
-    <div id="INVIT_panel" class="specific">
-      <h3>Site Invitation Code</h3>
-      <p style="font-size: larger;">Your Site Invitation Code is: <strong>${site.passkey}</strong>
-      <span style="margin-left: 16;">
-	  <input type="submit" name="action_change_code" value="Select a new code"/>
-      </span>
-      </p>
-      <p>This invitation code will enable your students to join this
-      site. Share it only with your students: anyone who has
-      the code can join your site.</p>
-      <p>You may change the code at any time. This will not block
-      students who have already joined, but will prevent new students
-      from joining with the old code.</p>
-    </div>
-    <div id="STUDT_panel" class="specific">
-      <h3>Course section numbers</h3>
-      <p>Not implemented yet.</p>
-    </div>
+    <h2>Site Access Level</h2>
+    <p>Who has permission to view resources in this site?</p>
+    <div id="access_level" style="margin-left: 12;">${Markup(choose_access.render('access', site.access, {'id':'id_access'}, []))}</div>
     <p><input type="submit" name="action_save_student" value="Save changes to student access"/></p>
 
-    <div class="gap"/>
-    <h2>Class List</h2>
-    <p>The following users have student-level access in this site.</p>
-    <ol>
-      <li py:for="student in site.get_students()">
-	${student.get_full_name()} (${student.email})
-      </li>
-    </ol>
+    <h2>Current Membership</h2>
+    <table class="pagetable" style="width: 100%;">
+      <thead>
+	<tr><th>Name</th><th>Role</th><th>User ID</th><th>Group</th></tr>
+      </thead>
+      <tr py:for="member in members"
+	  style="${'' if member.user.is_active else 'text-decoration: line-through;'}">
+	<td>${member.user.get_list_name()}</td>
+	<td>${member.get_role_display()}</td>
+	<td>${member.user.username}</td>
+	<td>${member.group.external_id or '(internal)'}</td>
+      </tr>
+    </table>
+    <div py:if="extgroups">
+      <h2>External Groups</h2>
+      <p py:for="eg in extgroups">${eg.external_id}</p>
+    </div>
+
+    <!-- <h2>Instructor Access</h2> -->
+    <!-- <div py:if="defined('instructor_error')" class="errors">${instructor_error}</div> -->
+    <!-- <table class="pagetable"> -->
+    <!--   <thead> -->
+    <!-- 	<tr><th>Person</th><th>Role</th><th>Remove?</th></tr> -->
+    <!--   </thead> -->
+    <!--   <tbody> -->
+    <!-- 	<select py:def="select_role(mbr)"  -->
+    <!-- 		py:replace="Markup(django.forms.Select(choices= -->
+    <!-- 			    [(u'INSTR',_('Instructor')), (u'PROXY', _('Proxy instructor'))]) -->
+    <!-- 			    .render('instructor_role_%d' % mbr.id, mbr.role))"/> -->
+    <!--   <tr py:for="mbr in instructors"> -->
+    <!-- 	<td>${mbr.user.get_full_name() or ''} <code>(${mbr.user.username})</code></td> -->
+    <!-- 	<td>${select_role(mbr)}</td> -->
+    <!-- 	<td><input type="checkbox" name="instructor_remove_${mbr.id}"/></td> -->
+    <!--   </tr> -->
+    <!--   <tr style="vertical-align: bottom;"> -->
+    <!-- 	<td><p>Username of the new instructor.</p><input type="text" name="new_instructor_name"/></td> -->
+    <!-- 	<td><select name="new_instructor_role"> -->
+    <!-- 	  <option value="INSTR">Instructor</option> -->
+    <!-- 	  <option value="PROXY">Proxy instructor</option> -->
+    <!-- 	  </select> -->
+    <!-- 	</td> -->
+    <!-- 	<td/> -->
+    <!--   </tr> -->
+    <!--   </tbody> -->
+    <!-- </table> -->
+    <!-- <p>	  <input type="submit" name="action_save_instructor" value="Save changes to instructors"/></p> -->
   </form>
   <div class="gap"/>
 </body>
