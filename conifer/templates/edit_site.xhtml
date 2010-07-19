@@ -1,6 +1,6 @@
 <?python
 if instance.id:
-    title = _('Configure this site')
+    title = _('Site setup')
 else:
     title = _('Create a new site')
 ?>
@@ -16,7 +16,6 @@ else:
 <body>
   <div py:if="instance.id">${site_banner(instance)}</div>
   <h1>${title}</h1>
-  <p py:if="instance.id"><a href="permission/">Edit site permissions</a> &bull; <a href="${instance.site_url()}">Return to site page</a></p>
   <div py:with="nfe=form.non_field_errors()">
     <ul py:if="nfe" class="errorlist">
       <li py:for="err in nfe">${err}</li>
@@ -33,7 +32,6 @@ else:
       </td>
       <td class="example" py:if="example">e.g., ${example}</td>
     </tr>
-    <h2>General description</h2>
     <table class="metadata_table">
     ${field_row(form.owner)}
     ${field_row(form.term)}

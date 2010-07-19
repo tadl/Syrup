@@ -141,7 +141,8 @@ def search(request, in_site=None, for_owner=None):
 
     if not query_string:        # empty query?
         if in_site:
-            return HttpResponseRedirect(reverse('site_detail', in_site))
+            return HttpResponseRedirect(reverse('site_detail',
+                                                kwargs={'site_id': in_site}))
         else:
             return HttpResponseRedirect(reverse('browse'))
     else:

@@ -1,5 +1,5 @@
 <?python
-title = _('Edit site permissions')
+title = _('Site permissions')
 instructors = site.get_instructors()
 members = models.Membership.objects.select_related().filter(group__site=site).order_by('user__last_name', 'user__first_name')
 extgroups = site.group_set.filter(external_id__isnull=False)
@@ -19,12 +19,11 @@ extgroups = site.group_set.filter(external_id__isnull=False)
 <body>
   ${site_banner(site)}
   <h1>${title}</h1>
-  <p><a href="../">Edit site details</a> &bull; <a href="${site.site_url()}">Return to site page</a></p>
   <form action="." method="POST">
-    <h2>Site Access Level</h2>
     <p>Who has permission to view resources in this site?</p>
     <div id="access_level" style="margin-left: 12;">${Markup(choose_access.render('access', site.access, {'id':'id_access'}, []))}</div>
-    <p><input type="submit" name="action_save_student" value="Save changes to student access"/></p>
+    <p><input type="submit" name="action_access_level" value="Change access level"/>
+    ${go_back_link()}</p>
 
     <h2>Current Membership</h2>
     <table class="pagetable" style="width: 100%;">

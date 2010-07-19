@@ -123,10 +123,7 @@ def item_add(request, site_id, item_id):
         else:
             raise NotImplementedError
 
-        if parent_item:
-            return HttpResponseRedirect(parent_item.item_url('meta'))
-        else:
-            return HttpResponseRedirect(site.site_url())
+        return HttpResponseRedirect(item.parent_url())
 
 @instructors_only
 def item_add_cat_search(request, site_id, item_id):
@@ -207,7 +204,8 @@ def item_add_cat_search(request, site_id, item_id):
                                     marcxml=raw_pickitem,
                                     **dct)
         item.save()
-        return HttpResponseRedirect('../../../%d/meta' % item.id)
+
+        return HttpResponseRedirect(item.parent_url())
 
 #------------------------------------------------------------
 
@@ -244,12 +242,9 @@ def item_delete(request, site_id, item_id):
         if 'yes' in request.POST:
             # I think Django's ON DELETE CASCADE-like behaviour will
             # take care of the sub-items.
-            if item.parent_heading:
-                redir = HttpResponseRedirect(item.parent_heading.item_url('meta'))
-            else:
-                redir = HttpResponseRedirect(site.site_url())
+            redir = item.parent_url('meta')
             item.delete()
-            return redir
+            return HttpResponseRedirect(redir)
         else:
             return HttpResponseRedirect('../meta')
     

@@ -17,7 +17,8 @@ is_joinable = site.is_joinable_by(request.user)
     ${site_banner(site)}
     <div id="sidepanel">
       <div py:if="is_editor" id="edit_site" class="little_action_panel">
-	<a href="${site.site_url()}edit/">Configure site</a>
+	<div><a href="${site.site_url()}edit/">Setup</a></div>
+	<div><a href="${site.site_url()}edit/permission/">Permissions</a></div>
       </div>
       <div py:if="is_joinable">
 	<a href="${site.site_url()}join/">Join this site</a>

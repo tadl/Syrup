@@ -160,7 +160,7 @@ class Site(BaseModel):
     service_desk = m.ForeignKey(ServiceDesk)
 
     access = m.CharField(max_length=5,
-                         default='LOGIN',
+                         default='ANON',
                          choices = [
             ('ANON', _('World-accessible')),
             ('LOGIN', _('Accessible to all logged-in users')),
@@ -169,7 +169,7 @@ class Site(BaseModel):
 
     class Meta:
         unique_together = (('course', 'term', 'owner'))
-        ordering = ['-term__start', 'course__code']
+        ordering = ['-term__start', 'course__code', 'owner__last_name']
 
     def save(self, *args, **kwargs):
         # Ensure there is always an internal Group.
@@ -538,7 +538,7 @@ class Item(BaseModel):
 
     def parent_url(self, suffix=''):
         if self.parent_heading:
-            return self.parent_heading.item_url()
+            return self.parent_heading.item_url() + suffix
         else:
             return self.site.site_url()
 

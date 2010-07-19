@@ -18,12 +18,12 @@ title = _('My Reserves')
   ?>
   <p py:if="not my_sites">You are not part of any course-reserve sites at this time.</p>
   <p py:for="site in my_sites" style="font-size: large;">
-    <a href="${site.id}/">${site.list_display()}</a>
+    <a href="${site.id}/">${site}</a>
   </p>
   <div class="gap"/>
   <div class="itemadd">
   <p py:if="user.can_create_sites()"><a href="new/">Create a new course-reserves site</a></p>
-  <p><a href="invitation/">Join a reserves list using an Invitation Code</a></p>
+  <!-- !<p><a href="invitation/">Join a reserves list using an Invitation Code</a></p> -->
   </div>
 </body>
 </html>

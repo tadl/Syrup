@@ -111,9 +111,6 @@ def browse(request, browse_option=''):
                     page_num=page_num,
                     count=count)
 
-@login_required
-def my_sites(request):
-    return g.render('my_sites.xhtml')
 
 def instructor_detail(request, instructor_id):
     page_num = int(request.GET.get('page', 1))

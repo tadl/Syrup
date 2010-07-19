@@ -33,11 +33,18 @@ class TemplateSet(object):
 
     def __init__(self, basedir, namespace_module=None):
         self.basedir = basedir
-        self.dirs = [self.basedir]
+        if isinstance(basedir, list):
+            self.dirs = basedir
+        else:
+            self.dirs = [self.basedir]
         self.loader = TemplateLoader(self.dirs,
                                      auto_reload=True,
                                      callback=self.template_loaded)
-        self.namespace_module = namespace_module
+        if hasattr(namespace_module, '__dict__'):
+            self.namespace_module = namespace_module.__dict__
+        else:
+            self.namespace_module = namespace_module
+
 
     def file(self, name):
         fn = os.path.join(self.basedir, name)
@@ -62,7 +69,7 @@ class TemplateSet(object):
         if not 'errors' in ns:
             ns['errors'] = None
         if self.namespace_module is not None:
-            ns.update(self.namespace_module.__dict__)
+            ns.update(self.namespace_module)
 
     def render(self, tname, **kwargs):
         request = get_request()
