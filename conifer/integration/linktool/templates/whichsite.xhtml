@@ -1,0 +1,15 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="linktoolmaster.xhtml"/>
+  <head/>
+  <body>
+    <h1 style="padding-top: 1em;">Please choose a set of reserves materials</h1>
+    <p>There is more than one set of reserves materials related to this
+    site. Please choose from the list below:</p>
+    <ul>
+      <li py:for="site in related_sites"
+	  style="margin-bottom: 1em;"><a href="${site.site_url()}">${site}</a></li>
+    </ul>
+  </body>
+</html>

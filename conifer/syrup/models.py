@@ -1,10 +1,11 @@
 import random
 import re
 
+from collections                     import defaultdict
 from conifer.libsystems              import marcxml as MX
 from conifer.plumbing.genshi_support import get_request
 from conifer.plumbing.hooksystem     import *
-from datetime                        import datetime
+from datetime                        import datetime, timedelta
 from django.conf                     import settings
 from django.contrib.auth.models      import AnonymousUser, User
 from django.db                       import models as m
@@ -40,7 +41,9 @@ class BaseModel(m.Model):
 # candidate).
 
 class UserExtensionMixin(object):
+
     def sites(self):
+        self.maybe_refresh_external_memberships()
         return Site.objects.filter(group__membership__user=self.id)
 
     def can_create_sites(self):
@@ -50,6 +53,12 @@ class UserExtensionMixin(object):
     def get_list_name(self):
         return '%s, %s' % (self.last_name, self.first_name)
 
+    # this is an override of User.get_profile. The original version will not
+    # create a UserProfile which does not already exist.
+    def get_profile(self):
+        profile, just_created = UserProfile.objects.get_or_create(user=self)
+        return profile
+
     @classmethod
     def active_instructors(cls):
         """Return a queryset of all active instructors."""
@@ -57,6 +66,24 @@ class UserExtensionMixin(object):
         return cls.objects.filter(membership__role='INSTR', is_active=True) \
             .order_by('-last_name','-first_name').distinct()
 
+
+    # --------------------------------------------------
+    # Membership in external groups
+
+    EXT_MEMBERSHIP_CHECK_FREQUENCY = timedelta(seconds=3600)
+
+    def maybe_refresh_external_memberships(self):
+        profile = self.get_profile()
+        last_checked = profile.external_memberships_checked
+        if (not last_checked or last_checked < 
+            (datetime.now() - self.EXT_MEMBERSHIP_CHECK_FREQUENCY)):
+            added, dropped = external_groups.reconcile_user_memberships(self)
+            profile.external_memberships_checked = datetime.now()
+            profile.save()
+            return (added or dropped)
+
+    def external_memberships(self):
+        return callhook('external_memberships', self.username) or []
 
 
 for k,v in [(k,v) for k,v in UserExtensionMixin.__dict__.items() \
@@ -76,6 +103,9 @@ class UserProfile(BaseModel):
     wants_email_notices = m.BooleanField(default=False)
     last_email_notice   = m.DateTimeField(
         default=datetime.now, blank=True, null=True)
+
+    # when did we last check user's membership in externally-defined groups?
+    external_memberships_checked = m.DateTimeField(blank=True, null=True)
 
     def __unicode__(self):
         return 'UserProfile(%s)' % self.user
@@ -217,7 +247,8 @@ class Site(BaseModel):
             dct.setdefault(item.parent_heading, []).append(item)
         for lst in dct.values():
             # TODO: what's the sort order?
-            lst.sort(key=lambda item: (item.item_type=='HEADING', item.title)) # sort in place
+            lst.sort(key=lambda item: (item.item_type=='HEADING',
+                                       item.title)) # sort in place
         # walk the tree
         out = []
         def walk(parent, accum):
@@ -298,6 +329,12 @@ class Site(BaseModel):
             or user.is_staff \
             or self.is_member(user)
 
+    @classmethod
+    def taught_by(cls, user):
+        """Return a set of Sites for which this user is an Instructor."""
+        return cls.objects.filter(group__membership__user=user,
+                                  group__membership__role='INSTR')
+
     #--------------------------------------------------
 
     @classmethod
@@ -340,6 +377,10 @@ class Group(BaseModel):
     # TODO: add constraints to ensure that each Site has
     # exactly one Group with external_id=NULL, and that (site,
     # external_id) is unique forall external_id != NULL.
+    
+    # TODO: On second thought, for now make it:
+    # external_id is unique forall external_id != NULL. 
+    # That is, only one Site may use a given external group.
 
     site = m.ForeignKey(Site)
     external_id = m.CharField(null=True, blank=True,
@@ -358,11 +399,13 @@ class Membership(BaseModel):
     user = m.ForeignKey(User)
     group = m.ForeignKey(Group)
 
+    ROLE_CHOICES = (
+        ('INSTR', _('Instructor')),
+        ('ASSIST', _('Assistant/Support')),
+        ('STUDT', _('Student')))
+
     role = m.CharField(
-        choices = (
-            ('INSTR', _('Instructor')),
-            ('ASSIST', _('Assistant/Support')),
-            ('STUDT', _('Student'))),
+        choices = ROLE_CHOICES,
         default = 'STUDT',
         max_length = 6)
 
@@ -494,7 +537,7 @@ class Item(BaseModel):
     # MARC
     def marc_as_dict(self):
         return MX.record_to_dictionary(self.marcxml)
-        
+
     def marc_dc_subset(self):
         return json.dumps(self.marc_as_dict())
 
@@ -554,8 +597,9 @@ class Item(BaseModel):
         else:
             lib, desk, avail = stat
             return (avail > 0,
-                    '%d of %d copies available at reserves desk; %d total copies in library system' % (
-                    avail, desk, lib))
+                    '%d of %d copies available at reserves desk; '
+                    '%d total copies in library system'
+                    % (avail, desk, lib))
 
     # TODO: stuff I'm not sure about yet. I don't think it belongs here.
 
@@ -588,8 +632,8 @@ class Item(BaseModel):
         else:
             return (Q(site__access__in=('LOGIN','ANON')) \
                         | Q(site__group__membership__user=user))
-                     
-       
+
+
 #------------------------------------------------------------
 # TODO: move this to a utility module.
 
@@ -616,3 +660,8 @@ if hasattr(settings, 'INTEGRATION_MODULE'):
         if callable(v):
             setattr(conifer.syrup.integration, k, v)
 
+
+#-----------------------------------------------------------------------------
+# this can't be imported until Membership is defined...
+
+import external_groups

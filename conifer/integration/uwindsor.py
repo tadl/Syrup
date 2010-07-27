@@ -121,3 +121,8 @@ def external_person_lookup(userid):
     return uwindsor_campus_info.call('person_lookup', userid)
 
 
+def external_memberships(userid, include_titles=False):
+    memberships = uwindsor_campus_info.call('membership_ids', userid)
+    for m in memberships:
+        m['role'] = 'INSTR' if m['role'] == 'Instructor' else 'STUDT'
+    return memberships

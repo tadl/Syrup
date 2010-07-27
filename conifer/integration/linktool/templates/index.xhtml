@@ -4,8 +4,13 @@
 <xi:include href="master.xhtml"/>
 <head>
   <title>testing</title>
+  <script type="text/javascript"
+	  py:if="False">
+    window.onload = function() { top.location='${request.META['SCRIPT_NAME'] or '/'}'; };
+  </script>
 </head>
 <body>
-<h1>testing</h1>
+<h1>Welcome</h1>
+${repr(list(related_sites))}
 </body>
 </html>

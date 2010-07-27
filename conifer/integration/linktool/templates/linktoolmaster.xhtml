@@ -1,0 +1,15 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="True">
+  <xi:include href="master.xhtml"/>
+  <py:match path="div[@id='header']" once="true"/>
+  <py:match path="ul[@id='tabbar']" once="true"/>
+  <py:match path="div[@id='brandheader']" once="true"/>
+  <py:match path="head" once="True">
+    <head py:attrs="select('@*')">
+      ${select('*')}
+      <base target="_top"/>
+    </head>
+  </py:match>
+</html>
