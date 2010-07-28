@@ -42,5 +42,8 @@ if not settings.DEBUG:
 if settings.LINKTOOL_AUTHENTICATION:
     urlpatterns += patterns(
         'conifer.integration.linktool.app',
-        (r'^linktool-welcome/(?P<command>.*)$', 'linktool_welcome'))
-
+        (r'^linktool-welcome/$', 'linktool_welcome'),
+        (r'^linktool-welcome/new_site$', 'linktool_new_site'),
+        (r'^linktool-welcome/copy_old$', 'linktool_copy_old'),
+        (r'^linktool-welcome/associate$', 'linktool_associate'),
+        )

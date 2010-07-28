@@ -1,18 +1,14 @@
-#!/Users/graham/bin/python-oracle-cgi-wrapper
+#!/usr/local/bin/python-oracle-cgi-wrapper
 # -*- mode: python -*-
 
 import os
 import cx_Oracle
-import re
-import sys
-import warnings
 import simplejson as json
-import time
 import cgitb
-
 #cgitb.enable(display=True)
 
-conn = cx_Oracle.connect('sakai/PASSWORD@clew')
+CONN_STRING = '***/***@********'
+conn = cx_Oracle.connect(CONN_STRING)
 
 try:
     siteid = os.environ['PATH_INFO'][1:]

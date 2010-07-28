@@ -2,17 +2,39 @@
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
   <xi:include href="linktoolmaster.xhtml"/>
-  <head/>
+  <head>
+    <style type="text/css">
+      	li { margin-top: 0.5em; }
+    </style>
+  </head>
   <body>
-    <h1 style="padding-top: 1em;">Associate?</h1>
+    <h1>No associated reserves list.</h1>
     <p>There is currently no set of reserves materials associated with
     this site. As an instructor in this site, you can choose one of
     the following options:</p>
-    <h2>todo: finish this...</h2>
-    <ul>
-      <li py:for="site in possibles">
-	${site}
+    <ol>
+      <li>
+	<div><b>Link to one of my current reserves list</b></div>
+	<ul>
+	  <li py:if="not current">None available</li>
+	  <li py:for="site in current">
+	    <a href="associate?site=${site.id}">${site}</a>
+	  </li>
+	</ul>
       </li>
-    </ul>
+      <li>
+	<div><b>Copy a reserves list I've used in the past</b></div>
+	<ul>
+	  <li py:if="not ancient">None available</li>
+	  <li py:for="site in ancient">
+	    <a href="copy_old?site=${site.id}">${site}</a>
+	  </li>
+	</ul>
+      </li>
+      <li>
+	<div><b><a href="new_site">Create a new reserves list for this site</a></b></div>
+      </li>
+    </ol>
+
   </body>
 </html>

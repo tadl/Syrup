@@ -42,9 +42,12 @@ class BaseModel(m.Model):
 
 class UserExtensionMixin(object):
 
-    def sites(self):
+    def sites(self, role=None):
         self.maybe_refresh_external_memberships()
-        return Site.objects.filter(group__membership__user=self.id)
+        sites = Site.objects.filter(group__membership__user=self.id)
+        if role:
+            sites = sites.filter(group__membership__role=role)
+        return sites
 
     def can_create_sites(self):
         return self.is_staff or \
@@ -122,6 +125,10 @@ class ServiceDesk(BaseModel):
     def __unicode__(self):
         return self.name
 
+    @classmethod
+    def default(cls):
+        return cls.objects.get(pk=Config.get('default.desk', 1))
+
 class Term(BaseModel):
     code   = m.CharField(max_length=64, unique=True)
     name   = m.CharField(max_length=256)
@@ -134,6 +141,8 @@ class Term(BaseModel):
     def __unicode__(self):
         return '%s: %s' % (self.code, self.name)
 
+    def midpoint(self):
+        return self.start + timedelta(days=(self.start-self.finish).days/2)
 
 class Department(BaseModel):
     name   = m.CharField(max_length=256)

@@ -1,0 +1,23 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="linktoolmaster.xhtml"/>
+  <head>
+    <title>testing</title>
+    <script type="text/javascript"
+	    py:if="False">
+      window.onload = function() { top.location='${request.META['SCRIPT_NAME'] or '/'}'; };
+    </script>
+  </head>
+  <body>
+    <h1>Cannot create site...</h1>
+    <p>Sorry, but your site's course code (${coursecode or 'unknown'})
+    and/or term code (${termcode or 'unknown'}) do not match any known
+    codes in the reserves system.</p>
+    <p> 
+      <a href="https://clew.uwindsor.ca/xsl-portal/site/${request.session['clew-site']}/">
+	Go back
+      </a>
+    </p>
+  </body>
+</html>
