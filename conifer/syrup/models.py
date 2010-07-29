@@ -142,7 +142,7 @@ class Term(BaseModel):
         return '%s: %s' % (self.code, self.name)
 
     def midpoint(self):
-        return self.start + timedelta(days=(self.start-self.finish).days/2)
+        return self.start + (self.finish-self.start) / 2
 
 class Department(BaseModel):
     name   = m.CharField(max_length=256)
