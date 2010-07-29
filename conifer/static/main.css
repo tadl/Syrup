@@ -128,6 +128,8 @@ a:hover {  text-decoration: underline;  }
 #tabbar li { display: inline; margin: 0; }
 #tabbar li a { padding: 15px 18px 5px 18px; background-color: #ddf; color: black; text-decoration: none; }
 #tabbar li a:hover { background-color: #fc8; }
+#tabbar li.important a { background-color: #fc8; }
+#tabbar li.important a:hover { background-color: #fa6; }
 
 /* 
 #tabbar li.active a { background-color: #fa6; font-weight: bold; }

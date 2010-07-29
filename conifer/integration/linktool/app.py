@@ -42,24 +42,102 @@ def linktool_welcome(request):
             possibles = list(models.Site.taught_by(user))
             current   = [s for s in possibles if s.term.midpoint() >= today]
             ancient   = [s for s in possibles if s.term.midpoint() < today]
+            extsite   = ExternalSiteInfo(request)
             return g.render('associate.xhtml', **locals())
         else:
             # TODO: implement me
             return g.render('choose_dest.xhtml', **locals())
 
+class ExternalSiteInfo(object):
+    def __init__(self, request):
+        extsite   = request.session['clew-site']
+        extgroups = callhook('external_memberships', request.user.username)
+        extsite   = [d for d in extgroups if d['group'] == extsite][0]
+        self.__dict__.update(extsite)
+        self.termcode   = self.terms and self.terms[0] or None
+        self.coursecode = extsite['course']
+        try:
+            course = models.Course.objects.get(code=self.coursecode)
+        except models.Course.DoesNotExist:
+            course = None
+            course = models.Course.objects.all()[0]
+        try:
+            term = models.Term.objects.get(code=self.termcode)
+        except models.Term.DoesNotExist:
+            term = None
+            term = models.Term.objects.order_by('-start')[0]
+        self.course_obj = course
+        self.term_obj = term
+
+    def is_currentish(self):
+        today = date.today()
+        return self.course_obj is not None and \
+            self.term_obj and self.term_obj.midpoint() >= today
 
 def linktool_new_site(request):
-    extsite = request.session['clew-site']
     extrole = request.session['clew-role']
     assert extrole == 'INSTR'
     assert request.user.can_create_sites(), \
         'Sorry, but you are not allowed to create sites.'
+    extsite = ExternalSiteInfo(request)
+    extgroups  = callhook('external_memberships', request.user.username)
+    site = models.Site.objects.create(
+        course = extsite.course_obj,
+        term   = extsite.term_obj,
+        owner  = request.user,
+        service_desk = models.ServiceDesk.default())
+    group = models.Group.objects.create(
+        site        = site,
+        external_id = extsite.group)
+    models.Membership.objects.create(
+        group = group, 
+        user  = request.user, 
+        role  = 'INSTR')
+    return HttpResponseRedirect(site.site_url())
+
+def linktool_associate(request):
+    site = models.Site.objects.get(pk=request.GET['site'])
+    assert site in request.user.sites(role='INSTR'), \
+        'Not an instructor on this site! Cannot copy.'
+    assert request.user.can_create_sites(), \
+        'Sorry, but you are not allowed to create sites.'
+    today = date.today()
+    assert site.term.midpoint() >= today, \
+        'Sorry, but you cannot associate to such an old site.'
+
+    extsite = request.session['clew-site']
+    extrole = request.session['clew-role']
+    assert extrole == 'INSTR', \
+        'Sorry, you are not an instructor on this Sakai site.'
+    group = models.Group.objects.create(
+        site        = site,
+        external_id = extsite)
+    models.Membership.objects.create(
+        group = group, 
+        user  = request.user, 
+        role  = 'INSTR')
+    return HttpResponseRedirect(site.site_url())
+
+def linktool_copy_old(request):
+    oldsite = models.Site.objects.get(pk=request.GET['site'])
+    assert oldsite in request.user.sites(role='INSTR'), \
+        'Not an instructor on this site! Cannot copy.'
+    assert request.user.can_create_sites(), \
+        'Sorry, but you are not allowed to create sites.'
+
+    extsite = request.session['clew-site']
+    extrole = request.session['clew-role']
+    assert extrole == 'INSTR', \
+        'Sorry, you are not an instructor on this Sakai site.'
+
     extgroups  = callhook('external_memberships', request.user.username)
     extsite    = [d for d in extgroups if d['group'] == extsite][0]
     coursecode = extsite['course']
     termcode   = extsite['terms'][0]
+
+    course = oldsite.course     # fixme, this isn't right.
     try:
-        course = models.Course.objects.get(code=coursecode)
+        #course = models.Course.objects.get(code=coursecode)
         term   = models.Term.objects.get(code=termcode)
     except:
         # note, this doesn't have to be an exception. I could provide
@@ -78,23 +156,5 @@ def linktool_new_site(request):
         group = group, 
         user  = request.user, 
         role  = 'INSTR')
+    site.copy_resources_from(oldsite)
     return HttpResponseRedirect(site.site_url())
-
-def linktool_associate(request):
-    site = models.Site.objects.get(pk=request.GET['site'])
-    assert site in request.user.sites(role='INSTR'), \
-        'Not an instructor on this site! Cannot copy.'
-    assert request.user.can_create_sites(), \
-        'Sorry, but you are not allowed to create sites.'
-    today = date.today()
-    assert site.term.midpoint() >= today, \
-        'Sorry, but you cannot associate to such an old site.'
-    return HttpResponse('associate: not implemented yet')
-
-def linktool_copy_old(request):
-    site = models.Site.objects.get(pk=request.GET['site'])
-    assert site in request.user.sites(role='INSTR'), \
-        'Not an instructor on this site! Cannot copy.'
-    assert request.user.can_create_sites(), \
-        'Sorry, but you are not allowed to create sites.'
-    return HttpResponse('copy old: not implemented yet')

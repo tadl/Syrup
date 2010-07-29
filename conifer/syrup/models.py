@@ -144,6 +144,7 @@ class Term(BaseModel):
     def midpoint(self):
         return self.start + (self.finish-self.start) / 2
 
+
 class Department(BaseModel):
     name   = m.CharField(max_length=256)
     active = m.BooleanField(default=True)
@@ -342,7 +343,8 @@ class Site(BaseModel):
     def taught_by(cls, user):
         """Return a set of Sites for which this user is an Instructor."""
         return cls.objects.filter(group__membership__user=user,
-                                  group__membership__role='INSTR')
+                                  group__membership__role='INSTR') \
+                                  .distinct().select_related()
 
     #--------------------------------------------------
 

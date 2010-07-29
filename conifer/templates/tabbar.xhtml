@@ -7,12 +7,12 @@
     use one for now
 -->
 <ul id="tabbar">
-  <li py:if="'clew-site' in request.session">
+  <li py:if="'clew-site' in request.session" class="important">
     <a href="https://clew.uwindsor.ca/xsl-portal/site/${request.session['clew-site']}/page/0/">Return to CLEW</a>
   </li>
   <!-- !<li><a href="${ROOT}/">Home</a></li> -->
-  <li><a href="${ROOT}/browse/">Browse</a></li>
   <li class="active"><a href="${ROOT}/site/">My Reserves</a></li>
+  <li><a href="${ROOT}/browse/">Browse</a></li>
   <div py:strip="True"
        py:if="request.user.is_staff">
     <li><a href="${ROOT}/admin/">Admin Options</a></li>

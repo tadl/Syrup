@@ -4,37 +4,50 @@
   <xi:include href="linktoolmaster.xhtml"/>
   <head>
     <style type="text/css">
-      	li { margin-top: 0.5em; }
+      	ol ul { margin-bottom: 1.5em; }
+      	ul li { margin-top: 0.5em; }
+	ol { margin: 1em; }
     </style>
   </head>
   <body>
-    <h1>No associated reserves list.</h1>
-    <p>There is currently no set of reserves materials associated with
-    this site. As an instructor in this site, you can choose one of
-    the following options:</p>
-    <ol>
-      <li>
-	<div><b>Link to one of my current reserves list</b></div>
-	<ul>
-	  <li py:if="not current">None available</li>
-	  <li py:for="site in current">
-	    <a href="associate?site=${site.id}">${site}</a>
-	  </li>
-	</ul>
-      </li>
-      <li>
-	<div><b>Copy a reserves list I've used in the past</b></div>
-	<ul>
-	  <li py:if="not ancient">None available</li>
-	  <li py:for="site in ancient">
-	    <a href="copy_old?site=${site.id}">${site}</a>
-	  </li>
-	</ul>
-      </li>
-      <li>
-	<div><b><a href="new_site">Create a new reserves list for this site</a></b></div>
-      </li>
-    </ol>
-
+    <h1>No associated reserves items.</h1>
+    <div py:if="extsite.is_currentish()">
+      <p>There are no reserves materials associated with this course
+      site. As an instructor, you can choose one of the following
+      options:</p>
+      <ol>
+	<li>
+	  <div><b>Link to one of my current reserves list</b></div>
+	  <ul>
+	    <li py:if="not current">None available.</li>
+	    <li py:for="site in current">
+	      <a href="associate?site=${site.id}">${site}</a>
+	    </li>
+	  </ul>
+	</li>
+	<li>
+	  <div><b>Copy a reserves list I've used in the past</b></div>
+	  <ul>
+	    <li py:if="not ancient">None available.</li>
+	    <li py:for="site in ancient">
+	      <a href="copy_old?site=${site.id}">${site}</a>
+	    </li>
+	  </ul>
+	</li>
+	<li>
+	  <div><b><a href="new_site">Start a new reserves list for this site</a></b></div>
+	</li>
+      </ol>
+      <p>Or, you can just <a href="${ROOT}/browse/">browse the reserves</a>.</p>
+    </div>
+    <div py:if="not extsite.is_currentish()"
+	 py:with="t=extsite.term_obj or 'unknown'; c=extsite.coursecode or 'unknown'">
+      <p>There are no reserves materials associated with this course
+      site.</p> <p>You can create reserves lists for course sites
+      associated with a current or future term. But this site is
+      associated with the term "${t}" and the course "${c}" &mdash; so
+      a reserves list cannot be created.</p>
+      <p><a href="${ROOT}/browse/">Browse the reserves</a></p>
+    </div>
   </body>
 </html>
