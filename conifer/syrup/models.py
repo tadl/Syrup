@@ -195,7 +195,8 @@ class Config(m.Model):
 class Site(BaseModel):
     """A a list of materials for one (or more) course offering(s)."""
     course       = m.ForeignKey(Course)
-    term         = m.ForeignKey(Term)
+    start_term   = m.ForeignKey(Term, related_name='start_term')
+    end_term     = m.ForeignKey(Term, related_name='end_term')
     owner        = m.ForeignKey(User)
     service_desk = m.ForeignKey(ServiceDesk)
 
@@ -207,11 +208,25 @@ class Site(BaseModel):
             ('MEMBR', _('Accessible to course-site members')),
             ('CLOSE', _('Accessible only to course-site owners'))])
 
+    @property
+    def term(self):
+        """
+        Returns the start term (typically the term thought of as 'the' term of
+        the site).
+        
+        Whenever possible, use the explicit 'start_term' attribute rather than
+        the 'term' property.
+        """
+        return self.start_term
+
     class Meta:
-        unique_together = (('course', 'term', 'owner'))
-        ordering = ['-term__start', 'course__code', 'owner__last_name']
+        unique_together = (('course', 'start_term', 'owner'))
+        ordering = ['-start_term__start', 'course__code', 'owner__last_name']
 
     def save(self, *args, **kwargs):
+        # Assert that the term-order is logical.
+        assert self.start_term.start <= self.end_term.start, \
+            'The end-term cannot begin before the start-term.'
         # Ensure there is always an internal Group.
         super(Site, self).save(*args, **kwargs)
         internal, just_created = Group.objects.get_or_create(
