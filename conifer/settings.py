@@ -126,6 +126,3 @@ if EVERGREEN_AUTHENTICATION:
 if LINKTOOL_AUTHENTICATION:
     AUTHENTICATION_BACKENDS.append(
         'conifer.integration.linktool.backend.LinktoolAuthBackend')
-    INSTALLED_APPS.append(
-        'conifer.integration.linktool.app')
-
