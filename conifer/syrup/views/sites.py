@@ -9,6 +9,13 @@ class NewSiteForm(ModelForm):
         model = models.Site
         exclude = ('access',)
 
+    def clean_end_term(self):
+        cd = self.cleaned_data
+        if cd['start_term'].start > cd['end_term'].start:
+            raise ValidationError(
+                'The end-term precedes the start-term.')
+        return cd['end_term']
+
     def __init__(self, *args, **kwargs):
         owner = self.base_fields['owner']
         owner.label_from_instance = lambda u: '%s (%s)' % (
