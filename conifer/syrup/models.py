@@ -559,6 +559,14 @@ class Item(BaseModel):
     class Meta:
         ordering = ['title', 'author', 'published']
 
+    def save(self, *args, **kwargs):
+        # extract the bib ID from the MARC record if possible (and necessary)
+        if self.marcxml and not self.bib_id:
+            maybe_bib = callhook('marc_to_bib_id', self.marcxml)
+            if maybe_bib:
+                self.bib_id = maybe_bib
+        super(Item, self).save(*args, **kwargs)
+
     #--------------------------------------------------
     # MARC
     def marc_as_dict(self):

@@ -46,7 +46,7 @@ initialize(EG_BASE)
 
 
 def item_status(item):
-    if 'psychology' in item.title.lower():
+    if item.bib_id and item.bib_id[-1] in '02468':
         return (8, 4, 2)
     else:
         return (2, 0, 0)
@@ -74,6 +74,23 @@ def bib_id_to_marcxml(bib_id):
     except:
         return None
 
+def marc_to_bib_id(marc_string):
+    """
+    Given a MARC record, return either a bib ID or None, if no bib ID can be
+    found.
+    """
+    dct = M.marcxml_to_dictionary(marc_string)
+    bib_id = dct.get('901c')
+    return bib_id
+
+def bib_id_to_url(bib_id):
+    """
+    Given a bib ID, return either a URL for examining the bib record, or None.
+    """
+    if bib_id:
+        return ('http://windsor.concat.ca/opac/en-US'
+                '/skin/default/xml/rdetail.xml?r=%s&l=1&d=0' % bib_id)
+
 def get_better_copy_of_marc(marc_string):
     """
     This function takes a MARCXML record and returns either the same
@@ -84,11 +101,13 @@ def get_better_copy_of_marc(marc_string):
     returns a MARCXML record with broken character encoding. This
     function declares a point at which we can work around that server.
     """
-    dct = M.marcxml_to_dictionary(marc_string)
-    bib_id = dct.get('901c')
+    bib_id = marc_to_bib_id(marc_string)
     better = bib_id_to_marcxml(bib_id)
-    return better or marc_string
-
+    # don't return the "better" record if there's no 901c in it...
+    if better and ('901c' in M.marcxml_to_dictionary(better)):
+        return better
+    return ET.fromstring(marc_string)
+ 
 def marcxml_to_url(marc_string):
     """
     Given a MARC record, return either a URL (representing the
