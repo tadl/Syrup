@@ -1,0 +1,219 @@
+#+TITLE: On Sakai integration, physical items, etc.
+#+OPTIONS: toc:nil
+
+These are some design notes I don't want to throw away yet. Much of what's
+written here may be wrong. -- Graham
+
+* Integration with Sakai
+
+** Starting within Reserves
+
+I ask for my reserves in the early summer. Later I get my Sakai site; I
+connect my Sakai site to my reserves list.
+
+1. I specify a course code (99-100) and a term (2010F) or term pair, and a
+   primary instructor (which is possibly me).
+ 
+2. I add my materials to the list, possibly copying an older list, or cherry
+   picking from multiple lists.
+
+3. Inside Sakai, when I click on "Reserves", the system will:
+
+   - guess the reserves list, based on start-term, course-code and primary
+     instructor;
+
+   - failing that, recommend a list based on partial (term, course,
+     instructor) matches.
+
+     - caution: partial matches with bad terms will require a *copy*, not a
+       link.
+
+4. Once the instructor confirms the list, it is formally associated with the
+   Sakai site. Subsequent visits (including those by students) will not
+   involve guesswork.
+
+   - We assume that a Sakai site's start-term will never change. Duplicates of
+     sites are common, but that's different.
+
+   - If students get to the Reserves link before the instructor, the same
+     guesswork will be performed, except: (a) there will be no "confirmation"
+     step, and (b) a perfect (term, course, instructor) match will only be
+     offered as a "guess".
+
+** Starting within Sakai
+
+I get my Sakai site at the start of summer. From within Sakai, I initiate a
+reserves list.
+
+1. My Sakai site *probably* has three data: start-term, course-code, primary
+   instructor. (Any or all might be missing, but all-three is likely.)
+
+2. I click on the Reserves link in Sakai. 
+
+   - The recommendation system tries to suggest a list. I might choose to
+     /copy/ an old list here. 
+
+   - Or, maybe I'm sharing a list with a colleague, so I'll /link/ to that.
+     (For a link, the date-range of the list must encompass the date-range of
+     the Sakai site.)
+
+3. Otherwise, I ask to /create/ a new reserves list.
+
+   - the Sakai start-term, course-code and primary instructor are copied into
+     the request form.
+
+   - If Sakai has no term information, then the user may select a start term.
+     Regardless, the user may adjust the end-term.
+
+     - Rather, let the user adjust the start-term but warn them heavily.
+
+   - If Sakai doesn't know the primary instructor, suggest the current user.
+
+   - If Sakai doesn't know the course, then pick one from a list. 
+
+     - You might consider having a "99-999: Non-Course-Related Materials"
+       dummy-course as a default value. Reserves staff can decide whether or
+       not to honour dummy-course requests.
+
+   - No matter what values are chosen here, an *explicit* link will be made
+     from Sakai to this reserves list. 
+
+* Physical item requests
+
+** TODO Track what is actually needed, and when that need changes.
+
+   It's not enough to look at the database and say, "today we need to get
+   Vonnegut; and Austen can go back to the stacks." For reporting purposes, we
+   must know how things were at any point in time, w.r.t. both the physical
+   item /requests/ as well as the actual /items/. 
+
+   I don't want to put a reporting burden on the staff. Derive snapshots from
+   the PI requests and current-location data.
+
+   A daily change-log is probably good enough for daily tasks. Some period of
+   time must pass before a PI request is considered "baked."
+
+   - we need to ignore ephemeral, just-moving-things-around changes.
+
+   - maybe forbid mid-term changes to the physical item request?
+
+   - adding (or changing, deleting) a Physical Item is a /contract/. 
+
+   - maybe some Physical Item records should not be changeable by non-staff?
+
+*** Acquired vs. provided items
+
+There are two types of PI records. 
+
+  - /acquisitions request/: fetch it from the stacks, or otherwise acquire a
+    copy.
+
+  - /provided item/: The instructor provides the physical item, and it must
+    either be returned or destroyed (if ephemeral, e.g. a photocopy) at the
+    end of term.
+
+Only staff should be able to enter an provided-item record. So instructors can
+only make acquisitions requests.
+
+- But how do we handle circ for provided items if they are not in the ILS? I
+  can see having a mini-catalogue for ephemerals, but a mini-circ as well?
+  Particularly, how would you levy fines for late-returned items?
+
+  - For now, assume that it can be done. A provided item would need a local
+    loan-period, and perhaps a local fine-amount. It would need a
+    Checkout-History table to track its location, and who signed it out. Only
+    library patrons should have sign-out permissions.
+
+*** Shelving History
+
+- ILS query: All items at Reserves Desk 'X'. We can compare this to
+  yesterday's result.
+
+- Introduce a Shelving-History table: (copy-id, bib-id, shelving-location,
+  arrived, departed). We're only interested in Reserves shelving-locations.
+
+- Having 'bib-id' in Shelving-History breaks normal form so that we can
+  quickly compare current needs vs. current holdings.
+
+  - There may be times when the bib-id on a PI request must be altered by staff,
+    e.g. to select a different edition of a book if the requested one is
+    unavailable.
+
+* COMMENT Terms
+
+** Neutral facts
+
+1. A reserves list is active from its start date to its end date.
+
+   - Changing the start-date of a list requires some verification. You can't
+     push it into the past, and if you push it into the future, you should be
+     aware of the implications for physical materials:
+    
+     + items already on reserve may be sent back if the start-date exceeds
+       some threshold.
+
+     + items pending arrival may be sent back when they arrive, or not ordered
+       at all.
+
+     + But honestly, both of those seem pretty tame.
+
+   - Changing the end-date is safe: it would imply an extension of a reserve
+     stay. Maybe warn the Reserves staff, but it's probably nothing they'd
+     worry about. Maybe warn the user too; there's no guarantee that the
+     extension will be granted.
+
+2. In Sakai, reusing a list could simply mean extending the end-date (if the
+   current end-date is close to the desired start date). What would be the
+   harm in that?
+   
+   - If there is a fallow term between, then create a copy.
+
+   - A possible harm: If the user deletes stuff, we lose history on what was
+     needed in the earlier term.
+
+** Argument: Get rid of terms
+
+1. The "term" is not so important: the time period (start, finish) is more
+   relevant. Coming from Sakai, we may be able to guess a time period based on
+   the "term" of the course site (but not necessary so). If not, the user can
+   specify it. We can provide a likely set of defaults, but again, it's not
+   critical that it be tied to a term.
+
+2. The loose-date model is easier for instructors teaching multiple-term
+   courses.
+
+3. You can still do reports based on term (arbitrary date ranges), course, and
+   instructor.
+
+** Argument: Keep terms
+
+1. Terms are easy to query. "What did profs teaching this same course put on
+   reserves for the past four terms?" is more succinct than the loose-dated
+   equivalent.
+
+2. You can use two terms to define a course: its starting term and its ending
+   term. This addresses multiple-term courses. Logic is otherwise the same.
+
+** Conclusion: "start-term and end-term" is the right way.
+
+* Miscellaneous
+
+** TODO Add an 'end term'. 
+
+   end-term.end-date >= start-term.start-date.
+
+** Specifying a new list is the same whether through Sakai or through Syrup.
+
+   Through Sakai, we can provide default values for term, course, primary
+   instructor. Either way, when we connect, we can warn about date-range
+   discrepancies.
+
+** Minimize the UI distinctions between copying and linking.
+
+   The distinctions aren't terribly interesting for the end-user, so keep them
+   as non-intrusive as possible. 
+
+   The recommendation algorithm is more significant.
+
+** TODO (OT) We need item cherry-picking.
+

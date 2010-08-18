@@ -1,5 +1,7 @@
 # -*- mode: text; mode: auto-fill; -*-
 
+These are some design notes I don't want to throw away yet. Much of what's
+written here may be wrong. -- Graham
 
 Fleshing out the course model
 --------------------------------------------------

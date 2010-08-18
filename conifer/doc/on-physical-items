@@ -1,0 +1,168 @@
+#+TITLE: On physical items
+#+OPTIONS: toc:nil
+
+These are some design notes I don't want to throw away yet. Much of what's
+written here may be wrong. -- Graham
+
+* Overview
+
+Professors and staff can both add physical-item requests to Syrup.
+Typically this is done through a catalogue search. But it can also be
+done by manually entering title/author/publisher info.
+
+For every physical-item request, we must determine a record ID --
+either extracting it from the MARC record, or data-entered by staff.
+Once we have a record ID, we can move a copy to the reserves desk.
+
+Question: Can we assume that any record ID found in Syrup (whether
+discovered through Z39.50, or added by staff), suggests that a copy is
+available in the library's collection, for use at the Reserves desk?
+(If it were a rare-book record or something, then staff could simply
+refuse to fulfil the request.) In other words, can we assume that
+given a record ID, we can locate a copy and initiate a "pull request"?
+
+Each course-site is associated with a given reserves desk, and one or
+more (contiguous) terms.
+
+So, the set of all physical items needed by Reserves for a given term
+can be expressed as:
+
+ [(desk1, [recordID, recordID, ...]),
+  ...
+  (deskN, [recordID, recordID, ...])]
+
+that is, a mapping from desk-IDs to lists-of-record-IDs.
+
+We can tell whether a reserves-desk is "ready" for a term by asking
+the ILS what physical items are located there, and comparing against
+the set of needed record IDs. So, we need a "current_holdings"
+function:
+
+def current_holdings(desk_ID): 
+   return [(recordID_1, count(copies of recordID_1 at desk_ID)),
+           ...,
+		   (recordID_N, count(copies of recordID_N at desk_ID))]
+
+Given this, we could compare the recordIDs in the response
+("holdings") against the recordIDs in Syrup ("needs"), and know what
+is missing. 
+
+We would also know what is no longer needed: a copy whose record ID is
+in "holdings" but not in "needs" could be returned to its permanent
+location.
+
+** TODO: find an appropriate OpenSRF call to implement the
+   "current_holdings" function.
+
+
+Computational costs
+------------------------------------------------------------------------
+
+The "current_holdings" function might be expensive to run. We could
+query it infrequently, maybe as a nightly job, and keep a local cache
+of the results. 
+
+Or, if there is a log-table in Evergreen that tracks when books move
+from one shelf to another, it would be more efficient to query this
+table for "moves to/from deskN within the past X days".
+
+(Alternately, "current_holdings(desk_ID)" could return a list of
+recordIDs, instead of a list of (recordID, count) pairs. So, the
+function would return a list of recordIDs having at least one copy at
+the given desk. While it would be useful to have the count of copies,
+if the simpler version were less expensive to run, it might be a good
+trade-off.)
+
+** TODO: investigate the costs of "current_holdings" in Evergreen, and
+   whether there is a more efficient "recently-moved" query.
+
+
+Moving items to Reserves
+------------------------------------------------------------------------
+
+So at any point in time, the system can tell staff what books must be
+acquired for an upcoming term. They could generate a printout, or an
+email, or a bookbag.
+
+From a bookbag, we can derive a copy-bucket, finding suitable copies
+in the collection for each record in the bookbag. (I don't know if
+Evergreen has a function for this, or whether we would do our own
+record-to-copy resolutions in Syrup.)
+
+For each copy in the copy-bucket, we (1) initiate a record-level pull
+request, changing the temporary location to the correct reserves desk,
+and (2) change the fines and loan period.
+
+(I *think* there is a benefit to using an actual copy-bucket, and
+performing bulk operations on that. I'd like talk with you in more
+detail about how copy-buckets work.)
+
+Question: In Evergreen, you can ask for a book to be moved to Reserves
+via a pull request. But how do you know when the book actually arrives
+at Reserves? Is there an "in-process" state? Is there a scan-in action
+at Reserves? Or is the transfer just assumed to be instantaneous?
+
+** TODO: implement (or find in Evergreen) a "record-ID to copy-ID"
+   function which determines the most suitable copy available for a
+   given reserves-desk.
+
+
+Patron checkout of items
+------------------------------------------------------------------------
+
+Checkout of items is a Circ function. We don't need to reproduce it in
+Syrup.
+
+What we can do in Syrup, though, is track how many copies of a title
+are currently available at the desk (and not checked out). So a
+student in her dorm could see that a copy is available, justifying a
+walk to the library. We could even email them when it's available if
+they are really desperate. The "what's not checked out" query could be
+done through SIP or through OpenSRF.
+
+
+Non-Evergreen libraries
+------------------------------------------------------------------------
+
+We assume that a library using a different ILS:
+
+* defines unique IDs for each reserves desk,
+
+* uses record IDs to describe titles, 
+
+* makes those record IDs available in their MARC records,
+
+* can provide a "bulk record" function that takes a desk ID and returns a
+  list of record IDs that have copies at the given desk (preferably
+  also a count of those copies, or a list of the copy IDs),
+
+* can provide a function from (desk ID, record ID) to a list of copies
+  and their current status (e.g. available for checkout). 
+
+  (This could be broken into two functions: one from (desk ID, record
+  ID) to (list of copy-IDs), and a second from (copy-ID) to
+  (item-status). The latter call could be done through SIP.)
+
+
+Acquisitions; instructor-owned items
+------------------------------------------------------------------------
+
+If a physical item is requested by a prof, but no record ID is
+available (e.g. the request is manually entered, not selected from the
+catalogue; or if it's selected from an external catalogue, like LOC),
+then the request is implicitly marked with an "acquisition flag".
+Reserves staff can manage these flagged requests, and can try to
+purchase copies.
+
+If a copy is purchased, it will be catalogued, and given an initial
+location at the Reserves desk. At this point, Reserves staff can
+manually enter the record ID into the physical-item request, and
+everything is resolved.
+
+If no copy can be purchased, the request can be deleted from Syrup.
+
+The same process applies to instructor-owned items: they must be
+catalogued and assigned a record ID. Exactly how the item is
+catalogued and marked for return to the instructor is outside the
+scope of Syrup. (I think I would enter the item with a temporary
+location at Reserves, and a "return-to-prof" permanent location.)
