@@ -51,12 +51,12 @@ import os
         </div>
       <div id="welcome" py:if="user.is_authenticated()">
 	<strong style="padding-right: 18px;">Welcome, ${user.first_name or user.username}!</strong>
-	<a href="${ROOT}/accounts/logout">Log Out</a>
+	<a href="${ROOT}${settings.LOGOUT_URL}">Log Out</a>
 	&bull; <a href="${ROOT}/prefs/">Preferences</a>
       </div>
       <div id="welcome" py:if="not user.is_authenticated()">
 	<strong style="padding-right: 18px;">Welcome!</strong>
-	<a class="loginbutton" href="${ROOT}/accounts/login/">Log In</a>
+	<a class="loginbutton" href="${ROOT}${settings.LOGIN_URL}">Log In</a>
 	&bull; <a href="${ROOT}/prefs/">Preferences</a>
       </div>
     </div>

@@ -47,3 +47,9 @@ if settings.LINKTOOL_AUTHENTICATION:
         (r'^linktool-welcome/copy_old$', 'linktool_copy_old'),
         (r'^linktool-welcome/associate$', 'linktool_associate'),
         )
+
+if settings.CAS_AUTHENTICATION:
+    urlpatterns += patterns(
+        'django_cas.views',
+    (r'^%s$' % settings.LOGIN_URL[1:],  'login'),
+    (r'^%s$' % settings.LOGOUT_URL[1:], 'logout'))

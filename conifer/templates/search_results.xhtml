@@ -53,7 +53,7 @@ title = _('Search Results')
 
     <div py:if="user.is_anonymous()">
       Your searches may return more results if you <a
-      href="${ROOT}/accounts/login/?next=${ROOT}/">log in</a> before
+      href="${ROOT}${settings.LOGIN_URL}?next=${ROOT}/">log in</a> before
       searching.
     </div>
 

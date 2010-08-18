@@ -15,7 +15,7 @@ blocks = itertools.groupby(sites, lambda s: s.course.department)
   <h1>${title}</h1> 
   <div py:if="user.is_anonymous()">
     (Note: some reserve materials may require you
-    to <a href="${ROOT}/accounts/login/?next=${ROOT}/">log in</a>)
+    to <a href="${ROOT}${settings.LOGIN_URL}?next=${ROOT}/">log in</a>)
   </div>
 
     

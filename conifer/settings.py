@@ -87,8 +87,10 @@ INSTALLED_APPS = [
     'conifer.syrup',
 ]
 
-AUTH_PROFILE_MODULE = 'syrup.UserProfile'
+LOGIN_URL  = '/accounts/login/'
+LOGOUT_URL = '/accounts/logout'
 
+AUTH_PROFILE_MODULE = 'syrup.UserProfile'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend'
@@ -96,6 +98,10 @@ AUTHENTICATION_BACKENDS = [
 
 EVERGREEN_AUTHENTICATION = False
 LINKTOOL_AUTHENTICATION  = False
+
+# CAS authentication requires 'django-cas', 
+# http://code.google.com/p/django-cas/
+CAS_AUTHENTICATION       = False  
 
 #---------------------------------------------------------------------------
 # local_settings.py
@@ -126,3 +132,8 @@ if EVERGREEN_AUTHENTICATION:
 if LINKTOOL_AUTHENTICATION:
     AUTHENTICATION_BACKENDS.append(
         'conifer.integration.linktool.backend.LinktoolAuthBackend')
+
+if CAS_AUTHENTICATION:
+    AUTHENTICATION_BACKENDS.append('conifer.integration.cas.CASBackend')
+    LOGIN_URL  = '/cas/login'
+    LOGOUT_URL = '/cas/logout'

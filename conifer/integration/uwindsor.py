@@ -135,7 +135,8 @@ def external_person_lookup(userid):
     Given a userid, return either None (if the user cannot be found),
     or a dictionary representing the user. The dictionary must contain
     the keys ('given_name', 'surname') and should contain 'email' if
-    an email address is known.
+    an email address is known, and 'patron_id' if a library-system ID
+    is known.
     """
     return uwindsor_campus_info.call('person_lookup', userid)
 

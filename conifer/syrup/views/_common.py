@@ -4,9 +4,11 @@
 # is a module which acts as a global namespace when expanding a Genshi
 # template.
 
+from .                               import genshi_namespace
 from conifer.here                    import HERE
 from conifer.plumbing.genshi_support import TemplateSet
-from .                               import genshi_namespace
+from django.conf                     import settings
+
 
 g = TemplateSet(HERE('templates'), genshi_namespace)
 
@@ -48,10 +50,11 @@ __builtins__['_'] = translation.ugettext
 def _access_denied(request, message):
     if request.user.is_anonymous():
         # then take them to login screen....
-        dest = (request.META['SCRIPT_NAME'] + \
-                    '/accounts/login/?next=%s%s' % (
-                request.META['SCRIPT_NAME'],
-                request.META['PATH_INFO']))
+        dest = (request.META['SCRIPT_NAME'] + 
+                settings.LOGIN_URL +
+                '?next=' +
+                request.META['SCRIPT_NAME'] +
+                request.META['PATH_INFO'])
         return HttpResponseRedirect(dest)
     else:
         return simple_message(_('Access denied.'), message,

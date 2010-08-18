@@ -109,3 +109,14 @@ def external_person_lookup(userid):
     an email address is known.
     """
 
+@disable
+def user_needs_decoration(user_obj):
+    """
+    User objects are sometimes created automatically, with only a
+    username. This function determines whether it would be fruitful to
+    "decorate" the User object with, e.g., a given name, surname, and
+    email address. It doesn't perform the decoration, it simply tests
+    whether the current user object is "incomplete." Another hook
+    'external_person_lookup,' is used by Syrup to fetch the personal
+    information when needed.
+    """
