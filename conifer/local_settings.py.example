@@ -40,7 +40,7 @@ LINKTOOL_AUTH_URL = 'https://...' # fixme, add documentation
 # CAS authentication. See conifer/integration/cas.py, or
 # http://code.google.com/p/django-cas/ .
 
-CAS_AUTHENTICATION = True
+CAS_AUTHENTICATION = False
 CAS_SERVER_URL     = 'https://uwinid.uwindsor.ca/cas/'
 
 #----------------------------------------------------------------------
