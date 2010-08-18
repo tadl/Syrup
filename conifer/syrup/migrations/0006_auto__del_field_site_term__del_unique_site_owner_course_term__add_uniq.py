@@ -11,9 +11,6 @@ class Migration(SchemaMigration):
         # Deleting field 'Site.term'
         db.delete_column('syrup_site', 'term_id')
 
-        # Removing unique constraint on 'Site', fields ['owner', 'course', 'term']
-        db.delete_unique('syrup_site', ['owner_id', 'course_id', 'term_id'])
-
         # Adding unique constraint on 'Site', fields ['owner', 'course', 'start_term']
         db.create_unique('syrup_site', ['owner_id', 'course_id', 'start_term_id'])
 

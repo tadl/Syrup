@@ -13,9 +13,11 @@ class Migration(SchemaMigration):
 
         # Adding field 'Site.end_term'
         db.add_column('syrup_site', 'end_term', self.gf('django.db.models.fields.related.ForeignKey')(default=1, related_name='end_term', to=orm['syrup.Term']), keep_default=False)
+        db.start_transaction()
         for site in orm.Site.objects.all():
             site.start_term = site.end_term = site.term
             site.save()
+        db.commit_transaction()
 
     def backwards(self, orm):
         
