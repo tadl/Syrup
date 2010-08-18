@@ -37,6 +37,12 @@ EVERGREEN_AUTHENTICATION = False # Evergreen ILS authentication
 LINKTOOL_AUTHENTICATION  = False # Sakai LMS Linktool authentication
 LINKTOOL_AUTH_URL = 'https://...' # fixme, add documentation
 
+# CAS authentication. See conifer/integration/cas.py, or
+# http://code.google.com/p/django-cas/ .
+
+CAS_AUTHENTICATION = True
+CAS_SERVER_URL     = 'https://uwinid.uwindsor.ca/cas/'
+
 #----------------------------------------------------------------------
 # Stuff that probably belongs in a config table in the database, with
 # a nice UI to maintain it all.
@@ -50,4 +56,5 @@ Z3950_CONFIG             = ('zed.concat.ca', 210, 'OWA')  #OWA,OSUL,CONIFER
 # functions, and other late initializations. 
 # See the 'conifer.syrup.integration' module for more information.
 
-INTEGRATION_MODULE = 'name.of.our.integration.module'
+INTEGRATION_MODULE = 'conifer.integration.uwindsor'
+
