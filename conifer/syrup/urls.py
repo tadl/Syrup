@@ -63,4 +63,5 @@ urlpatterns = patterns('conifer.syrup.views',
 #     (r'^admin/terms/(?P<term_id>\d+)/$', 'admin_term_edit'),
 #     (r'^admin/terms/(?P<term_id>\d+)/delete$', 'admin_term_delete'),
 #     (r'^admin/terms/$', 'admin_term'),
+    (r'^unapi/$', 'unapi'),
 )

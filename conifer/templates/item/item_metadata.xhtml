@@ -52,6 +52,7 @@ is_editor = site.can_edit(request.user)
       </table>
     </div>
     <div py:if="item.marcxml">
+      <abbr py:if="item.marcxml" class="unapi-id" title="${item.id}"/>
       <p id="marcdatashow"><a href="javascript:void($('#marcdata').toggle());">Display MARC Record</a></p>
 	    <div id="marcdata" style="display: none;">
 	      <?python dct = item.marc_as_dict(); keys=dct.keys(); keys.sort() ?>

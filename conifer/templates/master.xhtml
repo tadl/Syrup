@@ -12,6 +12,7 @@ import os
 	  py:with="t=list(select('title/text()'))">
       <title>${app_name}<py:if test="t">: ${t}</py:if></title>
     <link rel="stylesheet" type="text/css" href="${ROOT}/static/main.css"/>
+    <link rel="unapi-server" type="application/xml" title="unAPI" href="${ROOT}/unapi/" />
     <!-- !We set the webapp ROOT (script name) here, for use in static javascript libraries. -->
     <script type="text/javascript">
       var ROOT = '${ROOT}';
