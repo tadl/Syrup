@@ -184,7 +184,7 @@ span.final_item { font-weight: bold; font-size: 110%; }
 .itemtree li { margin: 12px 8px; line-height: 115%; }
 .itemtree li .mainline { padding-left: 8px; }
 
-.itemtree li .author_pub { padding-left: 8px; font-size: 90%; margin: 4px 0 16px 0; color: #111; }
+.itemtree li .author_pub { padding-left: 8px; font-size: 90%; margin: 4px 0 4px 0; color: #111; }
 
 .itemtree .metalink { padding-left: 8px; color: gray; }
 .itemtree .metalink a {
@@ -219,7 +219,7 @@ span.final_item { font-weight: bold; font-size: 110%; }
 }
 
 li.item_HEADING .headingmainline {
-    margin-bottom: 12px;
+    margin-bottom: 4px;
 }
 
 li.item_HEADING .headingmainline  a.mainlink {
@@ -286,10 +286,9 @@ p.todo, div.todo { background-color: #fdd; padding: 6px; margin: 12px; border-le
     font-size: 80%; color: navy;
 }
 
-.menublockopener { margin-left: 0.25em; color: #d44 !important; font-weight: normal !important; }
-.menublock { color: gray; background-color: #844; font-size: 85%; padding: 4px 4px; margin-top: 2px; display: inline-block; }
-.menublock a { color: white; padding: 8px;  }
-.menublock a:hover { color: yellow; }
+.menublock { color: #da9; font-size: 80%; }
+.menublock a { color: #666; padding: 0 8px;  }
+.menublock a:hover { color: blue; }
 
 #sitebanner { background-color: #f2e4cc; margin: -12px -12px 12px -12px; padding: 8px; }
 #sitesearch { float: right; }

@@ -50,18 +50,24 @@ searchtext = _('search this site...')
       <div class="availability avail_nonphys" py:if="item.item_type != 'PHYS'">
       </div>
       <div class="mainline ${item.item_type=='HEADING' and 'headingmainline' or ''}">
-	<a href="${item.item_url()}" class="mainlink">${item}</a> 
-	<span class="menublock" py:if="not (item.item_type=='HEADING' and not edit)">
-
-	  <!-- !I'm really sorry, this is ugly, but I want
-	       non-breaking spaces here, so that on long-named items,
-	       the links will stay togeter. A better way?  -->
-	  <span py:if="item.needs_meta_link()"><a href="${item.item_url('meta')}">about&#160;this&#160;item</a>&#160;</span><span py:if="edit"><a href="${item.item_url('edit/')}">edit</a></span><span py:if="edit">&#160;<a href="${item.item_url('relocate/')}">relocate</a>&#160;<a href="${item.item_url('delete/')}">delete</a></span>
-	</span>
+		<a href="${item.item_url()}" class="mainlink">${item}</a> 
       </div>
       <div class="author_pub" py:if="item.author or item.publisher">
-	${item.author}. ${item.publisher}.
+		${item.author}. ${item.publisher}.
       </div>
+	  <div>
+		<div class="menublock" py:if="not (item.item_type=='HEADING' and not edit)">
+		  <span py:if="item.needs_meta_link()">
+			<a href="${item.item_url('meta')}">About this item</a>
+			<span py:if="edit">&bull;</span>
+		  </span>
+		  <span py:if="edit">
+			<a href="${item.item_url('edit/')}">Edit</a>
+			&bull; <a href="${item.item_url('relocate/')}">Relocate</a>
+			&bull; <a href="${item.item_url('delete/')}">Delete</a>
+		  </span>
+		</div>
+	  </div>
       <!-- !to show a full tree, uncomment the following: -->
       ${show_tree(subs, edit)}
     </li>
@@ -130,20 +136,7 @@ searchtext = _('search this site...')
       </table>
       </div>
    </div>
-
-   <div py:def="item_resequence_panel()" py:strip="True">
-    <div id="resequence_panel" class="little_action_panel">
-      <a href="javascript:doResequence();">Resequence items</a>
-      <div id="ropanelmessage" style="clear: right; display: none;"
-	   class="little_action_panel">Drag the items around. Then click Save Sequence, above.</div>
-    </div>
-    <div style="display: none;">
-      <span id="i18n-save-order">Save Sequence</span>
-      <span id="i18n-resequence-items">Resequence Items</span>
-      <span id="i18n-new-order-saved">The new sequence has been saved.</span>
-    </div>
-    </div>
-
+   
     <div py:def="offer_to_delete(item)" class="little_action_panel" py:if="item.id">
       <a href="../delete/">Delete this item</a>
     </div>
