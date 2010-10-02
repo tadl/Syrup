@@ -1,3 +1,5 @@
+# See conifer/syrup/integration.py for documentation.
+
 from datetime import date
 from django.conf import settings
 from conifer.libsystems.evergreen.support import initialize, E1
@@ -46,6 +48,22 @@ initialize(EG_BASE)
 
 
 def item_status(item):
+    """
+    Given an Item object, return three numbers: (library, desk,
+    avail). Library is the total number of copies in the library
+    system; Desk is the number of copies at the designated reserves
+    desk; and Avail is the number of copies available for checkout at
+    the given moment. Note that 'library' includes 'desk' which
+    includes 'avail'. You may also return None if the item is
+    nonsensical (e.g. it is not a physical object, or it has no bib
+    ID).
+    
+    Note, 'item.bib_id' is the item's bib_id, or None;
+    'item.item_type' will equal 'PHYS' for physical items;
+    'item.site.service_desk' is the ServiceDesk object associated with
+    the item. The ServiceDesk object has an 'external_id' attribute
+    which should represent the desk in the ILS.
+    """
     if item.bib_id and item.bib_id[-1] in '02468':
         return (8, 4, 2)
     else:
