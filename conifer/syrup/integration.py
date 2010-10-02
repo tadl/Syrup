@@ -120,3 +120,13 @@ def user_needs_decoration(user_obj):
     'external_person_lookup,' is used by Syrup to fetch the personal
     information when needed.
     """
+
+@disable
+def proxify_url(url):
+    """
+    Given a URL, determine whether the URL needs to be passed through
+    a reverse-proxy, and if so, return a modified URL that includes
+    the proxy. If not, return None.
+    """
+
+                  

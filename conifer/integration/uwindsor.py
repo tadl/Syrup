@@ -2,6 +2,7 @@
 
 from datetime import date
 from django.conf import settings
+from conifer.libsystems import ezproxy
 from conifer.libsystems.evergreen.support import initialize, E1
 from conifer.libsystems import marcxml as M
 from conifer.libsystems.evergreen import item_status as I
@@ -169,3 +170,18 @@ def external_memberships(userid, include_titles=False):
     for m in memberships:
         m['role'] = decode_role(m['role'])
     return memberships
+
+#--------------------------------------------------
+# proxy server integration
+
+ezproxy_service = ezproxy.EZProxyService(
+    settings.UWINDSOR_EZPROXY_HOST,
+    settings.UWINDSOR_EZPROXY_PASSWORD)
+
+def proxify_url(url):
+    """
+    Given a URL, determine whether the URL needs to be passed through
+    a reverse-proxy, and if so, return a modified URL that includes
+    the proxy. If not, return None.
+    """
+    return ezproxy_service.proxify(url)

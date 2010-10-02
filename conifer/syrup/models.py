@@ -565,6 +565,8 @@ class Item(BaseModel):
             maybe_bib = callhook('marc_to_bib_id', self.marcxml)
             if maybe_bib:
                 self.bib_id = maybe_bib
+        # proxify the item's URL if necessary
+        self.url = callhook('proxify_url', self.url) or self.url
         super(Item, self).save(*args, **kwargs)
 
     #--------------------------------------------------
