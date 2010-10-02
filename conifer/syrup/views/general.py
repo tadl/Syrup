@@ -5,7 +5,11 @@ from search  import *
 #-----------------------------------------------------------------------------
 
 def welcome(request):
-    return HttpResponseRedirect('browse/')
+    user = request.user
+    if user.is_authenticated() and user.sites():
+        return HttpResponseRedirect('site/') # My Sites
+    else:
+        return HttpResponseRedirect('browse/')
 
 # MARK: propose we get rid of this. We already have a 'Sites' browser.
 def open_sites(request):

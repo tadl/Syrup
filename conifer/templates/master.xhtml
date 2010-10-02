@@ -58,7 +58,9 @@ import os
       <div id="welcome" py:if="not user.is_authenticated()">
 	<strong style="padding-right: 18px;">Welcome!</strong>
 	<a class="loginbutton" href="${ROOT}${settings.LOGIN_URL}">Log In</a>
-	&bull; <a href="${ROOT}/prefs/">Preferences</a>
+	<span py:if="settings.USE_I18N">
+	  &bull; <a href="${ROOT}/prefs/">Preferences</a>
+	</span>
       </div>
     </div>
       <xi:include py:if="user.is_authenticated()" href="tabbar.xhtml"/>

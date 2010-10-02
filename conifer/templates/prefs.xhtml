@@ -11,6 +11,7 @@ title = _('Preferences')
 </head>
 <body>
 <h1>${title}</h1>
+<div py:if="settings.USE_I18N">
 <h2>Preferred Language</h2>
 <form action="../i18n/setlang/" method="post">
 <input name="next" type="hidden" value="${ROOT}/" />
@@ -19,6 +20,7 @@ title = _('Preferences')
 	value="${code}">${_(descr)}</option>
 </select> <input type="submit" value="Change" />
 </form>
+</div>
 <div py:if="user.is_authenticated()">
   <h2>Notification preferences</h2>
   <form action="." method="POST">

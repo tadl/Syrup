@@ -184,7 +184,7 @@ span.final_item { font-weight: bold; font-size: 110%; }
 .itemtree li { margin: 12px 8px; line-height: 115%; }
 .itemtree li .mainline { padding-left: 8px; }
 
-.itemtree li .author_pub { padding-left: 8px; font-size: 90%; margin: 4px 0 4px 0; color: #111; }
+.itemtree li .author_pub { padding-left: 8px; font-size: 90%; margin: 2px 0; color: #111; }
 
 .itemtree .metalink { padding-left: 8px; color: gray; }
 .itemtree .metalink a {
@@ -286,7 +286,7 @@ p.todo, div.todo { background-color: #fdd; padding: 6px; margin: 12px; border-le
     font-size: 80%; color: navy;
 }
 
-.menublock { color: #da9; font-size: 80%; }
+.menublock { color: #da9; font-size: 80%; margin: 1px 0; }
 .menublock a { color: #666; padding: 0 8px;  }
 .menublock a:hover { color: blue; }
 

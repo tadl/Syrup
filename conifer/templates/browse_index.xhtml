@@ -12,21 +12,29 @@ blocks = itertools.groupby(sites, lambda s: s.course.department)
   <title>${title}</title>
 </head>
 <body>
-  <h1>${title}</h1> 
+  <h1>${title}</h1>
   <div py:if="user.is_anonymous()">
     (Note: some reserve materials may require you
     to <a href="${ROOT}${settings.LOGIN_URL}?next=${ROOT}/">log in</a>)
   </div>
-
-    
-    <div py:for="(dept, ss) in blocks">
-      <h2>${dept}</h2>
-      <p py:for="site in ss" style="margin-left: 16px;">
-	<a href="${site.site_url()}">${site}</a>
+  
+  <img py:def="lock(condition=True)" 
+	   py:if="condition"
+	   src="${ROOT}/static/tango/lock.png"
+	   alt="lock" title="This resource is access-controlled."/>
+  
+  <div py:for="(dept, ss) in blocks">
+	<h2>${dept}</h2>
+	<div py:for="site in ss">
+	  <span py:if="not site.is_open_to(request.user)" style="float: left;">
+		${lock()}
+	  </span>
+	  <p style="margin-left: 26px;">
+		
+		<a href="${site.site_url()}">${site}</a>
       </p>
-
-    </div>
-
+	</div>
+  </div>
   <div class="gap"/>
 </body>
 </html>
