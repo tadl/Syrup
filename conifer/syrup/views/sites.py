@@ -131,7 +131,8 @@ def site_join(request, site_id):
     elif request.method != 'POST':
         return g.render('site_join.xhtml', site=site)
     else:
+        group = models.Group.objects.get(site=site, external_id=None)
         mbr = models.Membership.objects.create(user=request.user,
-                                               site=site, role='STUDT')
+                                               group=group, role='STUDT')
         mbr.save()
         return HttpResponseRedirect(site.site_url())
