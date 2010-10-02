@@ -286,8 +286,8 @@ p.todo, div.todo { background-color: #fdd; padding: 6px; margin: 12px; border-le
     font-size: 80%; color: navy;
 }
 
-.menublock { color: #da9; font-size: 80%; margin: 1px 0; }
-.menublock a { color: #666; padding: 0 8px;  }
+.menublock { color: #da9; font-size: 80%; margin: 1px 0; padding-left: 8px; }
+.menublock a { color: #666; padding: 0 2px;  }
 .menublock a:hover { color: blue; }
 
 #sitebanner { background-color: #f2e4cc; margin: -12px -12px 12px -12px; padding: 8px; }
