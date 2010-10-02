@@ -596,7 +596,7 @@ class Item(BaseModel):
 
     def needs_meta_link(self):
         """Should an 'About' link be displayed for this item?"""
-        return self.item_type in ('ELEC', 'URL', 'PHYS')
+        return self.item_type in ('ELEC', 'URL')
 
     def item_url(self, suffix='', force_local_url=False):
         # I'm not fond of this being here. I think I'll leave this and
