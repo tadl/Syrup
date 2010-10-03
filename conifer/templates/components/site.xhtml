@@ -52,8 +52,10 @@ searchtext = _('search this site...')
       <div class="mainline ${item.item_type=='HEADING' and 'headingmainline' or ''}">
 		<a href="${item.item_url()}" class="mainlink">${item}</a> 
       </div>
-      <div class="author_pub" py:if="item.author or item.publisher">
-		${item.author}. ${item.publisher}.
+      <div class="author_pub" py:if="item.author or item.publisher or item.published">
+		<span py:if="item.author">${item.author}.</span>
+		<span py:if="item.publisher">${item.publisher}.</span>
+		<span py:if="item.published">${item.published}.</span>
       </div>
 	  <div>
 		<div class="menublock" py:if="not (item.item_type=='HEADING' and not edit)">
