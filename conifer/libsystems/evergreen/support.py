@@ -53,7 +53,7 @@ def evergreen_request(method, *args, **kwargs):
     kwargs.setdefault('locale', LOCALE)
     kwargs.update({'service':service, 'method':method})
     params =  ['%s=%s' % (k,quote(v)) for k,v in kwargs.items()] 
-    params += ['param=%s' % quote(str(a)) for a in args]
+    params += ['param=%s' % quote(json.dumps(a)) for a in args]
     url = '%sosrf-gateway-v1?%s' % (BASE, '&'.join(params))
     req = urllib2.urlopen(url)
     resp = json.load(req)
