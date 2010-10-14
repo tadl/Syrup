@@ -10,6 +10,7 @@ from conifer.libsystems.z3950 import pyz3950_search as PZ
 from xml.etree import ElementTree as ET
 import re
 import uwindsor_campus_info
+from memoization import memoize
 
 def department_course_catalogue():
     """
@@ -48,6 +49,14 @@ EG_BASE = 'http://%s/' % settings.EVERGREEN_GATEWAY_SERVER
 initialize(EG_BASE)
 
 
+# Item status stuff
+
+STATUS_DECODE = [(str(x['id']), x['name']) 
+                 for x in E1('open-ils.search.config.copy_status.retrieve.all')]
+AVAILABLE = [id for id, name in STATUS_DECODE if name == 'Available'][0]
+
+RESERVES_DESK_NAME = 'Leddy: Course Reserves - Main Bldng - 1st Flr - Reserve Counter at Circulation Desk'
+
 def item_status(item):
     """
     Given an Item object, return three numbers: (library, desk,
@@ -65,10 +74,26 @@ def item_status(item):
     the item. The ServiceDesk object has an 'external_id' attribute
     which should represent the desk in the ILS.
     """
-    if item.bib_id and item.bib_id[-1] in '02468':
-        return (8, 4, 2)
-    else:
-        return (2, 0, 0)
+    return _item_status(item.bib_id)
+
+CACHE_TIME = 300
+
+@memoize(timeout=CACHE_TIME)
+def _item_status(bib_id):
+    if bib_id:
+        counts = E1('open-ils.search.biblio.copy_counts.location.summary.retrieve', 
+                    bib_id, 1, 0)
+        lib = desk = avail = 0
+        for org, callnum, loc, stats in counts:
+            print (org, callnum, loc, stats)
+            avail_here = stats.get(AVAILABLE, 0)
+            anystatus_here = sum(stats.values())
+            if loc == RESERVES_DESK_NAME:
+                desk += anystatus_here
+                avail += avail_here
+            lib += anystatus_here
+        print (lib, desk, avail)
+        return (lib, desk, avail)
 
 
 def cat_search(query, start=1, limit=10):
