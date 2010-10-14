@@ -81,18 +81,21 @@ CACHE_TIME = 300
 @memoize(timeout=CACHE_TIME)
 def _item_status(bib_id):
     if bib_id:
-        counts = E1('open-ils.search.biblio.copy_counts.location.summary.retrieve', 
-                    bib_id, 1, 0)
-        lib = desk = avail = 0
-        for org, callnum, loc, stats in counts:
-            avail_here = stats.get(AVAILABLE, 0)
-            anystatus_here = sum(stats.values())
-            if loc == RESERVES_DESK_NAME:
-                desk += anystatus_here
-                avail += avail_here
-            lib += anystatus_here
-        return (lib, desk, avail)
-
+        try:
+            counts = E1('open-ils.search.biblio.copy_counts.location.summary.retrieve', 
+                        bib_id, 1, 0)
+            lib = desk = avail = 0
+            for org, callnum, loc, stats in counts:
+                avail_here = stats.get(AVAILABLE, 0)
+                anystatus_here = sum(stats.values())
+                if loc == RESERVES_DESK_NAME:
+                    desk += anystatus_here
+                    avail += avail_here
+                lib += anystatus_here
+            return (lib, desk, avail)
+        except:
+            pass          # fail silently if there's an opensrf related error.
+    return None
 
 def cat_search(query, start=1, limit=10):
     if query.startswith(EG_BASE):
