@@ -85,14 +85,12 @@ def _item_status(bib_id):
                     bib_id, 1, 0)
         lib = desk = avail = 0
         for org, callnum, loc, stats in counts:
-            print (org, callnum, loc, stats)
             avail_here = stats.get(AVAILABLE, 0)
             anystatus_here = sum(stats.values())
             if loc == RESERVES_DESK_NAME:
                 desk += anystatus_here
                 avail += avail_here
             lib += anystatus_here
-        print (lib, desk, avail)
         return (lib, desk, avail)
 
 
