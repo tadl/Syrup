@@ -22,8 +22,22 @@ def item_metadata(request, site_id, item_id):
     if item.item_type == 'HEADING':
         return _heading_detail(request, item)
     else:
+        item_declaration_required = item.needs_declaration_from(request.user)
         return g.render('item/item_metadata.xhtml', site=item.site,
+                        item_declaration_required=item_declaration_required,
                         item=item)
+
+@members_only
+def item_declaration(request, site_id, item_id):
+    assert request.method == 'POST'
+    item = get_object_or_404(models.Item, pk=item_id, site__id=site_id)
+    if item.item_type != 'ELEC':
+        return HttpResponseNotFound('Items of this type are not downloadable.')
+    else:
+        # we don't actually need the declaration object for anything; we just
+        # need to ensure one exists.
+        models.Declaration.objects.get_or_create(item=item, user=request.user)
+        return HttpResponse('OK')
 
 def _heading_url(request, item):
     return HttpResponseRedirect(item.url)

@@ -625,6 +625,15 @@ class Item(BaseModel):
         else:
             return self.site.site_url()
 
+    def needs_declaration_from(self, user):
+        """Does this user need to make a declaration before downloading this
+        item?"""
+        if self.item_type == 'ELEC':
+            return not bool(
+                Declaration.objects.filter(
+                    item=self, user=user))
+        return False
+
     def describe_physical_item_status(self):
         """Return a (bool,str) tuple: whether the item is available,
         and a friendly description of the physical item's status"""
@@ -673,6 +682,17 @@ class Item(BaseModel):
             return (Q(site__access__in=('LOGIN','ANON')) \
                         | Q(site__group__membership__user=user))
 
+#------------------------------------------------------------
+
+class Declaration(BaseModel):
+    """
+    These are declarations of intent to use for personal research and study.
+    We now require these before users can download electronic documents. Note,
+    it only makes sense to add Declarations for items of type ELEC (uploaded
+    electronic documents).
+    """
+    item = m.ForeignKey(Item)
+    user = m.ForeignKey(User)
 
 #------------------------------------------------------------
 # TODO: move this to a utility module.

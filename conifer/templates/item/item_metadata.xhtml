@@ -16,6 +16,14 @@ is_editor = site.can_edit(request.user)
       .available   { color: green; border-left: 16px green solid; padding-left: 8px; }
       .unavailable { color: red; border-left: 16px red solid; padding-left: 8px; }
     </style>
+    <style py:if="item_declaration_required">
+      #downloadpanel { display: none; }
+    </style>
+    <style py:if="not item_declaration_required">
+      #ask_to_download_panel { display: none; }
+    </style>
+    <script py:if="item_declaration_required"
+	    type="text/javascript" src="${ROOT}/static/ask_for_item.js"/>
   </head>
   <body>
     ${site_banner(site)}
@@ -43,14 +51,19 @@ is_editor = site.can_edit(request.user)
       </tr>
       <tr py:if="item.url"><th>URL</th><td><a href="${item.url}">${item.url}</a></td></tr>
     </table>
+
     <div py:if="item.item_type=='ELEC'">
-      <h2 class="metadata_subhead">Attached document</h2>
-      <table class="metadata_table">
-	<tr><th>Content type</th><td>${item.fileobj_mimetype}</td></tr>
-	<tr><th>Size</th><td>${item.fileobj.size} bytes</td></tr>
-	<tr><th/><td><a class="bigdownload" href="${item.item_download_url()}">Download</a></td></tr>
-      </table>
+      <h2 class="metadata_subhead">Download the document</h2>
+      <div id="ask_to_download_panel">
+	<p>I warrant that I am a student of the University of Windsor registered in the aforementioned course. By pressing the 'Request' button below, I am requesting a digital copy of a reading (chapter, article) for my own private study and research use. I agree that I will not reproduce, redistribute or transmit a copy of the reading in any format.</p>
+	<p><a class="bigdownload" href="javascript:askToDownload();"><button>Request to download this document</button></a></p>
+      </div>
+      <div id="downloadpanel">
+	<p><a class="bigdownload" href="${item.item_download_url()}"><button>Click here to download the document.</button></a></p>
+	<p>Document type: ${item.fileobj_mimetype}. Size: ${item.fileobj.size} bytes.</p>
+	</div>
     </div>
+
     <div py:if="item.marcxml">
       <abbr py:if="item.marcxml" class="unapi-id" title="${item.id}"/>
       <p id="marcdatashow"><a href="javascript:void($('#marcdata').toggle());">Display MARC Record</a></p>

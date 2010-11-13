@@ -325,8 +325,8 @@ thead th { padding: 8px; font-weight: bold; font-size: 90%; }
     background-color: #eee;
 }
    
-.metadata_table a.bigdownload { padding: 8px 58px; font-weight: bold; font-size: 105%; }
-.metadata_table a.bigdownload:hover { background-color: #dfd; color: black; }
+a.bigdownload * { padding: 8px 58px; font-weight: bold; font-size: 100%; }
+a.bigdownload:hover { background-color: #dfd; color: black; }
 
 h2.metadata_subhead {font-size: 105%; padding: 0; margin: 18px 0 9px 0;}
 
