@@ -1,6 +1,7 @@
-from _common       import *
-from conifer.syrup import integration
-from xml.etree     import ElementTree as ET
+from _common                     import *
+from conifer.plumbing.hooksystem import *
+from conifer.syrup               import integration
+from xml.etree                   import ElementTree as ET
 
 @members_only
 def item_detail(request, site_id, item_id):
@@ -23,8 +24,10 @@ def item_metadata(request, site_id, item_id):
         return _heading_detail(request, item)
     else:
         item_declaration_required = item.needs_declaration_from(request.user)
+        custom_declaration = callhook('download_declaration')
         return g.render('item/item_metadata.xhtml', site=item.site,
                         item_declaration_required=item_declaration_required,
+                        custom_declaration=custom_declaration,
                         item=item)
 
 @members_only

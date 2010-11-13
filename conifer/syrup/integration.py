@@ -129,4 +129,10 @@ def proxify_url(url):
     the proxy. If not, return None.
     """
 
-                  
+@disable
+def download_declaration():
+    """
+    Returns a string. The declaration to which students must agree when
+    downloading electronic documents. If not customized, a generic message
+    will be used.
+    """

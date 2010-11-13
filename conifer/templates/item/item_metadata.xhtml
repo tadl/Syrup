@@ -4,6 +4,7 @@ site_title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
 hier = item.hierarchy()[:-1]
 title = item.title
 is_editor = site.can_edit(request.user)
+item_declaration_required = True #fixme
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -55,7 +56,12 @@ is_editor = site.can_edit(request.user)
     <div py:if="item.item_type=='ELEC'">
       <h2 class="metadata_subhead">Download the document</h2>
       <div id="ask_to_download_panel">
-	<p>I warrant that I am a student of the University of Windsor registered in the aforementioned course. By pressing the 'Request' button below, I am requesting a digital copy of a reading (chapter, article) for my own private study and research use. I agree that I will not reproduce, redistribute or transmit a copy of the reading in any format.</p>
+	<p py:if="custom_declaration" py:content="custom_declaration"/>
+	<p py:if="not custom_declaration">By pressing the 'Request' button
+	below, I am requesting a digital copy of a reading (chapter, article)
+	for my own private study and research use. I agree that I will not
+	reproduce, redistribute or transmit a copy of the reading in any
+	format.</p>
 	<p><a class="bigdownload" href="javascript:askToDownload();"><button>Request to download this document</button></a></p>
       </div>
       <div id="downloadpanel">

@@ -211,3 +211,17 @@ def proxify_url(url):
     the proxy. If not, return None.
     """
     return ezproxy_service.proxify(url)
+
+
+def download_declaration():
+    """
+    Returns a string. The declaration to which students must agree when
+    downloading electronic documents. If not customized, a generic message
+    will be used.
+    """
+    return ("I warrant that I am a student of the University of Windsor "
+            "registered in the aforementioned course. By pressing the "
+            "'Request' button below, I am requesting a digital copy of a "
+            "reading (chapter, article) for my own private study and "
+            "research use. I agree that I will not reproduce, redistribute "
+            "or transmit a copy of the reading in any format.")
