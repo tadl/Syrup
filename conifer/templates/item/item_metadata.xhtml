@@ -48,7 +48,7 @@ is_editor = site.can_edit(request.user)
       <table class="metadata_table">
 	<tr><th>Content type</th><td>${item.fileobj_mimetype}</td></tr>
 	<tr><th>Size</th><td>${item.fileobj.size} bytes</td></tr>
-	<tr><th/><td><a class="bigdownload" href="${item.item_url()}">Download</a></td></tr>
+	<tr><th/><td><a class="bigdownload" href="${item.item_download_url()}">Download</a></td></tr>
       </table>
     </div>
     <div py:if="item.marcxml">

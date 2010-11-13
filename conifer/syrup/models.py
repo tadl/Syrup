@@ -598,18 +598,22 @@ class Item(BaseModel):
 
     def needs_meta_link(self):
         """Should an 'About' link be displayed for this item?"""
-        return self.item_type in ('ELEC', 'URL')
+        return self.item_type in ('URL',)
 
-    def item_url(self, suffix='', force_local_url=False):
-        # I'm not fond of this being here. I think I'll leave this and
-        # site_url non-implemented, and monkey-patch them in views.py.
-        req = get_request()
-        prefix = req.META['SCRIPT_NAME']
-        if self.item_type == 'ELEC' and suffix == '':
+    def item_download_url(self):
+        if self.item_type != 'ELEC':
+            return None
+        else:
+            req = get_request()
+            prefix = req.META['SCRIPT_NAME']
             return '%s/site/%d/item/%d/dl/%s' % (
                 prefix, self.site_id, self.id,
                 self.fileobj.name.split('/')[-1])
-        if self.item_type == 'URL' and suffix == '' and not force_local_url:
+            
+    def item_url(self, suffix=''):
+        req = get_request()
+        prefix = req.META['SCRIPT_NAME']
+        if self.item_type == 'URL' and suffix == '':
             return self.url
         else:
             return '%s/site/%d/item/%d/%s' % (
