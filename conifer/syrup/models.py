@@ -265,15 +265,31 @@ class Site(BaseModel):
         return either a single (Item, [Item]) pair, where Item is the
         subtree element, or None if there is no match.
         """
+
+        def sort_title(item):
+            """First cut of a stop words routine."""
+            # TODO: this needs to either be in its own file or in settings
+            stopwords = '''
+			a
+			an
+                        that
+			there
+                        the
+                        this
+                '''.split()
+
+            normal_text = [t for t in item.split() if t.lower() not in stopwords]
+            return  " ".join(normal_text)
+
         items = self.items()
         # make a node-lookup table
         dct = {}
         for item in items:
             dct.setdefault(item.parent_heading, []).append(item)
         for lst in dct.values():
-            # TODO: what's the sort order?
+            # TODO: what's the sort order? - art weighing in on normalized title
             lst.sort(key=lambda item: (item.item_type=='HEADING',
-                                       item.title)) # sort in place
+                                       sort_title(item.title))) # sort in place
         # walk the tree
         out = []
         def walk(parent, accum):
