@@ -111,6 +111,9 @@ def item_add(request, site_id, item_id):
         elif item_type == 'URL':
             title = request.POST.get('title', '').strip()
             url = request.POST.get('url', '').strip()
+            author = request.POST.get('author', '').strip()
+            publisher = request.POST.get('publisher', '').strip()
+            published = request.POST.get('published', '').strip()
             if not (title and url):
                 # fixme, better error handling.
                 return HttpResponseRedirect(request.get_full_path())
@@ -120,7 +123,10 @@ def item_add(request, site_id, item_id):
                     item_type='URL',
                     parent_heading=parent_item,
                     title=title,
-                    url = url)
+                    url = url,
+                    author = author,
+                    publisher = publisher,
+                    published = published)
                 item.save()
         elif item_type == 'ELEC':
             title = request.POST.get('title', '').strip()
