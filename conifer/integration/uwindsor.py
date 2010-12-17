@@ -103,9 +103,21 @@ def cat_search(query, start=1, limit=10):
         results = M.marcxml_to_records(I.url_to_marcxml(query))
         numhits = len(results)
     else:
-        # query is an actual Z39.50 query
-        cat_host, cat_port, cat_db = settings.Z3950_CONFIG
-        results, numhits = PZ.search(cat_host, cat_port, cat_db, query, start, limit)
+        # query is an actual query
+        superpage = E1('open-ils.search.biblio.multiclass.query',
+               {"org_unit":106,"depth":1,"limit":limit,"offset":start-1,"visibility_limit":3000,
+                "default_class":"keyword"},
+               query, 1)
+        ids = [id for (id,) in superpage['ids']]
+        results = []
+        for rec in E1('open-ils.supercat.record.object.retrieve', ids):
+            marc = unicode(rec['marc'], 'utf-8')
+            tree = M.marcxml_to_records(marc)[0]
+            results.append(tree)
+        numhits = int(superpage['count'])
+        # # query is an actual Z39.50 query
+        # cat_host, cat_port, cat_db = settings.Z3950_CONFIG
+        # results, numhits = PZ.search(cat_host, cat_port, cat_db, query, start, limit)
     return results, numhits
 
 def bib_id_to_marcxml(bib_id):
