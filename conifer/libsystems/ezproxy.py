@@ -39,10 +39,10 @@ class EZProxyService(object):
         return ''.join((prefix, '.', self.host, suffix))
     
 
+if __name__ == '__main__':
+    host = 'ezproxy.uwindsor.ca'
+    pwd = 'leddy'
+    s = EZProxyService(host, pwd)
 
-host = 'ezproxy.uwindsor.ca'
-pwd = 'leddy'
-s = EZProxyService(host, pwd)
-
-print s.proxify('http://jstor.org/')
-print s.proxify('http://jstor.org.ezproxy.uwindsor.ca/')
+    print s.proxify('http://jstor.org/')
+    print s.proxify('http://jstor.org.ezproxy.uwindsor.ca/')
