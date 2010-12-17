@@ -50,6 +50,10 @@ CAS_SERVER_URL     = 'https://uwinid.uwindsor.ca/cas/'
 EVERGREEN_GATEWAY_SERVER = 'www.concat.ca'
 Z3950_CONFIG             = ('zed.concat.ca', 210, 'OWA')  #OWA,OSUL,CONIFER
 
+# Note, in the UWindsor integration, commenting out Z3950_CONFIG or setting it
+# equal to None will result in OpenSRF being used for catalogue search instead
+# of Z39.50.
+
 #----------------------------------------------------------------------
 # INTEGRATION_MODULE: name of a module to import after the database
 # models have been initialized. This can be used for defining 'hook'

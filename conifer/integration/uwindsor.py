@@ -12,6 +12,13 @@ import re
 import uwindsor_campus_info
 from memoization import memoize
 
+# USE_Z3950: if True, use Z39.50 for catalogue search; if False, use OpenSRF.
+# Don't set this value directly here: rather, if there is a valid Z3950_CONFIG
+# settings in local_settings.py, then Z39.50 will be used.
+
+USE_Z3950 = getattr(settings, 'Z3950_CONFIG', None) is not None
+
+
 def department_course_catalogue():
     """
     Return a list of rows representing all known, active courses and
@@ -104,20 +111,21 @@ def cat_search(query, start=1, limit=10):
         numhits = len(results)
     else:
         # query is an actual query
-        superpage = E1('open-ils.search.biblio.multiclass.query',
-               {"org_unit":106,"depth":1,"limit":limit,"offset":start-1,"visibility_limit":3000,
-                "default_class":"keyword"},
-               query, 1)
-        ids = [id for (id,) in superpage['ids']]
-        results = []
-        for rec in E1('open-ils.supercat.record.object.retrieve', ids):
-            marc = unicode(rec['marc'], 'utf-8')
-            tree = M.marcxml_to_records(marc)[0]
-            results.append(tree)
-        numhits = int(superpage['count'])
-        # # query is an actual Z39.50 query
-        # cat_host, cat_port, cat_db = settings.Z3950_CONFIG
-        # results, numhits = PZ.search(cat_host, cat_port, cat_db, query, start, limit)
+        if USE_Z3950:
+            cat_host, cat_port, cat_db = settings.Z3950_CONFIG
+            results, numhits = PZ.search(cat_host, cat_port, cat_db, query, start, limit)
+        else:                   # use opensrf
+            superpage = E1('open-ils.search.biblio.multiclass.query',
+                   {"org_unit":106,"depth":1,"limit":limit,"offset":start-1,"visibility_limit":3000,
+                    "default_class":"keyword"},
+                   query, 1)
+            ids = [id for (id,) in superpage['ids']]
+            results = []
+            for rec in E1('open-ils.supercat.record.object.retrieve', ids):
+                marc = unicode(rec['marc'], 'utf-8')
+                tree = M.marcxml_to_records(marc)[0]
+                results.append(tree)
+            numhits = int(superpage['count'])
     return results, numhits
 
 def bib_id_to_marcxml(bib_id):
@@ -148,23 +156,29 @@ def bib_id_to_url(bib_id):
         return ('http://windsor.concat.ca/opac/en-US'
                 '/skin/default/xml/rdetail.xml?r=%s&l=1&d=0' % bib_id)
 
-def get_better_copy_of_marc(marc_string):
-    """
-    This function takes a MARCXML record and returns either the same
-    record, or another instance of the same record from a different
-    source. 
+if USE_Z3950:
+    # only if we are using Z39.50 for catalogue search. Results including
+    # accented characters are often seriously messed up. (Try searching for
+    # "montreal").
+    def get_better_copy_of_marc(marc_string):
+        """
+        This function takes a MARCXML record and returns either the same
+        record, or another instance of the same record from a different
+        source. 
 
-    This is a hack. There is currently at least one Z39.50 server that
-    returns a MARCXML record with broken character encoding. This
-    function declares a point at which we can work around that server.
-    """
-    bib_id = marc_to_bib_id(marc_string)
-    better = bib_id_to_marcxml(bib_id)
-    # don't return the "better" record if there's no 901c in it...
-    if better and ('901c' in M.marcxml_to_dictionary(better)):
-        return better
-    return ET.fromstring(marc_string)
- 
+        This is a hack. There is currently at least one Z39.50 server that
+        returns a MARCXML record with broken character encoding. This
+        function declares a point at which we can work around that server.
+        """
+
+        print marc_string
+        bib_id = marc_to_bib_id(marc_string)
+        better = bib_id_to_marcxml(bib_id)
+        # don't return the "better" record if there's no 901c in it...
+        if better and ('901c' in M.marcxml_to_dictionary(better)):
+            return better
+        return ET.fromstring(marc_string)
+
 def marcxml_to_url(marc_string):
     """
     Given a MARC record, return either a URL (representing the
