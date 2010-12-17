@@ -1,7 +1,13 @@
 <?python
 is_edit = bool(item.id)
-title = is_edit and _('Edit an electronic document') or _('Add a new electronic document')
+title = is_edit and _('Electronic document: Metadata') or _('Add a new electronic document')
 site.title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
+if is_edit:
+   authors = [a.strip() for a in item.author.split(';')]
+else:
+   authors = []
+if len(authors) < 2:
+   authors.extend([''] * (2 - len(authors)))
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -19,13 +25,36 @@ site.title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
     ${nested_title(parent_item)}
     ${offer_to_delete(item)}
     <h2>${title}</h2>
+
+    <tbody py:def="common_table()" py:strip="True">
+      <tr><th>Title of document</th><td><input type="text" name="title" value="${item.title}"/></td></tr>
+      <tr><th>Title of source</th><td><input type="text" name="source_title" value="${item.source_title}"/></td></tr>
+      <tr py:for="n, author in enumerate(authors)">
+	<th>Author #${n+1}</th><td><input type="text" name="author${n+1}" value="${author}"/></td>
+      </tr>
+      <tr><th>Publisher</th><td><input type="text" name="publisher" value="${item.publisher}"/></td></tr>
+      <tr><th>Published</th><td><input type="text" name="published" value="${item.published}"/></td></tr>
+      <tr><th>Volume</th><td><input type="text" name="volume" value="${item.volume}"/></td></tr>
+      <tr><th>Issue</th><td><input type="text" name="issue" value="${item.issue}"/></td></tr>
+      <tr><th>Pages</th><td><input type="text" name="pages" value="${item.pages}"/></td></tr>
+      <tr><th>ISBN</th><td><input type="text" name="isbn" value="${item.isbn}"/></td></tr>
+      <tr>
+	<th>Copyright Status</th>
+	<td>
+	  <select name="copyright_status">
+	    <option py:for="k,v in item.COPYRIGHT_STATUS_CHOICES"
+		    py:attrs="{'selected': item.copyright_status==k or None}"
+		    py:content="v"/>
+	  </select>
+	</td>
+      </tr>
+    </tbody>
+
     <div py:if="not is_edit">
       <form action=".?item_type=${item_type}" method="POST"
 	    enctype="multipart/form-data">
 	<table class="metadata_table">
-	  <tr><th>Title of document</th><td><input type="text" 
-	  name="title"
-	  value="${item.title}"/></td></tr>
+	  ${common_table()}
 	  <tr><th>File</th><td><input type="file" name="file"/></td></tr>
 	</table>
 	<p><input type="submit" value="Upload file and Create item"/>
@@ -37,23 +66,17 @@ site.title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
     <div py:if="is_edit">
       <form action="." method="POST">
 	<table class="metadata_table">
-	  <tr><th>Title of document</th><td><input type="text" name="title"
-	  value="${item.title}"/></td></tr>
- 	  <tr><th>Author</th><td><input type="text" name="author"
-	  value="${item.author}"/></td></tr>
-	  <tr><th>Publisher</th><td><input type="text" name="publisher"
-	  value="${item.publisher}"/></td></tr>
-	  <tr><th>Published</th><td><input type="text" name="published"
-	  value="${item.published}"/></td></tr>
+	  ${common_table()}
 	</table>
-	<p><input type="submit" value="Update title and metadata"/></p>
+	<p><input type="submit" value="Update metadata"/></p>
       </form>
-      <h2>File contents</h2>
+      <h2>Replace file contents</h2>
       <form action="." method="POST" enctype="multipart/form-data">
 	<table class="metadata_table">
 	  <tr><th>File</th><td><input type="file" name="file"/></td></tr>
 	</table>
 	<p><input type="submit" value="Upload new file contents"/></p>
+
       </form>
     </div>
 </body>

@@ -524,13 +524,36 @@ class Item(BaseModel):
 
     title     = m.CharField(max_length=8192, db_index=True)
 
-    # Author(s) in Surname, given. Surname, given. format, for display.
+    # Author(s) in Surname, given. Surname, given. format, for display. Note,
+    # for electronic reserves, we're going to use a semicolon as a separator
+    # between multiple authors.
     author    = m.CharField(max_length=8192, db_index=True,
                             null=True, blank=True)
 
     # publisher: "Place: Publisher", as in a bibliography, for display.
     publisher = m.CharField(max_length=8192, null=True, blank=True)
     published = m.CharField(max_length=64, null=True, blank=True)
+
+    # source title: e.g., title of journal
+    source_title = m.CharField(max_length=8192, null=True, blank=True, db_index=True)
+    volume       = m.CharField(max_length=64, null=True, blank=True)
+    issue        = m.CharField(max_length=64, null=True, blank=True)
+    pages        = m.CharField(max_length=64, null=True, blank=True)
+    # isbn or issn (not validated)
+    isbn         = m.CharField(max_length=17, null=True, blank=True)
+
+
+    # As per discussion with Art Rhyno and Joan Dalton, Leddy Library.
+    COPYRIGHT_STATUS_CHOICES = [
+        ('UK', 'unknown'),
+        ('FD', 'fair dealing'),
+        ('PG', 'permission granted'),
+        ('LC', 'licensed content'),
+        ]
+
+    copyright_status = m.CharField(max_length=2, 
+                                   choices=COPYRIGHT_STATUS_CHOICES,
+                                   default='UK')
 
     ITEMTYPE_CHOICES = [
         # From http://www.oclc.org/bibformats/en/fixedfield/type.shtm.

@@ -41,9 +41,15 @@ is_editor = site.can_edit(request.user)
     </div>
     <table class="metadata_table" style="margin-top: 1em;">
       <tr><th>Title</th><td>${item.title}</td></tr>
-      <tr py:if="item.author"><th>Author</th><td>${item.author}</td></tr>
+      <tr py:if="item.source_title"><th>Title of source</th><td>${item.source_title}</td></tr>
+      <tr py:if="item.author"><th>Author(s)</th><td>${item.author}</td></tr>
       <tr py:if="item.publisher"><th>Publisher</th><td>${item.publisher}</td></tr>
       <tr py:if="item.published"><th>Published</th><td>${item.published}</td></tr>
+      <tr py:if="item.volume"><th>Volume</th><td>${item.volume}</td></tr>
+      <tr py:if="item.issue"><th>Issue</th><td>${item.issue}</td></tr>
+      <tr py:if="item.pages"><th>Pages</th><td>${item.pages}</td></tr>
+      <tr py:if="item.isbn"><th>ISBN</th><td>${item.isbn}</td></tr>
+      <tr py:if="item.item_type=='ELEC'"><th>Copyright status</th><td>${item.get_copyright_status_display()}</td></tr>
       <tr><th>Type</th><td>${item.get_item_type_display()}</td></tr>
       <tr py:if="item.item_type=='PHYS'"
 	  py:with="avail, status = item.describe_physical_item_status()">

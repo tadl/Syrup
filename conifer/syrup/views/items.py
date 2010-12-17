@@ -134,13 +134,20 @@ def item_add(request, site_id, item_id):
             if not (title and upload):
                 # fixme, better error handling.
                 return HttpResponseRedirect(request.get_full_path())
+
+            data = dict((k.encode('ascii'), v.strip()) for k, v in request.POST.items())
+            if data['author2']:
+                data['author'] = '%s; %s' % (data['author1'], data['author2'])
+            else:
+                data['author'] = data['author1']
+            del data['author1']; del data['author2']
+
             item = models.Item(
                 site=site,
                 item_type='ELEC',
                 parent_heading=parent_item,
-                title=title,
                 fileobj_mimetype = upload.content_type,
-                )
+                **data)
             item.fileobj.save(upload.name, upload)
             item.save()
         else:
@@ -248,9 +255,18 @@ def item_edit(request, site_id, item_id):
             upload = request.FILES.get('file')
             item.fileobj.save(upload.name, upload)
             item.fileobj_mimetype = upload.content_type
+        elif 'file' in request.POST:
+            # an error: edit again...
+            return HttpResponseRedirect(item.item_url('edit'))
         else:
             # generally update the item.
-            [setattr(item, k, v) for (k,v) in request.POST.items()]
+            data = dict((k.encode('ascii'), v.strip()) for k, v in request.POST.items())
+            if data['author2']:
+                data['author'] = '%s; %s' % (data['author1'], data['author2'])
+            else:
+                data['author'] = data['author1']
+            del data['author1']; del data['author2']
+            [setattr(item, k, v) for (k,v) in data.items()]
                     
         item.save()
         return HttpResponseRedirect(item.parent_url())
