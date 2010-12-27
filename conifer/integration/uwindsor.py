@@ -1,18 +1,19 @@
 # See conifer/syrup/integration.py for documentation.
 
-from datetime import date
-from django.conf import settings
 from conifer.libsystems import ezproxy
-from conifer.libsystems.evergreen.support import initialize, E1
 from conifer.libsystems import marcxml as M
 from conifer.libsystems.evergreen import item_status as I
+from conifer.libsystems.evergreen.support import initialize, E1
 from conifer.libsystems.z3950 import pyz3950_search as PZ
-from xml.etree import ElementTree as ET
-import re
-import uwindsor_campus_info
+from datetime import date
+from django.conf import settings
 from memoization import memoize
+from xml.etree import ElementTree as ET
 import csv
+import os
+import re
 import subprocess
+import uwindsor_campus_info
 
 # USE_Z3950: if True, use Z39.50 for catalogue search; if False, use OpenSRF.
 # Don't set this value directly here: rather, if there is a valid Z3950_CONFIG
@@ -42,6 +43,7 @@ def term_catalogue():
     'start-date', 'end-date'), where the dates are instances of the
     datetime.date class.
     """
+    # TODO: make this algorithmic.
     return [
         ('2011S', '2011 Summer', date(2011,5,1), date(2011,9,1)),
         ('2011F', '2011 Fall', date(2011,9,1), date(2011,12,31)),
@@ -210,17 +212,58 @@ def external_person_lookup(userid):
     """
     return uwindsor_campus_info.call('person_lookup', userid)
 
-def decode_role(role):
+
+def external_memberships(userid):
+    """
+    Given a userid, return a list of dicts, representing the user's
+    memberships in known external groups. Each dict must include the
+    following key/value pairs:
+    'group': a group-code, externally defined;
+    'role':  the user's role in that group, one of (INSTR, ASSIST, STUDT).
+    """
+    memberships = uwindsor_campus_info.call('membership_ids', userid)
+    for m in memberships:
+        m['role'] = _decode_role(m['role'])
+    return memberships
+
+def _decode_role(role):
     if role == 'Instructor':
         return 'INSTR'
     else:
         return 'STUDT'
 
-def external_memberships(userid, include_titles=False):
-    memberships = uwindsor_campus_info.call('membership_ids', userid)
-    for m in memberships:
-        m['role'] = decode_role(m['role'])
-    return memberships
+FUZZY_LOOKUP_BIN = '/usr/local/bin/SpeedLookup'
+
+if os.path.isfile(FUZZY_LOOKUP_BIN):
+
+    def fuzzy_person_lookup(query, include_students=False):
+        """
+        Given a query, return a list of users who probably match the
+        query. The result is a list of (userid, display), where userid
+        is the campus userid of the person, and display is a string
+        suitable for display in a results-list. Include_students
+        indicates that students, and not just faculty/staff, should be
+        included in the results.
+        """
+
+        cmd = [FUZZY_LOOKUP_BIN, query]
+        if include_students:
+            cmd.append('students')
+
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        try:
+            rdr = csv.reader(p.stdout)
+            rdr.next()              # skip header row,
+            data = list(rdr)        # eagerly fetch the rest
+        finally:
+            p.stdout.close()
+
+        out = []
+        for uid, sn, given, role, dept, mail in data:
+            display = '%s %s. %s, %s. <%s>. [%s]' % (given, sn, role, dept, mail, uid)
+            out.append((uid, display))
+        return out
+
 
 #--------------------------------------------------
 # proxy server integration

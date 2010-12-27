@@ -110,6 +110,16 @@ def external_person_lookup(userid):
     """
 
 @disable
+def external_memberships(userid):
+    """
+    Given a userid, return a list of dicts,
+    representing the user's memberships in known external groups.
+    Each dict must include the following key/value pairs:
+    'group': a group-code, externally defined;
+    'role':  the user's role in that group, one of (INSTR, ASSIST, STUDT).
+    """
+
+@disable
 def user_needs_decoration(user_obj):
     """
     User objects are sometimes created automatically, with only a

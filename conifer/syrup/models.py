@@ -88,6 +88,39 @@ class UserExtensionMixin(object):
     def external_memberships(self):
         return callhook('external_memberships', self.username) or []
 
+    def maybe_decorate(self):
+        """
+        If necessary, and if possible, fill in missing personal
+        information about this user from an external diectory.
+        """
+
+        # can we look up users externally?
+        if not gethook('external_person_lookup'):
+            return
+
+        # does this user need decorating?
+        dectest = gethook('user_needs_decoration', 
+                          default=lambda user: user.last_name == '')
+        if not dectest(self):
+            return
+
+        # can we find this user in the external directory?
+        dir_entry = callhook('external_person_lookup', self.username)
+        if dir_entry is None:
+            return
+
+        self.first_name = dir_entry['given_name']
+        self.last_name  = dir_entry['surname']
+        self.email      = dir_entry.get('email', self.email)
+        self.save()
+
+        if 'patron_id' in dir_entry:
+            # note, we overrode user.get_profile() to automatically create
+            # missing profiles. 
+            self.get_profile().ils_userid = dir_entry['patron_id']
+            profile.save()
+
+
 
 for k,v in [(k,v) for k,v in UserExtensionMixin.__dict__.items() \
                 if not k.startswith('_')]:

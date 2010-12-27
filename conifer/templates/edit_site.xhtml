@@ -3,6 +3,7 @@ if instance.id:
     title = _('Site setup')
 else:
     title = _('Create a new site')
+owner = instance.owner if instance.owner_id else None
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -12,6 +13,10 @@ else:
 <head>
   <title>${title}</title>
   <script type="text/javascript" src="${ROOT}/static/edit_site.js"/>
+  <style>
+	.fuzzychoice { display: block; margin: 0.5em 0;  font-size: 90%; }
+	#fuzzyview { display: block; margin: 0.5em 0;  font-size: 90%; }
+  </style>
 </head>
 <body>
   <div py:if="instance.id">${site_banner(instance)}</div>
@@ -21,7 +26,7 @@ else:
       <li py:for="err in nfe">${err}</li>
     </ul>
   </div>
-  <form action="." method="POST">
+  <form action="." method="POST" autocomplete="off">
     <tr py:def="field_row(field, example=None)">
       <th>${field.label}</th>
       <td>
@@ -33,10 +38,34 @@ else:
       <td class="example" py:if="example">e.g., ${example}</td>
     </tr>
     <table class="metadata_table">
-    ${field_row(form.owner)}
+	  <py:if test="owner_mode=='select'">
+	      ${field_row(form.owner)}
+	  </py:if>
+	  <tr py:if="owner_mode=='lookup'">
+		<th>Primary Instructor</th>
+		<td>
+		  <input type="hidden" id="owner" name="owner" value="${form.owner.data}"/>
+		  <div id="fuzzyedit"
+			   style="display: ${'none' if owner else 'block'}">
+			<div style="font-size: 80%; margin: 0.5em 0;">Type a partial name or userid into the box; then select one of the matches.</div>
+			<input type="text" id="fuzzyinput" autocomplete="off" value="${owner.username if owner else ''}"/>
+			<div id="fuzzypanel">
+			</div>
+		  </div>
+		  <div id="fuzzyview" style="display: ${owner and 'block' or 'none'}">
+			<span id="fuzzyname">
+			<span py:if="owner">
+			  ${owner.get_full_name()} [${owner}]
+			</span>
+			</span>
+			<input type="button" value="change" onclick="fuzzyLookup.edit();"
+					 style="margin-left: 1em;"/>
+		  </div>
+		</td>
+	  </tr>
+    ${field_row(form.course)}
     ${field_row(form.start_term)}
     ${field_row(form.end_term)}
-    ${field_row(form.course)}
     ${field_row(form.service_desk)}
 
     <!-- ${field_row(form.department)} -->

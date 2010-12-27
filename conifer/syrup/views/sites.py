@@ -41,13 +41,32 @@ def edit_site(request, site_id):
 
 def _add_or_edit_site(request, instance=None):
     is_add = (instance is None)
+    
+    # Are we looking up owners, or selecting them from a fixed list?
+    owner_mode = 'lookup' if gethook('fuzzy_person_lookup') else 'select'
+
     if is_add:
         instance = models.Site()
     if request.method != 'POST':
         form = NewSiteForm(instance=instance)
         return g.render('edit_site.xhtml', **locals())
     else:
-        form = NewSiteForm(request.POST, instance=instance)
+        POST = request.POST.copy() # because we may mutate it.
+        if owner_mode == 'lookup':
+            # then the owner may be a username instead of an ID, and
+            # the user may not exist in the local database.
+            userid = POST.get('owner', '').strip()
+            if userid and not userid.isdigit():
+                try:
+                    user = User.objects.get(username=userid)
+                except User.DoesNotExist:
+                    user = User.objects.create(username=userid)
+                    user.save()
+                    user.maybe_decorate()
+                    user.save()
+                POST['owner'] = user.id
+
+        form = NewSiteForm(POST, instance=instance)
         if not form.is_valid():
             return g.render('edit_site.xhtml', **locals())
         else:
@@ -136,3 +155,15 @@ def site_join(request, site_id):
                                                group=group, role='STUDT')
         mbr.save()
         return HttpResponseRedirect(site.site_url())
+
+
+@admin_only
+def site_fuzzy_user_lookup(request):
+    query = request.POST.get('q').lower().strip()
+    results = callhook('fuzzy_person_lookup', query) or []
+    limit = 10
+    resp = {'results': results[:limit], 
+            'notshown': max(0, len(results) - limit)}
+    return HttpResponse(simplejson.dumps(resp),
+                        content_type='application/json')
+

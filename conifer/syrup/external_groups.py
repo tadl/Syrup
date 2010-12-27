@@ -23,11 +23,11 @@ def reconcile_user_memberships(user):
     # outside of our scope.)
 
     # The 'external_memberships' hook function must return a list of
-    # (groupcode, role) tuples (assuming the hook function has been defined;
-    # otherwise, the hook system will return None). All of our membership
-    # comparisons are based on groupcodes, which internally are stored in the
-    # Group.external_id attribute. We only consider roles if we are adding a
-    # user to a group.
+    # group-membership objects (assuming the hook function has been
+    # defined; otherwise, the hook system will return None). All of
+    # our membership comparisons are based on groupcodes, which
+    # internally are stored in the Group.external_id attribute. We
+    # only consider roles if we are adding a user to a group.
 
     # This design assumes (but does not assert) that each groupcode is
     # associated with exactly zero or one internal Groups. Specifically, you

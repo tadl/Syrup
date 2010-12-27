@@ -14,6 +14,9 @@ title = _('Administrative Options')
 <body>
   <h1>${title}</h1>
   <div class="itemadd">
+    <ul>
+	  <li><a href="../site/new/">Create a new course site</a></li>
+	</ul>
   <ul>
     <li><a href="terms/">Terms</a></li>
     <li><a href="desks/">Service Desks</a></li>
@@ -26,9 +29,6 @@ title = _('Administrative Options')
   <!-- <ul> -->
   <!--   <li><a href="../zsearch/">Search Z39.50 Targets</a></li> -->
   <!-- </ul> -->
-  <ul>
-    <li><a href="../site/new/">Create a new course site</a></li>
-  </ul>
   <ul>
     <li py:if="gethook('department_course_catalogue')">
       <a href="update_depts_courses">Automatically update departments and courses</a>
