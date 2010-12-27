@@ -200,13 +200,18 @@ class Site(BaseModel):
     owner        = m.ForeignKey(User)
     service_desk = m.ForeignKey(ServiceDesk)
 
+    ACCESS_CHOICES = [
+        ('ANON',  _('World-accessible')),
+        ('LOGIN', _('Accessible to all logged-in users')),
+        ('MEMBR', _('Accessible to course-site members')),
+        ('CLOSE', _('Accessible only to course-site owners'))]
+
+    ACCESS_DEFAULT = getattr(settings, 'SITE_DEFAULT_ACCESS_LEVEL', 'ANON')
+    assert ACCESS_DEFAULT in [x[0] for x in ACCESS_CHOICES]
+
     access = m.CharField(max_length=5,
-                         default='ANON',
-                         choices = [
-            ('ANON', _('World-accessible')),
-            ('LOGIN', _('Accessible to all logged-in users')),
-            ('MEMBR', _('Accessible to course-site members')),
-            ('CLOSE', _('Accessible only to course-site owners'))])
+                         default=ACCESS_DEFAULT,
+                         choices=ACCESS_CHOICES)
 
     @property
     def term(self):

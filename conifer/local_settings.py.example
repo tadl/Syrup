@@ -55,6 +55,14 @@ Z3950_CONFIG             = ('zed.concat.ca', 210, 'OWA')  #OWA,OSUL,CONIFER
 # of Z39.50.
 
 #----------------------------------------------------------------------
+# SITE_DEFAULT_ACCESS_LEVEL: by default, all new sites are
+# world-readable. Possible default values are ANON (world readable),
+# LOGIN (any logged in user), MEMBR (only explicit members of the
+# site), and CLOSE (only instructors/owners of the site).
+
+# SITE_DEFAULT_ACCESS_LEVEL = 'MEMBR'
+
+#----------------------------------------------------------------------
 # INTEGRATION_MODULE: name of a module to import after the database
 # models have been initialized. This can be used for defining 'hook'
 # functions, and other late initializations. 
