@@ -750,7 +750,8 @@ def highlight(text, phrase,
     else:
         return highlight_re.sub(highlighter, text)
 
-
+#----------------------------------------------------------------------
+# Activate the local integration module.
 
 if hasattr(settings, 'INTEGRATION_MODULE'):
     import conifer.syrup.integration

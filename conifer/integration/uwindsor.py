@@ -11,6 +11,8 @@ from xml.etree import ElementTree as ET
 import re
 import uwindsor_campus_info
 from memoization import memoize
+import csv
+import subprocess
 
 # USE_Z3950: if True, use Z39.50 for catalogue search; if False, use OpenSRF.
 # Don't set this value directly here: rather, if there is a valid Z3950_CONFIG
@@ -25,16 +27,13 @@ def department_course_catalogue():
     the departments to which they belong. Each row should be a tuple
     in the form: ('Department name', 'course-code', 'Course name').
     """
-    return [
-        ('Arts','01-01-209','Ethics in the Professions'),
-        ('Social Work','02-47-204','Issues & Perspectives in Social Welfare'),
-        ('Social Work','02-47-211','Prof Comm in Gen. Social Work Practice'),
-        ('Social Work','02-47-336','Theory and Practice Social Work I'),
-        ('Social Work','02-47-361','Field Practice I - A'),
-        ('Social Work','02-47-362','Field Practice I - B'),
-        ('Social Work','02-47-370','Mothering and Motherhood'),
-        ('Social Work','02-47-456','Social Work and Health'),
-        ]
+    url = 'http://cleo.uwindsor.ca/graham/courses.txt.gz'
+    p = subprocess.Popen('curl -s %s | gunzip -c' % url, 
+                         shell=True, stdout=subprocess.PIPE)
+    reader = csv.reader(p.stdout)
+    catalogue = list(reader)
+    p.stdout.close()
+    return catalogue
 
 def term_catalogue():
     """
