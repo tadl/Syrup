@@ -12,6 +12,7 @@ owner = instance.owner if instance.owner_id else None
 <xi:include href="components/site.xhtml"/>
 <head>
   <title>${title}</title>
+  <script type="text/javascript" src="${ROOT}/static/fuzzyFinder.js"/>
   <script type="text/javascript" src="${ROOT}/static/edit_site.js"/>
   <style>
 	.fuzzychoice { display: block; margin: 0.5em 0;  font-size: 90%; }
@@ -58,8 +59,7 @@ owner = instance.owner if instance.owner_id else None
 			  ${owner.get_full_name()} [${owner}]
 			</span>
 			</span>
-			<input type="button" value="change" onclick="fuzzyLookup.edit();"
-					 style="margin-left: 1em;"/>
+			<input type="button" value="change" id="fuzzychange" style="margin-left: 1em;"/>
 		  </div>
 		</td>
 	  </tr>

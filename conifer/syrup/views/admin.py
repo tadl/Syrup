@@ -149,3 +149,29 @@ def admin_update_terms(request):
                 code = tcode, 
                 defaults = dict(name=tname, start=start, finish=finish))
         return simple_message('Terms updated.', '')
+
+@admin_only
+def admin_staff_add(request):
+    if request.method != 'POST':
+        return g.render('admin/staff_add.xhtml', **locals())
+    else:
+        userid = request.POST.get('userid','').strip()
+        message_continue = True
+
+        try:
+            user = User.objects.get(username=userid)
+        except User.DoesNotExist:
+            user = User.objects.create(username=userid)
+            user.maybe_decorate()
+
+        user.is_staff = True
+        user.is_superuser = True # TODO: are we sure they should be superuser?
+        user.save()
+
+        if not userid:
+            message = 'No user selected.'
+            message_continue = False
+        else:
+            message = 'Staff user added: %s [%s].' % (user.get_full_name(), user.username)
+
+        return g.render('admin/staff_add.xhtml', **locals())

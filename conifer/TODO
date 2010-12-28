@@ -2,8 +2,6 @@ NEW:
 
 * add URL form should have same metadata as ELEC form (except for copyright status)
 
-* add new staff member
-
 * why are .focus() calls not working properly?
 
 * edit URL item fails with error. KeyError: author2
@@ -21,6 +19,8 @@ CRITICAL:
 IMPORTANT:
 
 MAYBE:
+
+* refactor fuzzyFinder into a Genshi component.
 
 * set up a proper issue-tracker?
 
@@ -75,3 +75,4 @@ RECENTLY DONE:
 
 * factor out hardcoded references to the EG server.
 
+* add new staff member

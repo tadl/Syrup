@@ -1,0 +1,51 @@
+<?python
+title = _('Add new staff user')
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="../master.xhtml"/>
+<head>
+  <title>${title}</title>
+  <script type="text/javascript" src="${ROOT}/static/fuzzyFinder.js"/>
+  <script>
+    $(function() {
+    var fuzzy = fuzzyFinder(
+    '#fuzzyinput', '#fuzzypanel', '#fuzzyedit', '#fuzzyview', '#fuzzyname', '#fuzzychange', '#userid');
+    });
+  </script>
+  <style>
+	.fuzzychoice { display: block; margin: 0.5em 0;  font-size: 90%; }
+	#fuzzyview { display: block; margin: 0.5em 0;  font-size: 90%; }
+	#message { background-color: #fdd; padding: 12; display: inline-block; }
+  </style>
+  <style type="text/css">
+    ul { margin-bottom: 2em; }
+  </style>
+</head>
+<body>
+  <h1>${title}</h1>
+  <p py:if="defined('message')">
+    <div id="message">${message}</div>
+    <span py:if="message_continue">${go_back_link('../../', 'Continue')}</span>
+  </p>
+  <div>
+    <div id="fuzzyedit" style="display: block">
+      <div style="font-size: 80%; margin: 0.5em 0;">Type a partial name or userid into the box; then select one of the matches.</div>
+      <input type="text" id="fuzzyinput" autocomplete="off" value=""/>
+      <div id="fuzzypanel">
+      </div>
+    </div>
+    <div id="fuzzyview" style="display: none;">
+      <span id="fuzzyname">
+      </span>
+      <input id="fuzzychange" type="button" value="change" onclick="fuzzyLookup.edit();"
+	     style="margin-left: 1em;"/>
+      <form action="." method="POST">
+	<input type="hidden" id="userid" name="userid" value=""/>
+	<p><input type="submit" value="Add this user"/></p>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
