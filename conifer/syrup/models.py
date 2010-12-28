@@ -343,7 +343,8 @@ class Site(BaseModel):
         # I'm not fond of this being here. I think I'll leave this and
         # item_url non-implemented, and monkey-patch them in views.py.
         req = get_request()
-        return req.build_absolute_uri('/site/%d/%s' % (self.id, suffix))
+        script = req.META['SCRIPT_NAME']
+        return req.build_absolute_uri('%s/site/%d/%s' % (script, self.id, suffix))
 
     def generate_new_passkey(self):
         # todo: have a pluggable passkey algorithm.
@@ -695,8 +696,10 @@ class Item(BaseModel):
             return None
         else:
             req = get_request()
+            script = req.META['SCRIPT_NAME']
             return req.build_absolute_uri(
-                '/site/%d/item/%d/dl/%s' % (
+                '%s/site/%d/item/%d/dl/%s' % (
+                    script,
                     self.site_id, self.id,
                     self.fileobj.name.split('/')[-1]))
             
@@ -705,7 +708,9 @@ class Item(BaseModel):
             return self.url
         else:
             req = get_request()
-            return req.build_absolute_uri('/site/%d/item/%d/%s' % (
+            script = req.META['SCRIPT_NAME']
+            return req.build_absolute_uri('%s/site/%d/item/%d/%s' % (
+                    script,
                     self.site_id, self.id, suffix))
 
     def parent_url(self, suffix=''):
