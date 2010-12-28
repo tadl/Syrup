@@ -132,6 +132,17 @@ def user_needs_decoration(user_obj):
     """
 
 @disable
+def derive_group_code_from_section(site, section):
+    """
+    This function is used to simplify common-case permission setting
+    on course sites. It takes a site and a section number/code, and
+    returns the most likely external group code. (This function will
+    probably check the site's term and course codes, and merge those
+    with the section code, to derive the group code.) Return None if a
+    valid, unambiguous group code cannot be generated.
+    """
+
+@disable
 def proxify_url(url):
     """
     Given a URL, determine whether the URL needs to be passed through

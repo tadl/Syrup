@@ -265,6 +265,24 @@ if os.path.isfile(FUZZY_LOOKUP_BIN):
         return out
 
 
+def derive_group_code_from_section(site, section):
+    """
+    This function is used to simplify common-case permission setting
+    on course sites. It takes a site and a section number/code, and
+    returns the most likely external group code. (This function will
+    probably check the site's term and course codes, and merge those
+    with the section code, to derive the group code.) Return None if a
+    valid, unambiguous group code cannot be generated.
+    """
+    try:
+        section = int(section)
+    except:
+        return None
+
+    return '%s-%s-%s' % (site.course.code.replace('-', ''),
+                         section, 
+                         site.start_term.code)
+                         
 #--------------------------------------------------
 # proxy server integration
 

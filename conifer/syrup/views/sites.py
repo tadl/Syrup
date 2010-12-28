@@ -94,15 +94,35 @@ def edit_site_permissions(request, site_id):
 
     choose_access = django.forms.RadioSelect(choices=choices)
 
+    show_add_section_panel = gethook('derive_group_code_from_section')
+
     if request.method != 'POST':
         return g.render('edit_site_permissions.xhtml', **locals())
     else:
         POST = request.POST
-        access = POST.get('access')
-        site.access = access
-        site.save()
+        message = 'Changes saved.' # default
 
-        return HttpResponseRedirect('../../')
+        if 'action_access_level' in POST:
+            access = POST.get('access')
+            site.access = access
+
+        elif 'action_add_group' in POST:
+            section = POST.get('section', '').strip()
+            groupcode = None
+            if section:
+                groupcode = callhook('derive_group_code_from_section', 
+                                     site, section)
+            if not groupcode:
+                groupcode = POST.get('groupcode','').strip()
+            
+            if not groupcode:
+                message = 'No group code or section number provided.'
+            else:
+                group, created = models.Group.objects.get_or_create(
+                    site=site, external_id=groupcode)
+                
+        site.save()
+        return g.render('edit_site_permissions.xhtml', **locals())
 
 @instructors_only
 def delete_site(request, site_id):
