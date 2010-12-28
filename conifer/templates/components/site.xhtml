@@ -55,7 +55,7 @@ searchtext = _('search this site...')
       <div class="author_pub" py:if="item.author or item.publisher or item.published">
 		<span py:if="item.author">${item.author}<span py:if="item.author[-1]!='.'">.</span></span>
 		<span py:if="item.published">(${item.published}).</span>
-		<span py:if="item.source_title">${item.source_title}.</span>
+		<span py:if="item.source_title"><i>${item.source_title}.</i></span>
 		<span py:if="item.volume"><i>${item.volume}</i>(${item.issue}), ${item.pages}.</span>
 		<span py:if="not item.source_title">
 		  <span py:if="item.publisher">${item.publisher}.</span>
