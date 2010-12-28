@@ -4,7 +4,7 @@
       py:strip="True">
 <?python
 if bool(item.id):
-   authors = [a.strip() for a in item.author.split(';')]
+   authors = [a.strip() for a in (item.author or '').split(';')]
 else:
    authors = []
 if len(authors) < 2:
