@@ -691,6 +691,9 @@ class Item(BaseModel):
         """Should an 'About' link be displayed for this item?"""
         return self.item_type in ('URL',)
 
+    def copyright_status_ok(self):
+        return not (self.item_type == u'ELEC' and self.copyright_status == u'UK')
+
     def item_download_url(self):
         if self.item_type != 'ELEC':
             return None

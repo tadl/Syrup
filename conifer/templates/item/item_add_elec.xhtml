@@ -38,12 +38,13 @@ if len(authors) < 2:
       <tr><th>Issue</th><td><input type="text" name="issue" value="${item.issue}"/></td></tr>
       <tr><th>Pages</th><td><input type="text" name="pages" value="${item.pages}"/></td></tr>
       <tr><th>ISBN</th><td><input type="text" name="isbn" value="${item.isbn}"/></td></tr>
-      <tr>
+      <tr py:if="user.is_staff">
 	<th>Copyright Status</th>
 	<td>
 	  <select name="copyright_status">
 	    <option py:for="k,v in item.COPYRIGHT_STATUS_CHOICES"
 		    py:attrs="{'selected': item.copyright_status==k or None}"
+		    value="${k}"
 		    py:content="v"/>
 	  </select>
 	</td>

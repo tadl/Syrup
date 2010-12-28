@@ -12,6 +12,7 @@ item_tree = site.item_tree(subtree=item)
   <xi:include href="../components/site.xhtml"/>
    <head>
     <title>${title}</title>
+    <style py:if="not is_editor">.forbidden { display: none; }</style>
   </head>
   <body>
     ${site_banner(site)}

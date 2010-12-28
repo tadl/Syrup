@@ -292,6 +292,16 @@ def item_download(request, site_id, item_id, filename):
     site = get_object_or_404(models.Site, pk=site_id)
     item = get_object_or_404(models.Item, pk=item_id, site__id=site_id)
     assert item.item_type == 'ELEC', _('Can only download ELEC documents!')
+
+    # don't allow download of items that need a declaration.
+    item_declaration_required = item.needs_declaration_from(request.user)
+    if item_declaration_required:
+        return HttpResponseRedirect(item.item_url())
+
+    # don't allow download of items that are not copyright-cleared.
+    if not (item.copyright_status_ok() or site.can_edit(request.user)):
+        return HttpResponseRedirect(item.item_url())
+
     fileiter = item.fileobj.chunks()
     resp = HttpResponse(fileiter)
     resp['Content-Type'] = item.fileobj_mimetype or 'application/octet-stream'

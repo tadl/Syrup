@@ -11,6 +11,7 @@ is_joinable = site.is_joinable_by(request.user)
   <xi:include href="components/site.xhtml"/>
   <head>
     <title>${title}</title>
+    <style py:if="not is_editor">.forbidden { display: none; }</style>
   </head>
   <body>
     ${site_banner(site)}

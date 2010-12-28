@@ -30,7 +30,7 @@ searchtext = _('search this site...')
   <ul py:def="show_tree(tree, edit=False)"
       py:if="tree"
       class="itemtree">
-    <li py:for="item, subs in tree" class="item_${item.item_type} an_item"
+    <li py:for="item, subs in tree" py:with="forbidden=not item.copyright_status_ok()" class="item_${item.item_type} an_item ${forbidden and 'forbidden' or ''}"
 	id="item_${item.id}">
       <abbr py:if="item.marcxml" class="unapi-id" title="${item.id}"/>
       <div class="availability" py:if="item.item_type == 'PHYS'">
@@ -57,6 +57,7 @@ searchtext = _('search this site...')
 		<span py:if="item.publisher">${item.publisher}.</span>
 		<span py:if="item.published">${item.published}.</span>
       </div>
+      <div class="forbidden_notice" py:if="forbidden">Awaiting copyright clearance: Not available to students.</div>
 	  <div>
 		<div class="menublock" py:if="not (item.item_type=='HEADING' and not edit)">
 		  <span py:if="item.needs_meta_link()">

@@ -60,6 +60,9 @@ is_editor = site.can_edit(request.user)
 
     <div py:if="item.item_type=='ELEC'">
       <h2 class="metadata_subhead">Download the document</h2>
+      <div class="errors" py:if="not item.copyright_status_ok()">
+	Note: this item is awaiting <a href="edit/">copyright clearance</a>. Only staff and instructors may download it.
+      </div>
       <div id="ask_to_download_panel">
 	<p py:if="custom_declaration" py:content="custom_declaration"/>
 	<p py:if="not custom_declaration">By pressing the 'Request' button

@@ -185,6 +185,7 @@ span.final_item { font-weight: bold; font-size: 110%; }
 .itemtree li .mainline { padding-left: 8px; }
 
 .itemtree li .author_pub { padding-left: 8px; font-size: 90%; margin: 2px 0; color: #111; }
+.itemtree li .forbidden_notice { padding-left: 8px; font-size: 90%; margin: 2px 0; color: darkred; }
 
 .itemtree .metalink { padding-left: 8px; color: gray; }
 .itemtree .metalink a {
@@ -243,6 +244,9 @@ li.item_HEADING  .headingmainline a.mainlink:hover {
     list-style-image: url(tango/x-office-address-book.png);
 }
 
+.itemtree li.forbidden {
+    background-color: #fdd;
+}
 
 .instructors {
   border: 1px solid #ccc;
