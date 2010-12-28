@@ -11,10 +11,10 @@
   <updated>${lastmod.strftime("%Y-%m-%dT%H:%M:%SZ")}</updated>
   <entry py:for="item in items">
     <title>${render_title(item)}</title>
-    <link href="${root}${item.item_url(force_local_url=True)}"
+    <link href="${item.item_url(force_local=True)}"
     rel="alternate"></link>
     <updated>${item.last_modified.strftime("%Y-%m-%dT%H:%M:%SZ")}</updated>
-    <id>${root}${item.item_url('')}</id>
+    <id>${item.item_url(force_local=True)}</id>
     <summary type="html">${item.get_item_type_display()}.
     <div py:if="item.item_type=='HEADING'" py:strip="True">
       Contains ${len(models.Item.objects.filter(parent_heading=item))} items.

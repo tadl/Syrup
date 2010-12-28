@@ -343,8 +343,7 @@ class Site(BaseModel):
         # I'm not fond of this being here. I think I'll leave this and
         # item_url non-implemented, and monkey-patch them in views.py.
         req = get_request()
-        prefix = req.META['SCRIPT_NAME']
-        return '%s/site/%d/%s' % (prefix, self.id, suffix)
+        return req.build_absolute_uri('/site/%d/%s' % (self.id, suffix))
 
     def generate_new_passkey(self):
         # todo: have a pluggable passkey algorithm.
@@ -696,19 +695,18 @@ class Item(BaseModel):
             return None
         else:
             req = get_request()
-            prefix = req.META['SCRIPT_NAME']
-            return '%s/site/%d/item/%d/dl/%s' % (
-                prefix, self.site_id, self.id,
-                self.fileobj.name.split('/')[-1])
+            return req.build_absolute_uri(
+                '/site/%d/item/%d/dl/%s' % (
+                    self.site_id, self.id,
+                    self.fileobj.name.split('/')[-1]))
             
-    def item_url(self, suffix=''):
-        req = get_request()
-        prefix = req.META['SCRIPT_NAME']
-        if self.item_type == 'URL' and suffix == '':
+    def item_url(self, suffix='', force_local=False):
+        if self.item_type == 'URL' and suffix == '' and not force_local:
             return self.url
         else:
-            return '%s/site/%d/item/%d/%s' % (
-                prefix, self.site_id, self.id, suffix)
+            req = get_request()
+            return req.build_absolute_uri('/site/%d/item/%d/%s' % (
+                    self.site_id, self.id, suffix))
 
     def parent_url(self, suffix=''):
         if self.parent_heading:
