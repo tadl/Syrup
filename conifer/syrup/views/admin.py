@@ -124,12 +124,13 @@ def admin_update_depts_courses(request):
             'hook %r not found.' % HOOKNAME)
     else:
         for deptname, ccode, cname in catalogue:
+            print (deptname, ccode, cname)
             if not (deptname.strip() and ccode.strip() and cname.strip()):
                 continue
             dept, x = models.Department.objects.get_or_create(
-                name=deptname, service_desk=desk)
+                name=deptname, defaults={'service_desk': desk})
             models.Course.objects.get_or_create(
-                department=dept, name=cname, code=ccode)
+                code=ccode, defaults={'department': dept, 'name': cname})
         return simple_message('Courses and departments updated.', '')
 
 def admin_update_terms(request):
