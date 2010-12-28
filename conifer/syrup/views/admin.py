@@ -124,7 +124,6 @@ def admin_update_depts_courses(request):
             'hook %r not found.' % HOOKNAME)
     else:
         for deptname, ccode, cname in catalogue:
-            print (deptname, ccode, cname)
             if not (deptname.strip() and ccode.strip() and cname.strip()):
                 continue
             dept, x = models.Department.objects.get_or_create(
