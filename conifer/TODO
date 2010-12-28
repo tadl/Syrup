@@ -1,18 +1,28 @@
+NEW:
+
+* add URL form should have same metadata as ELEC form (except for copyright status)
+
+* add new staff member
+
+* why are .focus() calls not working properly?
+
+* edit URL item fails with error. KeyError: author2
+
+* add Joan's new text
+
+* write up some documentation
+
+* add/remove individuals in course sites
+
+* review CLEW integration. KISS.
+
 CRITICAL:
 
 IMPORTANT:
 
-* allow concat.ca, windsor.concat.ca, etc. for paste-in item queries.
-
-* for Windsor, write temporary web-services for directory services.
-
-* Notify circulation of wanted items. What should it do?
+MAYBE:
 
 * set up a proper issue-tracker?
-
-* opensrf alternatives for SIP calls?
-
-* need more than 10 results on physical-item search results.
 
 * if someone has item checked out, show due date/time on item-about page.
 
@@ -20,25 +30,15 @@ IMPORTANT:
 
 * Import of reserves data from Leddy voyager. Laurentian, others?
 
-* accented characters in z3950 queries seem to fail. More tests needed.
-
 * manage z3950 targets? Search z3950 targets?
 
 * title-details links in circ-needs, that needs to be made non EG specific.
-MAYBE:
-
-* Generating barcodes in emails, printable screens? (3 of 9 enough?)
-
-* add a hook for a MARC-record-to-maybe-cover-image-URL function
-
 
 FROM KGS:
 
 > Functions need "cancel" or "go back"
 
 > Course details -- seems a little terse -- but may be what folks use
-
-> Notify circulation of wanted items -- FAIL
  
 > Why is staff a member of a course? is that a requirement? (proxy
 > instructor makes more sense; but how to accomplish that?).
