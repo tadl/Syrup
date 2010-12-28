@@ -13,6 +13,9 @@ site.title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
     <script type="text/javascript">
       $(function() {$('input[name="title"]').focus();});
     </script>
+    <script>
+      $(function() { window.scrollTo(0, $('h1').position().top); });
+    </script>
   </head>
   <body>
     ${site_banner(site)}

@@ -23,6 +23,9 @@ dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
   <script py:if="not 'query' in request.GET">		       <!-- !focus on query box if nothing to scroll. -->
     $(function() { $('#query').focus(); });
   </script>
+  <script>
+      $(function() { window.scrollTo(0, $('h2').position().top); });
+  </script>
 </head>
 <body>
     ${site_banner(site)}
