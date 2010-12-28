@@ -403,10 +403,24 @@ class Site(BaseModel):
                 or bool(self.members().filter(user=user)))
 
     def is_open_to(self, user):
-        return self.access == 'ANON' \
-            or (self.access == 'LOGIN' and user.is_authenticated()) \
-            or user.is_staff \
-            or self.is_member(user)
+        level = self.access
+        if level == 'ANON' or user.is_staff:
+            return True
+        if not user.is_authenticated():
+            return False
+        if level == 'LOGIN':
+            return True
+        try:
+            mbr = self.members().get(user=user)
+        except:
+            return False
+        if level == 'CLOSE':
+            return mbr.role == u'INSTR'
+        elif level == u'MEMBR':
+            return True
+        else:
+            raise Exception('Cannot determine access level '
+                            'for user %s in site %s' % (user, self))
 
     @classmethod
     def taught_by(cls, user):

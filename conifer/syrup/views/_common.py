@@ -85,6 +85,8 @@ def members_only(handler):
         else:
             if site.access=='LOGIN':
                 msg = _('Please log in, so that you can enter this site.')
+            elif site.access=='CLOSE':
+                msg = _('Sorry, but you can no longer access this site.')
             else:
                 msg = _('Only site members are allowed here.')
             return _access_denied(request, msg)
