@@ -101,10 +101,12 @@ def edit_site_permissions(request, site_id):
     else:
         POST = request.POST
         message = 'Changes saved.' # default
+        message_iserror = False
 
         if 'action_access_level' in POST:
             access = POST.get('access')
             site.access = access
+            message = 'Security level changed: "%s"' % dict(choices)[access]
 
         elif 'action_add_group' in POST:
             section = POST.get('section', '').strip()
@@ -117,12 +119,21 @@ def edit_site_permissions(request, site_id):
             
             if not groupcode:
                 message = 'No group code or section number provided.'
+                message_iserror = True
             else:
                 group, created = models.Group.objects.get_or_create(
                     site=site, external_id=groupcode)
-                
+                message = 'Group %s added.' % groupcode
         site.save()
         return g.render('edit_site_permissions.xhtml', **locals())
+
+@instructors_only
+def edit_site_permissions_delete_group(request, site_id):
+    site = get_object_or_404(models.Site, pk=site_id)
+    groupId = request.REQUEST.get('id')
+    group = get_object_or_404(models.Group, site=site, pk=groupId)
+    group.delete()
+    return HttpResponse('')
 
 @instructors_only
 def delete_site(request, site_id):

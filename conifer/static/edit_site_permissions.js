@@ -10,3 +10,24 @@ function show_specific_only() {
 }
 
 $(do_init);
+
+
+function deleteGroup(linkid, groupid) {
+    var link = $('#'+linkid);
+    link.hide();
+    var sure = $('<span>are you sure? </span>');
+    var yes = $('<a href="javascript:void();">yes</a>');
+    var no = $('<a href="javascript:void();">no</a>');
+    yes.click(function() { 
+	$.post('delete_group/', 
+	       {id: groupid},
+	       function() { 
+		   link.parents('tr').fadeOut();
+	       }); 
+    });
+    no.click(function() { 
+	link.show(); sure.hide();
+    });
+    sure.append(yes).append(" / ").append(no);
+    link.after(sure);
+}

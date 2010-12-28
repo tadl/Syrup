@@ -44,7 +44,7 @@ owner = instance.owner if instance.owner_id else None
 	  <tr py:if="owner_mode=='lookup'">
 		<th>Primary Instructor</th>
 		<td>
-		  <input type="hidden" id="owner" name="owner" value="${form.owner.data}"/>
+		  <input type="hidden" id="owner" name="owner" value="${owner and owner.username}"/>
 		  <div id="fuzzyedit"
 			   style="display: ${'none' if owner else 'block'}">
 			<div style="font-size: 80%; margin: 0.5em 0;">Type a partial name or userid into the box; then select one of the matches.</div>
