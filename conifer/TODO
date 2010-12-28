@@ -10,6 +10,8 @@ NEW:
 
 * add/remove individuals in course sites
 
+* make sure volume, issue, source title, etc. are exposed over unAPI.
+
 CRITICAL:
 
 IMPORTANT:

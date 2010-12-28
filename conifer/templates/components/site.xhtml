@@ -53,9 +53,13 @@ searchtext = _('search this site...')
 		<a href="${item.item_url()}" class="mainlink">${item}</a> 
       </div>
       <div class="author_pub" py:if="item.author or item.publisher or item.published">
-		<span py:if="item.author">${item.author}.</span>
-		<span py:if="item.publisher">${item.publisher}.</span>
-		<span py:if="item.published">${item.published}.</span>
+		<span py:if="item.author">${item.author}<span py:if="item.author[-1]!='.'">.</span></span>
+		<span py:if="item.published">(${item.published}).</span>
+		<span py:if="item.source_title">${item.source_title}.</span>
+		<span py:if="item.volume"><i>${item.volume}</i>(${item.issue}), ${item.pages}.</span>
+		<span py:if="not item.source_title">
+		  <span py:if="item.publisher">${item.publisher}.</span>
+		</span>
       </div>
       <div class="forbidden_notice" py:if="forbidden">Awaiting copyright clearance: Not available to students.</div>
 	  <div>
