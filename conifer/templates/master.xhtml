@@ -52,9 +52,10 @@ from django.conf import settings
             </form>
         </div>
       <div id="welcome" py:if="user.is_authenticated()">
-	<strong style="padding-right: 18px;">Welcome, ${user.first_name or user.username}!</strong>
-	<a href="${ROOT}${settings.LOGOUT_URL}">Log Out</a>
-	&bull; <a href="${ROOT}/prefs/">Preferences</a>
+		<?python user.maybe_refresh_external_memberships() ?>
+		<strong style="padding-right: 18px;">Welcome, ${user.first_name or user.username}!</strong>
+		<a href="${ROOT}${settings.LOGOUT_URL}">Log Out</a>
+		&bull; <a href="${ROOT}/prefs/">Preferences</a>
       </div>
       <div id="welcome" py:if="not user.is_authenticated()">
 	<strong style="padding-right: 18px;">Welcome!</strong>
