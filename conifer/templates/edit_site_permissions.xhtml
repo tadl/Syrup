@@ -36,6 +36,8 @@ extgroups = site.group_set.filter(external_id__isnull=False).annotate(Count('mem
 	  <p><input type="submit" name="action_access_level" value="Change security level"/>
 	  ${go_back_link('../../')}</p>
 	</div>
+  </form>
+  <form action="." method="POST">
 
 	<div>
       <h2>Class lists and groups</h2>
