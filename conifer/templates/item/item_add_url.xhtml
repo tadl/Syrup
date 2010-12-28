@@ -8,6 +8,7 @@ site.title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
       xmlns:py="http://genshi.edgewall.org/">
   <xi:include href="../master.xhtml"/>
   <xi:include href="../components/site.xhtml"/>
+  <xi:include href="common_metadata.xhtml"/>
   <head>
     <title>${title}</title>
     <script type="text/javascript">
@@ -24,14 +25,10 @@ site.title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
     <h2>${title}</h2>
     <form action=".?item_type=${item_type}" method="POST">
       <table class="metadata_table">
-	<tr><th>Title</th><td><input type="text" name="title" value="${item.title}"/></td></tr>
+	<tbody>
 	<tr><th>URL</th><td><input type="text" name="url" value="${item.url}"/></td></tr>
- 	  <tr><th>Author</th><td><input type="text" name="author"
-	  value="${item.author}"/></td></tr>
-	  <tr><th>Publisher</th><td><input type="text" name="publisher"
-	  value="${item.publisher}"/></td></tr>
-	  <tr><th>Published</th><td><input type="text" name="published"
-	  value="${item.published}"/></td></tr>
+	</tbody>
+	${common_table()}
       </table>
     <div py:if="item.marcxml">
       <p id="marcdatashow"><a href="javascript:void($('#marcdata').toggle());">Display MARC Record</a></p>

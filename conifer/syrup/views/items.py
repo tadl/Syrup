@@ -88,6 +88,7 @@ def item_add(request, site_id, item_id):
 
     if request.method != 'POST':
         item = models.Item()    # dummy object
+        item.item_type = item_type
         return g.render('item/item_add_%s.xhtml' % item_type.lower(),
                         **locals())
     else:
