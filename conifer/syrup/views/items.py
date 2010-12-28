@@ -2,6 +2,7 @@ from _common                     import *
 from conifer.plumbing.hooksystem import *
 from conifer.syrup               import integration
 from xml.etree                   import ElementTree as ET
+from collections                 import defaultdict
 
 @members_only
 def item_detail(request, site_id, item_id):
@@ -95,9 +96,46 @@ def item_add(request, site_id, item_id):
         # fixme, this will need refactoring. But not yet.
         author = request.user.get_full_name() or request.user.username
         item = models.Item()    # dummy object
-            
+        POST = request.POST.copy()
+        def clean(key):
+            return POST.get(key, '').strip()
+
+        # Just for fun and experimentation: a basic Refworks/RIS importer. If
+        # 'ris' appears in the POST, parse it as an RIS citation and expand
+        # its components into the POST object.
+
+        if clean('ris'):
+            # use RIS (refworks) to populate fields
+            pat = re.compile('^([A-Z][A-Z0-9])  - (.*)$')
+            tmp = [x.groups() for x in 
+                   [pat.match(line.strip()) for line in POST['ris'].split('\r\n')]
+                   if x is not None]
+            ris = defaultdict(list)
+            for k, v in tmp:
+                ris[k].append(v)
+            def update(field, risfield, xlate=lambda x: x):
+                if risfield in ris:
+                    replacement = '; '.join(ris[risfield])
+                    POST[field] = xlate(replacement)
+            def space_comments(names):
+                # RIS doesn't put spaces after commas in names
+                return re.sub(',(?=[^ ])', ', ', names)
+
+            update('title', 'TI') # first try TI, then T1
+            update('title', 'T1')
+            update('source_title', 'JO') # first try JO, then JF
+            update('source_title', 'JF')
+            update('author', 'A1', space_comments)
+            update('url', 'UR')
+            update('volume', 'VL')
+            update('issue', 'IS')
+            if 'SP' in ris and 'EP' in ris:
+                POST['pages'] = ris['SP'][0] + '-' + ris['EP'][0]
+            update('published', 'PY', lambda v: v.split('/')[0])
+
+
         if item_type == 'HEADING':
-            title = request.POST.get('title', '').strip()
+            title = clean('title')
             if not title:
                 # fixme, better error handling.
                 return HttpResponseRedirect(request.get_full_path())
@@ -110,12 +148,13 @@ def item_add(request, site_id, item_id):
                     )
                 item.save()
         elif item_type == 'URL':
-            title = request.POST.get('title', '').strip()
-            url = request.POST.get('url', '').strip()
-            author = request.POST.get('author', '').strip()
-            publisher = request.POST.get('publisher', '').strip()
-            published = request.POST.get('published', '').strip()
+            title = clean('title')
+            url = clean('url')
+            author = clean('author')
+            publisher = clean('publisher')
+            published = clean('published')
             if not (title and url):
+                raise Exception(locals())
                 # fixme, better error handling.
                 return HttpResponseRedirect(request.get_full_path())
             else:
@@ -127,16 +166,22 @@ def item_add(request, site_id, item_id):
                     url = url,
                     author = author,
                     publisher = publisher,
-                    published = published)
+                    published = published,
+                    source_title=clean('source_title'),
+                    volume=clean('volume'),
+                    issue=clean('issue'),
+                    pages=clean('pages'),
+                    isbn=clean('isbn'),
+                    )
                 item.save()
         elif item_type == 'ELEC':
-            title = request.POST.get('title', '').strip()
+            title = clean('title')
             upload = request.FILES.get('file')
             if not (title and upload):
                 # fixme, better error handling.
                 return HttpResponseRedirect(request.get_full_path())
 
-            data = dict((k.encode('ascii'), v.strip()) for k, v in request.POST.items())
+            data = dict((k.encode('ascii'), v.strip()) for k, v in POST.items())
             if data['author2']:
                 data['author'] = '%s; %s' % (data['author1'], data['author2'])
             else:

@@ -22,8 +22,16 @@ site.title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
     ${site_banner(site)}
     ${nested_title(parent_item)}
     ${offer_to_delete(item)}
+    <div py:if="not is_edit" style="float:right;">
+      <a href="javascript:void($('#refworks,.metadata_table').toggle());">Import RefWorks/RIS citation</a>
+    </div>
     <h2>${title}</h2>
+
     <form action=".?item_type=${item_type}" method="POST">
+      <div id="refworks" style="display:none;">
+	<p style="font-size: 90%;">Paste the Refworks/RIS citation in the space below. Note, the citation must include a "UR" (URL) attribute. (Tip: RIS citations can be dragged and dropped from Zotero; ask Graham for details.)</p>
+	<textarea name="ris" style="width: 100%; height: 12em;"/>
+      </div>
       <table class="metadata_table">
 	<tbody>
 	<tr><th>URL</th><td><input type="text" name="url" value="${item.url}"/></td></tr>
