@@ -154,9 +154,7 @@ def item_add(request, site_id, item_id):
             publisher = clean('publisher')
             published = clean('published')
             if not (title and url):
-                raise Exception(locals())
-                # fixme, better error handling.
-                return HttpResponseRedirect(request.get_full_path())
+                raise Exception('Missing title and/or URL.')
             else:
                 item = models.Item(
                     site=site,

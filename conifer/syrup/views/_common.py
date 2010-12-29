@@ -124,8 +124,12 @@ def simple_message(title, content, go_back=True, **kwargs):
 
 def custom_500_handler(request):
     cls, inst, tb = sys.exc_info()
+    if settings.DEBUG:
+        body = repr((request.__dict__, inst))
+    else:
+        body = ''
     msg = simple_message(_('Error: %s') % repr(inst),
-                         repr((request.__dict__, inst)))
+                         body)
     return HttpResponse(msg._container, status=501)
 
 def custom_400_handler(request):
