@@ -305,9 +305,10 @@ def download_declaration():
     downloading electronic documents. If not customized, a generic message
     will be used.
     """
+    # as per Joan Dalton, 2010-12-21.
     return ("I warrant that I am a student of the University of Windsor "
-            "registered in the aforementioned course. By pressing the "
+            "enrolled in a course of instruction. By pressing the "
             "'Request' button below, I am requesting a digital copy of a "
-            "reading (chapter, article) for my own private study and "
-            "research use. I agree that I will not reproduce, redistribute "
-            "or transmit a copy of the reading in any format.")
+            "reserve reading research, private study, review or criticism "
+            "and that I will not use the copy for any other purpose, nor "
+            "will I transmit the copy to any third party.")

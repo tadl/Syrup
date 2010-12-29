@@ -1,6 +1,6 @@
 NEW:
 
-* add Joan's new text
+* can we clean up the add/edit item code in items.py?
 
 * write up some documentation
 
@@ -11,6 +11,7 @@ NEW:
 * add/remove individuals in course sites
 
 * make sure volume, issue, source title, etc. are exposed over unAPI.
+
 
 CRITICAL:
 
@@ -78,4 +79,6 @@ RECENTLY DONE:
 * add URL form should have same metadata as ELEC form (except for copyright status)
 
 * edit URL item fails with error. KeyError: author2
+
+* add Joan's new text
 
