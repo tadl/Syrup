@@ -8,6 +8,7 @@ site.title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
       xmlns:py="http://genshi.edgewall.org/">
   <xi:include href="../master.xhtml"/>
   <xi:include href="../components/site.xhtml"/>
+  <xi:include href="common_metadata.xhtml"/>
   <head>
     <title>${title}</title>
     <script type="text/javascript">
@@ -21,12 +22,8 @@ site.title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
     <h2>${title}</h2>
     <form action=".?item_type=${item_type}" method="POST">
       <table class="metadata_table">
-	<tr>
-	  <th>Display name</th>
-	  <td><input type="text" name="title" value="${item.title}"/></td>
-	</tr>
+	${common_table()}
       </table>
-      <h2>Metadata</h2>
       <p>
     	<input py:if="not is_edit" type="submit" value="Add heading"/>
     	<input py:if="is_edit" type="submit" value="Update physical-item request"/>
