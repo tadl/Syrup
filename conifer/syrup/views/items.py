@@ -113,26 +113,25 @@ def item_add(request, site_id, item_id):
             ris = defaultdict(list)
             for k, v in tmp:
                 ris[k].append(v)
-            def update(field, risfield, xlate=lambda x: x):
-                if risfield in ris:
-                    replacement = '; '.join(ris[risfield])
-                    POST[field] = xlate(replacement)
+            def update(field, risfields, xlate=lambda x: x):
+                for risfield in risfields:
+                    if risfield in ris:
+                        replacement = '; '.join(ris[risfield])
+                        POST[field] = xlate(replacement)
+                        break
             def space_comments(names):
                 # RIS doesn't put spaces after commas in names
                 return re.sub(',(?=[^ ])', ', ', names)
 
-            update('title', 'TI') # first try TI, then T1
-            update('title', 'T1')
-            update('source_title', 'JO') # first try JO, then JF
-            update('source_title', 'JF')
-            update('author', 'AU', space_comments) # first try AU, then A1
-            update('author', 'A1', space_comments)
-            update('url', 'UR')
-            update('volume', 'VL')
-            update('issue', 'IS')
+            update('title', ('TI', 'T1'))
+            update('source_title', ('JO', 'JF'))
+            update('author', ('AU', 'A1'), space_comments)
+            update('url', ('UR',))
+            update('volume', ('VL',))
+            update('issue', ('IS',))
+            update('published', ('PY', 'Y1'), lambda v: v.split('/')[0])
             if 'SP' in ris and 'EP' in ris:
                 POST['pages'] = ris['SP'][0] + '-' + ris['EP'][0]
-            update('published', 'PY', lambda v: v.split('/')[0])
 
 
         if item_type == 'HEADING':
