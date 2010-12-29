@@ -307,11 +307,16 @@ def item_edit(request, site_id, item_id):
         else:
             # generally update the item.
             data = dict((k.encode('ascii'), v.strip()) for k, v in request.POST.items())
-            if data['author2']:
-                data['author'] = '%s; %s' % (data['author1'], data['author2'])
-            else:
-                data['author'] = data['author1']
-            del data['author1']; del data['author2']
+            # TODO: fixme this is a mess. Headings don't have authors at all.
+            if 'author1' in data or 'author2' in data:
+                if data.get('author2'):
+                    data['author'] = '%s; %s' % (data['author1'], data['author2'])
+                else:
+                    data['author'] = data['author1']
+                if 'author1' in data:
+                    del data['author1']
+                if 'author2' in data:
+                    del data['author2']
             [setattr(item, k, v) for (k,v) in data.items()]
                     
         item.save()
