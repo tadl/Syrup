@@ -1,6 +1,6 @@
 NEW:
 
-* can we clean up the add/edit item code in items.py?
+* how should "join this site" be managed?
 
 * write up some documentation
 
@@ -18,6 +18,8 @@ CRITICAL:
 IMPORTANT:
 
 MAYBE:
+
+* refactor the add/edit item code in items.py
 
 * refactor fuzzyFinder into a Genshi component.
 

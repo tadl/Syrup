@@ -269,7 +269,7 @@ def item_add_cat_search(request, site_id, item_id):
             pubdate = dublin.get('dc:date')
             m = re.search('([0-9]+)', pubdate)
             if m:
-                pubdate = pubdate.group(1)
+                pubdate = m.group(1)
         except:
             pubdate = ''
 

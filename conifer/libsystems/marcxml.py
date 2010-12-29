@@ -73,9 +73,9 @@ def marcxml_dictionary_to_dc(dct):
         if value:
             out[dc] = value
 
-    pub = [v.strip() for k,v in sorted(dct.items()) if k.startswith('260')]
+    pub = [strip_punct(v) for k,v in sorted(dct.items()) if k in ('260a', '260b')]
     if pub:
-        out['dc:publisher'] = strip_punct(' '.join(pub))
+        out['dc:publisher'] = ': '.join(pub)
 
     title = [v.strip() for k,v in sorted(dct.items()) if k in ('245a', '245b')]
     if title:
