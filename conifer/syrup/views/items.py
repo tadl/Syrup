@@ -125,6 +125,7 @@ def item_add(request, site_id, item_id):
             update('title', 'T1')
             update('source_title', 'JO') # first try JO, then JF
             update('source_title', 'JF')
+            update('author', 'AU', space_comments) # first try AU, then A1
             update('author', 'A1', space_comments)
             update('url', 'UR')
             update('volume', 'VL')
