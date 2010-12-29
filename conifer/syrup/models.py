@@ -304,19 +304,12 @@ class Site(BaseModel):
         subtree element, or None if there is no match.
         """
 
+        # TODO: internationalize the stopwords list.
+        STOPWORDS = set(['a', 'an', 'that', 'there', 'the', 'this'])
+
         def sort_title(item):
             """First cut of a stop words routine."""
-            # TODO: this needs to either be in its own file or in settings
-            stopwords = '''
-			a
-			an
-                        that
-			there
-                        the
-                        this
-                '''.split()
-
-            normal_text = [t for t in item.split() if t.lower() not in stopwords]
+            normal_text = [t for t in item.lower().split() if t not in STOPWORDS]
             return  " ".join(normal_text)
 
         items = self.items()
