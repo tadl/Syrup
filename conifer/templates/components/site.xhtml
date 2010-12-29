@@ -105,12 +105,12 @@ searchtext = _('search this site...')
   </div>
   
   <div py:def="add_subs(parent=None)" class="itemadd">
-    <div>Add a new item:</div>
-    <ul py:with="prefix = (not parent) and 'item/0/' or ''">
-      <li><a href="${prefix}add/?item_type=HEADING">Subheading</a></li>
-      <li><a href="${prefix}add/?item_type=URL">URL</a></li>
-      <li><a href="${prefix}add/?item_type=ELEC">Electronic Document</a></li>
-      <li><a href="${prefix}add/?item_type=PHYS">Physical Item or Catalogued Electronic Item</a></li>
+    <div><b>Add a new item</b></div>
+    <ul class="itemtree" py:with="prefix = (not parent) and 'item/0/' or ''">
+      <li class="item_URL"><a href="${prefix}add/?item_type=URL">Link to external resource</a></li>
+      <li class="item_ELEC"><a href="${prefix}add/?item_type=ELEC">Uploaded electronic document</a></li>
+      <li class="item_PHYS"><a href="${prefix}add/?item_type=PHYS">Catalogued item (e.g., book)</a></li>
+      <li style="margin-top: 0;" class="item_HEADING"><a href="${prefix}add/?item_type=HEADING">Subheading</a></li>
     </ul>
   </div>
 

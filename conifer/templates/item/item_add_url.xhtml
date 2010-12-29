@@ -23,7 +23,7 @@ site.title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
     ${nested_title(parent_item)}
     ${offer_to_delete(item)}
     <div py:if="not is_edit" style="float:right;">
-      <a href="javascript:void($('#refworks,.metadata_table').toggle());">Import RefWorks/RIS citation</a>
+      <a href="javascript:void($('#refworks,.metadata_table').toggle());">Import RIS</a>
     </div>
     <h2>${title}</h2>
 
@@ -53,8 +53,7 @@ site.title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
       <p>
 	<input py:if="not is_edit" type="submit" value="Add URL"/>
 	<input py:if="is_edit" type="submit" value="Update URL"/>
-	${go_back_link('../meta')}
-      </p>
+	${go_back_link()}</p>
     </form>
 </body>
 </html>
