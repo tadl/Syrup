@@ -4,8 +4,6 @@ NEW:
 
 * write up some documentation
 
-* review CLEW integration. KISS.
-
 * why are .focus() calls not working properly?
 
 * add/remove individuals in course sites
@@ -83,4 +81,8 @@ RECENTLY DONE:
 * edit URL item fails with error. KeyError: author2
 
 * add Joan's new text
+
+* hide 'Create a new Reserves Site' from 'My Reserves'
+
+* review CLEW integration. KISS.
 
