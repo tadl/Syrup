@@ -307,10 +307,14 @@ class Site(BaseModel):
         # TODO: internationalize the stopwords list.
         STOPWORDS = set(['a', 'an', 'that', 'there', 'the', 'this'])
 
+        RE_PUNCTUATION = re.compile("""[,'".:;]""")
+
         def sort_title(item):
             """First cut of a stop words routine."""
-            normal_text = [t for t in item.lower().split() if t not in STOPWORDS]
-            return  " ".join(normal_text)
+            text = item.lower()
+            text = RE_PUNCTUATION.sub('', text) # remove common punctuation
+            words = [t for t in text.split() if t not in STOPWORDS]
+            return  " ".join(words)
 
         items = self.items()
         # make a node-lookup table
