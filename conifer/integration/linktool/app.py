@@ -25,6 +25,7 @@ def linktool_welcome(request):
         extsite = request.session['clew-site'] = request.GET['site']
 
         related_sites = list(models.Site.objects.filter(group__external_id=extsite))
+
         if len(related_sites) == 1:
             site_url = related_sites[0].site_url()
             html     = ("<html><head/><body onload=\"top.location='%s';\">"
@@ -45,8 +46,10 @@ def linktool_welcome(request):
             extsite   = ExternalSiteInfo(request)
             return g.render('associate.xhtml', **locals())
         else:
-            # TODO: implement me
-            return g.render('choose_dest.xhtml', **locals())
+            # redirect the toplevel window to the 'browse' page
+            html = ("<html><head><script>window.onload=function() { "
+                    "top.location='../browse/'; }</script></head></html>")
+            return HttpResponse(html)
 
 class ExternalSiteInfo(object):
     def __init__(self, request):
@@ -60,19 +63,16 @@ class ExternalSiteInfo(object):
             course = models.Course.objects.get(code=self.coursecode)
         except models.Course.DoesNotExist:
             course = None
-            course = models.Course.objects.all()[0]
         try:
             term = models.Term.objects.get(code=self.termcode)
         except models.Term.DoesNotExist:
             term = None
-            term = models.Term.objects.order_by('-start')[0]
         self.course_obj = course
         self.term_obj = term
 
     def is_currentish(self):
         today = date.today()
-        return self.course_obj is not None and \
-            self.term_obj and self.term_obj.midpoint() >= today
+        return not (self.term_obj and self.term_obj.midpoint() < today)
 
 def linktool_new_site(request):
     extrole = request.session['clew-role']
@@ -81,11 +81,13 @@ def linktool_new_site(request):
         'Sorry, but you are not allowed to create sites.'
     extsite = ExternalSiteInfo(request)
     extgroups  = callhook('external_memberships', request.user.username)
+    desk = models.ServiceDesk.default()
     site = models.Site.objects.create(
         course = extsite.course_obj,
-        term   = extsite.term_obj,
+        start_term   = extsite.term_obj,
+        end_term   = extsite.term_obj,
         owner  = request.user,
-        service_desk = models.ServiceDesk.default())
+        service_desk = desk)
     group = models.Group.objects.create(
         site        = site,
         external_id = extsite.group)

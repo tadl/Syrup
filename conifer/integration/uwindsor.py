@@ -223,10 +223,10 @@ def external_memberships(userid):
     """
     memberships = uwindsor_campus_info.call('membership_ids', userid)
     for m in memberships:
-        m['role'] = _decode_role(m['role'])
+        m['role'] = decode_role(m['role'])
     return memberships
 
-def _decode_role(role):
+def decode_role(role):
     if role == 'Instructor':
         return 'INSTR'
     else:
