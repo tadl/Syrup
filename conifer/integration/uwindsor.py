@@ -154,8 +154,8 @@ def bib_id_to_url(bib_id):
     Given a bib ID, return either a URL for examining the bib record, or None.
     """
     if bib_id:
-        return ('http://windsor.concat.ca/opac/en-US'
-                '/skin/default/xml/rdetail.xml?r=%s&l=1&d=0' % bib_id)
+        return ('http://windsor.concat.ca/opac/en-CA'
+                '/skin/uwin/xml/rdetail.xml?r=%s&l=1&d=0' % bib_id)
 
 if USE_Z3950:
     # only if we are using Z39.50 for catalogue search. Results including
@@ -309,6 +309,6 @@ def download_declaration():
     return ("I warrant that I am a student of the University of Windsor "
             "enrolled in a course of instruction. By pressing the "
             "'Request' button below, I am requesting a digital copy of a "
-            "reserve reading research, private study, review or criticism "
+            "reserve reading for research, private study, review or criticism "
             "and that I will not use the copy for any other purpose, nor "
             "will I transmit the copy to any third party.")
