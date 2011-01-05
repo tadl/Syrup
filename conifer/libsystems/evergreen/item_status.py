@@ -20,7 +20,7 @@ def url_to_marcxml(url):
         if 'feed/bookbag' in url:
             #eg http://concat.ca/opac/extras/feed/bookbag/marcxml-full/60
             marc_url = re.sub(r'(.*/bookbag/)(.*?)(/.*)', r'\1marcxml-full\3', url)
-            xml = urllib2.urlopen(marc_url).read()
+            xml = unicode(urllib2.urlopen(marc_url).read(), 'utf-8')
         else:
             m = re.match(r'.*r=(\d+).*', url)
             item_id = m and m.group(1) or None
