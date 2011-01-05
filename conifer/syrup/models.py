@@ -636,7 +636,7 @@ class Item(BaseModel):
     # Electronic items
 
     # For items of type URL
-    url = m.URLField(blank=True, null=True)
+    url = m.URLField(blank=True, null=True, max_length=2048)
 
     # for items of type ELEC (attached electronic document)
     fileobj = m.FileField(upload_to='uploads/%Y/%m/%d', max_length=255,
