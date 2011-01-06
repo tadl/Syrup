@@ -26,6 +26,9 @@ def marcxml_to_records(rec):
 def record_to_dictionary(rec, multiples=True):
     tree = _to_tree(rec)
     dct = {}
+    for cf in tree.findall('{http://www.loc.gov/MARC21/slim}controlfield'):
+        t = cf.attrib['tag']
+        dct.setdefault(t, []).append(cf.text)
     for df in tree.findall('{http://www.loc.gov/MARC21/slim}datafield'):
         t = df.attrib['tag']
         for sf in df.findall('{http://www.loc.gov/MARC21/slim}subfield'):
@@ -47,6 +50,9 @@ def marcxml_to_dictionary(rec, multiples=False):
     out = []
     for r in records:
         dct = {}
+        for cf in r.findall('{http://www.loc.gov/MARC21/slim}controlfield'):
+            t = cf.attrib['tag']
+            dct.setdefault(t, []).append(cf.text)
         for df in r.findall('{http://www.loc.gov/MARC21/slim}datafield'):
             t = df.attrib['tag']
             for sf in df.findall('{http://www.loc.gov/MARC21/slim}subfield'):

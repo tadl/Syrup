@@ -53,6 +53,7 @@ searchtext = _('search this site...')
 		<a href="${item.item_url()}" class="mainlink">${item}</a> 
       </div>
       <div class="author_pub" py:if="item.author or item.publisher or item.published">
+	<span py:with="vt=item.video_type()"><span class="videotype" py:if="vt">[${vt}]</span></span>
 		<span py:if="item.author">${item.author}<span py:if="item.author[-1]!='.'">.</span></span>
 		<span py:if="item.published">(${item.published}).</span>
 		<span py:if="item.source_title"><i>${item.source_title}.</i></span>

@@ -2,8 +2,6 @@ NEW:
 
 * add/remove individuals in course sites
 
-* make sure volume, issue, source title, etc. are exposed over unAPI.
-
 * make "DVD" and other media types obvious (icons, explicit descriptions, etc.)
 
 * bookbag-URL search should import all items from the bookbag (if they don't already exist)
@@ -112,4 +110,6 @@ RECENTLY DONE:
 * review CLEW integration. KISS.
 
 * repair unAPI -- it seems broken on SHOWCASE (it was just not working for non-physical items)
+
+* make sure volume, issue, source title, etc. are exposed over unAPI.
 

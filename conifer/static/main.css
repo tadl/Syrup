@@ -244,6 +244,8 @@ li.item_HEADING  .headingmainline a.mainlink:hover {
     list-style-image: url(tango/x-office-address-book.png);
 }
 
+.itemtree li .videotype { font-weight: bold; font-size: 90%; }
+
 .itemtree li.forbidden {
     background-color: #fdd;
 }

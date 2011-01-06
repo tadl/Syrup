@@ -4,6 +4,7 @@ site_title = '%s: %s (%s)' % (site.course.code, site.course.name, site.term)
 hier = item.hierarchy()[:-1]
 title = item.title
 is_editor = site.can_edit(request.user)
+vidtype = item.video_type()
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -42,6 +43,7 @@ is_editor = site.can_edit(request.user)
     <table class="metadata_table" style="margin-top: 1em;">
       <tr><th>Title</th><td>${item.title}</td></tr>
       <tr py:if="item.source_title"><th>Title of source</th><td>${item.source_title}</td></tr>
+      <tr py:if="vidtype"><th>Format</th><td>${vidtype}</td></tr>
       <tr py:if="item.author"><th>Author(s)</th><td>${item.author}</td></tr>
       <tr py:if="item.publisher"><th>Publisher</th><td>${item.publisher}</td></tr>
       <tr py:if="item.published"><th>Published</th><td>${item.published}</td></tr>

@@ -744,6 +744,20 @@ class Item(BaseModel):
                     '%d total copies in library system'
                     % (avail, desk, lib))
 
+    _video_type_re = re.compile(r'tag="007">v(.)')
+    _video_types = {'c':'videocartridge',
+                    'd':'videodisc',
+                    'f':'videocassette',
+                    'r':'videoreel',
+                    'z':'video, other format'}
+    def video_type(self):
+        if not self.marcxml:
+            return None
+        m = self._video_type_re.search(self.marcxml)
+        if m:
+            vtype = m.group(1)
+            return self._video_types.get(vtype, 'video, unknown format')
+
     # TODO: stuff I'm not sure about yet. I don't think it belongs here.
 
     def title_hl(self, terms):
