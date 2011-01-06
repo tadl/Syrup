@@ -356,6 +356,14 @@ ul.heading_tree { margin: 0; padding-left: 0; }
 ul.heading_tree ul { margin: 0; padding-left: 25px; }
 
 
-.availability { float: right; color: darkred; background-color: #eee; padding: 4px; min-width: 24px; }
-.availability .available { color: green; }
+.availability {
+    float: right; color: darkred; background-color: #eee; 
+    width: 150px; margin-left: 8px; 
+    font-size: 90%;
+}
+.availability div { padding: 2px 4px; }
+.availability a { text-decoration: none; }
+.availability .available { color: darkgreen; background-color: #ded; }
+.availability .unavailable { color: darkred; background-color: #edd; }
 .avail_nonphys { background-color: white; }
+.availability .callnumber { margin: 2px 0; }

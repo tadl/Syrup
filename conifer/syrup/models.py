@@ -659,8 +659,18 @@ class Item(BaseModel):
 
     #--------------------------------------------------
     # MARC
+
+    _marc_dict_cache = None
+
     def marc_as_dict(self):
-        return MX.record_to_dictionary(self.marcxml)
+        # cache a copy of the dict expansion, since it's semi-expensive to
+        # generate, and is sometimes used more than once on the same page.
+        if self._marc_dict_cache is None:
+            if not self.marcxml:
+                self._marc_dict_cache = {}
+            else:
+                self._marc_dict_cache = MX.record_to_dictionary(self.marcxml)
+        return self._marc_dict_cache
 
     def marc_dc_subset(self):
         return json.dumps(self.marc_as_dict())
@@ -750,6 +760,7 @@ class Item(BaseModel):
                     'f':'videocassette',
                     'r':'videoreel',
                     'z':'video, other format'}
+
     def video_type(self):
         if not self.marcxml:
             return None
@@ -757,6 +768,18 @@ class Item(BaseModel):
         if m:
             vtype = m.group(1)
             return self._video_types.get(vtype, 'video, unknown format')
+
+    def call_number(self):
+        dct = self.marc_as_dict()
+        if dct:
+            try:
+                if '090a' in dct:   # for films. FIXME, is this legit?
+                    return dct['090a']
+                cn = ('%s %s' % (dct.get('050a', ''), 
+                                 dct.get('050b', ''))).strip()
+                return cn
+            except:
+                return None
 
     # TODO: stuff I'm not sure about yet. I don't think it belongs here.
 

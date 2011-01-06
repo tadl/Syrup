@@ -33,16 +33,19 @@ searchtext = _('search this site...')
     <li py:for="item, subs in tree" py:with="forbidden=not item.copyright_status_ok()" class="item_${item.item_type} an_item ${forbidden and 'forbidden' or ''}"
 	id="item_${item.id}">
       <abbr py:if="not item.item_type=='HEADING'" class="unapi-id" title="${item.id}"/>
+      <?python
+	stat = callhook('item_status', item) if (item.item_type == 'PHYS') else None
+	valid = stat is not None
+      ?>
       <div class="availability" py:if="item.item_type == 'PHYS'">
-	<?python
-	  stat = callhook('item_status', item) if (item.item_type == 'PHYS') else None
-	  valid = stat is not None
-	?>
+	<a href="${item.item_url()}">
 	<div py:if="valid" py:with="(_lib, _desk, _avail) = stat"
 	     class="${_avail &gt; 0 and 'available' or 'unavailable'}"
 	     title="${_avail} of ${_desk} copies available at reserves desk; ${_lib} total copies in library system">
-	  ${_avail}/${_desk}
+	  <div>${_avail and 'Available' or 'Unavailable'} (${_avail}/${_desk})</div>
+	  <div class="callnumber">${item.call_number()}</div>
 	</div>
+	</a>
 	<div py:if="not valid" title="No copies are available at the reserves desk. No further status information is available.">
 	  &#x2205;
 	</div>

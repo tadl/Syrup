@@ -5,6 +5,7 @@ hier = item.hierarchy()[:-1]
 title = item.title
 is_editor = site.can_edit(request.user)
 vidtype = item.video_type()
+callnum = item.call_number()
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -51,6 +52,7 @@ vidtype = item.video_type()
       <tr py:if="item.issue"><th>Issue</th><td>${item.issue}</td></tr>
       <tr py:if="item.pages"><th>Pages</th><td>${item.pages}</td></tr>
       <tr py:if="item.isbn"><th>ISBN</th><td>${item.isbn}</td></tr>
+      <tr py:if="callnum"><th>Call Number</th><td>${callnum}</td></tr>
       <tr py:if="item.item_type=='ELEC'"><th>Copyright status</th><td>${item.get_copyright_status_display()}</td></tr>
       <tr><th>Type</th><td>${item.get_item_type_display()}</td></tr>
       <tr py:if="item.item_type=='PHYS'"

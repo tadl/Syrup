@@ -2,13 +2,10 @@ NEW:
 
 * add/remove individuals in course sites
 
-* make "DVD" and other media types obvious (icons, explicit descriptions, etc.)
-
 * bookbag-URL search should import all items from the bookbag (if they don't already exist)
+  -- actually, I'm not 100% certain about this, esp if we implement "Sakai linkup" below.
 
 * Sakai linkup -- test, seems not to work on SHOWCASE
-
-* show call number (852c) on index pages
 
 * index pages when printed, should show call all numbers clearly
 
@@ -112,4 +109,8 @@ RECENTLY DONE:
 * repair unAPI -- it seems broken on SHOWCASE (it was just not working for non-physical items)
 
 * make sure volume, issue, source title, etc. are exposed over unAPI.
+
+* make "DVD" and other media types obvious (icons, explicit descriptions, etc.)
+
+* show call number on index pages
 
