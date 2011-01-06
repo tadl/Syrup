@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <formats xmlns:py="http://genshi.edgewall.org/"
 	 xmlns:xi="http://www.w3.org/2001/XInclude"
-	 py:attrs="{'id': id}">
-  <format name='mods3' type='application/xml' 
+	 py:attrs="{'id': item and item.id}">
+  <format py:if="item and item.marcxml" name='mods3' type='application/xml' 
 	  namespace_uri='http://www.loc.gov/mods/v3'
 	  docs='http://www.loc.gov/mods/'
 	  schema_location='http://www.loc.gov/standards/mods/v3/mods-3-1.xsd'/>
+  <format py:if="item and (not item.marcxml)" name="ris" type="text/plain"/>
 </formats>

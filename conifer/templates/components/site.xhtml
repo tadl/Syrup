@@ -32,7 +32,7 @@ searchtext = _('search this site...')
       class="itemtree">
     <li py:for="item, subs in tree" py:with="forbidden=not item.copyright_status_ok()" class="item_${item.item_type} an_item ${forbidden and 'forbidden' or ''}"
 	id="item_${item.id}">
-      <abbr py:if="item.marcxml" class="unapi-id" title="${item.id}"/>
+      <abbr py:if="not item.item_type=='HEADING'" class="unapi-id" title="${item.id}"/>
       <div class="availability" py:if="item.item_type == 'PHYS'">
 	<?python
 	  stat = callhook('item_status', item) if (item.item_type == 'PHYS') else None
