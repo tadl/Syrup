@@ -355,11 +355,10 @@ ul.heading_tree li  { list-style: none; }
 ul.heading_tree { margin: 0; padding-left: 0; }
 ul.heading_tree ul { margin: 0; padding-left: 25px; }
 
-
 .availability {
     float: right; color: darkred; background-color: #eee; 
     width: 150px; margin-left: 8px; 
-    font-size: 90%;
+    font-size: 80%;
 }
 .availability div { padding: 2px 4px; }
 .availability a { text-decoration: none; }
