@@ -1,15 +1,40 @@
 NEW:
 
+* add/remove individuals in course sites
+
+* make sure volume, issue, source title, etc. are exposed over unAPI.
+
+* make "DVD" and other media types obvious (icons, explicit descriptions, etc.)
+
+* bookbag-URL search should import all items from the bookbag (if they don't already exist)
+
+* Sakai linkup -- test, seems not to work on SHOWCASE
+
+* show call number (852c) on index pages
+
+* index pages when printed, should show call all numbers clearly
+
+* search should include course number (fragments too, not just full course codes)
+
+* catalogue search should autodetect call numbers, as well as copy barcodes.
+
+* download declaration only needed for "fair dealing". This may be uwindsor specific.
+
+* optional, persistent link between a course site and a bookbag URL, as an interim step for windsor.
+
+* uwindsor only: import data from ERes and bookbags into Syrup.
+
+* permissions: clicking "add group" should pull the whole form into focus.
+
 * how should "join this site" be managed?
 
 * write up some documentation
 
 * why are .focus() calls not working properly?
 
-* add/remove individuals in course sites
+* hit counts for item accesses?
 
-* make sure volume, issue, source title, etc. are exposed over unAPI.
-
+* unapi on single-item pages
 
 CRITICAL:
 
@@ -85,4 +110,6 @@ RECENTLY DONE:
 * hide 'Create a new Reserves Site' from 'My Reserves'
 
 * review CLEW integration. KISS.
+
+* repair unAPI -- it seems broken on SHOWCASE (it was just not working for non-physical items)
 
