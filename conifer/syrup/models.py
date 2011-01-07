@@ -752,7 +752,7 @@ class Item(BaseModel):
             return (avail > 0,
                     '%d of %d copies available at reserves desk; '
                     '%d total copies in library system'
-                    % (avail, desk, lib, callno, dueinfo))
+                    % (avail, desk, lib, callno))
 
     _video_type_re = re.compile(r'tag="007">v(.)')
     _video_types = {'c':'videocartridge',
