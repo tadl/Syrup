@@ -748,11 +748,11 @@ class Item(BaseModel):
         if not stat:
             return (False, 'Status information not available.')
         else:
-            lib, desk, avail = stat
+            lib, desk, avail, callno, dueinfo = stat
             return (avail > 0,
                     '%d of %d copies available at reserves desk; '
                     '%d total copies in library system'
-                    % (avail, desk, lib))
+                    % (avail, desk, lib, callno, dueinfo))
 
     _video_type_re = re.compile(r'tag="007">v(.)')
     _video_types = {'c':'videocartridge',
@@ -777,6 +777,9 @@ class Item(BaseModel):
                     return dct['090a']
                 cn = ('%s %s' % (dct.get('050a', ''), 
                                  dct.get('050b', ''))).strip()
+		if len(cn) < 2:
+                	cn = ('%s %s' % (dct.get('092a', ''), 
+                                 dct.get('092b', ''))).strip()
                 return cn
             except:
                 return None

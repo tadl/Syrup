@@ -88,20 +88,44 @@ CACHE_TIME = 300
 
 @memoize(timeout=CACHE_TIME)
 def _item_status(bib_id):
+            
     if bib_id:
         try:
             counts = E1('open-ils.search.biblio.copy_counts.location.summary.retrieve', 
                         bib_id, 1, 0)
             lib = desk = avail = 0
+	    dueinfo = ''
+            callno = ''
             for org, callnum, loc, stats in counts:
+		if len(callno) == 0:
+			callno = callnum
                 avail_here = stats.get(AVAILABLE, 0)
                 anystatus_here = sum(stats.values())
                 if loc == RESERVES_DESK_NAME:
                     desk += anystatus_here
                     avail += avail_here
                 lib += anystatus_here
-            return (lib, desk, avail)
-        except:
+            	copyids = E1('open-ils.search.asset.copy.retrieve_by_cn_label',
+                        bib_id, callnum, org)
+		
+		"""
+		we will need to determine the first available copy, will look
+		at date/time logic for this
+		"""
+		for copyid in copyids:
+			circinfo = E1('open-ils.search.asset.copy.fleshed2.retrieve', copyid)
+			circs = circinfo.get("circulations")
+			if circs:
+				# just grab the first for now, not much point iterating 
+				#until compare is done
+
+				if len(circs) > 0:
+					circ = circs[0]
+					dueinfo = circ.get("due_date")
+					callno = callnum
+            return (lib, desk, avail, callno, dueinfo)
+	except:
+	    print "problem: ", bib_id
             pass          # fail silently if there's an opensrf related error.
     return None
 

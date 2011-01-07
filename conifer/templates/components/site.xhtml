@@ -39,11 +39,15 @@ searchtext = _('search this site...')
       ?>
       <div class="availability" py:if="item.item_type == 'PHYS'">
 	<a href="${item.item_url()}">
-	<div py:if="valid" py:with="(_lib, _desk, _avail) = stat"
+	<div py:if="valid" py:with="(_lib, _desk, _avail, _callno, _dueinfo) = stat"
 	     class="${_avail &gt; 0 and 'available' or 'unavailable'}"
 	     title="${_avail} of ${_desk} copies available at reserves desk; ${_lib} total copies in library system">
-	  <div>${_avail and 'Available' or 'Unavailable'} (${_avail}/${_desk})</div>
+          <div>${_avail and 'Available' or 'Unavailable'} (${_avail}/${_desk})</div>
+          <div py:if="_dueinfo">${_dueinfo} (will reformat this)</div>
+	<!--
 	  <div class="callnumber">${item.call_number()}</div>
+	-->
+	  <div class="callnumber">${_callno}</div>
 	</div>
 	</a>
 	<div py:if="not valid" title="No copies are available at the reserves desk. No further status information is available.">
