@@ -1,13 +1,24 @@
 NEW:
 
-* add/remove individuals in course sites
+* add Welcome message to home page, use request@uwindsor.ca as the contact email for problems.
 
-* bookbag-URL search should import all items from the bookbag (if they don't already exist)
-  -- actually, I'm not 100% certain about this, esp if we implement "Sakai linkup" below.
+* check apache error logs for 'parse' error that Art mentioned.
+
+* review placement of Available buttons, they move around
+
+* auto-centered column doesn't center in IE
 
 * Sakai linkup -- test, seems not to work on SHOWCASE
 
-* index pages when printed, should show call all numbers clearly
+* move item-status caching into the database: the new due-date checks are a
+  bit slow, and the cache isn't shared across Apache instances.
+
+* add/remove individuals in course sites
+
+* work on circ modifier stuff (art and dan's conversation)
+
+* bookbag-URL search should import all items from the bookbag (if they don't already exist)
+  -- actually, I'm not 100% certain about this, esp if we implement "Sakai linkup" below.
 
 * search should include course number (fragments too, not just full course codes)
 
@@ -113,4 +124,6 @@ RECENTLY DONE:
 * make "DVD" and other media types obvious (icons, explicit descriptions, etc.)
 
 * show call number on index pages
+
+* index pages when printed, should show call all numbers clearly
 

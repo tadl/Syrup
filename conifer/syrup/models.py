@@ -246,6 +246,10 @@ class Site(BaseModel):
                          default=ACCESS_DEFAULT,
                          choices=ACCESS_CHOICES)
 
+    # temporary, uwindsor-only fields! For initial migration. FIXME: remove.
+    uwindsor_bookbag = m.CharField(max_length=2048, blank=True, null=True)
+    uwindsor_eres = m.CharField(max_length=2048, blank=True, null=True)
+
     @property
     def term(self):
         """
