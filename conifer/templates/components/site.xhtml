@@ -43,9 +43,7 @@ searchtext = _('search this site...')
 	     class="${_avail &gt; 0 and 'available' or 'unavailable'}"
 	     title="${_avail} of ${_desk} copies available at reserves desk; ${_lib} total copies in library system">
           <div>${_avail and 'Available' or 'Unavailable'} (${_avail}/${_desk})</div>
-	<!--
-          <div py:if="_dueinfo">${_dueinfo} (will reformat this)</div>
-	-->
+          <div py:if="_dueinfo">DUE: ${_dueinfo}</div>
 	<!--
 	  <div class="callnumber">${item.call_number()}</div>
 	-->

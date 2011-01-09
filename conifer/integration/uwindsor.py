@@ -10,15 +10,24 @@ from django.conf import settings
 from memoization import memoize
 from xml.etree import ElementTree as ET
 import csv
+import datetime
+import time
 import os
 import re
+import traceback
 import subprocess
 import uwindsor_campus_info
+
+#TODO: move these into settings
+TIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
+DUE_FORMAT = "%b %d %Y, %r"
+OPENSRF_CN_CALL = "open-ils.search.asset.copy.retrieve_by_cn_label"
+OPENSRF_FLESHED2_CALL = "open-ils.search.asset.copy.fleshed2.retrieve"
+OPENSRF_COPY_COUNTS = "open-ils.search.biblio.copy_counts.location.summary.retrieve"
 
 # USE_Z3950: if True, use Z39.50 for catalogue search; if False, use OpenSRF.
 # Don't set this value directly here: rather, if there is a valid Z3950_CONFIG
 # settings in local_settings.py, then Z39.50 will be used.
-
 USE_Z3950 = getattr(settings, 'Z3950_CONFIG', None) is not None
 
 
@@ -91,8 +100,7 @@ def _item_status(bib_id):
             
     if bib_id:
         try:
-            counts = E1('open-ils.search.biblio.copy_counts.location.summary.retrieve', 
-                        bib_id, 1, 0)
+            counts = E1(OPENSRF_COPY_COUNTS, bib_id, 1, 0)
             lib = desk = avail = 0
 	    dueinfo = ''
             callno = ''
@@ -105,28 +113,37 @@ def _item_status(bib_id):
                     desk += anystatus_here
                     avail += avail_here
                 lib += anystatus_here
-            	copyids = E1('open-ils.search.asset.copy.retrieve_by_cn_label',
-                        bib_id, callnum, org)
+            	copyids = E1(OPENSRF_CN_CALL, bib_id, callnum, org)
 		
 		"""
-		we will need to determine the first available copy, will look
-		at date/time logic for this
+		we want to return the resource that will be returned first if
+		already checked out
 		"""
 		for copyid in copyids:
-			circinfo = E1('open-ils.search.asset.copy.fleshed2.retrieve', copyid)
+			circinfo = E1(OPENSRF_FLESHED2_CALL, copyid)
 			circs = circinfo.get("circulations")
 			if circs:
-				# just grab the first for now, not much point iterating 
-				#until compare is done
-
 				if len(circs) > 0:
 					circ = circs[0]
-					dueinfo = circ.get("due_date")
-					callno = callnum
+					rawdate = circ.get("due_date")
+					#remove offset info, %z is flakey for some reason
+					rawdate = rawdate[:-5]
+					duetime = time.strptime(rawdate, TIME_FORMAT)
+					if len(dueinfo) == 0:
+						earliestdue = duetime
+						dueinfo = time.strftime(DUE_FORMAT,earliestdue)
+						callno = callnum
+					if duetime < earliestdue:
+						earliestdue = duetime
+						dueinfo = time.strftime(DUE_FORMAT,earliestdue)
+						callno = callnum
+					
             return (lib, desk, avail, callno, dueinfo)
 	except:
-	    print "problem: ", bib_id
-            pass          # fail silently if there's an opensrf related error.
+	    print "due date/call problem: ", bib_id
+            print "*** print_exc:"
+            traceback.print_exc()
+            pass          # fail silently in production if there's an opensrf or time related error.
     return None
 
 def cat_search(query, start=1, limit=10):
