@@ -1,3 +1,5 @@
+import os.path
+import hashlib
 from _common                     import *
 from conifer.plumbing.hooksystem import *
 from conifer.syrup               import integration
@@ -191,8 +193,26 @@ def item_add(request, site_id, item_id):
                 item_type='ELEC',
                 parent_heading=parent_item,
                 fileobj_mimetype = upload.content_type,
+                fileobj_origname = upload.name,
                 **data)
-            item.fileobj.save(upload.name, upload)
+
+            # we'll save the file with a name based on the hash of its
+            # contents.
+            hash = hashlib.md5()
+            for x in upload:
+                hash.update(x)
+
+            savename = hash.hexdigest()
+            prefix   = models.Item._meta.get_field('fileobj').upload_to
+            fullpath = os.path.join(settings.MEDIA_ROOT, prefix, savename)
+
+            if os.path.isfile(fullpath):
+                # just use the existing copy
+                item.fileobj.name = os.path.join(prefix, savename)
+            else:
+                # save a new copy
+                item.fileobj.save(savename, upload)
+
             item.save()
         else:
             raise NotImplementedError
@@ -353,8 +373,13 @@ def item_download(request, site_id, item_id, filename):
 
     fileiter = item.fileobj.chunks()
     resp = HttpResponse(fileiter)
-    resp['Content-Type'] = item.fileobj_mimetype or 'application/octet-stream'
-    #resp['Content-Disposition'] = 'attachment; filename=%s' % name
+    mime = item.fileobj_mimetype or 'application/octet-stream'
+    resp['Content-Type'] = mime
+
+    if item.fileobj_origname:
+        disposition = 'attachment' if mime.startswith('application/') else 'inline'
+        resp['Content-Disposition'] = '%s; filename=%s' % (disposition, 
+                                                          item.fileobj_origname)
     return resp
     
 

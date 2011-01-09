@@ -643,8 +643,9 @@ class Item(BaseModel):
     url = m.URLField(blank=True, null=True, max_length=2048)
 
     # for items of type ELEC (attached electronic document)
-    fileobj = m.FileField(upload_to='uploads/%Y/%m/%d', max_length=255,
+    fileobj = m.FileField(upload_to='uploads', max_length=255,
                           blank=True, null=True, default=None)
+    fileobj_origname = m.CharField(max_length=2048, blank=True, null=True)
     fileobj_mimetype = m.CharField(max_length=128, blank=True, null=True)
 
 
