@@ -68,6 +68,8 @@ done = set()
 
 n = 0
 for (cid, aid) in itemlinkpat.findall(html):
+    print (n, cid, aid)
+
     if (cid, aid) in done:
         continue
 
@@ -90,9 +92,11 @@ for (cid, aid) in itemlinkpat.findall(html):
             print >> log, (n, 'file', m.groups())
             urlpath, itemid, origfile = m.groups()
             binary_url = '%s/%s' % (BASE, urlpath)
+            binary_url = binary_url.replace('[', r'\[').replace(']', r'\]')   
             cookie = browser.cj[0]
             destfile = '%s/data%03d' % (PATH, n)
             cmd = 'curl -s -b "%s=%s" "%s" > %s' % (cookie.name, cookie.value, binary_url, destfile)
+            #print cmd
             os.system(cmd)
     back()
     done.add((cid, aid))

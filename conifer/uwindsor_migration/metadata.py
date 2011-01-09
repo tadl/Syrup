@@ -9,7 +9,7 @@ class Metadata(object):
 
     def __init__(self, path):
         self._path = path
-        self.html = open(name).read()
+        self.html = open(path).read()
         self.localid = re.search(r'item(\d+)', self._path).group(1)
         self._scrape()
         del self.html
@@ -39,13 +39,13 @@ class Metadata(object):
             published='<td align="left" nowrap="nowrap">Date Published:</td><td align="left" width="100%">(.*?)<',
             course='<td class="HEADER1" valign="middle" align="left" height="25">&nbsp;&nbsp;(.*?) -',
             instructor='<td class="HEADER1" valign="middle" align="left" height="25">&nbsp;&nbsp;.*? - .*? - (.*?)<',
-            term='<td class="HEADER1" valign="middle" align="left" height="25">&nbsp;&nbsp;.*? - .*? \((.*?)\)',
+            term='<td class="HEADER1" valign="middle" align="left" height="25">&nbsp;&nbsp;.* - .* \((.*?)\)',
             )
         if hasattr(self, 'journal'):
             self.source_title = self.journal
             del self.journal
 
-        pat = re.compile(r"""onClick="javascript:popall\('(.*)'.*?">Click here for more information</a>""")
+        pat = re.compile(r"""onClick="javascript:popall\('(.*?)'.*?">Click here for more information</a>""")
         m = pat.search(self.html)
         if m:
             self.type = 'url'
@@ -62,12 +62,24 @@ class Metadata(object):
                 datafile = os.path.abspath(datafile)
                 self.datafile = datafile
 
+    @property
+    def mimetype(self):
+        assert self.datafile
+        with os.popen('file -i ' + self.datafile) as f:
+            tmp = f.readline()
+        try:
+            return re.search(r': (\w+/\w+);', tmp).group(1)
+        except:
+            return None
+        
 
+    @classmethod
+    def find_all(cls, path):
+        for name in os.popen('find "%s" -name "item0*.html"' % path).readlines():
+            yield Metadata(name.strip())
 
 if __name__ == '__main__':
-    items = []
-    for name in os.popen('find data -name "item0*.html"').readlines():
-        name = name.strip()
-        m = Metadata(name)
-        items.append(m)
-        pprint(m.data)
+    for m in Metadata.find_all('data/'):
+        #pprint(m.data)
+        if m.type == 'file':
+            pprint(m.mimetype)
