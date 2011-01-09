@@ -29,7 +29,9 @@ known_profs = dict([
         ("Samson","psamson"),
         ("Dienesch","rdienesc"),
         ("Orsini","sorsini"),
-        ("Yun","yshhsy"),])
+        ("Yun","yshhsy"),
+        ("Ku","janeku"),
+        ])
 
 def ensure_user(username):
     user, created = User.objects.get_or_create(username=username)
@@ -72,7 +74,7 @@ for course in COURSES:
         d = m.data.copy()
 
         if 'author2' in d:
-            d['author'] = '%s;%s' % (d['author'], d['author2'])
+            d['author'] = '%s; %s' % (d['author'], d['author2'])
 
         for key in ['_path', 'author2', 'course', 'datafile', 'filename', 'instructor', 
                     'localid', 'term', 'type']:
