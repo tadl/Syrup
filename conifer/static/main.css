@@ -179,6 +179,7 @@ span.final_item { font-weight: bold; font-size: 110%; }
 
 .itemtree .itemtree { margin-left: 30px; padding-left: 0; }
 
+.an_item {width: 700px; margin: 0;}
 .itemtree li { padding-left: 0; margin-left: 0; } 
 
 .itemtree li { margin: 12px 8px; line-height: 115%; }
@@ -292,7 +293,7 @@ p.todo, div.todo { background-color: #fdd; padding: 6px; margin: 12px; border-le
     font-size: 80%; color: navy;
 }
 
-.menublock { color: #da9; font-size: 80%; margin: 1px 0; padding-left: 8px; }
+.menublock { color: #da9; font-size: 80%; margin: 1px 0; padding-left: 8px; clear: both; }
 .menublock a { color: #666; padding: 0 2px;  }
 .menublock a:hover { color: blue; }
 
