@@ -200,7 +200,7 @@ def bib_id_to_url(bib_id):
         return ('http://windsor.concat.ca/opac/en-CA'
                 '/skin/uwin/xml/rdetail.xml?r=%s&l=1&d=0' % bib_id)
 
-if USE_Z3950:
+if False: # if USE_Z3950:
     # only if we are using Z39.50 for catalogue search. Results including
     # accented characters are often seriously messed up. (Try searching for
     # "montreal").

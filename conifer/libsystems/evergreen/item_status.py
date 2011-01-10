@@ -25,8 +25,9 @@ def url_to_marcxml(url):
             m = re.match(r'.*r=(\d+).*', url)
             item_id = m and m.group(1) or None
             if item_id:
-                marc_url = ("%s/opac/extras/supercat/"
-                            "retrieve/marcxml/record/%s" % (support.BASE, item_id))
+                marc_url = ("%s/opac/extras/unapi?"
+                            "id=tag:concat.ca,9999:biblio-record_entry/"
+                            "%s/-&format=marcxml-full" % (support.BASE, item_id))
             xml = unicode(urllib2.urlopen(marc_url).read(), 'utf-8')
         return xml
 
