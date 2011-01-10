@@ -94,6 +94,7 @@ for line in file('list-as-text'):
     else:
         # this one we can actually use!
         print ('OK', code, title, profs, url)
+        persons = sorted(list(persons), key=lambda p: p.sn)
         sections = []
         for prof in persons:
             for sec in prof.uwinCourseTeach:
@@ -104,6 +105,10 @@ for line in file('list-as-text'):
         # set up the access control lists
         for uid, sec in sections:
             Group.objects.get_or_create(site=site, external_id=sec)
+        group = site.group_set.get(external_id__isnull=True)
+        for uid in [p.uid for p in persons][1:]:
+            Membership.objects.get_or_create(group=group, user=ensure_user(uid), 
+                                             role='INSTR')
         # let's lookup the items.
 
         site.item_set.filter(item_type='PHYS').delete()
@@ -115,3 +120,4 @@ for line in file('list-as-text'):
         count+=1
         # if count > 5:
         #     break
+
