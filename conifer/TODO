@@ -1,5 +1,7 @@
 NEW:
 
+* review item_metadata.xhtml, fix those buttons, they have a superfluous link around them..
+
 * add Welcome message to home page, use request@uwindsor.ca as the contact email for problems.
 
 * check apache error logs for 'parse' error that Art mentioned.

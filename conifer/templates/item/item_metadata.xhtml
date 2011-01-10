@@ -74,10 +74,10 @@ callnum = item.call_number()
 	for my own private study and research use. I agree that I will not
 	reproduce, redistribute or transmit a copy of the reading in any
 	format.</p>
-	<p><a class="bigdownload" href="javascript:askToDownload();"><button>Request to download this document</button></a></p>
+	<p><a class="bigdownload" href="javascript:askToDownload();"><button onclick="askToDownload();">Request to download this document</button></a></p>
       </div>
       <div id="downloadpanel">
-	<p><a class="bigdownload" href="${item.item_download_url()}"><button>Click here to download the document.</button></a></p>
+	<p><a class="bigdownload" href="${item.item_download_url()}"><button onclick="location='${item.item_download_url()}';">Click here to download the document.</button></a></p>
 	<p>Document type: ${item.fileobj_mimetype}. Size: ${item.fileobj.size} bytes.</p>
 	</div>
     </div>
