@@ -293,7 +293,7 @@ p.todo, div.todo { background-color: #fdd; padding: 6px; margin: 12px; border-le
     font-size: 80%; color: navy;
 }
 
-.menublock { color: #da9; font-size: 80%; margin: 1px 0; padding-left: 8px; clear: both; }
+.menublock { color: #da9; font-size: 80%; margin: 1px 0; padding-left: 8px; clear: left; }
 .menublock a { color: #666; padding: 0 2px;  }
 .menublock a:hover { color: blue; }
 
