@@ -779,6 +779,8 @@ class Item(BaseModel):
         dct = self.marc_as_dict()
         if dct:
             try:
+                if '092a' in dct:   # for ZPR's?. FIXME, is this legit?
+                    return dct['092a']
                 if '090a' in dct:   # for films. FIXME, is this legit?
                     return dct['090a']
                 cn = ('%s %s' % (dct.get('050a', ''), 

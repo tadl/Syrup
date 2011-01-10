@@ -44,15 +44,13 @@ searchtext = _('search this site...')
 	     title="${_avail} of ${_desk} copies available at reserves desk; ${_lib} total copies in library system">
           <div>${_avail and 'Available' or 'Unavailable'} (${_avail}/${_desk})</div>
           <div py:if="_dueinfo">DUE: ${_dueinfo}</div>
-	<!--
-	  <div class="callnumber">${item.call_number()}</div>
-	-->
 	  <div class="callnumber">${_callno}</div>
-	</div>
-	</a>
-	<div py:if="not valid" title="No copies are available at the reserves desk. No further status information is available.">
-	  &#x2205;
-	</div>
+		  </div>
+		  <div py:if="not valid" class="unavailable">
+			Availability unknown.
+			<div class="callnumber">${item.call_number()}</div>
+		  </div>
+		</a>
       </div>
       <div class="availability avail_nonphys" py:if="item.item_type != 'PHYS'">
       </div>
