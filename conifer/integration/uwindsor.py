@@ -112,6 +112,8 @@ def _item_status(bib_id):
                 if loc == RESERVES_DESK_NAME:
                     desk += anystatus_here
                     avail += avail_here
+                    callno = callnum
+		    dueinfo = ''
                 lib += anystatus_here
             	copyids = E1(OPENSRF_CN_CALL, bib_id, callnum, org)
 		
@@ -122,7 +124,7 @@ def _item_status(bib_id):
 		for copyid in copyids:
 			circinfo = E1(OPENSRF_FLESHED2_CALL, copyid)
 			circs = circinfo.get("circulations")
-			if circs:
+			if circs and avail==0:
 				if len(circs) > 0:
 					circ = circs[0]
 					rawdate = circ.get("due_date")
