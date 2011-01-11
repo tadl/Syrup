@@ -71,6 +71,7 @@ initialize(EG_BASE)
 STATUS_DECODE = [(str(x['id']), x['name']) 
                  for x in E1('open-ils.search.config.copy_status.retrieve.all')]
 AVAILABLE = [id for id, name in STATUS_DECODE if name == 'Available'][0]
+RESHELVING = [id for id, name in STATUS_DECODE if name == 'Reshelving'][0]
 
 RESERVES_DESK_NAME = 'Leddy: Course Reserves - Main Bldng - 1st Flr - Reserve Counter at Circulation Desk'
 
@@ -108,6 +109,7 @@ def _item_status(bib_id):
 		if len(callno) == 0:
 			callno = callnum
                 avail_here = stats.get(AVAILABLE, 0)
+                avail_here += stats.get(RESHELVING, 0)
                 anystatus_here = sum(stats.values())
                 if loc == RESERVES_DESK_NAME:
                     desk += anystatus_here
@@ -121,24 +123,25 @@ def _item_status(bib_id):
 		we want to return the resource that will be returned first if
 		already checked out
 		"""
-		for copyid in copyids:
-			circinfo = E1(OPENSRF_FLESHED2_CALL, copyid)
-			circs = circinfo.get("circulations")
-			if circs and avail==0:
-				if len(circs) > 0:
-					circ = circs[0]
-					rawdate = circ.get("due_date")
-					#remove offset info, %z is flakey for some reason
-					rawdate = rawdate[:-5]
-					duetime = time.strptime(rawdate, TIME_FORMAT)
-					if len(dueinfo) == 0:
-						earliestdue = duetime
-						dueinfo = time.strftime(DUE_FORMAT,earliestdue)
-						callno = callnum
-					if duetime < earliestdue:
-						earliestdue = duetime
-						dueinfo = time.strftime(DUE_FORMAT,earliestdue)
-						callno = callnum
+                if loc == RESERVES_DESK_NAME and avail == 0:
+			for copyid in copyids:
+				circinfo = E1(OPENSRF_FLESHED2_CALL, copyid)
+				circs = circinfo.get("circulations")
+				if circs and avail==0:
+					if len(circs) > 0:
+						circ = circs[0]
+						rawdate = circ.get("due_date")
+						#remove offset info, %z is flakey for some reason
+						rawdate = rawdate[:-5]
+						duetime = time.strptime(rawdate, TIME_FORMAT)
+						if len(dueinfo) == 0:
+							earliestdue = duetime
+							dueinfo = time.strftime(DUE_FORMAT,earliestdue)
+							callno = callnum
+						if duetime < earliestdue:
+							earliestdue = duetime
+							dueinfo = time.strftime(DUE_FORMAT,earliestdue)
+							callno = callnum
 					
             return (lib, desk, avail, callno, dueinfo)
 	except:
