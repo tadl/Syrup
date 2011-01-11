@@ -177,13 +177,17 @@ def admin_staff_add(request):
         return g.render('admin/staff_add.xhtml', **locals())
 
 @admin_only
-def admin_su(request, userid):
-    user, created = User.objects.get_or_create(username=userid)
-    user.maybe_decorate()
-    if created and not user.last_name:
-        raise Exception(user)
-        user.delete()
-    elif user.is_active:
-        request.session['_auth_user_id'] = user.id
-    return HttpResponseRedirect('../../')
+def admin_su(request):
+    if request.method != 'POST':
+        return g.render('admin/su.xhtml')
+    else:
+        userid = request.POST['userid'].lower().strip()
+        user, created = User.objects.get_or_create(username=userid)
+        user.maybe_decorate()
+        if created and not user.last_name:
+            user.delete()
+            return g.render('admin/su.xhtml')
+        elif user.is_active:
+            request.session['_auth_user_id'] = user.id
+        return HttpResponseRedirect('../../')
 

@@ -1,0 +1,22 @@
+<?python
+title = _('Impersonate another user')
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+<xi:include href="../master.xhtml"/>
+<head>
+  <title>${title}</title>
+  <style type="text/css">
+    ul { margin-bottom: 2em; }
+  </style>
+</head>
+<body>
+  <h1>${title}</h1>
+  <form action="." method="POST">
+	<p>UWin ID to impersonate:</p>
+	<p><input type="text" name="userid"/></p>
+	<p><input type="submit" value="Impersonate"/></p>
+  </form>
+</body>
+</html>

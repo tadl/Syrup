@@ -54,7 +54,7 @@ urlpatterns = patterns('conifer.syrup.views',
     (r'^admin/update_depts_courses/$', 'admin_update_depts_courses'),
     (r'^admin/update_terms/$', 'admin_update_terms'),
     (r'^admin/staff/add/$', 'admin_staff_add'),
-    (r'^admin/su/(?P<userid>.*)', 'admin_su'),
+    (r'^admin/su/', 'admin_su'),
 
 
     # (r'^phys/$', 'phys_index'),
