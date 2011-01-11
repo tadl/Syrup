@@ -89,19 +89,22 @@ for line in file('list-as-text'):
         persons = set([p for p in people.who_teaches(code)
                        if p.sn in profs])
     if not persons:
-        #print ('SKIP', code, title, profs, url)
+        print ('SKIP', code, title, profs, url, 
+               [p.sn for p in people.who_teaches(code)])
         continue
     else:
         # this one we can actually use!
-        print ('OK', code, title, profs, url)
+        #print ('OK', code, title, profs, url)
         persons = sorted(list(persons), key=lambda p: p.sn)
         sections = []
         for prof in persons:
             for sec in prof.uwinCourseTeach:
                 if re.match(r'..%s-\d+-2011W' % code.replace('-',''), sec):
                     sections.append((prof.uid, sec))
-        print sections
         site = get_site(code, [p.uid for p in persons])
+        if site.item_set.count():
+            continue
+        print ('OK', code, title, profs, url)
         # set up the access control lists
         for uid, sec in sections:
             Group.objects.get_or_create(site=site, external_id=sec)
