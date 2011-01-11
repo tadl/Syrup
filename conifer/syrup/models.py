@@ -44,7 +44,7 @@ class UserExtensionMixin(object):
 
     def sites(self, role=None):
         self.maybe_refresh_external_memberships()
-        sites = Site.objects.filter(group__membership__user=self.id)
+        sites = Site.objects.filter(group__membership__user=self.id).distinct()
         if role:
             sites = sites.filter(group__membership__role=role)
         return sites
@@ -384,11 +384,8 @@ class Site(BaseModel):
             return False
         if (user.id == self.owner_id) or user.is_staff:
             return True
-        try:
-            mbr = self.members().get(user=user)
-        except Membership.DoesNotExist:
-            return False
-        return mbr.role in (u'INSTR', u'ASSIST')
+        memberships = self.members().filter(user=user)
+        return any(mbr.role in (u'INSTR', u'ASSIST') for mbr in memberships)
 
     def is_joinable_by(self, user):
         """Return True if the user could feasibly register into this
@@ -411,12 +408,11 @@ class Site(BaseModel):
             return False
         if level == 'LOGIN':
             return True
-        try:
-            mbr = self.members().get(user=user)
-        except:
+        memberships = self.members().filter(user=user)
+        if not memberships:
             return False
         if level == 'CLOSE':
-            return mbr.role == u'INSTR'
+            return any(mbr.role == u'INSTR' for mbr in memberships)
         elif level == u'MEMBR':
             return True
         else:
