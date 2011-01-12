@@ -15,6 +15,14 @@ is_joinable = site.is_joinable_by(request.user)
   </head>
   <body>
     ${site_banner(site)}
+    <p py:if="not item_tree">
+      There are no items associated with this site yet.
+    </p>
+    <!-- possible fix for outrageous spacing in IE 8 -->
+    <div id="treepanel">
+      ${show_tree(item_tree, edit=is_editor)}
+    </div>
+    <!-- still not perfect placement, but big help for IE -->
     <div id="sidepanel">
       <div py:if="is_editor" id="edit_site" class="little_action_panel">
 	<div><a href="${site.site_url()}edit/">Setup</a></div>
@@ -27,13 +35,6 @@ is_joinable = site.is_joinable_by(request.user)
 	<a href="${site.site_url()}feeds/">Feeds</a>
       </div>
     </div>
-    <p py:if="not item_tree">
-      There are no items associated with this site yet.
-    </p>
-    <!-- possible fix for outrageous spacing in IE 8 -->
-    <span id="treepanel">
-      ${show_tree(item_tree, edit=is_editor)}
-    </span>
     <div py:if="is_editor">${add_subs()}</div>
 
 
