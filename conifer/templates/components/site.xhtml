@@ -39,11 +39,25 @@ searchtext = _('search this site...')
       ?>
       <div class="availability" py:if="item.item_type == 'PHYS'">
 	<a href="${item.item_url()}">
-	<div py:if="valid" py:with="(_lib, _desk, _avail, _callno, _dueinfo) = stat"
+	<div py:if="valid" py:with="(_lib, _desk, _avail, _callno, _dueinfo, _circmod) = stat"
 	     class="${_avail &gt; 0 and 'available' or 'unavailable'}"
 	     title="${_avail} of ${_desk} copies available at reserves desk; ${_lib} total copies in library system">
           <div>${_avail and 'Available' or 'Unavailable'} (${_avail}/${_desk})</div>
           <div py:if="_dueinfo">DUE: ${_dueinfo}</div>
+          <div py:if="_circmod">
+          	<span py:if="_circmod == 'RSV2'">2 Hour Loan</span>
+          	<span py:if="_circmod == 'RSV3'">3 Hour Loan</span>
+          	<span py:if="_circmod == 'RSV4'">4 Hour Loan</span>
+          	<span py:if="_circmod == 'RSV7'">7 Hour Loan</span>
+                <span py:if="_circmod == 'RESERVE 1 DAY'">1 Day Loan</span>
+                <span py:if="_circmod == 'RESERVE 1 HOUR'">1 Hour Loan</span>
+                <span py:if="_circmod == 'RESERVE 14 DAY'">14 Day Loan</span>
+                <span py:if="_circmod == 'RESERVE 2 DAY'">2 Day Loan</span>
+                <span py:if="_circmod == 'RESERVE 2 HOUR'">2 Hour Loan</span>
+                <span py:if="_circmod == 'RESERVE 3 DAY'">3 Day Loan</span>
+                <span py:if="_circmod == 'RESERVE 4 HOUR'">4 Hour Loan</span>
+                <span py:if="_circmod == 'RESERVE 7 DAY'">7 Day Loan</span>
+          </div>
 	  <div class="callnumber">${_callno}</div>
 		  </div>
 		  <div py:if="not valid" class="unavailable">

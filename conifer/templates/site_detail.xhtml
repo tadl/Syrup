@@ -30,9 +30,10 @@ is_joinable = site.is_joinable_by(request.user)
     <p py:if="not item_tree">
       There are no items associated with this site yet.
     </p>
-    <div id="treepanel">
+    <!-- possible fix for outrageous spacing in IE 8 -->
+    <span id="treepanel">
       ${show_tree(item_tree, edit=is_editor)}
-    </div>
+    </span>
     <div py:if="is_editor">${add_subs()}</div>
 
 

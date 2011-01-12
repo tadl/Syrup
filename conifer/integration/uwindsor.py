@@ -105,6 +105,7 @@ def _item_status(bib_id):
             lib = desk = avail = 0
 	    dueinfo = ''
             callno = ''
+            circmod = ''
             for org, callnum, loc, stats in counts:
 		if len(callno) == 0:
 			callno = callnum
@@ -123,12 +124,14 @@ def _item_status(bib_id):
 		we want to return the resource that will be returned first if
 		already checked out
 		"""
-                if loc == RESERVES_DESK_NAME and avail == 0:
-			for copyid in copyids:
-				circinfo = E1(OPENSRF_FLESHED2_CALL, copyid)
-				circs = circinfo.get("circulations")
-				if circs and avail==0:
-					if len(circs) > 0:
+		for copyid in copyids:
+			circinfo = E1(OPENSRF_FLESHED2_CALL, copyid)
+			if loc == RESERVES_DESK_NAME: 
+				if len(circmod) == 0:
+					circmod = circinfo.get("circ_modifier")
+				if avail == 0:
+					circs = circinfo.get("circulations")
+					if circs and len(circs) > 0:
 						circ = circs[0]
 						rawdate = circ.get("due_date")
 						#remove offset info, %z is flakey for some reason
@@ -143,7 +146,7 @@ def _item_status(bib_id):
 							dueinfo = time.strftime(DUE_FORMAT,earliestdue)
 							callno = callnum
 					
-            return (lib, desk, avail, callno, dueinfo)
+            return (lib, desk, avail, callno, dueinfo, circmod)
 	except:
 	    print "due date/call problem: ", bib_id
             print "*** print_exc:"
