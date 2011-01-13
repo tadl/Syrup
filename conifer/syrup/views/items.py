@@ -27,10 +27,13 @@ def item_metadata(request, site_id, item_id):
         return _heading_detail(request, item)
     else:
         item_declaration_required = item.needs_declaration_from(request.user)
+        access_forbidden = (item.item_type == 'ELEC' 
+                            and not item.site.allows_downloads_to(request.user))
         custom_declaration = callhook('download_declaration')
         return g.render('item/item_metadata.xhtml', site=item.site,
                         item_declaration_required=item_declaration_required,
                         custom_declaration=custom_declaration,
+                        access_forbidden=access_forbidden,
                         item=item)
 
 @members_only
@@ -361,6 +364,12 @@ def item_download(request, site_id, item_id, filename):
     site = get_object_or_404(models.Site, pk=site_id)
     item = get_object_or_404(models.Item, pk=item_id, site__id=site_id)
     assert item.item_type == 'ELEC', _('Can only download ELEC documents!')
+
+    access_forbidden = (item.item_type == 'ELEC' 
+                        and not item.site.allows_downloads_to(request.user))
+    if access_forbidden:
+        return simple_message(_('Access denied.'), 
+                              _('Sorry, but you are not allowed to access this resource.'))
 
     # don't allow download of items that need a declaration.
     item_declaration_required = item.needs_declaration_from(request.user)

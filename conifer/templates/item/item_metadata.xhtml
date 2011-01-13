@@ -62,7 +62,7 @@ callnum = item.call_number()
       <tr py:if="item.url"><th>URL</th><td><a href="${item.url}">${item.url}</a></td></tr>
     </table>
 
-    <div py:if="item.item_type=='ELEC'">
+    <div py:if="item.item_type=='ELEC' and not access_forbidden">
       <h2 class="metadata_subhead">Download the document</h2>
       <div class="errors" py:if="not item.copyright_status_ok()">
 	Note: this item is awaiting <a href="edit/">copyright clearance</a>. Only staff and instructors may download it.

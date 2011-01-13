@@ -87,7 +87,8 @@ def edit_site_permissions(request, site_id):
     # the ones in 'models'.
     choices = [
         (u'ANON',  _(u'Everyone: no login required.')),
-        (u'LOGIN', _(u'Members and non-members: login required.')),
+        (u'LOGIN', _(u'Login required.')),
+        (u'RESTR', _(u'Login required; only members can access electronic documents.')),
         (u'MEMBR', _(u'Members only.')),
         (u'CLOSE', _(u'Instructors only: this site is closed.')),
         ]

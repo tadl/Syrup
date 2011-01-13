@@ -236,6 +236,7 @@ class Site(BaseModel):
     ACCESS_CHOICES = [
         ('ANON',  _('World-accessible')),
         ('LOGIN', _('Accessible to all logged-in users')),
+        ('RESTR', _('Accessible to all logged-in users, but only course-site members can read electronic documents.')),
         ('MEMBR', _('Accessible to course-site members')),
         ('CLOSE', _('Accessible only to course-site owners'))]
 
@@ -406,7 +407,7 @@ class Site(BaseModel):
             return True
         if not user.is_authenticated():
             return False
-        if level == 'LOGIN':
+        if level in ('LOGIN', 'RESTR'):
             return True
         memberships = self.members().filter(user=user)
         if not memberships:
@@ -419,6 +420,19 @@ class Site(BaseModel):
             raise Exception('Cannot determine access level '
                             'for user %s in site %s' % (user, self))
 
+    def allows_downloads_to(self, user):
+        """
+        Return True if this site allows this user to download
+        electronic documents. For 'restricted' sites, we allow any
+        logged-in user to visit, but only members can download
+        documents.
+        """
+        level = self.access
+        if level == 'RESTR':
+            return user.is_staff or self.is_member(user)
+        else:
+            return self.is_open_to(user)
+        
     @classmethod
     def taught_by(cls, user):
         """Return a set of Sites for which this user is an Instructor."""
@@ -439,7 +453,7 @@ class Site(BaseModel):
         elif user.is_staff:
             return Q()
         else:
-            return (Q(access__in=('LOGIN','ANON')) \
+            return (Q(access__in=('RESTR','LOGIN','ANON')) \
                         | Q(group__membership__user=user))
 
 #------------------------------------------------------------
@@ -817,7 +831,7 @@ class Item(BaseModel):
         elif user.is_staff:
             return Q()
         else:
-            return (Q(site__access__in=('LOGIN','ANON')) \
+            return (Q(site__access__in=('RESTR','LOGIN','ANON')) \
                         | Q(site__group__membership__user=user))
 
 #------------------------------------------------------------

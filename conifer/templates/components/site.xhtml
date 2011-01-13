@@ -1,5 +1,6 @@
 <?python
 searchtext = _('search this site...')
+downloads_allowed = site.allows_downloads_to(user)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
@@ -69,7 +70,11 @@ searchtext = _('search this site...')
       <div class="availability avail_nonphys" py:if="item.item_type != 'PHYS'">
       </div>
       <div class="mainline ${item.item_type=='HEADING' and 'headingmainline' or ''}">
-		<a href="${item.item_url()}" class="mainlink">${item}</a> 
+	<span py:if="item.item_type=='ELEC' and not downloads_allowed">
+	  <img title="Sorry, this document is not available to you."
+	       src="${ROOT}/static/tango/lock.png"/></span>
+	  <a href="${item.item_url()}" class="mainlink"
+	     py:strip="item.item_type=='ELEC' and not downloads_allowed">${item}</a> 
       </div>
       <div class="author_pub" py:if="item.author or item.publisher or item.published">
 	<span py:with="vt=item.video_type()"><span class="videotype" py:if="vt">[${vt}]</span></span>
