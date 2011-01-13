@@ -1,6 +1,5 @@
 <?python
 searchtext = _('search this site...')
-downloads_allowed = site.allows_downloads_to(user)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
@@ -35,6 +34,7 @@ downloads_allowed = site.allows_downloads_to(user)
 	id="item_${item.id}">
       <abbr py:if="not item.item_type=='HEADING'" class="unapi-id" title="${item.id}"/>
       <?python
+	downloads_allowed = site.allows_downloads_to(user)
 	stat = callhook('item_status', item) if (item.item_type == 'PHYS') else None
 	valid = stat is not None
       ?>
