@@ -75,6 +75,7 @@ dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
 	  <td>
 	    <form action="." method="POST">
 	      <!-- !TODO: is utf8 okay here? I shouldn't have to do any decoding here. -->
+	      <input type="hidden" name="bibid" value="${bibid}"/>
 	      <input type="hidden" name="pickitem" value="${ET.tostring(res)}"/>
 	      <input type="submit" value="Pick this item"/>
 	    </form>

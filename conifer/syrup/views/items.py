@@ -244,11 +244,11 @@ def item_add_cat_search(request, site_id, item_id):
                             site=site, parent_item=parent_item)
         query = request.GET.get('query','').strip()
         start, limit = (int(request.GET.get(k,v)) for k,v in (('start',1),('limit',10)))
-        results, numhits = integration.cat_search(query, start, limit)
+        results, numhits, bibid = integration.cat_search(query, start, limit)
         return g.render('item/item_add_cat_search.xhtml', 
                         results=results, query=query, 
                         start=start, limit=limit, numhits=numhits,
-                        site=site, parent_item=parent_item)
+                        site=site, parent_item=parent_item, bibid=bibid)
     else:
         # User has selected an item; add it to site.
         raw_pickitem = request.POST.get('pickitem', '').strip()
@@ -298,6 +298,7 @@ def item_add_cat_search(request, site_id, item_id):
                                     author=dublin.get('dc:creator'),
                                     publisher=dublin.get('dc:publisher',''),
                                     published=pubdate,
+                                    bib_id=request.POST.get('bibid'),
                                     marcxml=raw_pickitem,
                                     **dct)
         item.save()

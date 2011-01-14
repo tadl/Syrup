@@ -155,8 +155,14 @@ def _item_status(bib_id):
     return None
 
 def cat_search(query, start=1, limit=10):
+    bibid=0
     if query.startswith(EG_BASE):
         # query is an Evergreen URL
+	# snag the bibid at this point
+    	params = dict([x.split("=") for x in query.split("&")])
+    	for key in params.keys():
+		if key.find('?r') != -1:
+			bibid = params[key]
         results = M.marcxml_to_records(I.url_to_marcxml(query))
         numhits = len(results)
     else:
@@ -176,7 +182,7 @@ def cat_search(query, start=1, limit=10):
                 tree = M.marcxml_to_records(marc)[0]
                 results.append(tree)
             numhits = int(superpage['count'])
-    return results, numhits
+    return results, numhits, bibid
 
 def bib_id_to_marcxml(bib_id):
     """
