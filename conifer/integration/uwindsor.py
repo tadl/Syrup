@@ -156,6 +156,7 @@ def _item_status(bib_id):
 
 def cat_search(query, start=1, limit=10):
     bibid=0
+    bc = re.search('\d{14}', query.strip())
     if query.startswith(EG_BASE):
         # query is an Evergreen URL
 	# snag the bibid at this point
@@ -165,6 +166,17 @@ def cat_search(query, start=1, limit=10):
 			bibid = params[key]
         results = M.marcxml_to_records(I.url_to_marcxml(query))
         numhits = len(results)
+    elif bc:
+	results = []
+	numhits = 0
+        bib = E1('open-ils.search.bib_id.by_barcode', bc.group(0))
+	if bib:
+		copy = E1('open-ils.supercat.record.object.retrieve', bib)
+		rec = copy[0]
+		marc = unicode(rec['marc'], 'utf-8')
+                tree = M.marcxml_to_records(marc)[0]
+                results.append(tree)
+		numhits = 1
     else:
         # query is an actual query
         if USE_Z3950:

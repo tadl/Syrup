@@ -298,7 +298,6 @@ def item_add_cat_search(request, site_id, item_id):
                                     author=dublin.get('dc:creator'),
                                     publisher=dublin.get('dc:publisher',''),
                                     published=pubdate,
-                                    bib_id=request.POST.get('bibid'),
                                     marcxml=raw_pickitem,
                                     **dct)
         item.save()
