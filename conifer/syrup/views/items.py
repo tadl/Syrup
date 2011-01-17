@@ -293,7 +293,18 @@ def item_add_cat_search(request, site_id, item_id):
         except:
             pubdate = ''
 
-        item = site.item_set.create(parent_heading=parent_item,
+	bibid = bib_id=request.POST.get('bibid')
+	if bibid > 0:
+        	item = site.item_set.create(parent_heading=parent_item,
+                                    title=dublin.get('dc:title','Untitled'),
+                                    author=dublin.get('dc:creator'),
+                                    publisher=dublin.get('dc:publisher',''),
+                                    published=pubdate,
+                                    bib_id = bibid,
+                                    marcxml=raw_pickitem,
+                                    **dct)
+	else:
+        	item = site.item_set.create(parent_heading=parent_item,
                                     title=dublin.get('dc:title','Untitled'),
                                     author=dublin.get('dc:creator'),
                                     publisher=dublin.get('dc:publisher',''),

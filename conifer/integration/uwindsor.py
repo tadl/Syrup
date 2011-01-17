@@ -169,8 +169,11 @@ def cat_search(query, start=1, limit=10):
     elif bc:
 	results = []
 	numhits = 0
+	# print "bc", bc.group(0)
         bib = E1('open-ils.search.bib_id.by_barcode', bc.group(0))
 	if bib:
+		bibid = bib
+		# print "bibid", bib
 		copy = E1('open-ils.supercat.record.object.retrieve', bib)
 		rec = copy[0]
 		marc = unicode(rec['marc'], 'utf-8')
