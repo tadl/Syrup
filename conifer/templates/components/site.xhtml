@@ -44,7 +44,6 @@ searchtext = _('search this site...')
 	     class="${_avail &gt; 0 and 'available' or 'unavailable'}"
 	     title="${_avail} of ${_desk} copies available at reserves desk; ${_lib} total copies in library system">
           <div>${_avail and 'Available' or 'Unavailable'} (${_avail}/${_desk})</div>
-          <div py:if="_dueinfo">DUE: ${_dueinfo}</div>
           <div py:if="_circmod">
           	<span py:if="_circmod == 'RSV2'">2 Hour Loan</span>
           	<span py:if="_circmod == 'RSV3'">3 Day Loan</span>
@@ -60,12 +59,16 @@ searchtext = _('search this site...')
                 <span py:if="_circmod == 'RESERVE 7 DAY'">7 Day Loan</span>
           </div>
 	  <div class="callnumber">${_callno}</div>
-		  </div>
-		  <div py:if="not valid" class="unavailable">
-			Availability unknown.
-			<div class="callnumber">${item.call_number()}</div>
-		  </div>
-		</a>
+          <div py:if="_dueinfo">DUE: ${_dueinfo}</div>
+         </div>
+		  
+         <div py:if="not valid" class="unavailable">
+		Availability unknown.
+		<div class="callnumber">${item.call_number()}</div>
+		  
+         </div>
+
+         </a>
       </div>
       <div class="availability avail_nonphys" py:if="item.item_type != 'PHYS'">
       </div>

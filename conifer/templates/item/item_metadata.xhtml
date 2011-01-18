@@ -52,9 +52,44 @@ callnum = item.call_number()
       <tr py:if="item.issue"><th>Issue</th><td>${item.issue}</td></tr>
       <tr py:if="item.pages"><th>Pages</th><td>${item.pages}</td></tr>
       <tr py:if="item.isbn"><th>ISBN</th><td>${item.isbn}</td></tr>
+      <!--
       <tr py:if="callnum"><th>Call Number</th><td>${callnum}</td></tr>
+      -->
       <tr py:if="item.item_type=='ELEC'"><th>Copyright status</th><td>${item.get_copyright_status_display()}</td></tr>
       <tr><th>Type</th><td>${item.get_item_type_display()}</td></tr>
+      <?python
+        downloads_allowed = site.allows_downloads_to(user)
+        stat = callhook('item_status', item) if (item.item_type == 'PHYS') else None
+        valid = stat is not None
+      ?>
+      <tr py:if="valid" py:with="(_lib, _desk, _avail, _callno, _dueinfo, _circmod) = stat"
+             title="${_avail} of ${_desk} copies available at reserves desk; ${_lib} total copies in library system">
+	  <th>Call Number (take this to the counter)</th>
+          <td>
+          <div class="${_avail &gt; 0 and 'available' or 'unavailable'}" py:if="_dueinfo">DUE: ${_dueinfo}</div>
+          <div class="callnumber ${_avail &gt; 0 and 'available' or 'unavailable'}">${_callno}</div>
+          <div py:if="_circmod">
+                <span py:if="_circmod == 'RSV2'">2 Hour Loan</span>
+                <span py:if="_circmod == 'RSV3'">3 Day Loan</span>
+                <span py:if="_circmod == 'RSV4'">4 Day Loan</span>
+                <span py:if="_circmod == 'RSV7'">7 Day Loan</span>
+                <span py:if="_circmod == 'RESERVE 1 DAY'">1 Day Loan</span>
+                <span py:if="_circmod == 'RESERVE 1 HOUR'">1 Hour Loan</span>
+                <span py:if="_circmod == 'RESERVE 14 DAY'">14 Day Loan</span>
+                <span py:if="_circmod == 'RESERVE 2 DAY'">2 Day Loan</span>
+                <span py:if="_circmod == 'RESERVE 2 HOUR'">2 Hour Loan</span>
+                <span py:if="_circmod == 'RESERVE 3 DAY'">3 Day Loan</span>
+                <span py:if="_circmod == 'RESERVE 4 HOUR'">4 Hour Loan</span>
+                <span py:if="_circmod == 'RESERVE 7 DAY'">7 Day Loan</span>
+          </div>
+
+         <div py:if="not valid" class="unavailable">
+                Availability unknown.
+                <div class="callnumber">${item.call_number()}</div>
+
+         </div>
+         </td>
+      </tr>
       <tr py:if="item.item_type=='PHYS'"
 	  py:with="avail, status = item.describe_physical_item_status()">
 	<th>Status</th><td><div class="${avail and 'available' or 'unavailable'}">${status}</div></td>

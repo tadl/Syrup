@@ -102,20 +102,34 @@ def _item_status(bib_id):
     if bib_id:
         try:
             counts = E1(OPENSRF_COPY_COUNTS, bib_id, 1, 0)
-            lib = desk = avail = 0
+            lib = desk = avail = vol = 0
 	    dueinfo = ''
             callno = ''
             circmod = ''
             for org, callnum, loc, stats in counts:
+		callprefix = ''
+		callsuffix = ''
 		if len(callno) == 0:
 			callno = callnum
                 avail_here = stats.get(AVAILABLE, 0)
                 avail_here += stats.get(RESHELVING, 0)
                 anystatus_here = sum(stats.values())
+
+		"""
+		volume check - based on v.1, etc. in call number
+		"""
+    		voltest = re.search(r'\w*v\.\s?(\d+)', callnum)
+
                 if loc == RESERVES_DESK_NAME:
                     desk += anystatus_here
                     avail += avail_here
-                    callno = callnum
+                    if voltest and vol > 0:
+			if (int(voltest.group(1)) > vol):
+				callsuffix = "/" + callnum
+			else:
+				callprefix = callnum + "/" 
+		    else:
+                    	callno = callnum
 		    dueinfo = ''
                 lib += anystatus_here
             	copyids = E1(OPENSRF_CN_CALL, bib_id, callnum, org)
@@ -129,7 +143,7 @@ def _item_status(bib_id):
 			if loc == RESERVES_DESK_NAME: 
 				if len(circmod) == 0:
 					circmod = circinfo.get("circ_modifier")
-				if avail == 0:
+				if avail == 0 or (voltest and callno.find(voltest.group(0)) == -1):
 					circs = circinfo.get("circulations")
 					if circs and len(circs) > 0:
 						circ = circs[0]
@@ -137,15 +151,34 @@ def _item_status(bib_id):
 						#remove offset info, %z is flakey for some reason
 						rawdate = rawdate[:-5]
 						duetime = time.strptime(rawdate, TIME_FORMAT)
-						if len(dueinfo) == 0:
+						if len(dueinfo) == 0 or voltest: 
 							earliestdue = duetime
-							dueinfo = time.strftime(DUE_FORMAT,earliestdue)
-							callno = callnum
-						if duetime < earliestdue:
+							if voltest:
+								if (int(voltest.group(1)) > vol):
+									if len(dueinfo) > 0:
+										dueinfo = dueinfo + "/"
+									dueinfo = dueinfo + voltest.group(0) + ': ' + time.strftime(DUE_FORMAT,earliestdue)
+								else:
+									tmpinfo = dueinfo
+									dueinfo = voltest.group(0) + ': ' + time.strftime(DUE_FORMAT,earliestdue) 
+									if len(tmpinfo) > 0:
+											dueinfo = dueinfo + "/" + dueinfo
+								callprefix = callsuffix = ''
+							else:
+								dueinfo = time.strftime(DUE_FORMAT,earliestdue)
+								
+							if not voltest:
+								callno = callnum
+
+						# way too wacky to sort out vols for this
+						if duetime < earliestdue and not voltest:
 							earliestdue = duetime
 							dueinfo = time.strftime(DUE_FORMAT,earliestdue)
 							callno = callnum
 					
+		if voltest:
+			callno = callprefix + callno + callsuffix
+			vol = int(voltest.group(1))
             return (lib, desk, avail, callno, dueinfo, circmod)
 	except:
 	    print "due date/call problem: ", bib_id
