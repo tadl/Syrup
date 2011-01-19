@@ -24,6 +24,7 @@ DUE_FORMAT = "%b %d %Y, %r"
 OPENSRF_CN_CALL = "open-ils.search.asset.copy.retrieve_by_cn_label"
 OPENSRF_FLESHED2_CALL = "open-ils.search.asset.copy.fleshed2.retrieve"
 OPENSRF_COPY_COUNTS = "open-ils.search.biblio.copy_counts.location.summary.retrieve"
+ATTACHMENT = 'DVD'
 
 # USE_Z3950: if True, use Z39.50 for catalogue search; if False, use OpenSRF.
 # Don't set this value directly here: rather, if there is a valid Z3950_CONFIG
@@ -119,15 +120,27 @@ def _item_status(bib_id):
 		volume check - based on v.1, etc. in call number
 		"""
     		voltest = re.search(r'\w*v\.\s?(\d+)', callnum)
+		"""
+		attachment test - will need to sort out if this applies to more than DVDs
+		"""
+		attachtest = False
+		if callno.find(ATTACHMENT) == -1:
+			#make this funkier if there is a possibility of more than one type
+			attachtest = callnum.endswith(ATTACHMENT)
 
                 if loc == RESERVES_DESK_NAME:
                     desk += anystatus_here
                     avail += avail_here
-                    if voltest and vol > 0:
+                    if (voltest and vol > 0): 
 			if (int(voltest.group(1)) > vol):
 				callsuffix = "/" + callnum
 			else:
 				callprefix = callnum + "/" 
+		    elif attachtest:
+			if len(callno) > 0:
+				callsuffix = "/" + callnum
+			else:
+				callprefix = callnum
 		    else:
                     	callno = callnum
 		    dueinfo = ''
@@ -141,9 +154,14 @@ def _item_status(bib_id):
 		for copyid in copyids:
 			circinfo = E1(OPENSRF_FLESHED2_CALL, copyid)
 			if loc == RESERVES_DESK_NAME: 
+				bringfw = attachtest
+				# multiple volumes
+				if voltest and callno.find(voltest.group(0)) == -1:
+					bringfw = True
+	
 				if len(circmod) == 0:
 					circmod = circinfo.get("circ_modifier")
-				if avail == 0 or (voltest and callno.find(voltest.group(0)) == -1):
+				if avail == 0 or bringfw:
 					circs = circinfo.get("circulations")
 					if circs and len(circs) > 0:
 						circ = circs[0]
@@ -151,7 +169,7 @@ def _item_status(bib_id):
 						#remove offset info, %z is flakey for some reason
 						rawdate = rawdate[:-5]
 						duetime = time.strptime(rawdate, TIME_FORMAT)
-						if len(dueinfo) == 0 or voltest: 
+						if len(dueinfo) == 0 or bringfw: 
 							earliestdue = duetime
 							if voltest:
 								if (int(voltest.group(1)) > vol):
@@ -162,22 +180,32 @@ def _item_status(bib_id):
 									tmpinfo = dueinfo
 									dueinfo = voltest.group(0) + ': ' + time.strftime(DUE_FORMAT,earliestdue) 
 									if len(tmpinfo) > 0:
-											dueinfo = dueinfo + "/" + dueinfo
+										dueinfo = dueinfo + "/" + dueinfo
 								callprefix = callsuffix = ''
-							else:
-								dueinfo = time.strftime(DUE_FORMAT,earliestdue)
+							elif attachtest:
+								tmpinfo = dueinfo
+								dueinfo = ATTACHMENT + ': ' + time.strftime(DUE_FORMAT,earliestdue)
+								if len(callno) > 0:
+									callno = callno + '/' + callnum 
+									callprefix = callsuffix = ''
+								else:
+									callno = callnum
+								if len(tmpinfo) > 0:
+									dueinfo = dueinfo + "/" + dueinfo
 								
-							if not voltest:
+							if not bringfw:
+								dueinfo = time.strftime(DUE_FORMAT,earliestdue)
 								callno = callnum
 
 						# way too wacky to sort out vols for this
-						if duetime < earliestdue and not voltest:
+						if duetime < earliestdue and not bringfw:
 							earliestdue = duetime
 							dueinfo = time.strftime(DUE_FORMAT,earliestdue)
 							callno = callnum
 					
-		if voltest:
+		if voltest or attachtest:
 			callno = callprefix + callno + callsuffix
+		if voltest:
 			vol = int(voltest.group(1))
             return (lib, desk, avail, callno, dueinfo, circmod)
 	except:
