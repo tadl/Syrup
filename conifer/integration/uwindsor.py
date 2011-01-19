@@ -24,7 +24,9 @@ DUE_FORMAT = "%b %d %Y, %r"
 OPENSRF_CN_CALL = "open-ils.search.asset.copy.retrieve_by_cn_label"
 OPENSRF_FLESHED2_CALL = "open-ils.search.asset.copy.fleshed2.retrieve"
 OPENSRF_COPY_COUNTS = "open-ils.search.biblio.copy_counts.location.summary.retrieve"
-ATTACHMENT = 'DVD'
+
+#setup for DVD, CD, CD-ROM, Guide, Booklet on the end of a call number
+ATTACHMENT = '\w*DVD\s?|\w*CD\s?|\w[Gg]uide\s?|\w[Bb]ooklet\s?|\w*CD\-ROM\s?'
 
 # USE_Z3950: if True, use Z39.50 for catalogue search; if False, use OpenSRF.
 # Don't set this value directly here: rather, if there is a valid Z3950_CONFIG
@@ -120,13 +122,11 @@ def _item_status(bib_id):
 		volume check - based on v.1, etc. in call number
 		"""
     		voltest = re.search(r'\w*v\.\s?(\d+)', callnum)
+
 		"""
-		attachment test - will need to sort out if this applies to more than DVDs
+		attachment test 
 		"""
-		attachtest = False
-		if callno.find(ATTACHMENT) == -1:
-			#make this funkier if there is a possibility of more than one type
-			attachtest = callnum.endswith(ATTACHMENT)
+		attachtest = re.search(ATTACHMENT, callnum)
 
                 if loc == RESERVES_DESK_NAME:
                     desk += anystatus_here
@@ -136,7 +136,7 @@ def _item_status(bib_id):
 				callsuffix = "/" + callnum
 			else:
 				callprefix = callnum + "/" 
-		    elif attachtest:
+		    elif attachtest and callno.find(attachtest.group(0)) == -1:
 			if len(callno) > 0:
 				callsuffix = "/" + callnum
 			else:
