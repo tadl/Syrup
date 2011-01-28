@@ -11,6 +11,7 @@ from memoization import memoize
 from xml.etree import ElementTree as ET
 import csv
 import datetime
+import hashlib
 import time
 import os
 import re
@@ -203,6 +204,26 @@ def _item_status(bib_id):
             traceback.print_exc()
             pass          # fail silently in production if there's an opensrf or time related error.
     return None
+
+#for example: auth_token("username@uwindsor.ca", "password", "OWA", "workstation")
+def auth_token(username, password, org, workstation):
+    try:
+	authtoken = None
+	payload = E1('open-ils.auth.authenticate.init', username)
+	pw = hashlib.md5(password).hexdigest()
+	pw = hashlib.md5(payload + pw).hexdigest()
+	authinfo = E1('open-ils.auth.authenticate.complete',{"password":pw, "type":"staff", 
+		"org": org, "username":username,
+		"workstation":workstation})
+    	if authinfo:
+    		payload = authinfo.get("payload")
+    		authtoken = payload.get("authtoken")
+    except:
+	    print "authentication problem: ", username
+            print "*** print_exc:"
+            traceback.print_exc()
+            pass          # fail silently in production 
+    return authtoken
 
 def cat_search(query, start=1, limit=10):
     bibid=0
