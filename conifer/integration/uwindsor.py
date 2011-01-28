@@ -18,21 +18,10 @@ import traceback
 import subprocess
 import uwindsor_campus_info
 
-#TODO: move these into settings
-TIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
-DUE_FORMAT = "%b %d %Y, %r"
-OPENSRF_CN_CALL = "open-ils.search.asset.copy.retrieve_by_cn_label"
-OPENSRF_FLESHED2_CALL = "open-ils.search.asset.copy.fleshed2.retrieve"
-OPENSRF_COPY_COUNTS = "open-ils.search.biblio.copy_counts.location.summary.retrieve"
-
-#setup for DVD, CD, CD-ROM, Guide, Booklet on the end of a call number
-ATTACHMENT = '\w*DVD\s?|\w*CD\s?|\w[Gg]uide\s?|\w[Bb]ooklet\s?|\w*CD\-ROM\s?'
-
 # USE_Z3950: if True, use Z39.50 for catalogue search; if False, use OpenSRF.
 # Don't set this value directly here: rather, if there is a valid Z3950_CONFIG
 # settings in local_settings.py, then Z39.50 will be used.
 USE_Z3950 = getattr(settings, 'Z3950_CONFIG', None) is not None
-
 
 def department_course_catalogue():
     """
@@ -104,7 +93,7 @@ def _item_status(bib_id):
             
     if bib_id:
         try:
-            counts = E1(OPENSRF_COPY_COUNTS, bib_id, 1, 0)
+            counts = E1(settings.OPENSRF_COPY_COUNTS, bib_id, 1, 0)
             lib = desk = avail = vol = 0
 	    dueinfo = ''
             callno = ''
@@ -126,7 +115,7 @@ def _item_status(bib_id):
 		"""
 		attachment test 
 		"""
-		attachtest = re.search(ATTACHMENT, callnum)
+		attachtest = re.search(settings.ATTACHMENT, callnum)
 
                 if loc == RESERVES_DESK_NAME:
                     desk += anystatus_here
@@ -145,14 +134,14 @@ def _item_status(bib_id):
                     	callno = callnum
 		    dueinfo = ''
                 lib += anystatus_here
-            	copyids = E1(OPENSRF_CN_CALL, bib_id, callnum, org)
+            	copyids = E1(settings.OPENSRF_CN_CALL, bib_id, callnum, org)
 		
 		"""
 		we want to return the resource that will be returned first if
 		already checked out
 		"""
 		for copyid in copyids:
-			circinfo = E1(OPENSRF_FLESHED2_CALL, copyid)
+			circinfo = E1(settings.OPENSRF_FLESHED2_CALL, copyid)
 			if loc == RESERVES_DESK_NAME: 
 				bringfw = attachtest
 				# multiple volumes
@@ -168,23 +157,23 @@ def _item_status(bib_id):
 						rawdate = circ.get("due_date")
 						#remove offset info, %z is flakey for some reason
 						rawdate = rawdate[:-5]
-						duetime = time.strptime(rawdate, TIME_FORMAT)
+						duetime = time.strptime(rawdate, settings.TIME_FORMAT)
 						if len(dueinfo) == 0 or bringfw: 
 							earliestdue = duetime
 							if voltest:
 								if (int(voltest.group(1)) > vol):
 									if len(dueinfo) > 0:
 										dueinfo = dueinfo + "/"
-									dueinfo = dueinfo + voltest.group(0) + ': ' + time.strftime(DUE_FORMAT,earliestdue)
+									dueinfo = dueinfo + voltest.group(0) + ': ' + time.strftime(settings.DUE_FORMAT,earliestdue)
 								else:
 									tmpinfo = dueinfo
-									dueinfo = voltest.group(0) + ': ' + time.strftime(DUE_FORMAT,earliestdue) 
+									dueinfo = voltest.group(0) + ': ' + time.strftime(settings.DUE_FORMAT,earliestdue) 
 									if len(tmpinfo) > 0:
 										dueinfo = dueinfo + "/" + dueinfo
 								callprefix = callsuffix = ''
 							elif attachtest:
 								tmpinfo = dueinfo
-								dueinfo = ATTACHMENT + ': ' + time.strftime(DUE_FORMAT,earliestdue)
+								dueinfo = settings.ATTACHMENT + ': ' + time.strftime(settings.DUE_FORMAT,earliestdue)
 								if len(callno) > 0:
 									callno = callno + '/' + callnum 
 									callprefix = callsuffix = ''
@@ -194,7 +183,7 @@ def _item_status(bib_id):
 									dueinfo = dueinfo + "/" + dueinfo
 								
 							if not bringfw:
-								dueinfo = time.strftime(DUE_FORMAT,earliestdue)
+								dueinfo = time.strftime(settings.DUE_FORMAT,earliestdue)
 								callno = callnum
 
 						# way too wacky to sort out vols for this
