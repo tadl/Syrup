@@ -6,16 +6,12 @@ NEW:
 
 * check apache error logs for 'parse' error that Art mentioned.
 
-* review placement of Available buttons, they move around
-
 * auto-centered column doesn't center in IE
 
 * Sakai linkup -- test, seems not to work on SHOWCASE
 
 * move item-status caching into the database: the new due-date checks are a
   bit slow, and the cache isn't shared across Apache instances.
-
-* add/remove individuals in course sites
 
 * work on circ modifier stuff (art and dan's conversation)
 
@@ -29,10 +25,6 @@ NEW:
 * download declaration only needed for "fair dealing". This may be uwindsor specific.
 
 * optional, persistent link between a course site and a bookbag URL, as an interim step for windsor.
-
-* uwindsor only: import data from ERes and bookbags into Syrup.
-
-* permissions: clicking "add group" should pull the whole form into focus.
 
 * how should "join this site" be managed?
 
@@ -128,4 +120,12 @@ RECENTLY DONE:
 * show call number on index pages
 
 * index pages when printed, should show call all numbers clearly
+
+* add/remove individuals in course sites
+
+* review placement of Available buttons, they move around
+
+* uwindsor only: import data from ERes and bookbags into Syrup.
+
+* permissions: clicking "add group" should pull the whole form into focus.
 
