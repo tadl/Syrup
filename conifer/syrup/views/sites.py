@@ -109,6 +109,29 @@ def edit_site_permissions(request, site_id):
             site.access = access
             message = 'Security level changed: "%s"' % dict(choices)[access]
 
+        elif 'action_add_member' in POST:
+            userid = request.POST.get('userid')
+            role = request.POST.get('role')
+            try:
+                user = User.objects.get(username=userid)
+            except User.DoesNotExist:
+                user = User.objects.create(username=userid)
+                user.save()
+                user.maybe_decorate()
+                user.save()
+            group = models.Group.objects.get(site=site, external_id=None)
+            mbr, created = models.Membership.objects.get_or_create(
+                group=group, user=user, defaults=dict(role=role))
+            if created:
+                message = '%s has been added as a member (role: %s).' % (
+                    user.get_full_name() or user.username, mbr.get_role_display())
+            else:
+                mbr.role = role
+                mbr.save()
+                message = '%s: role changed to %s.' % (
+                    user.get_full_name() or user.username, 
+                    mbr.get_role_display())
+            
         elif 'action_add_group' in POST:
             section = POST.get('section', '').strip()
             groupcode = None
@@ -192,7 +215,8 @@ def site_join(request, site_id):
 @admin_only
 def site_fuzzy_user_lookup(request):
     query = request.POST.get('q').lower().strip()
-    results = callhook('fuzzy_person_lookup', query) or []
+    include_students = (request.POST.get('includeStudents') == 'true')
+    results = callhook('fuzzy_person_lookup', query, include_students) or []
     limit = 10
     resp = {'results': results[:limit], 
             'notshown': max(0, len(results) - limit)}

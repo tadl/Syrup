@@ -19,6 +19,19 @@ extgroups = site.group_set.filter(external_id__isnull=False).annotate(Count('mem
     #message { background-color: #fdd; padding: 12; display: inline-block; }
     h2 { margin-top: 2em; }
   </style>
+  <script type="text/javascript" src="${ROOT}/static/fuzzyFinder.js"/>
+  <script>
+    $(function() {
+    var fuzzy = fuzzyFinder(
+    '#fuzzyinput', '#fuzzypanel', '#fuzzyedit', '#fuzzyview', '#fuzzyname', '#fuzzychange', '#userid');
+    fuzzy.includeStudents = true;
+    });
+  </script>
+  <style>
+	.fuzzychoice { display: block; margin: 0.5em 0;  font-size: 90%; }
+	#fuzzyview { display: block; margin: 0.5em 0;  font-size: 90%; }
+	#fuzzyname { color: navy; }
+  </style>
 </head>
 <body>
   ${site_banner(site)}
@@ -56,7 +69,7 @@ extgroups = site.group_set.filter(external_id__isnull=False).annotate(Count('mem
 		</tbody>
 	  </table>
 	  <div>
-		<p><input type="button" value="Add external group" onclick="$('#addExternalGroupPopup').fadeIn();"/></p>
+		<p><input type="button" value="Add external group" onclick="$('#addExternalGroupPopup').fadeIn('slow')[0].scrollIntoView(true);"/></p>
 		<div class="popup" id="addExternalGroupPopup" style="display: none;">
 		  <li py:if="show_add_section_panel">
 			Add the class list for ${site.course.code}, section <input name="section" style="width: 2em;"/>, ${site.start_term.name}
@@ -84,6 +97,39 @@ extgroups = site.group_set.filter(external_id__isnull=False).annotate(Count('mem
 	<td>${member.group.external_id or '(internal)'}</td>
       </tr>
     </table>
+    	  <div>
+		<p><input type="button" value="Add new member" onclick="$('#addMemberPopup').fadeIn('slow')[0].scrollIntoView(true);"/></p>
+		<div class="popup" id="addMemberPopup" style="display: none;">
+		  <div>
+		    <div id="fuzzyedit" style="display: block">
+		      <div style="font-size: 80%; margin: 0.5em 0;">
+			Type a partial name or userid into the box; then select one of the matches.
+		      </div>
+		      <input type="text" id="fuzzyinput" autocomplete="off" value=""/>
+		      <div id="fuzzypanel">
+		      </div>
+		    </div>
+		    <div id="fuzzyview" style="display: none;">
+		      <span id="fuzzyname">
+		      </span>
+		      <input id="fuzzychange" type="button" value="change" onclick="fuzzyLookup.edit();"
+			     style="margin-left: 1em;"/>
+		      <div>
+			<p>
+			  Role for this user: 
+			  <select name="role">
+			    <option py:for="v,k in models.Membership.ROLE_CHOICES" value="${v}">${k}</option>
+			  </select>
+			</p>
+			<input type="hidden" id="userid" name="userid" value=""/>
+			<p><input name="action_add_member" type="submit" value="Add this user"/>
+			${go_back_link('../../')}</p>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+	  </div>
+
 	</div>
   </form>
   <div class="gap"/>

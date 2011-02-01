@@ -5,6 +5,7 @@ function fuzzyFinder(Search, Matches, EditPanel, ViewPanel, ViewName, Change, Ow
 	lastPress: null,
 	waiting: false,
 	minWait: 500,
+	includeStudents: false,
 	
 	lookup: function() {
 	    var text = $(this).val();
@@ -30,7 +31,8 @@ function fuzzyFinder(Search, Matches, EditPanel, ViewPanel, ViewName, Change, Ow
 	    
 	    here.waiting = true;
 	    $(Search).css({backgroundColor: 'yellow'}); // debugging
-	    $.post(ROOT + '/fuzzy_user_lookup', {'q': here.lastText},
+	    $.post(ROOT + '/fuzzy_user_lookup', {'q': here.lastText, 
+						 includeStudents: here.includeStudents},
 		   function(data) {
 		       here.waiting = false;
 		       here.lastPress = null;
@@ -40,7 +42,7 @@ function fuzzyFinder(Search, Matches, EditPanel, ViewPanel, ViewName, Change, Ow
 			   $(Matches).append('No matches.');
 		       }
 		       $.each(data.results, function(i,val) {
-			   var link = $('<a class="fuzzychoice" href="#"/>');
+			   var link = $('<a class="fuzzychoice" href="javascript:void(0);"/>');
 			   link.text(val[1]);
 			   link.data('userid', val[0]);
 			   link.data('display', val[1]);
