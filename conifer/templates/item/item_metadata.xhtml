@@ -117,6 +117,11 @@ callnum = item.call_number()
 	</div>
     </div>
 
+    <div py:if="item.bib_id and gethook('bib_id_to_url')"
+	 py:with="url=callhook('bib_id_to_url', item.bib_id)">
+      <a py:if="url" href="${url}">View status of all copies in catalogue</a>
+    </div>
+
     <div py:if="item.marcxml">
       <abbr py:if="item.marcxml" class="unapi-id" title="${item.id}"/>
       <p id="marcdatashow"><a href="javascript:void($('#marcdata').toggle());">Display MARC Record</a></p>
@@ -129,10 +134,6 @@ callnum = item.call_number()
 		</tr>
 	      </table>
 	    </div>
-    </div>
-    <div py:if="item.bib_id and gethook('bib_id_to_url')"
-	 py:with="url=callhook('bib_id_to_url', item.bib_id)">
-      <a py:if="url" href="${url}">View catalogue entry</a>
     </div>
   </body>
 </html>

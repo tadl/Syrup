@@ -58,18 +58,25 @@ searchtext = _('search this site...')
                 <span py:if="_circmod == 'RESERVE 4 HOUR'">4 Hour Loan</span>
                 <span py:if="_circmod == 'RESERVE 7 DAY'">7 Day Loan</span>
           </div>
-	  <div class="callnumber">${_callno}</div>
-          <div py:if="_dueinfo">DUE: ${_dueinfo}</div>
+	  <div class="callnumber"><span py:if="_avail &gt; 0">Ask for: </span><span class="standout">${_callno}</span></div>
+          <div py:if="_dueinfo">NEXT DUE: ${_dueinfo}</div>
          </div>
 		  
          <div py:if="not valid" class="unavailable">
 		Availability unknown.
 		<div class="callnumber">${item.call_number()}</div>
-		  
          </div>
-
+    		
          </a>
+      <div py:with="(_lib, _desk, _avail, _callno, _dueinfo, _circmod) = stat">
+         	<div py:if="_desk &gt; 1 and item.bib_id and gethook('bib_id_to_url')"
+			py:with="url=callhook('bib_id_to_url', item.bib_id)">
+			<a py:if="url" href="${url}">View status of all copies in catalogue</a>
+         	</div>
       </div>
+      </div>
+         
+
       <div class="availability avail_nonphys" py:if="item.item_type != 'PHYS'">
       </div>
       <div class="mainline ${item.item_type=='HEADING' and 'headingmainline' or ''}">
