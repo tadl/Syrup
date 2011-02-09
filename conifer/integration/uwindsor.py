@@ -99,6 +99,8 @@ def _item_status(bib_id):
 	    dueinfo = ''
             callno = ''
             circmod = ''
+            alldues = []
+
             for org, callnum, loc, stats in counts:
 		callprefix = ''
 		callsuffix = ''
@@ -119,32 +121,41 @@ def _item_status(bib_id):
 		attachtest = re.search(settings.ATTACHMENT, callnum)
 
                 if loc == RESERVES_DESK_NAME:
-                    desk += anystatus_here
+		    desk += anystatus_here
                     avail += avail_here
+		    dueinfo = ''
+                    		
                     if (voltest and vol > 0): 
 			if (int(voltest.group(1)) > vol):
 				callsuffix = "/" + callnum
 			else:
 				callprefix = callnum + "/" 
-		    elif attachtest and callno.find(attachtest.group(0)) == -1:
+                    elif attachtest and callno.find(attachtest.group(0)) == -1:
 			if len(callno) > 0:
 				callsuffix = "/" + callnum
 			else:
 				callprefix = callnum
-		    else:
-                    	callno = callnum
-		    dueinfo = ''
-                lib += anystatus_here
-            	copyids = E1(settings.OPENSRF_CN_CALL, bib_id, callnum, org)
+                    else:
+			callno = callnum
+                
+                    lib += anystatus_here
+                    copyids = E1(settings.OPENSRF_CN_CALL, bib_id, callnum, org)
 		
-		"""
-		we want to return the resource that will be returned first if
-		already checked out
-		"""
-		for copyid in copyids:
+		
+                    """
+                    we want to return the resource that will be returned first if
+                    already checked out
+                    """
+                    for copyid in copyids:
 			circinfo = E1(settings.OPENSRF_FLESHED2_CALL, copyid)
-			if loc == RESERVES_DESK_NAME: 
+
+			thisloc = circinfo.get("location")
+			if thisloc:
+				thisloc = thisloc.get("name")
+		
+			if thisloc == RESERVES_DESK_NAME: 
 				bringfw = attachtest
+
 				# multiple volumes
 				if voltest and callno.find(voltest.group(0)) == -1:
 					bringfw = True
@@ -170,7 +181,7 @@ def _item_status(bib_id):
 									tmpinfo = dueinfo
 									dueinfo = voltest.group(0) + ': ' + time.strftime(settings.DUE_FORMAT,earliestdue) 
 									if len(tmpinfo) > 0:
-										dueinfo = dueinfo + "/" + dueinfo
+										dueinfo = dueinfo + "/" + tmpinfo
 								callprefix = callsuffix = ''
 							elif attachtest:
 								tmpinfo = dueinfo
@@ -181,7 +192,7 @@ def _item_status(bib_id):
 								else:
 									callno = callnum
 								if len(tmpinfo) > 0:
-									dueinfo = dueinfo + "/" + dueinfo
+									dueinfo = dueinfo + "/" + tmpinfo
 								
 							if not bringfw:
 								dueinfo = time.strftime(settings.DUE_FORMAT,earliestdue)
@@ -192,12 +203,20 @@ def _item_status(bib_id):
 							earliestdue = duetime
 							dueinfo = time.strftime(DUE_FORMAT,earliestdue)
 							callno = callnum
-					
-		if voltest or attachtest:
-			callno = callprefix + callno + callsuffix
-		if voltest:
-			vol = int(voltest.group(1))
-            return (lib, desk, avail, callno, dueinfo, circmod)
+
+				alldisplay = callnum + ' Available'
+				if (avail == 0):
+					alldisplay = '%s %s' % (callnum, dueinfo)
+				alldues.append(alldisplay)
+			
+			if voltest or attachtest:
+				if callno.find(callprefix) == -1:
+					callno = callprefix + callno 
+				if callno.find(callsuffix) == -1:
+					callno = callno + callsuffix
+			if voltest:
+				vol = int(voltest.group(1))
+            return (lib, desk, avail, callno, dueinfo, circmod, alldues)
 	except:
 	    print "due date/call problem: ", bib_id
             print "*** print_exc:"

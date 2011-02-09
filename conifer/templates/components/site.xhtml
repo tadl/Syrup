@@ -40,7 +40,7 @@ searchtext = _('search this site...')
       ?>
       <div class="availability" py:if="item.item_type == 'PHYS'">
 	<a href="${item.item_url()}">
-	<div py:if="valid" py:with="(_lib, _desk, _avail, _callno, _dueinfo, _circmod) = stat"
+	<div py:if="valid" py:with="(_lib, _desk, _avail, _callno, _dueinfo, _circmod, _alldues) = stat"
 	     class="${_avail &gt; 0 and 'available' or 'unavailable'}"
 	     title="${_avail} of ${_desk} copies available at reserves desk; ${_lib} total copies in library system">
           <div>${_avail and 'Available' or 'Unavailable'} (${_avail}/${_desk})</div>
@@ -68,11 +68,30 @@ searchtext = _('search this site...')
          </div>
     		
          </a>
-         <div py:if="valid"  py:with="(_lib, _desk, _avail, _callno, _dueinfo, _circmod) = stat">
-         	<div py:if="_desk &gt; 1 and item.bib_id and gethook('bib_id_to_url')"
-			py:with="url=callhook('bib_id_to_url', item.bib_id)">
-			<a py:if="url" href="${url}">View status of all copies in catalogue</a>
-         	</div>
+         <div py:if="valid"  py:with="(_lib, _desk, _avail, _callno, _dueinfo, _circmod, _alldues) = stat">
+		<div id="status_${item.id}" style="display: none;"> 
+    		<script type="text/javascript">
+			function show_stuff(the_id){
+   				document.getElementById('status_' + the_id).style.display="block";
+   				document.getElementById('showlink_' + the_id).style.display="none";
+   				document.getElementById('hidelink_' + the_id).style.display="block";
+			}
+			function hide_stuff(the_id){
+   				document.getElementById('status_' + the_id).style.display="none";
+   				document.getElementById('showlink_' + the_id).style.display="block";
+   				document.getElementById('hidelink_' + the_id).style.display="none";
+			}
+    		</script>
+		<div py:for="k in _alldues">
+			${k}
+		</div>
+		</div>
+		<div id="showlink_${item.id}" py:if="len(_alldues) > 1">
+			<a href="javascript:show_stuff('${item.id}');">Show status of all copies</a>
+		</div>
+		<div style="display: none;" id="hidelink_${item.id}" py:if="len(_alldues) > 1">
+			<a href="javascript:hide_stuff('${item.id}');">Hide status details</a>
+		</div>
          </div>
       </div>
          
