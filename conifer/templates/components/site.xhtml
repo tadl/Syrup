@@ -68,12 +68,12 @@ searchtext = _('search this site...')
          </div>
     		
          </a>
-      <div py:with="(_lib, _desk, _avail, _callno, _dueinfo, _circmod) = stat">
+         <div py:if="valid"  py:with="(_lib, _desk, _avail, _callno, _dueinfo, _circmod) = stat">
          	<div py:if="_desk &gt; 1 and item.bib_id and gethook('bib_id_to_url')"
 			py:with="url=callhook('bib_id_to_url', item.bib_id)">
 			<a py:if="url" href="${url}">View status of all copies in catalogue</a>
          	</div>
-      </div>
+         </div>
       </div>
          
 
