@@ -162,14 +162,17 @@ def _item_status(bib_id):
 	
 				if len(circmod) == 0:
 					circmod = circinfo.get("circ_modifier")
+				circs = circinfo.get("circulations")
+
+				if circs and len(circs) > 0:
+					circ = circs[0]
+					rawdate = circ.get("due_date")
+					#remove offset info, %z is flakey for some reason
+					rawdate = rawdate[:-5]
+					duetime = time.strptime(rawdate, settings.TIME_FORMAT)
+
 				if avail == 0 or bringfw:
-					circs = circinfo.get("circulations")
 					if circs and len(circs) > 0:
-						circ = circs[0]
-						rawdate = circ.get("due_date")
-						#remove offset info, %z is flakey for some reason
-						rawdate = rawdate[:-5]
-						duetime = time.strptime(rawdate, settings.TIME_FORMAT)
 						if len(dueinfo) == 0 or bringfw: 
 							earliestdue = duetime
 							if voltest:
@@ -204,9 +207,11 @@ def _item_status(bib_id):
 							dueinfo = time.strftime(DUE_FORMAT,earliestdue)
 							callno = callnum
 
-				alldisplay = callnum + ' Available'
-				if (avail == 0):
-					alldisplay = '%s %s' % (callnum, dueinfo)
+				alldisplay = callnum + ' (Available)'
+					
+				if circs and len(circs) > 0:
+					alldisplay = '%s (DUE: %s)' % (callnum, time.strftime(settings.DUE_FORMAT,duetime))
+
 				alldues.append(alldisplay)
 			
 			if voltest or attachtest:
