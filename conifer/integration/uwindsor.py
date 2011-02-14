@@ -11,7 +11,6 @@ from memoization import memoize
 from xml.etree import ElementTree as ET
 import csv
 import datetime
-import hashlib
 import time
 import os
 import re
@@ -66,8 +65,6 @@ STATUS_DECODE = [(str(x['id']), x['name'])
 AVAILABLE = [id for id, name in STATUS_DECODE if name == 'Available'][0]
 RESHELVING = [id for id, name in STATUS_DECODE if name == 'Reshelving'][0]
 
-RESERVES_DESK_NAME = 'Leddy: Course Reserves - Main Bldng - 1st Flr - Reserve Counter at Circulation Desk'
-
 def item_status(item):
     """
     Given an Item object, return three numbers: (library, desk,
@@ -89,12 +86,13 @@ def item_status(item):
 
 CACHE_TIME = 300
 
-@memoize(timeout=CACHE_TIME)
+# @memoize(timeout=CACHE_TIME)
 def _item_status(bib_id):
             
     if bib_id:
         try:
             counts = E1(settings.OPENSRF_COPY_COUNTS, bib_id, 1, 0)
+
             lib = desk = avail = vol = 0
 	    dueinfo = ''
             callno = ''
@@ -120,12 +118,12 @@ def _item_status(bib_id):
 		"""
 		attachtest = re.search(settings.ATTACHMENT, callnum)
 
-                if loc == RESERVES_DESK_NAME:
+                if loc == settings.RESERVES_DESK_NAME:
 		    desk += anystatus_here
                     avail += avail_here
 		    dueinfo = ''
                     		
-                    if (voltest and vol > 0): 
+                    if (voltest and vol > 0 ): 
 			if (int(voltest.group(1)) > vol):
 				callsuffix = "/" + callnum
 			else:
@@ -139,8 +137,8 @@ def _item_status(bib_id):
 			callno = callnum
                 
                     lib += anystatus_here
+                    print "PRE"
                     copyids = E1(settings.OPENSRF_CN_CALL, bib_id, callnum, org)
-		
 		
                     """
                     we want to return the resource that will be returned first if
@@ -153,7 +151,7 @@ def _item_status(bib_id):
 			if thisloc:
 				thisloc = thisloc.get("name")
 		
-			if thisloc == RESERVES_DESK_NAME: 
+			if thisloc == settings.RESERVES_DESK_NAME: 
 				bringfw = attachtest
 
 				# multiple volumes
@@ -164,7 +162,7 @@ def _item_status(bib_id):
 					circmod = circinfo.get("circ_modifier")
 				circs = circinfo.get("circulations")
 
-				if circs and len(circs) > 0:
+				if circs and len(circs) > 0 and circs.isdigit():
 					circ = circs[0]
 					rawdate = circ.get("due_date")
 					#remove offset info, %z is flakey for some reason
@@ -209,7 +207,7 @@ def _item_status(bib_id):
 
 				alldisplay = callnum + ' (Available)'
 					
-				if circs and len(circs) > 0:
+				if circs and len(circs) > 0 and circs.isdigit():
 					alldisplay = '%s (DUE: %s)' % (callnum, time.strftime(settings.DUE_FORMAT,duetime))
 
 				alldues.append(alldisplay)
@@ -228,26 +226,6 @@ def _item_status(bib_id):
             traceback.print_exc()
             pass          # fail silently in production if there's an opensrf or time related error.
     return None
-
-#for example: auth_token("username@uwindsor.ca", "password", "OWA", "workstation")
-def auth_token(username, password, org, workstation):
-    try:
-	authtoken = None
-	payload = E1('open-ils.auth.authenticate.init', username)
-	pw = hashlib.md5(password).hexdigest()
-	pw = hashlib.md5(payload + pw).hexdigest()
-	authinfo = E1('open-ils.auth.authenticate.complete',{"password":pw, "type":"staff", 
-		"org": org, "username":username,
-		"workstation":workstation})
-    	if authinfo:
-    		payload = authinfo.get("payload")
-    		authtoken = payload.get("authtoken")
-    except:
-	    print "authentication problem: ", username
-            print "*** print_exc:"
-            traceback.print_exc()
-            pass          # fail silently in production 
-    return authtoken
 
 def cat_search(query, start=1, limit=10):
     bibid=0
@@ -319,8 +297,8 @@ def bib_id_to_url(bib_id):
     Given a bib ID, return either a URL for examining the bib record, or None.
     """
     if bib_id:
-        return ('http://windsor.concat.ca/opac/en-CA'
-                '/skin/uwin/xml/rdetail.xml?r=%s&l=1&d=0' % bib_id)
+        return ('%sopac/en-CA'
+                '/skin/uwin/xml/rdetail.xml?r=%s&l=1&d=0' % (EG_BASE, bib_id))
 
 if False: # if USE_Z3950:
     # only if we are using Z39.50 for catalogue search. Results including

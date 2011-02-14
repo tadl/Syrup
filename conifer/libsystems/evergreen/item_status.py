@@ -1,5 +1,6 @@
 import support
 from support import ER, E1
+from django.conf import settings
 import re
 import urllib2
 
@@ -32,7 +33,8 @@ def url_to_marcxml(url):
         return xml
 
 if __name__ == '__main__':
-    support.initialize('http://windsor.concat.ca/')
+    EG_BASE = 'http://%s/' % settings.EVERGREEN_GATEWAY_SERVER
+    support.initialize(EG_BASE)
     print url_to_marcxml('http://windsor.concat.ca/opac/en-CA/skin/uwin/xml/rdetail.xml?r=1971331&t=evergreen&tp=keyword&l=106&d=1&hc=210&rt=keyword')
     # from xml.etree import ElementTree as ET
     # for t in ET.fromstring(bib_id_to_marcxml('2081089')).getiterator():

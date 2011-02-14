@@ -3,8 +3,41 @@ import hashlib
 from _common                     import *
 from conifer.plumbing.hooksystem import *
 from conifer.syrup               import integration
+from django.conf import settings
 from xml.etree                   import ElementTree as ET
 from collections                 import defaultdict
+from conifer.libsystems.evergreen.support import initialize, E1
+from conifer.libsystems.evergreen.opensrf     import *
+
+@instructors_only
+def item_ils_update(request):
+    """Update item in ILS""" 
+    # this works in my tests, need to try more variations
+    # disable in production for now
+    return simple_message(_('testing.'), _('testing.'))
+    token = auth_token(settings.OPENSRF_STAFF_USERID, settings.OPENSRF_STAFF_PW,
+	settings.OPENSRF_STAFF_ORG, settings.OPENSRF_STAFF_WORKSTATION)
+    null = None
+    true = True
+    # barcode will come from form
+    barcode = "31862005297755"
+    barcode_copy = E1(settings.OPENSRF_CN_BARCODE, token, barcode);
+    copy = None
+    if barcode_copy:
+	copy = barcode_copy.get("copy")
+	if copy:
+		detailid = copy['__p'][21]
+		details = E1(settings.OPENSRF_FLESHEDCOPY_CALL, [detailid])
+		print "details", details
+		location = details[0]['__p'][23]['__p'][3]
+		details[0]['__p'][6] = "CIRC"
+		details[0]['__p'][23] = location
+		details[0]['__p'].append(None)
+		details[0]['__p'].append('1')
+		updaterec = E1(settings.OPENSRF_BATCH_UPDATE, token, details,true)
+    		print "updaterec", updaterec
+    session_cleanup(token)
+    return simple_message(_('testing.'), _('testing.'))
 
 @members_only
 def item_detail(request, site_id, item_id):
