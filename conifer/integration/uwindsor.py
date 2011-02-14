@@ -86,7 +86,7 @@ def item_status(item):
 
 CACHE_TIME = 300
 
-# @memoize(timeout=CACHE_TIME)
+@memoize(timeout=CACHE_TIME)
 def _item_status(bib_id):
             
     if bib_id:
