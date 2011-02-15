@@ -137,7 +137,6 @@ def _item_status(bib_id):
 			callno = callnum
                 
                     lib += anystatus_here
-                    print "PRE"
                     copyids = E1(settings.OPENSRF_CN_CALL, bib_id, callnum, org)
 		
                     """
@@ -186,7 +185,7 @@ def _item_status(bib_id):
 								callprefix = callsuffix = ''
 							elif attachtest:
 								tmpinfo = dueinfo
-								dueinfo = settings.ATTACHMENT + ': ' + time.strftime(settings.DUE_FORMAT,earliestdue)
+								dueinfo = attachtest.group(0) + ': ' + time.strftime(settings.DUE_FORMAT,earliestdue)
 								if len(callno) > 0:
 									callno = callno + '/' + callnum 
 									callprefix = callsuffix = ''
