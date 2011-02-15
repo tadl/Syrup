@@ -162,7 +162,7 @@ def _item_status(bib_id):
 					circmod = circinfo.get("circ_modifier")
 				circs = circinfo.get("circulations")
 
-				if circs and len(circs) > 0 and circs.isdigit():
+				if circs and isinstance(circs, list):
 					circ = circs[0]
 					rawdate = circ.get("due_date")
 					#remove offset info, %z is flakey for some reason
@@ -207,7 +207,7 @@ def _item_status(bib_id):
 
 				alldisplay = callnum + ' (Available)'
 					
-				if circs and len(circs) > 0 and circs.isdigit():
+				if circs and isinstance(circs, list):
 					alldisplay = '%s (DUE: %s)' % (callnum, time.strftime(settings.DUE_FORMAT,duetime))
 
 				alldues.append(alldisplay)
