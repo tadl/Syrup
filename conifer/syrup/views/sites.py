@@ -214,8 +214,8 @@ def site_join(request, site_id):
 
 @admin_only
 def site_fuzzy_user_lookup(request):
-    query = request.POST.get('q').lower().strip()
-    include_students = (request.POST.get('includeStudents') == 'true')
+    query = request.REQUEST.get('q').lower().strip()
+    include_students = (request.REQUEST.get('includeStudents') == 'true')
     results = callhook('fuzzy_person_lookup', query, include_students) or []
     limit = 10
     resp = {'results': results[:limit], 

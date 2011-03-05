@@ -17,6 +17,7 @@ import re
 import traceback
 import subprocess
 import uwindsor_campus_info
+import uwindsor_fuzzy_lookup
 
 # USE_Z3950: if True, use Z39.50 for catalogue search; if False, use OpenSRF.
 # Don't set this value directly here: rather, if there is a valid Z3950_CONFIG
@@ -374,37 +375,30 @@ def decode_role(role):
     else:
         return 'STUDT'
 
-FUZZY_LOOKUP_BIN = '/usr/local/bin/SpeedLookup'
+def fuzzy_person_lookup(query, include_students=False):
+    """
+    Given a query, return a list of users who probably match the
+    query. The result is a list of (userid, display), where userid
+    is the campus userid of the person, and display is a string
+    suitable for display in a results-list. Include_students
+    indicates that students, and not just faculty/staff, should be
+    included in the results.
+    """
+    # Note, our 'include_students' option only matches students on exact
+    # userids. That is, fuzzy matching only works for staff, faculty, and
+    # other non-student roles.
 
-if os.path.isfile(FUZZY_LOOKUP_BIN):
+    filter  = uwindsor_fuzzy_lookup.build_filter(query, include_students)
+    results = uwindsor_fuzzy_lookup.search(filter)
 
-    def fuzzy_person_lookup(query, include_students=False):
-        """
-        Given a query, return a list of users who probably match the
-        query. The result is a list of (userid, display), where userid
-        is the campus userid of the person, and display is a string
-        suitable for display in a results-list. Include_students
-        indicates that students, and not just faculty/staff, should be
-        included in the results.
-        """
-
-        cmd = [FUZZY_LOOKUP_BIN, query]
-        if include_students:
-            cmd.append('students')
-
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        try:
-            rdr = csv.reader(p.stdout)
-            rdr.next()              # skip header row,
-            data = list(rdr)        # eagerly fetch the rest
-        finally:
-            p.stdout.close()
-
-        out = []
-        for uid, sn, given, role, dept, mail in data:
-            display = '%s %s. %s, %s. <%s>. [%s]' % (given, sn, role, dept, mail, uid)
-            out.append((uid, display))
-        return out
+    out = []
+    for res in results:
+        if not 'employeeType' in res:
+            res['employeeType'] = 'Student' # a 99% truth!
+        display = ('%(givenName)s %(sn)s. %(employeeType)s, '
+                   '%(uwinDepartment)s. <%(mail)s>. [%(uid)s]') % res
+        out.append((res['uid'], display))
+    return out
 
 
 def derive_group_code_from_section(site, section):
