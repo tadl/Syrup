@@ -202,7 +202,7 @@ def _item_status(bib_id):
 						# way too wacky to sort out vols for this
 						if duetime < earliestdue and not bringfw:
 							earliestdue = duetime
-							dueinfo = time.strftime(DUE_FORMAT,earliestdue)
+							dueinfo = time.strftime(settings.DUE_FORMAT,earliestdue)
 							callno = callnum
 
 				alldisplay = callnum + ' (Available)'

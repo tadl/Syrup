@@ -15,7 +15,8 @@ ATTRS = ["uid", "sn", "eduPersonNickname", "employeeType",
 # fetch server connection details from /etc/ldap-agent
 
 tmp = [line.strip() for line in file('/etc/ldap-agent')]
-SERVER, USER, PWD = tmp[:3]
+if tmp:
+    SERVER, USER, PWD = tmp[:3]
 
 # ---------------------------------------------------------------------------
 # filter construction
