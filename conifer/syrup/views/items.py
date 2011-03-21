@@ -10,32 +10,61 @@ from conifer.libsystems.evergreen.support import initialize, E1
 from conifer.libsystems.evergreen.opensrf     import *
 
 @instructors_only
-def item_ils_update(request):
+def item_ils_update_test(request):
     """Update item in ILS""" 
     # this works in my tests, need to try more variations
     # disable in production for now
-    return simple_message(_('testing.'), _('testing.'))
+    circ_mods = settings.EVERGREEN_CIRC_MODS
+    # for circ_modifier in circ_mods:
+
     token = auth_token(settings.OPENSRF_STAFF_USERID, settings.OPENSRF_STAFF_PW,
 	settings.OPENSRF_STAFF_ORG, settings.OPENSRF_STAFF_WORKSTATION)
+    print "token", token
     null = None
     true = True
+    false = False
     # barcode will come from form
     barcode = "31862005297755"
     barcode_copy = E1(settings.OPENSRF_CN_BARCODE, token, barcode);
     copy = None
     if barcode_copy:
+	volumeinfo = barcode_copy.get("volume")
+	if volumeinfo:
+		volume = volumeinfo['__p']
+		print "volume", volume
+		print "call", volume[7]
+		volume[0] = []
+		volume[5] = 1
+		volume[7] = "QA76.74.M63 B45 2010"
+		volume[13] = None
+		volume.append(None)
+		volume.append('1')
+		print "WOULD UPDATE", volume
+		# updaterec = E1("open-ils.actor.user.perm.check.multi_org", token, 104965, [109], ["UPDATE_VOLUME"])
+    		# print "updaterec", updaterec
+		updaterec = E1(settings.OPENSRF_VOLUME_UPDATE, token, [{"__c":"acn","__p":volume}], false, {"auto_merge_vols":false})
+    		print "updaterec", updaterec
+    session_cleanup(token)
+    return simple_message(_('testing.'), _('testing.'))
+    if barcode_copy:
 	copy = barcode_copy.get("copy")
 	if copy:
+		print "copy", copy
 		detailid = copy['__p'][21]
 		details = E1(settings.OPENSRF_FLESHEDCOPY_CALL, [detailid])
 		print "details", details
 		location = details[0]['__p'][23]['__p'][3]
-		details[0]['__p'][6] = "CIRC"
+		# details[0]['__p'][6] = "RSV1"
+		details[0]['__p'][6] = circ_mods[0]
+		print "location", location
 		details[0]['__p'][23] = location
+		details[0]['__p'][23] = settings.EVERGREEN_RSV_DESK
+		#the joy of testing, these are in the fm_IDL.xml for RC but not production (total circ and holds)
 		details[0]['__p'].append(None)
 		details[0]['__p'].append('1')
-		updaterec = E1(settings.OPENSRF_BATCH_UPDATE, token, details,true)
-    		print "updaterec", updaterec
+		print "WOULD UPDATE", details
+		# updaterec = E1(settings.OPENSRF_BATCH_UPDATE, token, details,true)
+    		# print "updaterec", updaterec
     session_cleanup(token)
     return simple_message(_('testing.'), _('testing.'))
 
@@ -277,11 +306,11 @@ def item_add_cat_search(request, site_id, item_id):
                             site=site, parent_item=parent_item)
         query = request.GET.get('query','').strip()
         start, limit = (int(request.GET.get(k,v)) for k,v in (('start',1),('limit',10)))
-        results, numhits, bibid = integration.cat_search(query, start, limit)
+        results, numhits, bibid, bc = integration.cat_search(query, start, limit)
         return g.render('item/item_add_cat_search.xhtml', 
                         results=results, query=query, 
                         start=start, limit=limit, numhits=numhits,
-                        site=site, parent_item=parent_item, bibid=bibid)
+                        site=site, parent_item=parent_item, bibid=bibid, bc=bc)
     else:
         # User has selected an item; add it to site.
         raw_pickitem = request.POST.get('pickitem', '').strip()
@@ -327,6 +356,34 @@ def item_add_cat_search(request, site_id, item_id):
             pubdate = ''
 
 	bibid = bib_id=request.POST.get('bibid')
+	bc = None
+	callno = None
+	eg_modifier = None
+	eg_desk = None
+
+	bar_num=request.POST.get('bc')
+	if bar_num and settings.OPENSRF_STAFF_USERID:
+		bc = bar_num
+    		token = auth_token(settings.OPENSRF_STAFF_USERID, settings.OPENSRF_STAFF_PW,
+        		settings.OPENSRF_STAFF_ORG, settings.OPENSRF_STAFF_WORKSTATION)
+    		barcode_copy = E1(settings.OPENSRF_CN_BARCODE, token, bc);
+    		if barcode_copy:
+        		volumeinfo = barcode_copy.get("volume")
+        		copyinfo = barcode_copy.get("copy")
+        		if volumeinfo:
+                		volume = volumeinfo['__p']
+				if volume:
+					callno = volume[7]
+			if copyinfo:
+				detailid = copyinfo['__p'][21]
+                		details = E1(settings.OPENSRF_FLESHEDCOPY_CALL, [detailid])
+				if details:
+					eg_desk = details[0]['__p'][23]['__p'][3]
+					print "eg_desk", eg_desk
+					eg_modifier = details[0]['__p'][6]
+				
+    		session_cleanup(token)
+
 	if bibid > 0:
         	item = site.item_set.create(parent_heading=parent_item,
                                     title=dublin.get('dc:title','Untitled'),
@@ -334,6 +391,10 @@ def item_add_cat_search(request, site_id, item_id):
                                     publisher=dublin.get('dc:publisher',''),
                                     published=pubdate,
                                     bib_id = bibid,
+                                    barcode = bc,
+                                    circ_modifier = eg_modifier,
+                                    circ_desk = eg_desk,
+                                    orig_callno = callno,
                                     marcxml=raw_pickitem,
                                     **dct)
 	else:
@@ -342,6 +403,10 @@ def item_add_cat_search(request, site_id, item_id):
                                     author=dublin.get('dc:creator'),
                                     publisher=dublin.get('dc:publisher',''),
                                     published=pubdate,
+                                    barcode = bc,
+                                    circ_modifier = eg_modifier,
+                                    circ_desk = eg_desk,
+                                    orig_callno = callno,
                                     marcxml=raw_pickitem,
                                     **dct)
         item.save()
@@ -383,6 +448,29 @@ def item_edit(request, site_id, item_id):
                 if 'author2' in data:
                     del data['author2']
             [setattr(item, k, v) for (k,v) in data.items()]
+
+            if item.item_type == 'PHYS':
+		update_option = request.POST.get('update_option')
+		location_option = request.POST.get('location_option')
+		modifier_option = request.POST.get('modifier_option')
+		update_status = True
+
+		if update_option == 'Cat': 
+			update_status = evergreen_item_update(item.barcode, item.orig_callno, 
+				modifier_option, location_option)
+
+		#leave values alone if update failed
+		if update_status:
+                	item.evergreen_update = update_option
+			item.circ_desk = location_option
+			item.circ_modifier = modifier_option
+
+		if update_option == 'None': 
+			item.evergreen_update = ''
+			item.barcode = ''
+			item.orig_callno = ''
+			item.circ_modifier = ''
+			item.circ_desk = ''
                     
         item.save()
         return HttpResponseRedirect(item.parent_url())
@@ -492,3 +580,60 @@ def item_relocate(request, site_id, item_id):
             return HttpResponseRedirect(new_parent.item_url('meta'))
         else:
             return HttpResponseRedirect(site.site_url())
+
+@instructors_only
+def evergreen_item_update(barcode, callno, modifier, desk):
+    try:
+    	token = auth_token(settings.OPENSRF_STAFF_USERID, settings.OPENSRF_STAFF_PW,
+		settings.OPENSRF_STAFF_ORG, settings.OPENSRF_STAFF_WORKSTATION)
+    	print "token", token
+    	null = None
+    	true = True
+    	false = False
+    	barcode_copy = E1(settings.OPENSRF_CN_BARCODE, token, barcode);
+    	copy = None
+    	volumeinfo = None
+    	if barcode_copy:
+		volumeinfo = barcode_copy.get("volume")
+		if volumeinfo:
+			volume = volumeinfo['__p']
+			if volume and volume[7] != callno:
+				volume[0] = []
+				volume[5] = 1
+				volume[7] = callno.encode('ascii')
+				print "callno", callno
+				volume[13] = None
+				volume.append(None)
+				volume.append('1')
+				print "WOULD UPDATE", volume
+				updaterec = E1(settings.OPENSRF_VOLUME_UPDATE, 
+					token, [{"__c":"acn","__p":volume}], false, 
+					{"auto_merge_vols":false})
+    				print "updaterec", updaterec
+		copy = barcode_copy.get("copy")
+		if copy:
+			print "copy", copy
+			detailid = copy['__p'][21]
+			details = E1(settings.OPENSRF_FLESHEDCOPY_CALL, [detailid])
+			print "details", details
+			if details and (details[0]['__p'][6] != modifier or details[0]['__p'][23] != desk):
+				details[0]['__p'][6] = modifier
+				details[0]['__p'][23] = desk
+
+				#the value of testing, these are in the fm_IDL.xml for RC but not production (total circ and holds)
+				details[0]['__p'].append(None)
+				details[0]['__p'].append('1')
+
+				print "WOULD UPDATE", details
+				updaterec = E1(settings.OPENSRF_BATCH_UPDATE, token, details,true)
+    				print "updaterec", updaterec
+
+	session_cleanup(token)
+    except:
+            print "item update problem"
+            print "*** print_exc:"
+            traceback.print_exc()
+            pass          # fail silently in production
+            return False
+
+    return True

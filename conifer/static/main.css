@@ -307,6 +307,8 @@ p.todo, div.todo { background-color: #fdd; padding: 6px; margin: 12px; border-le
 #breadcrumbs { margin: 8px 0px 16px 0; width: 716px;  
 	     text-indent: -24px; padding-left: 24px; }
 
+.cat_opts { background-color: #f2e4cc;} 
+
 .errorlist { float: right; }
 .errorlist li { color: red; font-size: 90%; }
 

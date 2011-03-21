@@ -604,7 +604,19 @@ class Item(BaseModel):
     pages        = m.CharField(max_length=64, null=True, blank=True)
     # isbn or issn (not validated)
     isbn         = m.CharField(max_length=17, null=True, blank=True)
+    #barcode
+    barcode      = m.CharField(max_length=14, null=True, blank=True)
+    #orig_callno: this is a copy of the call number associated with the barcode
+    orig_callno  = m.CharField(max_length=64, null=True, blank=True)
 
+    # TODO: all of the choices should probably go in settings, as per EVERGREEN_UPDATE_CHOICES
+
+    # Options for evergreen updates
+    EVERGREEN_UPDATE_CHOICES = settings.UPDATE_CHOICES
+
+    evergreen_update = m.CharField(max_length=4, 
+                                   choices=EVERGREEN_UPDATE_CHOICES,
+                                   default='One')
 
     # As per discussion with Art Rhyno and Joan Dalton, Leddy Library.
     COPYRIGHT_STATUS_CHOICES = [
@@ -618,6 +630,29 @@ class Item(BaseModel):
     copyright_status = m.CharField(max_length=2, 
                                    choices=COPYRIGHT_STATUS_CHOICES,
                                    default='UK')
+
+    # Options for circ modifiers
+    CIRC_MODIFIER_CHOICES = [
+        ('CIRC', 'Normal'),
+        ('RSV2', '2 Hour'),
+        ('RSV1', '1 Day'),
+        ('RSV3', '3 Day'),
+        ('RSV7', '7 Day'),
+        ]
+
+    circ_modifier = m.CharField(max_length=10, 
+                                   choices=CIRC_MODIFIER_CHOICES,
+                                   default='RSV2')
+
+    # Options for circ desk
+    CIRC_DESK_CHOICES = [
+        ('631', 'Reserves Counter'),
+        ('598', 'Circulating Collection'),
+        ]
+
+    circ_desk = m.CharField(max_length=5, 
+                                   choices=CIRC_DESK_CHOICES,
+                                   default='631')
 
     ITEMTYPE_CHOICES = [
         # From http://www.oclc.org/bibformats/en/fixedfield/type.shtm.

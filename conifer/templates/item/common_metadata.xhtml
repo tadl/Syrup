@@ -35,6 +35,57 @@ if len(authors) < 2:
 	  </select>
 	</td>
       </tr>
+      <tr py:if="user.is_staff and item.item_type == 'PHYS'">
+	<th>Catalogue Settings</th>
+	<td> 
+	<table>
+	<tbody>
+      		<tr> 
+		<th>Update</th>
+		<td class="cat_opts">
+		<select name="update_option">
+			<option py:for="k,v in item.EVERGREEN_UPDATE_CHOICES"
+				py:attrs="{'selected': item.evergreen_update==k or None}"
+				value="${k}" py:content="v"/>
+		</select>
+		</td>
+      		</tr>
+      		<tr>
+		<th>Barcode</th>
+		<td class="cat_opts">
+		<input type="text" name="barcode" value="${item.barcode}"/>
+		</td>
+      		</tr>
+      		<tr>
+		<th>Location</th>
+		<td class="cat_opts">
+		<select name="location_option">
+			<option py:for="k,v in item.CIRC_DESK_CHOICES"
+				py:attrs="{'selected': item.circ_desk==k or None}"
+				value="${k}" py:content="v"/>
+		</select>
+		</td>
+      		</tr>
+      		<tr>
+		<th>Modifier</th>
+		<td class="cat_opts">
+		<select name="modifier_option">
+			<option py:for="k,v in item.CIRC_MODIFIER_CHOICES"
+				py:attrs="{'selected': item.circ_modifier==k or None}"
+				value="${k}" py:content="v"/>
+		</select>
+		</td>
+      		</tr>
+      		<tr>
+		<th>Call Number</th>
+		<td class="cat_opts">
+		<input type="text" name="orig_callno" value="${item.orig_callno}"/>
+		</td>
+      		</tr>
+    	</tbody>
+	</table>
+	</td>
+      </tr>
     </tbody>
 
 </html>

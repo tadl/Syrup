@@ -229,7 +229,8 @@ def _item_status(bib_id):
 
 def cat_search(query, start=1, limit=10):
     bibid=0
-    bc = re.search('\d{14}', query.strip())
+    barcode = re.search('\d{14}', query.strip())
+    bc = 0
     if query.startswith(EG_BASE):
         # query is an Evergreen URL
 	# snag the bibid at this point
@@ -239,17 +240,21 @@ def cat_search(query, start=1, limit=10):
 			bibid = params[key]
         results = M.marcxml_to_records(I.url_to_marcxml(query))
         numhits = len(results)
-    elif bc:
+    elif barcode:
 	results = []
 	numhits = 0
 	# print "bc", bc.group(0)
-        bib = E1('open-ils.search.bib_id.by_barcode', bc.group(0))
+	bc = barcode.group(0)
+        bib = E1('open-ils.search.bib_id.by_barcode', bc)
 	if bib:
 		bibid = bib
-		# print "bibid", bib
+		print "bibid", bib
 		copy = E1('open-ils.supercat.record.object.retrieve', bib)
+		print "copy", copy
 		rec = copy[0]
+		print "rec", rec
 		marc = unicode(rec['marc'], 'utf-8')
+		print "marc", marc
                 tree = M.marcxml_to_records(marc)[0]
                 results.append(tree)
 		numhits = 1
@@ -270,7 +275,7 @@ def cat_search(query, start=1, limit=10):
                 tree = M.marcxml_to_records(marc)[0]
                 results.append(tree)
             numhits = int(superpage['count'])
-    return results, numhits, bibid
+    return results, numhits, bibid, bc
 
 def bib_id_to_marcxml(bib_id):
     """
