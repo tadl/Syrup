@@ -464,6 +464,9 @@ def item_edit(request, site_id, item_id):
                 	item.evergreen_update = update_option
 			item.circ_desk = location_option
 			item.circ_modifier = modifier_option
+		else:
+                	return simple_message(_('Unable to update'), 
+				_('Sorry, unable to update at this time, please try again.'))
 
 		if update_option == 'None': 
 			item.evergreen_update = ''
@@ -580,60 +583,3 @@ def item_relocate(request, site_id, item_id):
             return HttpResponseRedirect(new_parent.item_url('meta'))
         else:
             return HttpResponseRedirect(site.site_url())
-
-@instructors_only
-def evergreen_item_update(barcode, callno, modifier, desk):
-    try:
-    	token = auth_token(settings.OPENSRF_STAFF_USERID, settings.OPENSRF_STAFF_PW,
-		settings.OPENSRF_STAFF_ORG, settings.OPENSRF_STAFF_WORKSTATION)
-    	print "token", token
-    	null = None
-    	true = True
-    	false = False
-    	barcode_copy = E1(settings.OPENSRF_CN_BARCODE, token, barcode);
-    	copy = None
-    	volumeinfo = None
-    	if barcode_copy:
-		volumeinfo = barcode_copy.get("volume")
-		if volumeinfo:
-			volume = volumeinfo['__p']
-			if volume and volume[7] != callno:
-				volume[0] = []
-				volume[5] = 1
-				volume[7] = callno.encode('ascii')
-				print "callno", callno
-				volume[13] = None
-				volume.append(None)
-				volume.append('1')
-				print "WOULD UPDATE", volume
-				updaterec = E1(settings.OPENSRF_VOLUME_UPDATE, 
-					token, [{"__c":"acn","__p":volume}], false, 
-					{"auto_merge_vols":false})
-    				print "updaterec", updaterec
-		copy = barcode_copy.get("copy")
-		if copy:
-			print "copy", copy
-			detailid = copy['__p'][21]
-			details = E1(settings.OPENSRF_FLESHEDCOPY_CALL, [detailid])
-			print "details", details
-			if details and (details[0]['__p'][6] != modifier or details[0]['__p'][23] != desk):
-				details[0]['__p'][6] = modifier
-				details[0]['__p'][23] = desk
-
-				#the value of testing, these are in the fm_IDL.xml for RC but not production (total circ and holds)
-				details[0]['__p'].append(None)
-				details[0]['__p'].append('1')
-
-				print "WOULD UPDATE", details
-				updaterec = E1(settings.OPENSRF_BATCH_UPDATE, token, details,true)
-    				print "updaterec", updaterec
-
-	session_cleanup(token)
-    except:
-            print "item update problem"
-            print "*** print_exc:"
-            traceback.print_exc()
-            pass          # fail silently in production
-            return False
-
-    return True
