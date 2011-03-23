@@ -74,39 +74,6 @@ def session_cleanup(authtoken):
         
     return True
 
-def load_idl():
-    """
-    Loads the fieldmapper IDL, registering class hints for the defined objects
-
-    We use a temporary file to store the IDL each time load_idl()
-    is invoked to ensure that the IDL is in sync with the target
-    server. One could a HEAD request to do some smarter caching,
-    perhaps.
-    """
-    
-    parser = oils.utils.idl.IDLParser()
-    idlfile = tempfile.TemporaryFile()
-
-    # Get the fm_IDL.xml file from the server
-    try:
-        idl = urllib2.urlopen('%s://%s/%s' % 
-            (settings.OSRF_HTTP, settings.EVERGREEN_GATEWAY_SERVER, settings.IDL_URL)
-        )
-        idlfile.write(idl.read())
-        # rewind to the beginning of the file
-        idlfile.seek(0)
-
-    #no pass on these, updates are too critical to ever be out of sync
-    except urllib2.URLError, exc:
-        print("Could not open URL to read IDL: %s", exc.code)
-
-    except IOError, exc:
-        print("Could not write IDL to file: %s", exc.code)
-
-    # parse the IDL
-    parser.set_IDL(idlfile)
-    parser.parse_IDL()
-
 def request(service, method, *args):
     """
     Make a JSON request to the OpenSRF gateway
@@ -121,16 +88,37 @@ def request(service, method, *args):
     req.setPath(settings.GATEWAY_URL)
     return req
 
+def ils_item_info(barcode):
+    """
+    We store some item information with syrup record 
+    """
+    try:
+    	req = request('open-ils.search',
+		'open-ils.search.asset.copy.fleshed2.find_by_barcode',
+		barcode)
+    	barcode_copy = req.send()
+        # print "debug", osrf.json.debug_net_object(barcode_copy)
+
+    	if barcode_copy:
+        	req = request('open-ils.search', 
+			'open-ils.search.asset.call_number.retrieve',
+                	barcode_copy.call_number())
+   
+        	call_num = req.send()
+		if call_num:
+			return barcode_copy.circ_modifier(), barcode_copy.location().id(), call_num.label()
+    except:
+            print "problem retrieving item info"
+            print "*** print_exc:"
+            traceback.print_exc()
+            pass          # fail silently in production
+
+    return None, None, None
+
 def ils_item_update(barcode, callno, modifier, location):
     try:
 	item_changed = False
 	callno_changed = False
-
-    	# Set the host for our requests
-    	osrf.gateway.GatewayRequest.setDefaultHost(settings.EVERGREEN_GATEWAY_SERVER)
-
-    	# Pull all of our object definitions together
-    	load_idl()
 
     	# We get our copy object
     	req = request('open-ils.search', 
@@ -139,7 +127,7 @@ def ils_item_update(barcode, callno, modifier, location):
     	barcode_copy = req.send()
 
 	# are there changes?
-	if barcode_copy.location().id != location or barcode_copy.circ_modifier != modifier:
+	if barcode_copy.location().id != location or barcode_copy.circ_modifier() != modifier:
 		item_changed = True 
 
     	# And our call number object

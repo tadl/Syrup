@@ -89,6 +89,12 @@ CACHE_TIME = 300
 
 @memoize(timeout=CACHE_TIME)
 def _item_status(bib_id):
+    """
+	At this point, status information does not require the opensrf 
+	bindings, I am not sure there is a use case where an evergreen
+	site would not have access to these but will leave for now
+	since there are no hardcoded references
+    """
             
     if bib_id:
         try:
@@ -229,6 +235,7 @@ def _item_status(bib_id):
 
 def cat_search(query, start=1, limit=10):
     bibid=0
+    # TODO: check whether there would be exceptions to numeric 14 digit barcode 
     barcode = re.search('\d{14}', query.strip())
     bc = 0
     if query.startswith(EG_BASE):
@@ -301,6 +308,7 @@ def bib_id_to_url(bib_id):
     """
     Given a bib ID, return either a URL for examining the bib record, or None.
     """
+    # TODO: move this to local_settings
     if bib_id:
         return ('%sopac/en-CA'
                 '/skin/uwin/xml/rdetail.xml?r=%s&l=1&d=0' % (EG_BASE, bib_id))
@@ -337,6 +345,7 @@ def marcxml_to_url(marc_string):
     856$u form an associative array, where $9 holds the institution
     codes and $u holds the URLs.
     """
+    # TODO: move this to local_settings
     LIBCODE = 'OWA'             # Leddy
     try:
         dct   = M.marcxml_to_dictionary(marc_string)
@@ -447,6 +456,7 @@ def download_declaration():
     will be used.
     """
     # as per Joan Dalton, 2010-12-21.
+    # TODO: move this to local_settings
     return ("I warrant that I am a student of the University of Windsor "
             "enrolled in a course of instruction. By pressing the "
             "'Request' button below, I am requesting a digital copy of a "
