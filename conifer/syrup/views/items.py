@@ -361,6 +361,7 @@ def item_add_cat_search(request, site_id, item_id):
 	eg_modifier = None
 	eg_desk = None
 
+	#TODO: use python bindings for these interactions
 	bar_num=request.POST.get('bc')
 	if bar_num and settings.OPENSRF_STAFF_USERID:
 		bc = bar_num
@@ -456,7 +457,7 @@ def item_edit(request, site_id, item_id):
 		update_status = True
 
 		if update_option == 'Cat': 
-			update_status = evergreen_item_update(item.barcode, item.orig_callno, 
+			update_status = ils_item_update(item.barcode, item.orig_callno, 
 				modifier_option, location_option)
 
 		#leave values alone if update failed
