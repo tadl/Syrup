@@ -1,11 +1,11 @@
-import os.path
-import hashlib
-from _common                     import *
-from conifer.plumbing.hooksystem import *
-from django.conf import settings
-from xml.etree                   import ElementTree as ET
-from collections                 import defaultdict
+from _common                              import *
+from collections                          import defaultdict
 from conifer.libsystems.evergreen.support import initialize, E1
+from conifer.plumbing.hooksystem          import *
+from django.conf                          import settings
+from xml.etree                            import ElementTree as ET
+import hashlib
+import os.path
 
 if hasattr(settings, 'OPENSRF_STAFF_USERID'): # TODO: we need an explicit 'we do updates' flag
     from conifer.libsystems.evergreen import opensrf
