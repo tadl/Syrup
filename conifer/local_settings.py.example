@@ -63,10 +63,10 @@ Z3950_CONFIG             = ('zed.concat.ca', 210, 'OWA')  #OWA,OSUL,CONIFER
 # SITE_DEFAULT_ACCESS_LEVEL = 'MEMBR'
 
 #----------------------------------------------------------------------
-# INTEGRATION_MODULE: name of a module to import after the database
-# models have been initialized. This can be used for defining 'hook'
-# functions, and other late initializations. 
-# See the 'conifer.syrup.integration' module for more information.
+# INTEGRATION_CLASS: name of a class to instantiate after the database models
+# have been initialized. This can be used for defining 'hook' functions, and
+# other late initializations. See the 'conifer.syrup.integration' module for
+# more information.
 
-INTEGRATION_MODULE = 'conifer.integration.uwindsor'
+INTEGRATION_CLASS = 'conifer.integration.uwindsor.UWindsorIntegration'
 

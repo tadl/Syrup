@@ -1,9 +1,12 @@
-# TODO: decide whether or not to use this!
 
-import warnings
-import conifer.syrup.integration as HOOKS
+HOOKS = None
 
-__all__ = ['callhook', 'callhook_required', 'gethook']
+__all__ = ['callhook', 'callhook_required', 'gethook', 'initialize_hooks']
+
+def initialize_hooks(obj):
+    global HOOKS
+    assert HOOKS is None
+    HOOKS = obj
 
 def gethook(name, default=None):
     return getattr(HOOKS, name, None) or default

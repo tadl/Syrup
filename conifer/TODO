@@ -1,5 +1,9 @@
 NEW:
 
+* get rid of RESERVES_DESK_NAME from integration/local_settings.
+
+* Syrup used to work with no integration module. Does it still?
+
 * finish i18n and french translation.
 
 * fix evergreen authentication problem ('django.py')

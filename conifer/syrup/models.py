@@ -78,7 +78,7 @@ class UserExtensionMixin(object):
     def maybe_refresh_external_memberships(self):
         profile = self.get_profile()
         last_checked = profile.external_memberships_checked
-        if (not last_checked or last_checked < 
+        if (not last_checked or last_checked <
             (datetime.now() - self.EXT_MEMBERSHIP_CHECK_FREQUENCY)):
             added, dropped = external_groups.reconcile_user_memberships(self)
             profile.external_memberships_checked = datetime.now()
@@ -99,7 +99,7 @@ class UserExtensionMixin(object):
             return
 
         # does this user need decorating?
-        dectest = gethook('user_needs_decoration', 
+        dectest = gethook('user_needs_decoration',
                           default=lambda user: user.last_name == '')
         if not dectest(self):
             return
@@ -116,7 +116,7 @@ class UserExtensionMixin(object):
 
         if 'patron_id' in dir_entry:
             # note, we overrode user.get_profile() to automatically create
-            # missing profiles. 
+            # missing profiles.
             self.get_profile().ils_userid = dir_entry['patron_id']
             profile.save()
 
@@ -256,7 +256,7 @@ class Site(BaseModel):
         """
         Returns the start term (typically the term thought of as 'the' term of
         the site).
-        
+
         Whenever possible, use the explicit 'start_term' attribute rather than
         the 'term' property.
         """
@@ -432,7 +432,7 @@ class Site(BaseModel):
             return user.is_staff or self.is_member(user)
         else:
             return self.is_open_to(user)
-        
+
     @classmethod
     def taught_by(cls, user):
         """Return a set of Sites for which this user is an Instructor."""
@@ -482,9 +482,9 @@ class Group(BaseModel):
     # TODO: add constraints to ensure that each Site has
     # exactly one Group with external_id=NULL, and that (site,
     # external_id) is unique forall external_id != NULL.
-    
+
     # TODO: On second thought, for now make it:
-    # external_id is unique forall external_id != NULL. 
+    # external_id is unique forall external_id != NULL.
     # That is, only one Site may use a given external group.
 
     site = m.ForeignKey(Site)
@@ -614,7 +614,7 @@ class Item(BaseModel):
     # Options for evergreen updates
     EVERGREEN_UPDATE_CHOICES = settings.UPDATE_CHOICES
 
-    evergreen_update = m.CharField(max_length=4, 
+    evergreen_update = m.CharField(max_length=4,
                                    choices=EVERGREEN_UPDATE_CHOICES,
                                    default='One')
 
@@ -627,9 +627,11 @@ class Item(BaseModel):
         ('AV', 'available to students'),
         ]
 
-    copyright_status = m.CharField(max_length=2, 
+    copyright_status = m.CharField(max_length=2,
                                    choices=COPYRIGHT_STATUS_CHOICES,
                                    default='UK')
+
+    # TODO: fixme, the CIRC stuff here is very Leddy specific.
 
     # Options for circ modifiers
     CIRC_MODIFIER_CHOICES = [
@@ -640,9 +642,9 @@ class Item(BaseModel):
         ('RSV7', '7 Day'),
         ]
 
-    circ_modifier = m.CharField(max_length=10, 
-                                   choices=CIRC_MODIFIER_CHOICES,
-                                   default='RSV2')
+    circ_modifier = m.CharField(max_length=10,
+                                choices=CIRC_MODIFIER_CHOICES,
+                                default='RSV2', blank=True)
 
     # Options for circ desk
     CIRC_DESK_CHOICES = [
@@ -650,9 +652,9 @@ class Item(BaseModel):
         ('598', 'Circulating Collection'),
         ]
 
-    circ_desk = m.CharField(max_length=5, 
-                                   choices=CIRC_DESK_CHOICES,
-                                   default='631')
+    circ_desk = m.CharField(max_length=5,
+                            choices=CIRC_DESK_CHOICES,
+                            default='631', blank=True)
 
     ITEMTYPE_CHOICES = [
         # From http://www.oclc.org/bibformats/en/fixedfield/type.shtm.
@@ -763,7 +765,7 @@ class Item(BaseModel):
                     script,
                     self.site_id, self.id,
                     self.fileobj.name.split('/')[-1]))
-            
+
     def item_url(self, suffix='', force_local=False):
         if self.item_type == 'URL' and suffix == '' and not force_local:
             return self.url
@@ -828,10 +830,10 @@ class Item(BaseModel):
                     return dct['092a']
                 if '090a' in dct:   # for films. FIXME, is this legit?
                     return dct['090a']
-                cn = ('%s %s' % (dct.get('050a', ''), 
+                cn = ('%s %s' % (dct.get('050a', ''),
                                  dct.get('050b', ''))).strip()
-		if len(cn) < 2:
-                	cn = ('%s %s' % (dct.get('092a', ''), 
+                if len(cn) < 2:
+                        cn = ('%s %s' % (dct.get('092a', ''),
                                  dct.get('092b', ''))).strip()
                 return cn
             except:
@@ -901,13 +903,11 @@ def highlight(text, phrase,
 #----------------------------------------------------------------------
 # Activate the local integration module.
 
-if hasattr(settings, 'INTEGRATION_MODULE'):
-    import conifer.syrup.integration
-    hooks = __import__(settings.INTEGRATION_MODULE, fromlist=[''])
-    for k,v in hooks.__dict__.items():
-        if callable(v):
-            setattr(conifer.syrup.integration, k, v)
-
+if hasattr(settings, 'INTEGRATION_CLASS'):
+    modname, klassname = settings.INTEGRATION_CLASS.rsplit('.', 1) # e.g. 'foo.bar.baz.MyClass'
+    mod = __import__(modname, fromlist=[''])
+    klass = getattr(mod, klassname)
+    initialize_hooks(klass())
 
 #-----------------------------------------------------------------------------
 # this can't be imported until Membership is defined...
