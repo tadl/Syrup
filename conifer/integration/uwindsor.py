@@ -89,12 +89,10 @@ CACHE_TIME = 300
 
 @memoize(timeout=CACHE_TIME)
 def _item_status(bib_id):
-    """
-	At this point, status information does not require the opensrf 
-	bindings, I am not sure there is a use case where an evergreen
-	site would not have access to these but will leave for now
-	since there are no hardcoded references
-    """
+    # At this point, status information does not require the opensrf 
+    # bindings, I am not sure there is a use case where an evergreen
+    # site would not have access to these but will leave for now
+    # since there are no hardcoded references
             
     if bib_id:
         try:
@@ -333,8 +331,6 @@ if USE_Z3950:
         returns a MARCXML record with broken character encoding. This
         function declares a point at which we can work around that server.
         """
-
-        print marc_string
         bib_id = marc_to_bib_id(marc_string)
         better = bib_id_to_marcxml(bib_id)
         # don't return the "better" record if there's no 901c in it...
