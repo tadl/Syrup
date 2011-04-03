@@ -233,11 +233,13 @@ def _item_status(bib_id):
             pass          # fail silently in production if there's an opensrf or time related error.
     return None
 
+CAT_SEARCH_ORG_UNIT = 106
+
 def cat_search(query, start=1, limit=10):
-    bibid=0
-    # TODO: check whether there would be exceptions to numeric 14 digit barcode 
-    barcode = re.search('\d{14}', query.strip())
-    bc = 0
+    barcode = 0
+    bibid   = 0
+    is_barcode = re.search('\d{14}', query)
+
     if query.startswith(EG_BASE):
         # query is an Evergreen URL
 	# snag the bibid at this point
@@ -247,21 +249,19 @@ def cat_search(query, start=1, limit=10):
 			bibid = params[key]
         results = M.marcxml_to_records(I.url_to_marcxml(query))
         numhits = len(results)
-    elif barcode:
+    elif is_barcode:
 	results = []
 	numhits = 0
-	# print "bc", bc.group(0)
-	bc = barcode.group(0)
-        bib = E1('open-ils.search.bib_id.by_barcode', bc)
+	barcode = query.strip()
+        bib = E1('open-ils.search.bib_id.by_barcode', barcode)
 	if bib:
 		bibid = bib
-		print "bibid", bib
 		copy = E1('open-ils.supercat.record.object.retrieve', bib)
-		print "copy", copy
-		rec = copy[0]
-		print "rec", rec
-		marc = unicode(rec['marc'], 'utf-8')
-		print "marc", marc
+		marc = copy[0]['marc']
+                # In some institutions' installations, 'marc' is a string; in
+                # others it's unicode. Convert to unicode if necessary.
+                if not isinstance(marc, unicode):
+                    marc = unicode(marc, 'utf-8')
                 tree = M.marcxml_to_records(marc)[0]
                 results.append(tree)
 		numhits = 1
@@ -272,17 +272,23 @@ def cat_search(query, start=1, limit=10):
             results, numhits = PZ.search(cat_host, cat_port, cat_db, query, start, limit)
         else:                   # use opensrf
             superpage = E1('open-ils.search.biblio.multiclass.query',
-                   {"org_unit":106,"depth":1,"limit":limit,"offset":start-1,"visibility_limit":3000,
-                    "default_class":"keyword"},
-                   query, 1)
+                           {'org_unit': CAT_SEARCH_ORG_UNIT,
+                            'depth': 1, 'limit': limit, 'offset': start-1,
+                            'visibility_limit': 3000,
+                            'default_class': 'keyword'},
+                           query, 1)
             ids = [id for (id,) in superpage['ids']]
             results = []
             for rec in E1('open-ils.supercat.record.object.retrieve', ids):
-                marc = unicode(rec['marc'], 'utf-8')
+                marc = rec['marc']
+                # In some institutions' installations, 'marc' is a string; in
+                # others it's unicode. Convert to unicode if necessary.
+                if not isinstance(marc, unicode):
+                    marc = unicode(marc, 'utf-8')
                 tree = M.marcxml_to_records(marc)[0]
                 results.append(tree)
             numhits = int(superpage['count'])
-    return results, numhits, bibid, bc
+    return results, numhits, bibid, barcode
 
 def bib_id_to_marcxml(bib_id):
     """
@@ -313,10 +319,10 @@ def bib_id_to_url(bib_id):
         return ('%sopac/en-CA'
                 '/skin/uwin/xml/rdetail.xml?r=%s&l=1&d=0' % (EG_BASE, bib_id))
 
-if False: # if USE_Z3950:
-    # only if we are using Z39.50 for catalogue search. Results including
-    # accented characters are often seriously messed up. (Try searching for
-    # "montreal").
+if USE_Z3950:
+    # only if we are using Z39.50 for catalogue search. Against our Conifer
+    # Z39.50 server, results including accented characters are often seriously
+    # messed up. (Try searching for "montreal").
     def get_better_copy_of_marc(marc_string):
         """
         This function takes a MARCXML record and returns either the same
