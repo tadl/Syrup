@@ -2,33 +2,29 @@ NEW:
 
 * get rid of RESERVES_DESK_NAME from integration/local_settings.
 
-* Syrup used to work with no integration module. Does it still?
-
 * finish i18n and french translation.
-
-* fix evergreen authentication problem ('django.py')
-
-* break out evergreen_site and uwindsor. Take uwindsor out of svn?
 
 * add a DOES_UPDATES flag: if true, then use oils/osrf, if not, use old code
 
-* replace service desks with locations; pull locations from evergreen; add boolean field for locs that are service desks.
+* replace service desks with locations; pull locations from evergreen; add
+  boolean field for locs that are service desks. make our uwindsor/evergreen
+  integration module use the aforementioned locations list.
 
-
-* from Joan: notify staff if entering an item (url or upload) that's been entered before. If so, "use the same record"
+* for Joan: notify staff if entering an item (url or upload) that's been
+  entered before. If so, "use the same record"
 
 * for Joan: upload document into multiple sites at once?
 
 * copy/paste items between sites
 
-* make our uwindsor/evergreen integration module use the aforementioned locations list.
+* for updated items: change it to the reserves location when coming in; change
+  back to original location when done.
 
-* for updated items: change it to the reserves location when coming in; change back to original location when done.
+* review item_metadata.xhtml, fix those buttons, they have a superfluous link
+  around them..
 
-
-* review item_metadata.xhtml, fix those buttons, they have a superfluous link around them..
-
-* add Welcome message to home page, use request@uwindsor.ca as the contact email for problems.
+* add Welcome message to home page, use request@uwindsor.ca as the contact
+  email for problems.
 
 * check apache error logs for 'parse' error that Art mentioned.
 
@@ -41,16 +37,20 @@ NEW:
 
 * work on circ modifier stuff (art and dan's conversation)
 
-* bookbag-URL search should import all items from the bookbag (if they don't already exist)
-  -- actually, I'm not 100% certain about this, esp if we implement "Sakai linkup" below.
+* bookbag-URL search should import all items from the bookbag (if they don't
+  already exist) -- actually, I'm not 100% certain about this, esp if we
+  implement "Sakai linkup" below.
 
-* search should include course number (fragments too, not just full course codes)
+* search should include course number (fragments too, not just full course
+  codes)
 
 * catalogue search should autodetect call numbers, as well as copy barcodes.
 
-* download declaration only needed for "fair dealing". This may be uwindsor specific.
+* download declaration only needed for "fair dealing". This may be uwindsor
+  specific.
 
-* optional, persistent link between a course site and a bookbag URL, as an interim step for windsor.
+* optional, persistent link between a course site and a bookbag URL, as an
+  interim step for windsor.
 
 * how should "join this site" be managed?
 
@@ -74,15 +74,7 @@ MAYBE:
 
 * set up a proper issue-tracker?
 
-* if someone has item checked out, show due date/time on item-about page.
-
 * Send me email when my sites change?
-
-* Import of reserves data from Leddy voyager. Laurentian, others?
-
-* manage z3950 targets? Search z3950 targets?
-
-* title-details links in circ-needs, that needs to be made non EG specific.
 
 FROM KGS:
 
@@ -154,4 +146,3 @@ RECENTLY DONE:
 * uwindsor only: import data from ERes and bookbags into Syrup.
 
 * permissions: clicking "add group" should pull the whole form into focus.
-
