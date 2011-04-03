@@ -37,6 +37,13 @@ OPENSRF_COPY_COUNTS       = "open-ils.search.biblio.copy_counts.location.summary
 OPENSRF_FLESHED2_CALL     = "open-ils.search.asset.copy.fleshed2.retrieve"
 OPENSRF_FLESHEDCOPY_CALL  = "open-ils.search.asset.copy.fleshed.batch.retrieve.authoritative"
 
+TIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
+DUE_FORMAT  = "%b %d %Y, %r"
+
+# regular expression to detect DVD, CD, CD-ROM, Guide, Booklet on the end of a
+# call number
+IS_ATTACHMENT = re.compile('\w*DVD\s?|\w*CD\s?|\w[Gg]uide\s?|\w[Bb]ooklet\s?|\w*CD\-ROM\s?')
+
 
 def department_course_catalogue():
     """
@@ -130,7 +137,7 @@ def _item_status(bib_id):
             voltest = re.search(r'\w*v\.\s?(\d+)', callnum)
 
             # attachment test
-            attachtest = re.search(settings.ATTACHMENT, callnum)
+            attachtest = re.search(IS_ATTACHMENT, callnum)
 
             if loc == settings.RESERVES_DESK_NAME:
                 desk += anystatus_here
@@ -178,7 +185,7 @@ def _item_status(bib_id):
                             rawdate = circ.get("due_date")
                             #remove offset info, %z is flakey for some reason
                             rawdate = rawdate[:-5]
-                            duetime = time.strptime(rawdate, settings.TIME_FORMAT)
+                            duetime = time.strptime(rawdate, TIME_FORMAT)
 
                         if (avail == 0 or bringfw) and circs and len(circs) > 0:
                             if len(dueinfo) == 0 or bringfw:
@@ -187,16 +194,16 @@ def _item_status(bib_id):
                                     if (int(voltest.group(1)) > vol):
                                         if len(dueinfo) > 0:
                                             dueinfo = dueinfo + "/"
-                                        dueinfo = dueinfo + voltest.group(0) + ': ' + time.strftime(settings.DUE_FORMAT,earliestdue)
+                                        dueinfo = dueinfo + voltest.group(0) + ': ' + time.strftime(DUE_FORMAT,earliestdue)
                                     else:
                                         tmpinfo = dueinfo
-                                        dueinfo = voltest.group(0) + ': ' + time.strftime(settings.DUE_FORMAT,earliestdue)
+                                        dueinfo = voltest.group(0) + ': ' + time.strftime(DUE_FORMAT,earliestdue)
                                         if len(tmpinfo) > 0:
                                             dueinfo = dueinfo + "/" + tmpinfo
                                     callprefix = callsuffix = ''
                                 elif attachtest:
                                     tmpinfo = dueinfo
-                                    dueinfo = attachtest.group(0) + ': ' + time.strftime(settings.DUE_FORMAT,earliestdue)
+                                    dueinfo = attachtest.group(0) + ': ' + time.strftime(DUE_FORMAT,earliestdue)
                                     if len(callno) > 0:
                                         callno = callno + '/' + callnum
                                         callprefix = callsuffix = ''
@@ -206,19 +213,19 @@ def _item_status(bib_id):
                                         dueinfo = dueinfo + "/" + tmpinfo
 
                                 if not bringfw:
-                                    dueinfo = time.strftime(settings.DUE_FORMAT,earliestdue)
+                                    dueinfo = time.strftime(DUE_FORMAT,earliestdue)
                                     callno = callnum
 
                             # way too wacky to sort out vols for this
                             if duetime < earliestdue and not bringfw:
                                 earliestdue = duetime
-                                dueinfo = time.strftime(settings.DUE_FORMAT,earliestdue)
+                                dueinfo = time.strftime(DUE_FORMAT,earliestdue)
                                 callno = callnum
 
                         alldisplay = callnum + ' (Available)'
 
                         if circs and isinstance(circs, list):
-                            alldisplay = '%s (DUE: %s)' % (callnum, time.strftime(settings.DUE_FORMAT,duetime))
+                            alldisplay = '%s (DUE: %s)' % (callnum, time.strftime(DUE_FORMAT,duetime))
 
                         alldues.append(alldisplay)
 
