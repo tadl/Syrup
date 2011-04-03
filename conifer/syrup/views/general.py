@@ -38,11 +38,6 @@ def instructors(request):
 def instructor_search(request, instructor):
     return search(request, with_instructor=instructor)
 
-# MARK: propose we get rid of this. We have browse.
-def departments(request):
-    raise NotImplementedError
-
-
 def user_prefs(request):
     if request.method != 'POST':
         return g.render('prefs.xhtml')
