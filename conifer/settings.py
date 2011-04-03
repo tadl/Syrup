@@ -127,7 +127,7 @@ MANAGERS       = ADMINS
 
 if EVERGREEN_AUTHENTICATION:
     AUTHENTICATION_BACKENDS.append(
-        'conifer.integration.auth_evergreen.django.EvergreenAuthBackend')
+        'conifer.integration.auth_evergreen.dj.EvergreenAuthBackend')
 
 if SAKAI_LINKTOOL_AUTHENTICATION:
     AUTHENTICATION_BACKENDS.append(
