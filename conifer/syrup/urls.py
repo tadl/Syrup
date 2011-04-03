@@ -19,7 +19,6 @@ urlpatterns = patterns('conifer.syrup.views',
     #MARK: propose we kill open_sites, we have browse.
     (r'^opensite/$', 'open_sites'),
     (r'^search/$', 'search'),
-    (r'^zsearch/$', 'zsearch'),
     #MARK: propose we kill instructors, we have browse
     (r'^instructors/$', 'instructors'),
     (r'^instructors/search/(?P<instructor>.*)$', 'instructor_search'),
