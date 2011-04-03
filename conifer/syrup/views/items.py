@@ -2,16 +2,17 @@ import os.path
 import hashlib
 from _common                     import *
 from conifer.plumbing.hooksystem import *
-from conifer.syrup               import integration
 from django.conf import settings
 from xml.etree                   import ElementTree as ET
 from collections                 import defaultdict
 from conifer.libsystems.evergreen.support import initialize, E1
-from conifer.libsystems.evergreen.opensrf     import *
+
+if getattr(settings, 'OPENSRF_STAFF_USERID'): # TODO: we need an explicit 'we do updates' flag
+    from conifer.libsystems.evergreen import opensrf
 
 @members_only
 def item_detail(request, site_id, item_id):
-    """Display an item (however that makes sense).""" 
+    """Display an item (however that makes sense)."""
     # really, displaying an item will vary based on what type of item
     # it is -- e.g. a URL item would redirect to the target URL. I'd
     # like this URL to be the generic dispatcher, but for now let's
@@ -30,7 +31,7 @@ def item_metadata(request, site_id, item_id):
         return _heading_detail(request, item)
     else:
         item_declaration_required = item.needs_declaration_from(request.user)
-        access_forbidden = (item.item_type == 'ELEC' 
+        access_forbidden = (item.item_type == 'ELEC'
                             and not item.site.allows_downloads_to(request.user))
         custom_declaration = callhook('download_declaration')
         return g.render('item/item_metadata.xhtml', site=item.site,
@@ -63,7 +64,7 @@ def _heading_detail(request, item):
 def item_add(request, site_id, item_id):
     # The parent_item_id is the id for the parent-heading item. Zero
     # represents 'top-level', i.e. the new item should have no
-    # heading. 
+    # heading.
     #For any other number, we must check that the parent
     # item is of the Heading type.
     parent_item_id = item_id
@@ -115,7 +116,7 @@ def item_add(request, site_id, item_id):
         if clean('ris'):
             # use RIS (refworks) to populate fields
             pat = re.compile('^([A-Z][A-Z0-9])  - (.*)$')
-            tmp = [x.groups() for x in 
+            tmp = [x.groups() for x in
                    [pat.match(line.strip()) for line in POST['ris'].split('\r\n')]
                    if x is not None]
             ris = defaultdict(list)
@@ -243,13 +244,13 @@ def item_add_cat_search(request, site_id, item_id):
 
     if request.method != 'POST':
         if not 'query' in request.GET:
-            return g.render('item/item_add_cat_search.xhtml', results=[], query='', 
+            return g.render('item/item_add_cat_search.xhtml', results=[], query='',
                             site=site, parent_item=parent_item)
         query = request.GET.get('query','').strip()
         start, limit = (int(request.GET.get(k,v)) for k,v in (('start',1),('limit',10)))
-        results, numhits, bibid, bc = integration.cat_search(query, start, limit)
-        return g.render('item/item_add_cat_search.xhtml', 
-                        results=results, query=query, 
+        results, numhits, bibid, bc = callhook('cat_search', query, start, limit)
+        return g.render('item/item_add_cat_search.xhtml',
+                        results=results, query=query,
                         start=start, limit=limit, numhits=numhits,
                         site=site, parent_item=parent_item, bibid=bibid, bc=bc)
     else:
@@ -257,7 +258,7 @@ def item_add_cat_search(request, site_id, item_id):
         raw_pickitem = request.POST.get('pickitem', '').strip()
         #fixme, this block copied from item_add. refactor.
         parent_item_id = item_id
-        if parent_item_id == '0': 
+        if parent_item_id == '0':
             # no heading (toplevel)
             parent_item = None
             site = get_object_or_404(models.Site, pk=site_id)
@@ -277,7 +278,7 @@ def item_add_cat_search(request, site_id, item_id):
         dublin = marcxml_dictionary_to_dc(pickitem)
         assert dublin
 
-        #TODO: this data munging does not belong here. 
+        #TODO: this data munging does not belong here.
 
         # one last thing. If this picked item has an 856$9 field, then
         # it's an electronic resource, not a physical item. In that
@@ -287,7 +288,7 @@ def item_add_cat_search(request, site_id, item_id):
             dct = dict(item_type='URL', url=url)
         else:
             dct = dict(item_type='PHYS')
-        
+
         try:
             pubdate = dublin.get('dc:date')
             m = re.search('([0-9]+)', pubdate)
@@ -296,46 +297,48 @@ def item_add_cat_search(request, site_id, item_id):
         except:
             pubdate = ''
 
-	bibid = bib_id=request.POST.get('bibid')
-	bc = None
+        bibid = bib_id=request.POST.get('bibid')
+        bc = None
 
-	#TODO: Leddy combines notion of desk and location for reserves, but it
-	# is confusing in terms of the catalogue, need to make this consistent
-	eg_callno = None
-	eg_modifier = None
-	eg_location = None
+        # TODO: the Leddy stuff here belongs in an integration-module function. [GF]
 
-	#TODO: use python bindings for these interactions
-	bar_num=request.POST.get('bc')
-	if bar_num and settings.OPENSRF_STAFF_USERID:
-		bc = bar_num
-		eg_modifier, eg_location, eg_callno = ils_item_info(bc)
+        #TODO: Leddy combines notion of desk and location for reserves, but it
+        # is confusing in terms of the catalogue, need to make this consistent
+        eg_callno   = ''
+        eg_modifier = ''
+        eg_location = ''
 
-	if bibid > 0:
-        	item = site.item_set.create(parent_heading=parent_item,
-                                    title=dublin.get('dc:title','Untitled'),
-                                    author=dublin.get('dc:creator'),
-                                    publisher=dublin.get('dc:publisher',''),
-                                    published=pubdate,
-                                    bib_id = bibid,
-                                    barcode = bc,
-                                    circ_modifier = eg_modifier,
-                                    circ_desk = eg_location,
-                                    orig_callno = eg_callno,
-                                    marcxml=raw_pickitem,
-                                    **dct)
-	else:
-        	item = site.item_set.create(parent_heading=parent_item,
-                                    title=dublin.get('dc:title','Untitled'),
-                                    author=dublin.get('dc:creator'),
-                                    publisher=dublin.get('dc:publisher',''),
-                                    published=pubdate,
-                                    barcode = bc,
-                                    circ_modifier = eg_modifier,
-                                    circ_desk = eg_desk,
-                                    orig_callno = eg_callno,
-                                    marcxml=raw_pickitem,
-                                    **dct)
+        #TODO: use python bindings for these interactions
+        bar_num=request.POST.get('bc')
+        if bar_num and getattr(settings, 'OPENSRF_STAFF_USERID'): # TODO: we need an explicit 'we do updates' flag
+            bc = bar_num
+            eg_modifier, eg_location, eg_callno = opensrf.ils_item_info(bc)
+
+        if bibid > 0:
+            item = site.item_set.create(parent_heading=parent_item,
+                                        title=dublin.get('dc:title','Untitled'),
+                                        author=dublin.get('dc:creator'),
+                                        publisher=dublin.get('dc:publisher',''),
+                                        published=pubdate,
+                                        bib_id = bibid,
+                                        barcode = bc,
+                                        circ_modifier = eg_modifier,
+                                        circ_desk = eg_location,
+                                        orig_callno = eg_callno,
+                                        marcxml=raw_pickitem,
+                                        **dct)
+        else:
+            item = site.item_set.create(parent_heading=parent_item,
+                                        title=dublin.get('dc:title','Untitled'),
+                                        author=dublin.get('dc:creator'),
+                                        publisher=dublin.get('dc:publisher',''),
+                                        published=pubdate,
+                                        barcode = bc,
+                                        circ_modifier = eg_modifier,
+                                        circ_desk = eg_desk,
+                                        orig_callno = eg_callno,
+                                        marcxml=raw_pickitem,
+                                        **dct)
         item.save()
 
         return HttpResponseRedirect(item.parent_url())
@@ -377,34 +380,34 @@ def item_edit(request, site_id, item_id):
             [setattr(item, k, v) for (k,v) in data.items()]
 
             if item.item_type == 'PHYS':
-		update_option = request.POST.get('update_option')
-		location_option = request.POST.get('location_option')
-		modifier_option = request.POST.get('modifier_option')
-		update_status = True
+                update_option = request.POST.get('update_option')
+                location_option = request.POST.get('location_option')
+                modifier_option = request.POST.get('modifier_option')
+                update_status = True
 
-		if update_option == 'Cat': 
-			update_status = ils_item_update(item.barcode, item.orig_callno, 
-				modifier_option, location_option)
+                if update_option == 'Cat':
+                    update_status = opensrf.ils_item_update(item.barcode, item.orig_callno,
+                                                            modifier_option, location_option)
 
-		#leave values alone if update failed
-		if update_status:
-                	item.evergreen_update = update_option
-			item.circ_desk = location_option
-			item.circ_modifier = modifier_option
-		else:
-                	return simple_message(_('Unable to update'), 
-				_('Sorry, unable to update at this time, please try again.'))
+                #leave values alone if update failed
+                if update_status:
+                    item.evergreen_update = update_option
+                    item.circ_desk = location_option
+                    item.circ_modifier = modifier_option
+                else:
+                    return simple_message(_('Unable to update'),
+                                          _('Sorry, unable to update at this time, please try again.'))
 
-		if update_option == 'None': 
-			item.evergreen_update = ''
-			item.barcode = ''
-			item.orig_callno = ''
-			item.circ_modifier = ''
-			item.circ_desk = ''
-                    
+                if update_option == 'None':
+                    item.evergreen_update = ''
+                    item.barcode = ''
+                    item.orig_callno = ''
+                    item.circ_modifier = ''
+                    item.circ_desk = ''
+
         item.save()
         return HttpResponseRedirect(item.parent_url())
-        
+
 @instructors_only
 def item_delete(request, site_id, item_id):
     site = get_object_or_404(models.Site, pk=site_id)
@@ -420,17 +423,17 @@ def item_delete(request, site_id, item_id):
             return HttpResponseRedirect(redir)
         else:
             return HttpResponseRedirect('../meta')
-    
+
 @members_only
 def item_download(request, site_id, item_id, filename):
     site = get_object_or_404(models.Site, pk=site_id)
     item = get_object_or_404(models.Item, pk=item_id, site__id=site_id)
     assert item.item_type == 'ELEC', _('Can only download ELEC documents!')
 
-    access_forbidden = (item.item_type == 'ELEC' 
+    access_forbidden = (item.item_type == 'ELEC'
                         and not item.site.allows_downloads_to(request.user))
     if access_forbidden:
-        return simple_message(_('Access denied.'), 
+        return simple_message(_('Access denied.'),
                               _('Sorry, but you are not allowed to access this resource.'))
 
     # don't allow download of items that need a declaration.
@@ -449,10 +452,10 @@ def item_download(request, site_id, item_id, filename):
 
     if item.fileobj_origname:
         disposition = 'attachment' if mime.startswith('application/') else 'inline'
-        resp['Content-Disposition'] = '%s; filename=%s' % (disposition, 
+        resp['Content-Disposition'] = '%s; filename=%s' % (disposition,
                                                           item.fileobj_origname)
     return resp
-    
+
 
 
 #------------------------------------------------------------
@@ -502,7 +505,7 @@ def item_relocate(request, site_id, item_id):
             new_parent = site.item_set.get(pk=newheading)
             if item in new_parent.hierarchy():
                 # then we would create a cycle. Bail out.
-                return simple_message(_('Impossible item-move!'), 
+                return simple_message(_('Impossible item-move!'),
                                       _('You cannot make an item a descendant of itself!'))
         item.parent_heading = new_parent
         item.save()
