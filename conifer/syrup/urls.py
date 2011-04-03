@@ -15,7 +15,6 @@ urlpatterns = patterns('conifer.syrup.views',
     (r'^browse/$', 'browse'),
     (r'^browse/(?P<browse_option>.*)/$', 'browse'),
     (r'^prefs/$', 'user_prefs'),
-    (r'^z3950test/$', 'z3950_test'),
     #MARK: propose we kill open_sites, we have browse.
     (r'^opensite/$', 'open_sites'),
     (r'^search/$', 'search'),

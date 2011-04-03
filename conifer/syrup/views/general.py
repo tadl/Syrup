@@ -52,40 +52,6 @@ def user_prefs(request):
         profile.save()
         return HttpResponseRedirect('../')
 
-def z3950_test(request):
-    #z39.50 testing area
-
-
-    styledoc = libxml2.parseFile(HERE('../../static/xslt/test.xsl'))
-    stylexsl = libxslt.parseStylesheetDoc(styledoc)
-
-    #testing JZKitZ3950 - it seems to work, but i have a character set problem
-    #with the returned marc
-    #nope - the problem is weak mapping with the limited solr test set
-    #i think this can be sorted out
-
-    #conn = zoom.Connection ('z3950.loc.gov', 7090)
-    conn = zoom.Connection ('zed.concat.ca', 210)
-    print("connecting...")
-    conn.databaseName = 'OWA'
-    conn.preferredRecordSyntax = 'XML'
-    # conn.preferredRecordSyntax = 'USMARC'
-    query = zoom.Query ('CCL', 'ti="agar"')
-    res = conn.search (query)
-    collector = []
-    # if we wanted to get into funkiness
-    m = zmarc.MARC8_to_Unicode ()
-    for r in res:
-        #print(type(r.data))
-        #print(type(m.translate(r.data)))
-	zhit = str("<?xml version=\"1.0\"?>") + (m.translate(r.data))
-	#doc = libxml2.parseDoc(zhit)
-	#print(stylexsl.applyStylesheet(doc, None))
-
-    conn.close ()
-    res_str = "" . join(collector)
-    return g.render('z3950_test.xhtml', res_str=res_str)
-
 def browse(request, browse_option=''):
     #the defaults should be moved into a config file or something...
     page_num = int(request.GET.get('page', 1))
