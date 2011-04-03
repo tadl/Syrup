@@ -128,13 +128,13 @@ def item_add(request, site_id, item_id):
                         replacement = '; '.join(ris[risfield])
                         POST[field] = xlate(replacement)
                         break
-            def space_comments(names):
+            def space_out_names(names):
                 # RIS doesn't put spaces after commas in names
                 return re.sub(',(?=[^ ])', ', ', names)
 
             update('title', ('TI', 'T1'))
             update('source_title', ('JO', 'JF'))
-            update('author', ('AU', 'A1'), space_comments)
+            update('author', ('AU', 'A1'), space_out_names)
             update('url', ('UR',))
             update('volume', ('VL',))
             update('issue', ('IS',))
