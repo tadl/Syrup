@@ -4,8 +4,8 @@ from conifer.libsystems                   import marcxml as M
 from conifer.libsystems.evergreen         import item_status as I
 from conifer.libsystems.evergreen.support import initialize, E1
 from conifer.libsystems.z3950             import pyz3950_search as PZ
+from conifer.plumbing.memoization         import memoize
 from django.conf                          import settings
-from memoization                          import memoize
 from xml.etree                            import ElementTree as ET
 import re
 import time
