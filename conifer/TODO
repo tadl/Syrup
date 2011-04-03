@@ -1,5 +1,27 @@
 NEW:
 
+* finish i18n and french translation.
+
+* fix evergreen authentication problem ('django.py')
+
+* break out evergreen_site and uwindsor. Take uwindsor out of svn?
+
+* add a DOES_UPDATES flag: if true, then use oils/osrf, if not, use old code
+
+* replace service desks with locations; pull locations from evergreen; add boolean field for locs that are service desks.
+
+
+* from Joan: notify staff if entering an item (url or upload) that's been entered before. If so, "use the same record"
+
+* for Joan: upload document into multiple sites at once?
+
+* copy/paste items between sites
+
+* make our uwindsor/evergreen integration module use the aforementioned locations list.
+
+* for updated items: change it to the reserves location when coming in; change back to original location when done.
+
+
 * review item_metadata.xhtml, fix those buttons, they have a superfluous link around them..
 
 * add Welcome message to home page, use request@uwindsor.ca as the contact email for problems.

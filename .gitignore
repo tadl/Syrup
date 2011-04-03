@@ -15,3 +15,4 @@ private_local_settings.py
 /conifer/test.db
 /conifer/syrup/test.db
 /conifer/uwindsor_migration/data/
+/oils
