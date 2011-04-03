@@ -39,9 +39,9 @@ if not settings.DEBUG:
     handler404b = 'conifer.syrup.views.custom_400_handler'
 
 
-if settings.LINKTOOL_AUTHENTICATION:
+if settings.SAKAI_LINKTOOL_AUTHENTICATION:
     urlpatterns += patterns(
-        'conifer.integration.linktool.app',
+        'conifer.integration.sakai_linktool.app',
         (r'^linktool-welcome/$', 'linktool_welcome'),
         (r'^linktool-welcome/new_site$', 'linktool_new_site'),
         (r'^linktool-welcome/copy_old$', 'linktool_copy_old'),

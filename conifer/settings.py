@@ -97,7 +97,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 EVERGREEN_AUTHENTICATION = False
-LINKTOOL_AUTHENTICATION  = False
+SAKAI_LINKTOOL_AUTHENTICATION  = False
 
 # CAS authentication requires 'django-cas', 
 # http://code.google.com/p/django-cas/
@@ -129,9 +129,9 @@ if EVERGREEN_AUTHENTICATION:
     AUTHENTICATION_BACKENDS.append(
         'conifer.integration.auth_evergreen.django.EvergreenAuthBackend')
 
-if LINKTOOL_AUTHENTICATION:
+if SAKAI_LINKTOOL_AUTHENTICATION:
     AUTHENTICATION_BACKENDS.append(
-        'conifer.integration.linktool.backend.LinktoolAuthBackend')
+        'conifer.integration.sakai_linktool.backend.LinktoolAuthBackend')
 
 if CAS_AUTHENTICATION:
     AUTHENTICATION_BACKENDS.append('conifer.integration.cas.CASBackend')

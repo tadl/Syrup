@@ -3,9 +3,10 @@ from datetime           import date
 from evergreen_site     import EvergreenIntegration
 import csv
 import subprocess
-import uwindsor_campus_info
 import uwindsor_fuzzy_lookup
 from django.conf                          import settings
+from urllib2 import urlopen
+from django.utils import simplejson
 
 
 class UWindsorIntegration(EvergreenIntegration):
@@ -59,6 +60,11 @@ class UWindsorIntegration(EvergreenIntegration):
             ('2011F', '2011 Fall', date(2011,9,1), date(2011,12,31)),
             ]
 
+    def _campus_info(name, *args):
+        url = '%s%s?%s' % (settings.CAMPUS_INFO_SERVICE, name, simplejson.dumps(args))
+        raw = urlopen(url).read()
+        return simplejson.loads(raw)
+
     def external_person_lookup(self, userid):
         """
         Given a userid, return either None (if the user cannot be found),
@@ -67,7 +73,7 @@ class UWindsorIntegration(EvergreenIntegration):
         an email address is known, and 'patron_id' if a library-system ID
         is known.
         """
-        return uwindsor_campus_info.call('person_lookup', userid)
+        return self._campus_info('person_lookup', userid)
 
 
     def external_memberships(self, userid):
@@ -78,7 +84,7 @@ class UWindsorIntegration(EvergreenIntegration):
         'group': a group-code, externally defined;
         'role':          the user's role in that group, one of (INSTR, ASSIST, STUDT).
         """
-        memberships = uwindsor_campus_info.call('membership_ids', userid)
+        memberships = self._campus_info('membership_ids', userid)
         for m in memberships:
             m['role'] = self._decode_role(m['role'])
         return memberships

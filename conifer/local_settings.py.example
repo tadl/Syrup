@@ -34,8 +34,8 @@ SECRET_KEY = 'replace-with-your-own-super-random-key-@vv(tuvt2+yu2r-$dxs$s7=iqjz
 # Authentication systems
 
 EVERGREEN_AUTHENTICATION = False # Evergreen ILS authentication
-LINKTOOL_AUTHENTICATION  = False # Sakai LMS Linktool authentication
-LINKTOOL_AUTH_URL = 'https://...' # fixme, add documentation
+SAKAI_LINKTOOL_AUTHENTICATION  = False # Sakai LMS Linktool authentication
+SAKAI_LINKTOOL_AUTH_URL = 'https://...' # fixme, add documentation
 
 # CAS authentication. See conifer/integration/cas.py, or
 # http://code.google.com/p/django-cas/ .
