@@ -7,7 +7,7 @@ from xml.etree                   import ElementTree as ET
 from collections                 import defaultdict
 from conifer.libsystems.evergreen.support import initialize, E1
 
-if getattr(settings, 'OPENSRF_STAFF_USERID'): # TODO: we need an explicit 'we do updates' flag
+if hasattr(settings, 'OPENSRF_STAFF_USERID'): # TODO: we need an explicit 'we do updates' flag
     from conifer.libsystems.evergreen import opensrf
 
 @members_only
@@ -297,8 +297,9 @@ def item_add_cat_search(request, site_id, item_id):
         except:
             pubdate = ''
 
-        bibid = bib_id=request.POST.get('bibid')
-        bc = None
+        bibid   = bib_id=request.POST.get('bibid', '')
+        bar_num = request.POST.get('bc', '')
+        barcode = None
 
         # TODO: the Leddy stuff here belongs in an integration-module function. [GF]
 
@@ -309,19 +310,17 @@ def item_add_cat_search(request, site_id, item_id):
         eg_location = ''
 
         #TODO: use python bindings for these interactions
-        bar_num=request.POST.get('bc')
-        if bar_num and getattr(settings, 'OPENSRF_STAFF_USERID'): # TODO: we need an explicit 'we do updates' flag
-            bc = bar_num
-            eg_modifier, eg_location, eg_callno = opensrf.ils_item_info(bc)
-
-        if bibid > 0:
+        if bar_num and hasattr(settings, 'OPENSRF_STAFF_USERID'): # TODO: we need an explicit 'we do updates' flag
+            barcode = bar_num
+            eg_modifier, eg_location, eg_callno = opensrf.ils_item_info(barcode)
+        if bibid:
             item = site.item_set.create(parent_heading=parent_item,
                                         title=dublin.get('dc:title','Untitled'),
                                         author=dublin.get('dc:creator'),
                                         publisher=dublin.get('dc:publisher',''),
                                         published=pubdate,
                                         bib_id = bibid,
-                                        barcode = bc,
+                                        barcode = barcode,
                                         circ_modifier = eg_modifier,
                                         circ_desk = eg_location,
                                         orig_callno = eg_callno,
@@ -333,9 +332,9 @@ def item_add_cat_search(request, site_id, item_id):
                                         author=dublin.get('dc:creator'),
                                         publisher=dublin.get('dc:publisher',''),
                                         published=pubdate,
-                                        barcode = bc,
+                                        barcode = barcode,
                                         circ_modifier = eg_modifier,
-                                        circ_desk = eg_desk,
+                                        circ_desk = eg_location,
                                         orig_callno = eg_callno,
                                         marcxml=raw_pickitem,
                                         **dct)

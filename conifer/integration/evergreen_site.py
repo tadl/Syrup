@@ -220,8 +220,8 @@ class EvergreenIntegration(object):
     OSRF_CAT_SEARCH_ORG_UNIT = getattr(settings, 'OSRF_CAT_SEARCH_ORG_UNIT', None)
 
     def cat_search(self, query, start=1, limit=10):
-        barcode = 0
-        bibid	= 0
+        barcode = ''
+        bibid	= ''
         is_barcode = re.search('\d{14}', query)
 
         if query.startswith(self.EG_BASE):
