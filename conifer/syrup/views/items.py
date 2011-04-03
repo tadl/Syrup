@@ -378,7 +378,7 @@ def item_edit(request, site_id, item_id):
                     del data['author2']
             [setattr(item, k, v) for (k,v) in data.items()]
 
-            if item.item_type == 'PHYS':
+            if item.item_type == 'PHYS' and hasattr(settings, 'OPENSRF_STAFF_USERID'): # TODO: we need an explicit 'we do updates' flag
                 update_option = request.POST.get('update_option')
                 location_option = request.POST.get('location_option')
                 modifier_option = request.POST.get('modifier_option')
