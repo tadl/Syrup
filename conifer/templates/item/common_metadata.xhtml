@@ -35,7 +35,7 @@ if len(authors) < 2:
 	  </select>
 	</td>
       </tr>
-      <tr py:if="user.is_staff and item.item_type == 'PHYS'">
+      <tr py:if="user.is_staff and item.item_type == 'PHYS' and hasattr(settings, 'OPENSRF_STAFF_USERID')">
 	<th>Catalogue Settings</th>
 	<td> 
 	<table>
