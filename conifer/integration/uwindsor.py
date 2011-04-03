@@ -22,7 +22,21 @@ import uwindsor_fuzzy_lookup
 # USE_Z3950: if True, use Z39.50 for catalogue search; if False, use OpenSRF.
 # Don't set this value directly here: rather, if there is a valid Z3950_CONFIG
 # settings in local_settings.py, then Z39.50 will be used.
+
 USE_Z3950 = getattr(settings, 'Z3950_CONFIG', None) is not None
+
+
+OPENSRF_AUTHENTICATE      = "open-ils.auth.authenticate.complete"
+OPENSRF_AUTHENTICATE_INIT = "open-ils.auth.authenticate.init"
+OPENSRF_BATCH_UPDATE      = "open-ils.cat.asset.copy.fleshed.batch.update"
+OPENSRF_CIRC_UPDATE       = "open-ils.cstore open-ils.cstore.direct.action.circulation.update"
+OPENSRF_CLEANUP           = "open-ils.auth.session.delete"
+OPENSRF_CN_BARCODE        = "open-ils.circ.copy_details.retrieve.barcode.authoritative"
+OPENSRF_CN_CALL           = "open-ils.search.asset.copy.retrieve_by_cn_label"
+OPENSRF_COPY_COUNTS       = "open-ils.search.biblio.copy_counts.location.summary.retrieve"
+OPENSRF_FLESHED2_CALL     = "open-ils.search.asset.copy.fleshed2.retrieve"
+OPENSRF_FLESHEDCOPY_CALL  = "open-ils.search.asset.copy.fleshed.batch.retrieve.authoritative"
+
 
 def department_course_catalogue():
     """
@@ -96,7 +110,7 @@ def _item_status(bib_id):
     # site would not have access to these but will leave for now
     # since there are no hardcoded references
     try:
-        counts = E1(settings.OPENSRF_COPY_COUNTS, bib_id, 1, 0)
+        counts = E1(OPENSRF_COPY_COUNTS, bib_id, 1, 0)
         lib = desk = avail = vol = 0
         dueinfo = ''
         callno  = ''
@@ -137,12 +151,12 @@ def _item_status(bib_id):
                     callno = callnum
 
                 lib += anystatus_here
-                copyids = E1(settings.OPENSRF_CN_CALL, bib_id, callnum, org)
+                copyids = E1(OPENSRF_CN_CALL, bib_id, callnum, org)
 
                 # we want to return the resource that will be returned first if
                 # already checked out
                 for copyid in copyids:
-                    circinfo = E1(settings.OPENSRF_FLESHED2_CALL, copyid)
+                    circinfo = E1(OPENSRF_FLESHED2_CALL, copyid)
 
                     thisloc = circinfo.get("location")
                     if thisloc:
