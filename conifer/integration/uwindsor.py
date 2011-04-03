@@ -31,7 +31,7 @@ def department_course_catalogue():
     in the form: ('Department name', 'course-code', 'Course name').
     """
     url = 'http://cleo.uwindsor.ca/graham/courses.txt.gz'
-    p = subprocess.Popen('curl -s %s | gunzip -c' % url, 
+    p = subprocess.Popen('curl -s %s | gunzip -c' % url,
                          shell=True, stdout=subprocess.PIPE)
     reader = csv.reader(p.stdout)
     catalogue = list(reader)
@@ -61,7 +61,7 @@ initialize(EG_BASE)
 
 # Item status stuff
 
-STATUS_DECODE = [(str(x['id']), x['name']) 
+STATUS_DECODE = [(str(x['id']), x['name'])
                  for x in E1('open-ils.search.config.copy_status.retrieve.all')]
 AVAILABLE = [id for id, name in STATUS_DECODE if name == 'Available'][0]
 RESHELVING = [id for id, name in STATUS_DECODE if name == 'Reshelving'][0]
@@ -76,199 +76,190 @@ def item_status(item):
     includes 'avail'. You may also return None if the item is
     nonsensical (e.g. it is not a physical object, or it has no bib
     ID).
-    
+
     Note, 'item.bib_id' is the item's bib_id, or None;
     'item.item_type' will equal 'PHYS' for physical items;
     'item.site.service_desk' is the ServiceDesk object associated with
     the item. The ServiceDesk object has an 'external_id' attribute
     which should represent the desk in the ILS.
     """
+    if not item.bib_id:
+        return None
     return _item_status(item.bib_id)
 
 CACHE_TIME = 300
 
 @memoize(timeout=CACHE_TIME)
 def _item_status(bib_id):
-    # At this point, status information does not require the opensrf 
+    # At this point, status information does not require the opensrf
     # bindings, I am not sure there is a use case where an evergreen
     # site would not have access to these but will leave for now
     # since there are no hardcoded references
-            
-    if bib_id:
-        try:
-            counts = E1(settings.OPENSRF_COPY_COUNTS, bib_id, 1, 0)
+    try:
+        counts = E1(settings.OPENSRF_COPY_COUNTS, bib_id, 1, 0)
+        lib = desk = avail = vol = 0
+        dueinfo = ''
+        callno  = ''
+        circmod = ''
+        alldues = []
 
-            lib = desk = avail = vol = 0
-	    dueinfo = ''
-            callno = ''
-            circmod = ''
-            alldues = []
+        for org, callnum, loc, stats in counts:
+            callprefix = ''
+            callsuffix = ''
+            if len(callno) == 0:
+                callno = callnum
+            avail_here = stats.get(AVAILABLE, 0)
+            avail_here += stats.get(RESHELVING, 0)
+            anystatus_here = sum(stats.values())
 
-            for org, callnum, loc, stats in counts:
-		callprefix = ''
-		callsuffix = ''
-		if len(callno) == 0:
-			callno = callnum
-                avail_here = stats.get(AVAILABLE, 0)
-                avail_here += stats.get(RESHELVING, 0)
-                anystatus_here = sum(stats.values())
+            # volume check - based on v.1, etc. in call number
+            voltest = re.search(r'\w*v\.\s?(\d+)', callnum)
 
-		"""
-		volume check - based on v.1, etc. in call number
-		"""
-    		voltest = re.search(r'\w*v\.\s?(\d+)', callnum)
+            # attachment test
+            attachtest = re.search(settings.ATTACHMENT, callnum)
 
-		"""
-		attachment test 
-		"""
-		attachtest = re.search(settings.ATTACHMENT, callnum)
+            if loc == settings.RESERVES_DESK_NAME:
+                desk += anystatus_here
+                avail += avail_here
+                dueinfo = ''
 
-                if loc == settings.RESERVES_DESK_NAME:
-		    desk += anystatus_here
-                    avail += avail_here
-		    dueinfo = ''
-                    		
-                    if (voltest and vol > 0 ): 
-			if (int(voltest.group(1)) > vol):
-				callsuffix = "/" + callnum
-			else:
-				callprefix = callnum + "/" 
-                    elif attachtest and callno.find(attachtest.group(0)) == -1:
-			if len(callno) > 0:
-				callsuffix = "/" + callnum
-			else:
-				callprefix = callnum
+                if (voltest and vol > 0 ):
+                    if (int(voltest.group(1)) > vol):
+                        callsuffix = "/" + callnum
                     else:
-			callno = callnum
-                
-                    lib += anystatus_here
-                    copyids = E1(settings.OPENSRF_CN_CALL, bib_id, callnum, org)
-		
-                    """
-                    we want to return the resource that will be returned first if
-                    already checked out
-                    """
-                    for copyid in copyids:
-			circinfo = E1(settings.OPENSRF_FLESHED2_CALL, copyid)
+                        callprefix = callnum + "/"
+                elif attachtest and callno.find(attachtest.group(0)) == -1:
+                    if len(callno) > 0:
+                        callsuffix = "/" + callnum
+                    else:
+                        callprefix = callnum
+                else:
+                    callno = callnum
 
-			thisloc = circinfo.get("location")
-			if thisloc:
-				thisloc = thisloc.get("name")
-		
-			if thisloc == settings.RESERVES_DESK_NAME: 
-				bringfw = attachtest
+                lib += anystatus_here
+                copyids = E1(settings.OPENSRF_CN_CALL, bib_id, callnum, org)
 
-				# multiple volumes
-				if voltest and callno.find(voltest.group(0)) == -1:
-					bringfw = True
-	
-				if len(circmod) == 0:
-					circmod = circinfo.get("circ_modifier")
-				circs = circinfo.get("circulations")
+                # we want to return the resource that will be returned first if
+                # already checked out
+                for copyid in copyids:
+                    circinfo = E1(settings.OPENSRF_FLESHED2_CALL, copyid)
 
-				if circs and isinstance(circs, list):
-					circ = circs[0]
-					rawdate = circ.get("due_date")
-					#remove offset info, %z is flakey for some reason
-					rawdate = rawdate[:-5]
-					duetime = time.strptime(rawdate, settings.TIME_FORMAT)
+                    thisloc = circinfo.get("location")
+                    if thisloc:
+                        thisloc = thisloc.get("name")
 
-				if avail == 0 or bringfw:
-					if circs and len(circs) > 0:
-						if len(dueinfo) == 0 or bringfw: 
-							earliestdue = duetime
-							if voltest:
-								if (int(voltest.group(1)) > vol):
-									if len(dueinfo) > 0:
-										dueinfo = dueinfo + "/"
-									dueinfo = dueinfo + voltest.group(0) + ': ' + time.strftime(settings.DUE_FORMAT,earliestdue)
-								else:
-									tmpinfo = dueinfo
-									dueinfo = voltest.group(0) + ': ' + time.strftime(settings.DUE_FORMAT,earliestdue) 
-									if len(tmpinfo) > 0:
-										dueinfo = dueinfo + "/" + tmpinfo
-								callprefix = callsuffix = ''
-							elif attachtest:
-								tmpinfo = dueinfo
-								dueinfo = attachtest.group(0) + ': ' + time.strftime(settings.DUE_FORMAT,earliestdue)
-								if len(callno) > 0:
-									callno = callno + '/' + callnum 
-									callprefix = callsuffix = ''
-								else:
-									callno = callnum
-								if len(tmpinfo) > 0:
-									dueinfo = dueinfo + "/" + tmpinfo
-								
-							if not bringfw:
-								dueinfo = time.strftime(settings.DUE_FORMAT,earliestdue)
-								callno = callnum
+                    if thisloc == settings.RESERVES_DESK_NAME:
+                        bringfw = attachtest
 
-						# way too wacky to sort out vols for this
-						if duetime < earliestdue and not bringfw:
-							earliestdue = duetime
-							dueinfo = time.strftime(settings.DUE_FORMAT,earliestdue)
-							callno = callnum
+                        # multiple volumes
+                        if voltest and callno.find(voltest.group(0)) == -1:
+                            bringfw = True
 
-				alldisplay = callnum + ' (Available)'
-					
-				if circs and isinstance(circs, list):
-					alldisplay = '%s (DUE: %s)' % (callnum, time.strftime(settings.DUE_FORMAT,duetime))
+                        if len(circmod) == 0:
+                            circmod = circinfo.get("circ_modifier")
+                        circs = circinfo.get("circulations")
 
-				alldues.append(alldisplay)
-			
-			if voltest or attachtest:
-				if callno.find(callprefix) == -1:
-					callno = callprefix + callno 
-				if callno.find(callsuffix) == -1:
-					callno = callno + callsuffix
-			if voltest:
-				vol = int(voltest.group(1))
-            return (lib, desk, avail, callno, dueinfo, circmod, alldues)
-	except:
-	    print "due date/call problem: ", bib_id
-            print "*** print_exc:"
-            traceback.print_exc()
-            pass          # fail silently in production if there's an opensrf or time related error.
-    return None
+                        if circs and isinstance(circs, list):
+                            circ = circs[0]
+                            rawdate = circ.get("due_date")
+                            #remove offset info, %z is flakey for some reason
+                            rawdate = rawdate[:-5]
+                            duetime = time.strptime(rawdate, settings.TIME_FORMAT)
+
+                        if (avail == 0 or bringfw) and circs and len(circs) > 0:
+                            if len(dueinfo) == 0 or bringfw:
+                                earliestdue = duetime
+                                if voltest:
+                                    if (int(voltest.group(1)) > vol):
+                                        if len(dueinfo) > 0:
+                                            dueinfo = dueinfo + "/"
+                                        dueinfo = dueinfo + voltest.group(0) + ': ' + time.strftime(settings.DUE_FORMAT,earliestdue)
+                                    else:
+                                        tmpinfo = dueinfo
+                                        dueinfo = voltest.group(0) + ': ' + time.strftime(settings.DUE_FORMAT,earliestdue)
+                                        if len(tmpinfo) > 0:
+                                            dueinfo = dueinfo + "/" + tmpinfo
+                                    callprefix = callsuffix = ''
+                                elif attachtest:
+                                    tmpinfo = dueinfo
+                                    dueinfo = attachtest.group(0) + ': ' + time.strftime(settings.DUE_FORMAT,earliestdue)
+                                    if len(callno) > 0:
+                                        callno = callno + '/' + callnum
+                                        callprefix = callsuffix = ''
+                                    else:
+                                        callno = callnum
+                                    if len(tmpinfo) > 0:
+                                        dueinfo = dueinfo + "/" + tmpinfo
+
+                                if not bringfw:
+                                    dueinfo = time.strftime(settings.DUE_FORMAT,earliestdue)
+                                    callno = callnum
+
+                            # way too wacky to sort out vols for this
+                            if duetime < earliestdue and not bringfw:
+                                earliestdue = duetime
+                                dueinfo = time.strftime(settings.DUE_FORMAT,earliestdue)
+                                callno = callnum
+
+                        alldisplay = callnum + ' (Available)'
+
+                        if circs and isinstance(circs, list):
+                            alldisplay = '%s (DUE: %s)' % (callnum, time.strftime(settings.DUE_FORMAT,duetime))
+
+                        alldues.append(alldisplay)
+
+                    if voltest or attachtest:
+                        if callno.find(callprefix) == -1:
+                            callno = callprefix + callno
+                        if callno.find(callsuffix) == -1:
+                            callno = callno + callsuffix
+                    if voltest:
+                        vol = int(voltest.group(1))
+        return (lib, desk, avail, callno, dueinfo, circmod, alldues)
+    except:
+        print "due date/call problem: ", bib_id
+        print "*** print_exc:"
+        traceback.print_exc()
+        return None # fail silently in production if there's an opensrf or time related error.
 
 CAT_SEARCH_ORG_UNIT = 106
 
 def cat_search(query, start=1, limit=10):
     barcode = 0
-    bibid   = 0
+    bibid	= 0
     is_barcode = re.search('\d{14}', query)
 
     if query.startswith(EG_BASE):
         # query is an Evergreen URL
-	# snag the bibid at this point
-    	params = dict([x.split("=") for x in query.split("&")])
-    	for key in params.keys():
-		if key.find('?r') != -1:
-			bibid = params[key]
+        # snag the bibid at this point
+        params = dict([x.split("=") for x in query.split("&")])
+        for key in params.keys():
+            if key.find('?r') != -1:
+                bibid = params[key]
         results = M.marcxml_to_records(I.url_to_marcxml(query))
         numhits = len(results)
     elif is_barcode:
-	results = []
-	numhits = 0
-	barcode = query.strip()
+        results = []
+        numhits = 0
+        barcode = query.strip()
         bib = E1('open-ils.search.bib_id.by_barcode', barcode)
-	if bib:
-		bibid = bib
-		copy = E1('open-ils.supercat.record.object.retrieve', bib)
-		marc = copy[0]['marc']
-                # In some institutions' installations, 'marc' is a string; in
-                # others it's unicode. Convert to unicode if necessary.
-                if not isinstance(marc, unicode):
-                    marc = unicode(marc, 'utf-8')
-                tree = M.marcxml_to_records(marc)[0]
-                results.append(tree)
-		numhits = 1
+        if bib:
+            bibid = bib
+            copy = E1('open-ils.supercat.record.object.retrieve', bib)
+            marc = copy[0]['marc']
+            # In some institutions' installations, 'marc' is a string; in
+            # others it's unicode. Convert to unicode if necessary.
+            if not isinstance(marc, unicode):
+                marc = unicode(marc, 'utf-8')
+            tree = M.marcxml_to_records(marc)[0]
+            results.append(tree)
+            numhits = 1
     else:
         # query is an actual query
         if USE_Z3950:
             cat_host, cat_port, cat_db = settings.Z3950_CONFIG
             results, numhits = PZ.search(cat_host, cat_port, cat_db, query, start, limit)
-        else:                   # use opensrf
+        else:					# use opensrf
             superpage = E1('open-ils.search.biblio.multiclass.query',
                            {'org_unit': CAT_SEARCH_ORG_UNIT,
                             'depth': 1, 'limit': limit, 'offset': start-1,
@@ -325,7 +316,7 @@ if USE_Z3950:
         """
         This function takes a MARCXML record and returns either the same
         record, or another instance of the same record from a different
-        source. 
+        source.
 
         This is a hack. There is currently at least one Z39.50 server that
         returns a MARCXML record with broken character encoding. This
@@ -348,9 +339,9 @@ def marcxml_to_url(marc_string):
     codes and $u holds the URLs.
     """
     # TODO: move this to local_settings
-    LIBCODE = 'OWA'             # Leddy
+    LIBCODE = 'OWA'					# Leddy
     try:
-        dct   = M.marcxml_to_dictionary(marc_string)
+        dct           = M.marcxml_to_dictionary(marc_string)
         words = lambda string: re.findall(r'\S+', string)
         keys  = words(dct.get('8569'))
         urls  = words(dct.get('856u'))
@@ -360,7 +351,7 @@ def marcxml_to_url(marc_string):
     except:
         return None
 
-    
+
 def external_person_lookup(userid):
     """
     Given a userid, return either None (if the user cannot be found),
@@ -378,7 +369,7 @@ def external_memberships(userid):
     memberships in known external groups. Each dict must include the
     following key/value pairs:
     'group': a group-code, externally defined;
-    'role':  the user's role in that group, one of (INSTR, ASSIST, STUDT).
+    'role':          the user's role in that group, one of (INSTR, ASSIST, STUDT).
     """
     memberships = uwindsor_campus_info.call('membership_ids', userid)
     for m in memberships:
@@ -404,7 +395,7 @@ def fuzzy_person_lookup(query, include_students=False):
     # userids. That is, fuzzy matching only works for staff, faculty, and
     # other non-student roles.
 
-    filter  = uwindsor_fuzzy_lookup.build_filter(query, include_students)
+    filter	= uwindsor_fuzzy_lookup.build_filter(query, include_students)
     results = uwindsor_fuzzy_lookup.search(filter)
 
     out = []
@@ -432,9 +423,9 @@ def derive_group_code_from_section(site, section):
         return None
 
     return '%s-%s-%s' % (site.course.code.replace('-', ''),
-                         section, 
+                         section,
                          site.start_term.code)
-                         
+
 #--------------------------------------------------
 # proxy server integration
 
