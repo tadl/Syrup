@@ -20,14 +20,13 @@ course.
 Required components
 ------------------------------
 
-You need Python. Probably Python 2.5, I haven't tested with other
-versions. You also need sqlite3 or another Django-compatible
+You need Python. You also need sqlite3 or another Django-compatible
 database. Sqlite3 is recommended for kicking the tires, PostgreSQL for
 production.
 
 Third-party Python dependencies:
 
-  sudo easy_install Django Genshi Babel BabelDjango
+  sudo easy_install Django Genshi Babel BabelDjango South Pyz3950 lxml ply
 
 (You'll need 'setuptools' in order to have 'easy_install'.)
 
@@ -35,22 +34,12 @@ Windows is very similar, see:
 
 http://groups.google.com/group/syrup-reserves-discuss/web/installing-syrup-in-windows
 
-Graham has the following versions installed. Not saying you need these
-exact ones, just that they are known to work.
-
-    Django-1.0.1_final-py2.5
-    Babel-0.9.4-py2.5
-    BabelDjango-0.2.2-py2.5
-    Genshi-0.5.1-py2.5
-    South-0.7
-
 Getting this thing to run
 ------------------------------
 
 This might work:
 
-* Review settings.py. Maybe you need to edit stuff. Probably not for a
-  quick test.
+* Copy local_settings.py.example to local_settings.py, and review the settings
 
 * ./manage.py syncdb
 
@@ -73,30 +62,3 @@ C:\src\syrup\trunk\conifer>manage.py syncdb
 * make yourself a course.
 
 * click on all of the links and see what they do.
-
-
-Contents [out of date -- Ed.]
-------------------------------
-
-syrup/			-- the reserves app
-middleware/		-- middleware component to integrate Genshi
-locale/			-- the gettext files
-templates/		-- the Genshi templates
-static/			-- static JS, CSS, image files
-doc/			-- documentation on the app
-
-local_settings.py.in    -- a template for local_settings.py
-genshi_support.py	-- Genshi template integration
-pybabel-extract		-- a "make all" for the i18n files
-babel.cfg		-- Babel (i18n) configuration file
-
-The rest is straightforward Django stuff.
-
-
-Customization
-------------------------------
-
-The 'custom' directory contains (or should contain!)  all of the bits
-that you really need to customize for your institution. More
-documentation is needed here, but the source code is mostly
-well-documented.

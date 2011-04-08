@@ -31,6 +31,15 @@ TIME_ZONE = 'America/Detroit'
 SECRET_KEY = 'replace-with-your-own-super-random-key-@vv(tuvt2+yu2r-$dxs$s7=iqjz_s!&'
 
 #----------------------------------------------------------------------
+# EZproxy integration
+EZPROXY_HOST = 'ezproxy.library.org'
+EZPROXY_PASSWORD = ''
+
+#----------------------------------------------------------------------
+# For campus information - ignore if not applicable for your organization
+CAMPUS_INFO_SERVICE = 'http://sample.campus.info'
+
+#----------------------------------------------------------------------
 # Authentication systems
 
 EVERGREEN_AUTHENTICATION = False # Evergreen ILS authentication
@@ -60,7 +69,15 @@ Z3950_CONFIG             = ('zed.concat.ca', 210, 'OWA')  #OWA,OSUL,CONIFER
 # LOGIN (any logged in user), MEMBR (only explicit members of the
 # site), and CLOSE (only instructors/owners of the site).
 
-# SITE_DEFAULT_ACCESS_LEVEL = 'MEMBR'
+#----------------------------------------------------------------------
+# UPDATE_CHOICES: these options are only surfaced when a site
+# enables updates from syrup to the catalogue
+
+UPDATE_CHOICES = [
+        ('One', 'Syrup-only'),
+        ('Cat', 'Catalogue'),
+        ('Zap', 'Remove from Syrup'),
+        ]
 
 #----------------------------------------------------------------------
 # INTEGRATION_CLASS: name of a class to instantiate after the database models
@@ -68,5 +85,5 @@ Z3950_CONFIG             = ('zed.concat.ca', 210, 'OWA')  #OWA,OSUL,CONIFER
 # other late initializations. See the 'conifer.syrup.integration' module for
 # more information.
 
-INTEGRATION_CLASS = 'conifer.integration.uwindsor.UWindsorIntegration'
+#INTEGRATION_CLASS = 'conifer.integration.uwindsor.UWindsorIntegration'
 

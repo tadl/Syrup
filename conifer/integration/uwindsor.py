@@ -18,8 +18,8 @@ class UWindsorIntegration(EvergreenIntegration):
     # proxy server integration
 
     ezproxy_service = ezproxy.EZProxyService(
-        settings.UWINDSOR_EZPROXY_HOST,
-        settings.UWINDSOR_EZPROXY_PASSWORD)
+        settings.EZPROXY_HOST,
+        settings.EZPROXY_PASSWORD)
 
     def proxify_url(self, url):
         """
@@ -149,7 +149,6 @@ class UWindsorIntegration(EvergreenIntegration):
         will be used.
         """
         # as per Joan Dalton, 2010-12-21.
-        # TODO: move this to local_settings
         return ("I warrant that I am a student of the University of Windsor "
                 "enrolled in a course of instruction. By pressing the "
                 "'Request' button below, I am requesting a digital copy of a "

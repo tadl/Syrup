@@ -23,8 +23,10 @@ def initialize(base):
 
 def _fields():
     fm_idl_file = os.path.join(os.path.dirname(__file__), 'fm_IDL.xml')
-    with open(fm_idl_file) as f:
-        tree = ElementTree.parse(f)
+    f = open(fm_idl_file)
+    # to get around 2.5.x python installations
+    # with open(fm_idl_file) as f:
+    tree = ElementTree.parse(f)
     # fm_IDL_location = BASE + 'reports/fm_IDL.xml'
     # tree = ElementTree.parse(urllib2.urlopen(fm_IDL_location))
     NS = '{http://opensrf.org/spec/IDL/base/v1}'
