@@ -21,7 +21,7 @@ urlpatterns = patterns('',
     (r'^djadmin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^djadmin/', include(admin.site.urls)),
     # old form: (r'^djadmin/(.*)', admin.site.root),
     (r'^djmedia/(.*)', 'django.views.static.serve',
         {'document_root': ADMIN_MEDIA_ROOT}),
