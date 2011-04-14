@@ -17,6 +17,7 @@ g = TemplateSet(HERE('templates'), genshi_namespace)
 
 import django.conf
 import django.forms
+import itertools
 import re
 import sys
 import warnings

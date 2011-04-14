@@ -5,7 +5,7 @@ from collections                     import defaultdict
 from conifer.libsystems              import marcxml as MX
 from conifer.plumbing.genshi_support import get_request
 from conifer.plumbing.hooksystem     import *
-from datetime                        import datetime, timedelta
+from datetime                        import datetime, timedelta, date
 from django.conf                     import settings
 from django.contrib.auth.models      import AnonymousUser, User
 from django.db                       import models as m
@@ -177,7 +177,31 @@ class Term(BaseModel):
     def midpoint(self):
         return self.start + (self.finish-self.start) / 2
 
+    @classmethod
+    def timeframe_query(cls, N=0, extent=30):
+        """
+        Returns three lists: a list of terms that recently ended, a list of
+        terms that are active, and a list of terms that are upcoming soon.
+        """
+        N = int(N)
+        today = date.today()
+        delta = timedelta(days=extent)
+        before = today - delta
+        after  = today + delta
 
+        if N == 0:              # active
+            return Q(start_term__start__lte=today, end_term__finish__gte=today)
+        elif N == -1:           # recently finished
+            return Q(end_term__finish__lt=today, end_term__finish__gte=before)
+        elif N == -2:           # all past courses
+            return Q(end_term__finish__lt=today)
+        elif N ==  1:           # starting soon
+            return Q(start_term__start__lte=after, start_term__start__gt=today)
+        elif N ==  2:           # all future courses
+            return Q(start_term__start__gt=today)
+        else:
+            raise Exception('unknown timeframe: %d' % N)
+        
 class Department(BaseModel):
     name   = m.CharField(max_length=256)
     active = m.BooleanField(default=True)

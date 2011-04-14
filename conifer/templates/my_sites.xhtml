@@ -5,14 +5,16 @@ title = _('My Reserves')
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
 <xi:include href="master.xhtml"/>
+<xi:include href="components/timeframe.xhtml"/>
 <head>
   <title>${title}</title>
 </head>
 <body>
   <h1>${title}</h1>
+  ${timeframe_nav(timeframe)}
   <?python
     if user.is_authenticated():
-        my_sites = user.sites()
+        my_sites = user.sites().filter(time_query)
     else:
         my_sites = []
   ?>

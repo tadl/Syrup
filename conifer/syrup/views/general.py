@@ -47,35 +47,10 @@ def user_prefs(request):
         profile.save()
         return HttpResponseRedirect('../')
 
-def browse(request, browse_option=''):
-    #the defaults should be moved into a config file or something...
-    page_num = int(request.GET.get('page', 1))
-    count    = int(request.GET.get('count', 5))
-
-    if browse_option == '':
-        queryset = None
-        template = 'browse_index.xhtml'
-    elif browse_option == 'instructors':
-        queryset = models.User.active_instructors()
-        # TODO: fixme, user_filters is no more.
-        queryset = queryset.filter(user_filters(request.user)['instructors'])
-        template = 'instructors.xhtml'
-    elif browse_option == 'departments':
-        queryset = models.Department.objects.filter(active=True)
-        template = 'departments.xhtml'
-    elif browse_option == 'courses':
-        # TODO: fixme, course filter should not be (active=True) but based on user identity.
-        # TODO: fixme, user_filters is no more.
-        for_courses = user_filters(request.user)['courses']
-        queryset = models.Site.objects.filter(for_courses)
-        template = 'courses.xhtml'
-
-    queryset = queryset and queryset.distinct()
-    paginator = Paginator(queryset, count)
-    return g.render(template, paginator=paginator,
-                    page_num=page_num,
-                    count=count)
-
+def timeframe(request):
+    tf = int(request.REQUEST.get('timeframe', '0'))
+    request.session['timeframe'] = tf
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '../'))
 
 def instructor_detail(request, instructor_id):
     page_num = int(request.GET.get('page', 1))

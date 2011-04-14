@@ -171,7 +171,23 @@ def delete_site(request, site_id):
 
 @login_required
 def my_sites(request):
-    return g.render('my_sites.xhtml')
+    timeframe = request.session.get('timeframe', 0)
+    time_query = models.Term.timeframe_query(timeframe)
+    return g.render('my_sites.xhtml', **locals())
+
+
+def browse(request, browse_option=''):
+    #the defaults should be moved into a config file or something...
+    page_num = int(request.GET.get('page', 1))
+    count    = int(request.GET.get('count', 5))
+    timeframe = request.session.get('timeframe', 0)
+    time_query = models.Term.timeframe_query(timeframe)
+    queryset = None
+    template = 'browse_index.xhtml'
+    sites = list(models.Site.objects.order_by('course__department__name', 'course__code', 'owner__last_name').select_related().filter(time_query))
+    blocks = itertools.groupby(sites, lambda s: s.course.department)
+    return g.render('browse_index.xhtml', **locals())
+
 
 #-----------------------------------------------------------------------------
 # Site Invitation Code handler

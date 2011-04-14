@@ -1,0 +1,24 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      py:strip="">
+
+  <form py:def="timeframe_nav(timeframe)"
+	action="${ROOT}/timeframe/" method="post" id="timeframe">
+  <select name="timeframe" style="font-size: 115%;">
+    <option py:def="opt(n,title,bold=False)" value="${n}" 
+	    py:attrs="{'style':'font-weight:bold;' if bold else '', 'selected':'selected' if n==timeframe else None}">
+      ${title}
+    </option>
+    ${opt(-2, _('Past courses'))}
+    ${opt(-1, _('Recently finished'))}
+    ${opt( 0, _('Active courses'), True)}
+    ${opt( 1, _('Starting soon'))}
+    ${opt( 2, _('Future courses'))}
+  </select>
+  <script>
+  $(function() { $('#timeframe select').change(function () { $('#timeframe')[0].submit(); }); });
+  </script>
+  </form>
+
+</html>
