@@ -266,6 +266,9 @@ def site_clipboard_paste_undo(request, site_id):
     if request.method != 'POST':
         return g.render('site_confirm_paste_undo.xhtml', **locals())
     for item_id in item_list:
-        site.item_set.get(pk=item_id).delete()
+        try:
+            site.item_set.get(pk=item_id).delete()
+        except:
+            pass
     del request.session['last_paste']
     return HttpResponseRedirect('../')
