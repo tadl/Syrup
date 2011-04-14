@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?python
+title = _('Undo last paste?') 
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="master.xhtml"/>
+  <xi:include href="components/site.xhtml"/>
+  <head>
+    <title>${title}</title>
+  </head>
+  <body>
+    <h2>${title}</h2>
+    <p>Please confirm that you want to <b>remove</b> the materials that you last pasted into this site.</p>
+    <table class="metadata_table">
+      <tr><th>Source:</th><td><a href="${source_site.site_url()}">${source_site}</a></td></tr>
+      <tr><th>Destination:</th><td>${site}</td></tr>
+      <tr><th>Items:</th><td>
+      <div py:for="item in sorted([site.item_set.get(pk=n) for n in item_list], key=lambda i: i.title)">
+      ${show_tree([(item, [])])}
+      </div>
+      </td></tr>
+    </table>
+    <form action="." method="POST">
+      <p>
+	<input type="submit" value="Remove the pasted materials"/>
+	${go_back_link()}
+      </p>
+    </form>
+  </body>
+</html>

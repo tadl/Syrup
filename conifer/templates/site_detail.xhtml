@@ -34,9 +34,18 @@ is_joinable = site.is_joinable_by(request.user)
       <div py:if="is_editor" id="feeds" class="little_action_panel">
 	<a href="${site.site_url()}feeds/">Feeds</a>
       </div>
+      <div py:if="is_editor" id="copy_from" class="little_action_panel">
+	<a href="${site.site_url()}copy_from/">Copy from here</a>
+      </div>
+      <div py:if="is_editor and request.session.get('copy_source')" id="paste_to" class="little_action_panel">
+	<a href="${site.site_url()}paste_to/">Paste to here</a>
+      </div>
+      <div py:if="is_editor and request.session.get('last_paste', (0,0,0))[1] == site.id" 
+	   id="paste_undo" class="little_action_panel">
+	<a href="${site.site_url()}paste_undo/">Undo last paste</a>
+      </div>
+
     </div>
     <div py:if="is_editor">${add_subs()}</div>
-
-
   </body>
 </html>

@@ -223,3 +223,49 @@ def site_fuzzy_user_lookup(request):
     return HttpResponse(simplejson.dumps(resp),
                         content_type='application/json')
 
+
+def site_clipboard_copy_from(request, site_id):
+    site = get_object_or_404(models.Site, pk=site_id)
+    request.session['copy_source'] = site_id
+    return simple_message(_('Ready to copy.'),
+                          _('This site has been marked as the copying source. Visit the new site, '
+                            'and click "Paste to Here," to copy this site\'s materials into the new site.'))
+
+def site_clipboard_paste_to(request, site_id):
+    source_id = request.session['copy_source']
+    source_site = get_object_or_404(models.Site, pk=source_id)
+    site = get_object_or_404(models.Site, pk=site_id)
+    if request.method != 'POST':
+        return g.render('site_confirm_paste.xhtml', **locals())
+
+    item_map = {}
+
+    def process_item(parent, (item, subitems)):
+        dct = dict((k,v) for k,v in item.__dict__.items() if not k.startswith('_'))
+        old_id = dct['id']
+        del dct['id']
+        dct['parent_heading_id'] = parent.id if parent else None
+        newitem = models.Item.objects.create(**dct)
+        newitem.site = site
+        newitem.save()
+        item_map[old_id] = newitem.id
+        for sub in subitems:
+            process_item(newitem, sub)
+
+    for branch in source_site.item_tree():
+        process_item(None, branch)
+    request.session['last_paste'] = (source_site.id, site.id, item_map.values())
+    return HttpResponseRedirect('../')
+
+def site_clipboard_paste_undo(request, site_id):
+    site = get_object_or_404(models.Site, pk=site_id)
+    source_id, _site_id, item_list = request.session.get('last_paste', (0,0,0))
+    if _site_id != site.id:     # should never happen
+        return HttpResponseRedirect('../')
+    source_site = get_object_or_404(models.Site, pk=source_id)
+    if request.method != 'POST':
+        return g.render('site_confirm_paste_undo.xhtml', **locals())
+    for item_id in item_list:
+        site.item_set.get(pk=item_id).delete()
+    del request.session['last_paste']
+    return HttpResponseRedirect('../')
