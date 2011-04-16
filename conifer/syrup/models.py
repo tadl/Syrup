@@ -666,7 +666,6 @@ class Item(BaseModel):
         ('FD', 'fair dealing'),
         ('PG', 'permission granted'),
         ('LC', 'licensed content'),
-        ('AV', 'available to students'),
         ]
 
     copyright_status = m.CharField(max_length=2,
