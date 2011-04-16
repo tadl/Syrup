@@ -53,7 +53,11 @@ def build_query(query_string, search_fields):
     """
 
     def clause(field_name, expression):
-        return Q(**{"%s__icontains" % field_name: expression})
+        if field_name.startswith('EXACT:'):
+            field_name = field_name[6:]
+            return Q(**{"%s__iexact" % field_name: expression})
+        else:
+            return Q(**{"%s__icontains" % field_name: expression})
 
     terms   = normalize_query(query_string)
 
@@ -83,7 +87,8 @@ def _search(query_string, for_site=None, for_owner=None, user=None):
     # them all up.
 
     term_filter = build_query(query_string, ['title', 'author',
-                                             'publisher', 'marcxml'])
+                                             'publisher', 'marcxml', 
+                                             'EXACT:barcode'])
     if ENABLE_USER_FILTERS and user:
         user_filter = models.Item.filter_for_user(user)
     else:
@@ -104,7 +109,8 @@ def _search(query_string, for_site=None, for_owner=None, user=None):
         # any sites as results.
         sites = models.Site.objects.none()
     else:
-        term_filter = build_query(query_string, ['course__name',
+        term_filter = build_query(query_string, ['course__code',
+                                                 'course__name',
                                                  'course__department__name',
                                                  'owner__last_name',
                                                  'owner__first_name'])
