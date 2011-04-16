@@ -60,7 +60,7 @@ class UWindsorIntegration(EvergreenIntegration):
             ('2011F', '2011 Fall', date(2011,9,1), date(2011,12,31)),
             ]
 
-    def _campus_info(name, *args):
+    def _campus_info(self, name, *args):
         url = '%s%s?%s' % (settings.CAMPUS_INFO_SERVICE, name, simplejson.dumps(args))
         raw = urlopen(url).read()
         return simplejson.loads(raw)
