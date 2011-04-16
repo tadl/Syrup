@@ -40,7 +40,11 @@ class BaseModel(m.Model):
 # the User object (although UserProfile would be another logical
 # candidate).
 
+
 class UserExtensionMixin(object):
+
+    class Meta:
+        ordering = ['username']
 
     def sites(self, role=None):
         self.maybe_refresh_external_memberships()
@@ -146,6 +150,9 @@ class UserProfile(BaseModel):
     def __unicode__(self):
         return 'UserProfile(%s)' % self.user
 
+    class Meta:
+        ordering = ['user__username']
+
 
 #----------------------------------------------------------------------
 # Lookup tables
@@ -157,6 +164,9 @@ class ServiceDesk(BaseModel):
 
     def __unicode__(self):
         return self.name
+
+    class Meta:
+        ordering = ['name']
 
     @classmethod
     def default(cls):
@@ -209,6 +219,9 @@ class Department(BaseModel):
 
     def __unicode__(self):
         return self.name
+
+    class Meta:
+        ordering = ['name']
 
 
 class Course(BaseModel):
@@ -288,7 +301,7 @@ class Site(BaseModel):
 
     class Meta:
         unique_together = (('course', 'start_term', 'owner'))
-        ordering = ['-start_term__start', 'course__code', 'owner__last_name']
+        ordering = ['course__code', 'owner__last_name', '-start_term__start']
 
     def save(self, *args, **kwargs):
         # Assert that the term-order is logical.
@@ -519,11 +532,16 @@ class Group(BaseModel):
     def __unicode__(self):
         return u"Group('%s', '%s')" % (self.site,
                                        self.external_id or '(internal)')
+    class Meta:
+        ordering = ['site__course__code', 'site__course__name', 'external_id']
+
 
 class Membership(BaseModel):
 
     class Meta:
         unique_together = (('group', 'user'))
+        ordering = ['user__username',
+                    'group__site__course__code', 'group__site__course__name', 'group__external_id']
 
     user = m.ForeignKey(User)
     group = m.ForeignKey(Group)
