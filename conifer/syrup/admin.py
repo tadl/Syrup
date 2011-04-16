@@ -9,6 +9,7 @@ Config, Z3950Target]:
     admin.site.register(m)
 
 class ItemAdmin(admin.ModelAdmin):
+    search_fields = ['title', 'barcode', 'bib_id']
     model = Item
 
 admin.site.register(Item, ItemAdmin)
@@ -20,6 +21,8 @@ class MembershipAdminForm(forms.ModelForm):
         model = Membership
 
 class MembershipAdmin(admin.ModelAdmin):
+    search_fields = ['user__username', 'group__external_id', 
+                     'group__site__course__code']
     form = MembershipAdminForm
 
 admin.site.register(Membership, MembershipAdmin)
