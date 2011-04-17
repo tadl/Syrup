@@ -1,14 +1,12 @@
 # -*- mode: python -*-
 
-import os
-from here import HERE
-
 DEBUG = False
 
 #----------------------------------------------------------------------
 # You may need to set the PYTHON_EGG_CACHE directory, depending on how
 # you installed Syrup.
 
+# import os
 # os.environ['PYTHON_EGG_CACHE'] = '/tmp/eggs'
 
 #----------------------------------------------------------------------
@@ -32,17 +30,14 @@ SECRET_KEY = 'replace-with-your-own-super-random-key-@vv(tuvt2+yu2r-$dxs$s7=iqjz
 
 #----------------------------------------------------------------------
 # EZproxy integration
-EZPROXY_HOST = 'ezproxy.library.org'
-EZPROXY_PASSWORD = ''
-
-#----------------------------------------------------------------------
-# For campus information - ignore if not applicable for your organization
-CAMPUS_INFO_SERVICE = 'http://sample.campus.info'
+EZPROXY_HOST     = 'your-ezproxy.example.net'
+EZPROXY_PASSWORD = 'yourpass'
 
 #----------------------------------------------------------------------
 # Authentication systems
 
 EVERGREEN_AUTHENTICATION = False # Evergreen ILS authentication
+
 SAKAI_LINKTOOL_AUTHENTICATION  = False # Sakai LMS Linktool authentication
 SAKAI_LINKTOOL_AUTH_URL = 'https://...' # fixme, add documentation
 
@@ -52,32 +47,13 @@ SAKAI_LINKTOOL_AUTH_URL = 'https://...' # fixme, add documentation
 CAS_AUTHENTICATION = False
 CAS_SERVER_URL     = 'https://uwinid.uwindsor.ca/cas/'
 
-#----------------------------------------------------------------------
-# Stuff that probably belongs in a config table in the database, with
-# a nice UI to maintain it all.
+EVERGREEN_SERVER = 'www.concat.ca'
 
-EVERGREEN_GATEWAY_SERVER = 'www.concat.ca'
-Z3950_CONFIG             = ('zed.concat.ca', 210, 'OWA')  #OWA,OSUL,CONIFER
-
-# Note, in the UWindsor integration, commenting out Z3950_CONFIG or setting it
+# Note, in the Evergreen integration, commenting out Z3950_CONFIG or setting it
 # equal to None will result in OpenSRF being used for catalogue search instead
 # of Z39.50.
 
-#----------------------------------------------------------------------
-# SITE_DEFAULT_ACCESS_LEVEL: by default, all new sites are
-# world-readable. Possible default values are ANON (world readable),
-# LOGIN (any logged in user), MEMBR (only explicit members of the
-# site), and CLOSE (only instructors/owners of the site).
-
-#----------------------------------------------------------------------
-# UPDATE_CHOICES: these options are only surfaced when a site
-# enables updates from syrup to the catalogue
-
-UPDATE_CHOICES = [
-        ('One', 'Syrup-only'),
-        ('Cat', 'Catalogue'),
-        ('Zap', 'Remove from Syrup'),
-        ]
+Z3950_CONFIG     = ('zed.concat.ca', 210, 'OWA')  #OWA,OSUL,CONIFER
 
 #----------------------------------------------------------------------
 # INTEGRATION_CLASS: name of a class to instantiate after the database models
@@ -85,5 +61,4 @@ UPDATE_CHOICES = [
 # other late initializations. See the 'conifer.syrup.integration' module for
 # more information.
 
-#INTEGRATION_CLASS = 'conifer.integration.uwindsor.UWindsorIntegration'
-
+# INTEGRATION_CLASS = 'conifer.integration.uwindsor.UWindsorIntegration'

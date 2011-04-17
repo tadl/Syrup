@@ -13,6 +13,12 @@ class UWindsorIntegration(EvergreenIntegration):
 
 
     OSRF_CAT_SEARCH_ORG_UNIT = 106
+    
+    OPAC_LANG = 'en-CA'
+    OPAC_SKIN = 'uwin'
+
+    RESERVES_DESK_NAME = 'Leddy: Course Reserves - Main Bldng - 1st Flr - Reserve Counter at Circulation Desk'
+    SITE_DEFAULT_ACCESS_LEVEL = 'RESTR'
 
     #---------------------------------------------------------------------------
     # proxy server integration
@@ -84,6 +90,11 @@ class UWindsorIntegration(EvergreenIntegration):
         'group': a group-code, externally defined;
         'role':          the user's role in that group, one of (INSTR, ASSIST, STUDT).
         """
+        if '@' in userid:
+            # If there's an at-sign in the userid, then it's not a UWin ID.
+            # Maybe you've got Evergreen authentication turned on?
+           return []
+ 
         memberships = self._campus_info('membership_ids', userid)
         for m in memberships:
             m['role'] = self._decode_role(m['role'])

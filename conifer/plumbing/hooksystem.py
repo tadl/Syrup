@@ -5,7 +5,9 @@ __all__ = ['callhook', 'callhook_required', 'gethook', 'initialize_hooks']
 
 def initialize_hooks(obj):
     global HOOKS
-    assert HOOKS is None
+    assert HOOKS is None, ('Cannot load hooksystem twice. '
+                           'Probably you are importing "models" '
+                           'using two different module paths.')
     HOOKS = obj
 
 def gethook(name, default=None):

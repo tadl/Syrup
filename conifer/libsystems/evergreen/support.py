@@ -6,29 +6,26 @@ from xml.etree import ElementTree
 import re
 import sys, os
 
-LOCALE = 'en-US'
-
 #------------------------------------------------------------
 # parse fm_IDL, to build a field-name-lookup service.
 
 fields_for_class = {}
-BASE = None
+GATE = None
+LOCALE = 'en-US'                # fixme, this shouldn't be here.
 
-def initialize(base):
-    global BASE
-    if not BASE:
-        assert base.endswith('/')
-        BASE = base
-        fields_for_class.update(dict(_fields()))
 
-def _fields():
-    fm_idl_file = os.path.join(os.path.dirname(__file__), 'fm_IDL.xml')
-    f = open(fm_idl_file)
-    # to get around 2.5.x python installations
-    # with open(fm_idl_file) as f:
+def initialize(integration_object):
+    global GATE
+    if not GATE:
+        GATE = integration_object.GATEWAY_URL
+        fm_idl_url = integration_object.IDL_URL
+        fields_for_class.update(dict(_fields(fm_idl_url)))
+
+def _fields(fm_idl_url):
+    print 'Loading fm_IDL from %s' % fm_idl_url
+    f = urllib2.urlopen(fm_idl_url)
     tree = ElementTree.parse(f)
-    # fm_IDL_location = BASE + 'reports/fm_IDL.xml'
-    # tree = ElementTree.parse(urllib2.urlopen(fm_IDL_location))
+    f.close()
     NS = '{http://opensrf.org/spec/IDL/base/v1}'
     for c in tree.findall('%sclass' % NS):
         cid = c.attrib['id']
@@ -58,16 +55,18 @@ def evergreen_request(method, *args, **kwargs):
     kwargs.update({'service':service, 'method':method})
     params =  ['%s=%s' % (k,quote(v)) for k,v in kwargs.items()] 
     params += ['param=%s' % quote(json.dumps(a)) for a in args]
-    url = '%sosrf-gateway-v1?%s' % (BASE, '&'.join(params))
+    url = '%s?%s' % (GATE, '&'.join(params)) # fixme, OSRF_HTTP, IDL_URL
+    #print '--->', url
     req = urllib2.urlopen(url)
     resp = json.load(req)
-    assert resp['status'] == 200, 'error during evergreen request'
+    if resp['status'] != 200:
+        raise Exception('error during evergren request', resp)
     payload = resp['payload']
-    #print '----', payload
+    #print '<---', payload
     return evergreen_object(payload)
 
-def evergreen_request_single_result(method, *args):
-    resp = evergreen_request(method, *args)
+def evergreen_request_single_result(method, *args, **kwargs):
+    resp = evergreen_request(method, *args, **kwargs)
     if not resp:
         return None
     elif len(resp) > 1:

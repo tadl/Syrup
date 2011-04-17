@@ -27,16 +27,10 @@ def url_to_marcxml(url):
             item_id = m and m.group(1) or None
             if item_id:
                 marc_url = ("%s/opac/extras/unapi?"
-                            "id=tag:concat.ca,9999:biblio-record_entry/"
+                            "id=tag:concat.ca,9999:biblio-record_entry/" # FIMXE, concat.ca reference!
                             "%s/-&format=marcxml-full" % (support.BASE, item_id))
             xml = unicode(urllib2.urlopen(marc_url).read(), 'utf-8')
         return xml
 
 if __name__ == '__main__':
-    EG_BASE = 'http://%s/' % settings.EVERGREEN_GATEWAY_SERVER
-    support.initialize(EG_BASE)
-    print url_to_marcxml('http://windsor.concat.ca/opac/en-CA/skin/uwin/xml/rdetail.xml?r=1971331&t=evergreen&tp=keyword&l=106&d=1&hc=210&rt=keyword')
-    # from xml.etree import ElementTree as ET
-    # for t in ET.fromstring(bib_id_to_marcxml('2081089')).getiterator():
-    #     print t.text
-
+    support.initialize(settings)

@@ -15,6 +15,18 @@ from django.utils.translation        import ugettext as _
 from genshi                          import Markup
 
 #----------------------------------------------------------------------
+#
+# Load, but don't instantiate, the local integration module. This way, we can
+# refer to static values in the module.
+
+integration_class = None
+
+if hasattr(settings, 'INTEGRATION_CLASS'):
+    modname, klassname = settings.INTEGRATION_CLASS.rsplit('.', 1) # e.g. 'foo.bar.baz.MyClass'
+    mod = __import__(modname, fromlist=[''])
+    integration_class = getattr(mod, klassname)
+
+#----------------------------------------------------------------------
 
 class BaseModel(m.Model):
     class Meta:
@@ -277,7 +289,7 @@ class Site(BaseModel):
         ('MEMBR', _('Accessible to course-site members')),
         ('CLOSE', _('Accessible only to course-site owners'))]
 
-    ACCESS_DEFAULT = getattr(settings, 'SITE_DEFAULT_ACCESS_LEVEL', 'ANON')
+    ACCESS_DEFAULT = getattr(integration_class, 'SITE_DEFAULT_ACCESS_LEVEL', 'ANON')
     assert ACCESS_DEFAULT in [x[0] for x in ACCESS_CHOICES]
 
     access = m.CharField(max_length=5,
@@ -654,11 +666,12 @@ class Item(BaseModel):
     # TODO: all of the choices should probably go in settings, as per EVERGREEN_UPDATE_CHOICES
 
     # Options for evergreen updates
-    EVERGREEN_UPDATE_CHOICES = settings.UPDATE_CHOICES
+    EVERGREEN_UPDATE_CHOICES = getattr(integration_class, 'UPDATE_CHOICES',
+                                       [('', 'n/a')])
 
-    evergreen_update = m.CharField(max_length=4,
+    evergreen_update = m.CharField(max_length=4, blank=True,
                                    choices=EVERGREEN_UPDATE_CHOICES,
-                                   default='One')
+                                   default=EVERGREEN_UPDATE_CHOICES[0][0])
 
     # As per discussion with Art Rhyno and Joan Dalton, Leddy Library.
     COPYRIGHT_STATUS_CHOICES = [
@@ -942,13 +955,11 @@ def highlight(text, phrase,
         return highlight_re.sub(highlighter, text)
 
 #----------------------------------------------------------------------
-# Activate the local integration module.
+# Activate the local integration module. We loaded the module at the top of
+# models.py, now we instantiate it.
 
-if hasattr(settings, 'INTEGRATION_CLASS'):
-    modname, klassname = settings.INTEGRATION_CLASS.rsplit('.', 1) # e.g. 'foo.bar.baz.MyClass'
-    mod = __import__(modname, fromlist=[''])
-    klass = getattr(mod, klassname)
-    initialize_hooks(klass())
+if integration_class:
+    initialize_hooks(integration_class())
 
 #-----------------------------------------------------------------------------
 # this can't be imported until Membership is defined...

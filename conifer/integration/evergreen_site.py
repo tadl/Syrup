@@ -11,6 +11,19 @@ import re
 import time
 import traceback
 
+# If the Python OpenSRF library is installed, we want to know about it. It
+# isn't needed for our read-only ILS operations, only for updates.
+
+try:
+    import osrf
+    OSRF_LIB_INSTALLED = True
+except ImportError:
+    OSRF_LIB_INSTALLED = False
+
+if OSRF_LIB_INSTALLED:
+    from conifer.libsystems.evergreen.startup import ils_startup
+
+
 OPENSRF_AUTHENTICATE      = "open-ils.auth.authenticate.complete"
 OPENSRF_AUTHENTICATE_INIT = "open-ils.auth.authenticate.init"
 OPENSRF_BATCH_UPDATE      = "open-ils.cat.asset.copy.fleshed.batch.update"
@@ -30,16 +43,67 @@ OPENSRF_FLESHEDCOPY_CALL  = "open-ils.search.asset.copy.fleshed.batch.retrieve.a
 def disable(func):
     return None
 
+
+
 class EvergreenIntegration(object):
 
-    EG_BASE = 'http://%s/' % settings.EVERGREEN_GATEWAY_SERVER
-    initialize(EG_BASE)
+    # Either specify EVERGREEN_SERVERin your local_settings, or override
+    # EVERGREEN_SERVER and OPAC_URL, etc. in your subclass of this class.
 
+    EVERGREEN_SERVER = getattr(settings, 'EVERGREEN_SERVER', '')
+
+
+    # ----------------------------------------------------------------------
+    # These variables depend on EVERGREEN_SERVER, or else you need to override
+    # them in your subclass.
+
+    # OPAC_URL: the base URL for the OPAC's Web interface.
+    # default: http://your-eg-server/
+    # local_settings variable: EVERGREEN_OPAC_URL
+
+    if hasattr(settings, 'EVERGREEN_OPAC_URL'):
+        OPAC_URL = settings.EVERGREEN_OPAC_URL
+    else:
+        assert EVERGREEN_SERVER
+        OPAC_URL = 'http://%s/' % EVERGREEN_SERVER
+
+    # IDL_URL: where is your fm_IDL.xml file located? For faster process
+    # startup, it's recommended you use a file:// URL, pointing to a local
+    # copy of the file. default: http://your-eg-server/reports/fm_IDL.xml
+    # local_settings variable: EVERGREEN_IDL_URL
+
+    IDL_URL = getattr(settings, 'EVERGREEN_IDL_URL',
+                      'http://%s/reports/fm_IDL.xml' % EVERGREEN_SERVER)
+
+    # GATEWAY_URL: where is your HTTP gateway?
+    # default: http://your-eg-server/osrf-gateway-v1'
+    # variable: EVERGREEN_GATEWAY_URL
+
+    GATEWAY_URL = getattr(settings, 'EVERGREEN_GATEWAY_URL',
+                      'http://%s/osrf-gateway-v1' % EVERGREEN_SERVER)
+
+    # end of variables dependent on EVERGREEN_SERVER
+    # ----------------------------------------------------------------------
+
+
+
+    # OPAC_LANG and OPAC_SKIN: localization skinning for your OPAC
+
+    OPAC_LANG = getattr(settings, 'EVERGREEN_OPAC_LANG', 'en-CA')
+    OPAC_SKIN = getattr(settings, 'EVERGREEN_OPAC_SKIN', 'default')
+
+    # RESERVES_DESK_NAME: this will be going away, but for now, it's the full
+    # ILS-side name of the reserves desk. This needs to be replaced with a
+    # database-driven lookup for the correct reserves desk in the context of
+    # the given item.
+
+    RESERVES_DESK_NAME = getattr(settings, 'RESERVES_DESK_NAME', None)
+    
     # USE_Z3950: if True, use Z39.50 for catalogue search; if False, use OpenSRF.
     # Don't set this value directly here: rather, if there is a valid Z3950_CONFIG
     # settings in local_settings.py, then Z39.50 will be used.
 
-    USE_Z3950 = getattr(settings, 'Z3950_CONFIG', None) is not None
+    USE_Z3950 = bool(getattr(settings, 'Z3950_CONFIG', None))
 
     TIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
     DUE_FORMAT  = "%b %d %Y, %r"
@@ -48,13 +112,36 @@ class EvergreenIntegration(object):
     # call number
     IS_ATTACHMENT = re.compile('\w*DVD\s?|\w*CD\s?|\w[Gg]uide\s?|\w[Bb]ooklet\s?|\w*CD\-ROM\s?')
 
-    # Item status stuff
 
-    _STATUS_DECODE = [(str(x['id']), x['name'])
-                     for x in E1('open-ils.search.config.copy_status.retrieve.all')]
+    # Used if you're doing updates to Evergreen from Syrup.
 
-    AVAILABLE  = [id for id, name in _STATUS_DECODE if name == 'Available'][0]
-    RESHELVING = [id for id, name in _STATUS_DECODE if name == 'Reshelving'][0]
+    UPDATE_CHOICES = [ 
+        ('One', 'Syrup only'), 
+        ('Cat', 'Catalogue'), 
+        ('Zap', 'Remove from Syrup'), 
+        ] 
+
+
+
+    # ----------------------------------------------------------------------
+
+
+
+    def __init__(self):
+        # establish our OpenSRF connection.
+        initialize(self)
+
+        if OSRF_LIB_INSTALLED:
+            ils_startup(self.EVERGREEN_SERVER, 
+                        self.IDL_URL)
+
+        # set up the available/reshelving codes, for the item_status routine.
+        status_decode = [(str(x['id']), x['name'])
+                         for x in E1('open-ils.search.config.copy_status.retrieve.all')]
+
+        self.AVAILABLE  = [id for id, name in status_decode if name == 'Available'][0]
+        self.RESHELVING = [id for id, name in status_decode if name == 'Reshelving'][0]
+
 
     def item_status(self, item):
         """
@@ -85,6 +172,7 @@ class EvergreenIntegration(object):
         # bindings, I am not sure there is a use case where an evergreen
         # site would not have access to these but will leave for now
         # since there are no hardcoded references
+        assert self.RESERVES_DESK_NAME, 'No RESERVES_DESK_NAME specified!'
         try:
             counts = E1(OPENSRF_COPY_COUNTS, bib_id, 1, 0)
             lib = desk = avail = vol = 0
@@ -108,7 +196,7 @@ class EvergreenIntegration(object):
                 # attachment test
                 attachtest = re.search(self.IS_ATTACHMENT, callnum)
 
-                if loc == settings.RESERVES_DESK_NAME:
+                if loc == self.RESERVES_DESK_NAME:
                     desk += anystatus_here
                     avail += avail_here
                     dueinfo = ''
@@ -138,7 +226,7 @@ class EvergreenIntegration(object):
                         if thisloc:
                             thisloc = thisloc.get("name")
 
-                        if thisloc == settings.RESERVES_DESK_NAME:
+                        if thisloc == self.RESERVES_DESK_NAME:
                             bringfw = attachtest
 
                             # multiple volumes
@@ -224,7 +312,7 @@ class EvergreenIntegration(object):
         bibid	= ''
         is_barcode = re.search('\d{14}', query)
 
-        if query.startswith(self.EG_BASE):
+        if query.startswith(self.OPAC_URL):
             # query is an Evergreen URL
             # snag the bibid at this point
             params = dict([x.split("=") for x in query.split("&")])
@@ -302,10 +390,11 @@ class EvergreenIntegration(object):
         """
         Given a bib ID, return either a URL for examining the bib record, or None.
         """
-        # TODO: move this to local_settings
         if bib_id:
-            return ('%sopac/en-CA'
-                    '/skin/uwin/xml/rdetail.xml?r=%s&l=1&d=0' % (self.EG_BASE, bib_id))
+            url = '%sopac/%s/skin/%s/xml/rdetail.xml?l=1&d=0&r=%s' % (
+                self.OPAC_URL, self.OPAC_LANG, self.OPAC_SKIN,
+                bib_id)
+            return url
 
     if USE_Z3950:
         # only if we are using Z39.50 for catalogue search. Against our Conifer

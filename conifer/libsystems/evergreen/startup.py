@@ -11,7 +11,8 @@ import sys
 import tempfile
 import urllib2
 
-def load_idl(osrf_http, gateway_server, idl_url):
+# http://eg-training.cwmars.org/reports/fm_IDL.xml
+def load_idl(idl_url):
     """
     Loads the fieldmapper IDL, registering class hints for the defined objects
 
@@ -26,10 +27,8 @@ def load_idl(osrf_http, gateway_server, idl_url):
 
     # Get the fm_IDL.xml file from the server
     try:
-	print '%s://%s/%s' % (osrf_http, gateway_server, idl_url)
-        idl = urllib2.urlopen('%s://%s/%s' % 
-            (osrf_http, gateway_server, idl_url)
-        )
+	print idl_url
+        idl = urllib2.urlopen(idl_url)
         idlfile.write(idl.read())
         # rewind to the beginning of the file
         idlfile.seek(0)
@@ -45,14 +44,14 @@ def load_idl(osrf_http, gateway_server, idl_url):
     parser.set_IDL(idlfile)
     parser.parse_IDL()
 
-def ils_startup(EVERGREEN_GATEWAY_SERVER, OSRF_HTTP, IDL_URL):
+def ils_startup(evergreen_server, full_idl_url):
     """
     Put any housekeeping for ILS interactions here, the definitions come from
     local_settings in the call itself rather than an import
     """
     	
     # Set the host for our requests
-    osrf.gateway.GatewayRequest.setDefaultHost(EVERGREEN_GATEWAY_SERVER)
+    osrf.gateway.GatewayRequest.setDefaultHost(evergreen_server)
 
     # Pull all of our object definitions together
-    load_idl(OSRF_HTTP, EVERGREEN_GATEWAY_SERVER, IDL_URL)
+    load_idl(full_idl_url)
