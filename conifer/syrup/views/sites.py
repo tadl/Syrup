@@ -39,7 +39,7 @@ def edit_site(request, site_id):
     instance = get_object_or_404(models.Site, pk=site_id)
     return _add_or_edit_site(request, instance=instance)
 
-def _add_or_edit_site(request, instance=None):
+def _add_or_edit_site(request, instance=None, basis=None):
     is_add = (instance is None)
     
     # Are we looking up owners, or selecting them from a fixed list?
@@ -47,6 +47,13 @@ def _add_or_edit_site(request, instance=None):
 
     if is_add:
         instance = models.Site()
+        if basis:
+            dct = dict((k,v) for k,v in basis.__dict__.items() 
+                       if not k.startswith('_')
+                       and not k in ['start_term_id', 'end_term_id'])
+            del dct['id']
+            instance.__dict__.update(dct)
+
     if request.method != 'POST':
         form = NewSiteForm(instance=instance)
         return g.render('edit_site.xhtml', **locals())
@@ -74,6 +81,10 @@ def _add_or_edit_site(request, instance=None):
             site = form.instance
             assert site.id
 
+            if 'basis' in POST:
+                # We are duplicating a site. Copy all the items over into the new site.
+                source_site = models.Site.objects.get(pk=POST['basis'])
+                _copy_contents(request, source_site, site)
             if is_add:
                 # we need to configure permissions.
                 return HttpResponseRedirect(site.site_url('edit/permission/'))
@@ -247,13 +258,8 @@ def site_clipboard_copy_from(request, site_id):
                           _('This site has been marked as the copying source. Visit the new site, '
                             'and click "Paste to Here," to copy this site\'s materials into the new site.'))
 
-def site_clipboard_paste_to(request, site_id):
-    source_id = request.session['copy_source']
-    source_site = get_object_or_404(models.Site, pk=source_id)
-    site = get_object_or_404(models.Site, pk=site_id)
-    if request.method != 'POST':
-        return g.render('site_confirm_paste.xhtml', **locals())
 
+def _copy_contents(request, source_site, dest_site):
     item_map = {}
 
     def process_item(parent, (item, subitems)):
@@ -262,7 +268,7 @@ def site_clipboard_paste_to(request, site_id):
         del dct['id']
         dct['parent_heading_id'] = parent.id if parent else None
         newitem = models.Item.objects.create(**dct)
-        newitem.site = site
+        newitem.site = dest_site
         newitem.save()
         item_map[old_id] = newitem.id
         for sub in subitems:
@@ -270,7 +276,15 @@ def site_clipboard_paste_to(request, site_id):
 
     for branch in source_site.item_tree():
         process_item(None, branch)
-    request.session['last_paste'] = (source_site.id, site.id, item_map.values())
+    request.session['last_paste'] = (source_site.id, dest_site.id, item_map.values())
+
+def site_clipboard_paste_to(request, site_id):
+    source_id = request.session['copy_source']
+    source_site = get_object_or_404(models.Site, pk=source_id)
+    site = get_object_or_404(models.Site, pk=site_id)
+    if request.method != 'POST':
+        return g.render('site_confirm_paste.xhtml', **locals())
+    _copy_contents(request, source_site, site)
     return HttpResponseRedirect('../')
 
 def site_clipboard_paste_undo(request, site_id):
@@ -288,3 +302,8 @@ def site_clipboard_paste_undo(request, site_id):
             pass
     del request.session['last_paste']
     return HttpResponseRedirect('../')
+
+
+def site_clipboard_copy_whole(request, site_id):
+    site = get_object_or_404(models.Site, pk=site_id)
+    return _add_or_edit_site(request, basis=site)

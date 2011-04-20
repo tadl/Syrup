@@ -71,4 +71,5 @@ urlpatterns = patterns('conifer.syrup.views',
     (r'^site/(?P<site_id>\d+)/copy_from/$', 'site_clipboard_copy_from'),
     (r'^site/(?P<site_id>\d+)/paste_to/$', 'site_clipboard_paste_to'),
     (r'^site/(?P<site_id>\d+)/paste_undo/$', 'site_clipboard_paste_undo'),
+    (r'^site/(?P<site_id>\d+)/copy_whole/$', 'site_clipboard_copy_whole'),
 )

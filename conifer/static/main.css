@@ -159,8 +159,10 @@ span.final_item { font-weight: bold; font-size: 110%; }
 
 /* item trees (tree of headings and items in a site */
 
-#sidepanel { width: 183px; float: right; text-align: right;}
+#sidepanel { width: 183px; float: right; text-align: right; font-size: 90%; }
+#sidepanel.editor { margin: 3em 2em 0 2em; }
 #sidepanel div { margin: 6px 0; }
+#sidepanel a { color: navy; }
 
 #treepanel { width: 740px; margin-top: 24px; }
 
@@ -202,7 +204,7 @@ span.final_item { font-weight: bold; font-size: 110%; }
     margin-top: 30px; font-size: 90%;
     padding: 10px; 
     background-color: #eef; 
-    clear: both;
+//    clear: both;
 }
 .itemadd li {     
     margin: 10px; 
