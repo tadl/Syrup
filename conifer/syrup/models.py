@@ -221,6 +221,8 @@ class Term(BaseModel):
             return Q(start_term__start__lte=after, start_term__start__gt=today)
         elif N ==  2:           # all future courses
             return Q(start_term__start__gt=today)
+        elif N == 99:           # no filter at all
+            return Q()
         else:
             raise Exception('unknown timeframe: %d' % N)
         

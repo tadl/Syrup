@@ -15,6 +15,8 @@
     ${opt( 0, _('Active courses'), True)}
     ${opt( 1, _('Starting soon'))}
     ${opt( 2, _('Future courses'))}
+    ${opt( 99, _('&mdash;&mdash;'), True)}
+    ${opt( 99, _('All courses'))}
   </select>
   <script>
   $(function() { $('#timeframe select').change(function () { $('#timeframe')[0].submit(); }); });
