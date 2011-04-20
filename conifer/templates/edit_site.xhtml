@@ -24,7 +24,7 @@ owner = instance.owner if instance.owner_id else None
 <body>
   <div py:if="instance.id">${site_banner(instance)}</div>
   <h1>${title}</h1>
-  <p>All items in this site will be copied into the new site.</p>
+  <p py:if="basis">All items in this site will be copied into the new site.</p>
   <div py:with="nfe=form.non_field_errors()">
     <ul py:if="nfe" class="errorlist">
       <li py:for="err in nfe">${err}</li>
