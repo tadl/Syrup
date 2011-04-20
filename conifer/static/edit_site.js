@@ -1,6 +1,7 @@
 $(function() {
     var fuzzy = fuzzyFinder(
 	'#fuzzyinput', '#fuzzypanel', '#fuzzyedit', '#fuzzyview', '#fuzzyname', '#fuzzychange', '#owner');
+    fuzzy.includeStudents = true;
     $('#id_start_term').change(onStartTermChange);
 });
 
