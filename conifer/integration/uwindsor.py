@@ -68,8 +68,12 @@ class UWindsorIntegration(EvergreenIntegration):
 
     def _campus_info(self, name, *args):
         url = '%s%s?%s' % (settings.CAMPUS_INFO_SERVICE, name, simplejson.dumps(args))
-        raw = urlopen(url).read()
-        return simplejson.loads(raw)
+        try:
+            raw = urlopen(url).read()
+            return simplejson.loads(raw)
+        except:
+            return None
+
 
     def external_person_lookup(self, userid):
         """
