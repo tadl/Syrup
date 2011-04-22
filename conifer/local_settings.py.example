@@ -41,6 +41,9 @@ EVERGREEN_AUTHENTICATION = False # Evergreen ILS authentication
 SAKAI_LINKTOOL_AUTHENTICATION  = False # Sakai LMS Linktool authentication
 SAKAI_LINKTOOL_AUTH_URL = 'https://...' # fixme, add documentation
 
+# if you use an integration module, this is for services that deliver json payloads
+CAMPUS_INFO_SERVICE = 'http://...'
+
 # CAS authentication. See conifer/integration/cas.py, or
 # http://code.google.com/p/django-cas/ .
 
