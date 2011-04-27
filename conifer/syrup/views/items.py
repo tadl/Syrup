@@ -179,6 +179,7 @@ def item_add(request, site_id, item_id):
                     issue=clean('issue'),
                     pages=clean('pages'),
                     isbn=clean('isbn'),
+                    itemnotes=clean('itemnotes'),
                     )
                 item.save()
         elif item_type == 'ELEC':

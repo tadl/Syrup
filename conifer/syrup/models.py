@@ -752,6 +752,8 @@ class Item(BaseModel):
     fileobj_origname = m.CharField(max_length=2048, blank=True, null=True)
     fileobj_mimetype = m.CharField(max_length=128, blank=True, null=True)
 
+    itemnotes = m.TextField('Item Notes', blank=True, null=True)
+
 
     class Meta:
         ordering = ['title', 'author', 'published']

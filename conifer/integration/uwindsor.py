@@ -100,8 +100,9 @@ class UWindsorIntegration(EvergreenIntegration):
            return []
  
         memberships = self._campus_info('membership_ids', userid)
-        for m in memberships:
-            m['role'] = self._decode_role(m['role'])
+        if memberships:
+            for m in memberships:
+                m['role'] = self._decode_role(m['role'])
         return memberships
 
     def _decode_role(self, role):

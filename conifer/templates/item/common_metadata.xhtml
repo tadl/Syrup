@@ -24,6 +24,7 @@ if len(authors) < 2:
       <tr><th>Pages</th><td><input type="text" name="pages" value="${item.pages}"/></td></tr>
       <tr><th>ISBN</th><td><input type="text" name="isbn" value="${item.isbn}"/></td></tr>
       <tr><th>Bib Id of Item</th><td><input type="text" name="bib_id" value="${item.bib_id}"/></td></tr>
+      <tr><th>Item Notes</th><td><textarea rows="3" name="itemnotes">${item.itemnotes}</textarea></td></tr>
       <tr py:if="user.is_staff and item.item_type == 'ELEC'">
 	<th>Copyright Status</th>
 	<td>
