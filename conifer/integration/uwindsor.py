@@ -130,6 +130,8 @@ class UWindsorIntegration(EvergreenIntegration):
         for res in results:
             if not 'employeeType' in res:
                 res['employeeType'] = 'Student' # a 99% truth!
+            if not 'uwinDepartment' in res:
+                res['uwinDepartment'] = ''
             display = ('%(givenName)s %(sn)s. %(employeeType)s, '
                        '%(uwinDepartment)s. <%(mail)s>. [%(uid)s]') % res
             out.append((res['uid'], display))
