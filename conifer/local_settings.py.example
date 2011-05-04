@@ -65,3 +65,7 @@ Z3950_CONFIG     = ('zed.concat.ca', 210, 'OWA')  #OWA,OSUL,CONIFER
 # more information.
 
 # INTEGRATION_CLASS = 'conifer.integration.uwindsor.UWindsorIntegration'
+#OPENSRF_STAFF_USERID = "staff@uwindsor.ca"
+#OPENSRF_STAFF_PW = "mypassword"
+#OPENSRF_STAFF_ORG = "OWA"
+#OPENSRF_STAFF_WORKSTATION = "OWA-syrup-test"
