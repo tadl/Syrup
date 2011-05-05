@@ -64,8 +64,10 @@ Z3950_CONFIG     = ('zed.concat.ca', 210, 'OWA')  #OWA,OSUL,CONIFER
 # other late initializations. See the 'conifer.syrup.integration' module for
 # more information.
 
-# INTEGRATION_CLASS = 'conifer.integration.uwindsor.UWindsorIntegration'
-#OPENSRF_STAFF_USERID = "staff@uwindsor.ca"
-#OPENSRF_STAFF_PW = "mypassword"
-#OPENSRF_STAFF_ORG = "OWA"
-#OPENSRF_STAFF_WORKSTATION = "OWA-syrup-test"
+#INTEGRATION_CLASS = 'conifer.integration.uwindsor.UWindsorIntegration'
+#GATEWAY_SERVER = 'windsor.concat.ca'
+#GATEWAY_URL = 'osrf-gateway-v1'
+#OPENSRF_STAFF_USERID = 'staff@projectconifer.ca'
+#OPENSRF_STAFF_PW = 'mypassword'
+#OPENSRF_STAFF_ORG = 'OWA'
+#OPENSRF_STAFF_WORKSTATION = 'OWA-syrup-test'
