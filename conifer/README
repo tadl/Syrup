@@ -41,6 +41,10 @@ This might work:
 
 * Copy local_settings.py.example to local_settings.py, and review the settings
 
+* If you want to use Evergreen authentication and/or plan to update the catalogue
+from syrup, you must fill in all the commented values in local_settings and
+set EVERGREEN_AUTHENTICATION to True
+
 * ./manage.py syncdb
 
 Note: don't use the "./" syntax in windows for the commands, e.g.:
