@@ -16,7 +16,7 @@ class CourseForm(ModelForm):
     class Index:
         title = _('Courses')
         all   = models.Course.objects.order_by('code', 'name').all
-        cols  = ['code', 'name', 'department']
+        cols  = ['code', 'name', 'department', 'coursenotes']
         links = [0, 1]
 
     clean_name = strip_and_nonblank('code')

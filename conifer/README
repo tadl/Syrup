@@ -66,3 +66,11 @@ C:\src\syrup\trunk\conifer>manage.py syncdb
 * make yourself a course.
 
 * click on all of the links and see what they do.
+
+If you have been following along
+------------------------------
+
+If you have an existing database, use south to deal with fields that have been added:
+
+./manage.py schemamigration --auto conifer.syrup
+./manage.py migrate conifer.syrup

@@ -243,6 +243,7 @@ class Course(BaseModel):
     code = m.CharField(max_length=64, unique=True)
     name = m.CharField(max_length=1024)
     department = m.ForeignKey(Department)
+    coursenotes = m.TextField('Course Notes', blank=True, null=True)
 
     class Meta:
         ordering = ['code']
