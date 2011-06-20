@@ -10,15 +10,18 @@ Graham Fawcett <graham.fawcett@gmail.com>
 
 
 State of the application
-------------------------------
+------------------------
 
 Coming along nicely, thank you! With a bit of patience, you ought to
 be able to get a basic Syrup system running in no time. Integrating it
 with your backend library and other systems will take longer, of
-course.
+course. See last section of this README for more details.
+
+Syrup went into production at the University of Windsor in January 2011
+and has now handled transitions between semesters. 
 
 Required components
-------------------------------
+-------------------
 
 You need Python. You also need sqlite3 or another Django-compatible
 database. Sqlite3 is recommended for kicking the tires, PostgreSQL for
@@ -35,7 +38,7 @@ Windows is very similar, see:
 http://groups.google.com/group/syrup-reserves-discuss/web/installing-syrup-in-windows
 
 Getting this thing to run
-------------------------------
+-------------------------
 
 This might work:
 
@@ -68,9 +71,21 @@ C:\src\syrup\trunk\conifer>manage.py syncdb
 * click on all of the links and see what they do.
 
 If you have been following along
-------------------------------
+--------------------------------
 
 If you have an existing database, use south to deal with fields that have been added:
 
 ./manage.py schemamigration --auto conifer.syrup
 ./manage.py migrate conifer.syrup
+
+If you are an evergreen site
+----------------------------
+
+Congratulations! Syrup can integrate closely with evergreen using OpenSRF, install the
+python bindings with OpenSRF on the machine where Syrup sits, and take note of the dnsmasq 
+section in the OpenSRF README.
+
+Integration is carried out through an intergration class, for Windsor we use
+"conifer.integration.uwindsor.UWindsorIntegration", but this should be defined for your
+institution. The "uwindsor.py" file in the integration directory can be used as an
+example.
