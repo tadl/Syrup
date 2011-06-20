@@ -55,7 +55,7 @@ C:\src\syrup\trunk\conifer>manage.py syncdb
 
 * ./manage.py migrate
 
-* ./pybabel-extract  (currently, this is optional)
+* ./pybabel-extract  (currently, this is optional, used for internationalization)
 
 * ./manage.py runserver
 
