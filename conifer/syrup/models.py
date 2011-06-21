@@ -668,8 +668,6 @@ class Item(BaseModel):
     #orig_callno: this is a copy of the call number associated with the barcode
     orig_callno  = m.CharField(max_length=64, null=True, blank=True)
 
-    # TODO: all of the choices should probably go in settings, as per EVERGREEN_UPDATE_CHOICES
-
     # Options for evergreen updates
     EVERGREEN_UPDATE_CHOICES = getattr(integration_class, 'UPDATE_CHOICES',
                                        [('', 'n/a')])
@@ -690,30 +688,21 @@ class Item(BaseModel):
                                    choices=COPYRIGHT_STATUS_CHOICES,
                                    default='UK')
 
-    # TODO: fixme, the CIRC stuff here is very Leddy specific.
-
-    # Options for circ modifiers
-    CIRC_MODIFIER_CHOICES = [
-        ('CIRC', 'Normal'),
-        ('RSV2', '2 Hour'),
-        ('RSV1', '1 Day'),
-        ('RSV3', '3 Day'),
-        ('RSV7', '7 Day'),
-        ]
+    # These are defined in integration class
+    CIRC_MODIFIER_CHOICES = getattr(integration_class, 'MODIFIER_CHOICES',
+                                       [('', 'n/a')])
 
     circ_modifier = m.CharField(max_length=10,
                                 choices=CIRC_MODIFIER_CHOICES,
-                                default='RSV2', blank=True)
+                                default=CIRC_MODIFIER_CHOICES[0][0], blank=True)
 
-    # Options for circ desk
-    CIRC_DESK_CHOICES = [
-        ('631', 'Reserves Counter'),
-        ('598', 'Circulating Collection'),
-        ]
+    # These are defined in integration class
+    CIRC_DESK_CHOICES = getattr(integration_class, 'DESK_CHOICES',
+                                       [('', 'n/a')])
 
     circ_desk = m.CharField(max_length=5,
                             choices=CIRC_DESK_CHOICES,
-                            default='631', blank=True)
+                            default=CIRC_DESK_CHOICES[0][0], blank=True)
 
     ITEMTYPE_CHOICES = [
         # From http://www.oclc.org/bibformats/en/fixedfield/type.shtm.

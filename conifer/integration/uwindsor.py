@@ -11,7 +11,6 @@ from django.utils import simplejson
 
 class UWindsorIntegration(EvergreenIntegration):
 
-
     OSRF_CAT_SEARCH_ORG_UNIT = 106
     
     OPAC_LANG = 'en-CA'
@@ -19,6 +18,22 @@ class UWindsorIntegration(EvergreenIntegration):
 
     RESERVES_DESK_NAME = 'Leddy: Course Reserves - Main Bldng - 1st Flr - Reserve Counter at Circulation Desk'
     SITE_DEFAULT_ACCESS_LEVEL = 'RESTR'
+
+    # Options for circ modifiers
+    MODIFIER_CHOICES = [
+        ('CIRC', 'Normal'),
+        ('RSV2', '2 Hour'),
+        ('RSV1', '1 Day'),
+        ('RSV3', '3 Day'),
+        ('RSV7', '7 Day'),
+        ]
+
+    # TODO: these are harcoded for now, should make the opensrf calls to resolve them
+    # Options for circ desk
+    DESK_CHOICES = [
+        ('631', 'Reserves Counter'),
+        ('598', 'Circulating Collection'),
+        ]
 
     #---------------------------------------------------------------------------
     # proxy server integration
