@@ -105,13 +105,13 @@ class EvergreenIntegration(object):
 
     USE_Z3950 = bool(getattr(settings, 'Z3950_CONFIG', None))
 
-    TIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
-    DUE_FORMAT  = "%b %d %Y, %r"
+    TIME_FORMAT = getattr(settings, 'SYRUP_TIME_FORMAT', '%Y-%m-%dT%H:%M:%S')
+    DUE_FORMAT  = getattr(settings, 'SYRUP_DUE_FORMAT', '%b %d %Y, %r')
 
     # regular expression to detect DVD, CD, CD-ROM, Guide, Booklet on the end of a
     # call number
-    IS_ATTACHMENT = re.compile('\w*DVD\s?|\w*CD\s?|\w[Gg]uide\s?|\w[Bb]ooklet\s?|\w*CD\-ROM\s?')
-
+    ATTACHMENT_EXPRESSION = getattr(settings, 'ATTACHMENT_REGEXP', '\w*DVD\s?|\w*CD\s?|\w[Gg]uide\s?|\w[Bb]ooklet\s?|\w*CD\-ROM\s?')
+    IS_ATTACHMENT = re.compile(ATTACHMENT_EXPRESSION)
 
     # Used if you're doing updates to Evergreen from Syrup.
 

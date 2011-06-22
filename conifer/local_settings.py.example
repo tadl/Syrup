@@ -51,6 +51,10 @@ CAS_AUTHENTICATION = False
 CAS_SERVER_URL     = 'https://uwinid.uwindsor.ca/cas/'
 
 EVERGREEN_SERVER = 'www.concat.ca'
+RESERVES_DESK_NAME = 'Leddy: Course Reserves - Main Bldng - 1st Flr - Reserve Counter at Circulation Desk'
+SYRUP_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
+SYRUP_DUE_FORMAT = '%b %d %Y, %r'
+ATTACHMENT_REGEXP ='\w*DVD\s?|\w*CD\s?|\w[Gg]uide\s?|\w[Bb]ooklet\s?|\w*CD\-ROM\s?'
 
 # Note, in the Evergreen integration, commenting out Z3950_CONFIG or setting it
 # equal to None will result in OpenSRF being used for catalogue search instead

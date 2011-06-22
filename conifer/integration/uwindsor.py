@@ -16,7 +16,6 @@ class UWindsorIntegration(EvergreenIntegration):
     OPAC_LANG = 'en-CA'
     OPAC_SKIN = 'uwin'
 
-    RESERVES_DESK_NAME = 'Leddy: Course Reserves - Main Bldng - 1st Flr - Reserve Counter at Circulation Desk'
     SITE_DEFAULT_ACCESS_LEVEL = 'RESTR'
 
     # Options for circ modifiers
@@ -31,7 +30,7 @@ class UWindsorIntegration(EvergreenIntegration):
     # TODO: these are harcoded for now, should make the opensrf calls to resolve them
     # Options for circ desk
     DESK_CHOICES = [
-        ('631', 'Reserves Counter'),
+        ('821', 'Reserves Counter'),
         ('598', 'Circulating Collection'),
         ]
 

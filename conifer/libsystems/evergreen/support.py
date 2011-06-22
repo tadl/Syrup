@@ -56,13 +56,13 @@ def evergreen_request(method, *args, **kwargs):
     params =  ['%s=%s' % (k,quote(v)) for k,v in kwargs.items()] 
     params += ['param=%s' % quote(json.dumps(a)) for a in args]
     url = '%s?%s' % (GATE, '&'.join(params)) # fixme, OSRF_HTTP, IDL_URL
-    #print '--->', url
+    # print '--->', url
     req = urllib2.urlopen(url)
     resp = json.load(req)
     if resp['status'] != 200:
         raise Exception('error during evergren request', resp)
     payload = resp['payload']
-    #print '<---', payload
+    # print '<---', payload
     return evergreen_object(payload)
 
 def evergreen_request_single_result(method, *args, **kwargs):
