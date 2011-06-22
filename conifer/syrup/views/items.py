@@ -303,9 +303,8 @@ def item_add_cat_search(request, site_id, item_id):
         barcode = None
 
         # TODO: the Leddy stuff here belongs in an integration-module function. [GF]
+        # - no longer Leddy specific [AR]
 
-        #TODO: Leddy combines notion of desk and location for reserves, but it
-        # is confusing in terms of the catalogue, need to make this consistent
         eg_callno   = ''
         eg_modifier = ''
         eg_location = ''
@@ -379,33 +378,38 @@ def item_edit(request, site_id, item_id):
                     del data['author2']
             [setattr(item, k, v) for (k,v) in data.items()]
 
-            if item.item_type == 'PHYS' and hasattr(settings, 'OPENSRF_STAFF_USERID'): # TODO: we need an explicit 'we do updates' flag
+            if item.barcode and item.item_type == 'PHYS' and hasattr(settings, 'OPENSRF_STAFF_USERID'): # TODO: we need an explicit 'we do updates' flag
                 update_option = request.POST.get('update_option')
                 location_option = request.POST.get('location_option')
                 modifier_option = request.POST.get('modifier_option')
+                callno_option = request.POST.get('orig_callno')
                 update_status = True
 
                 if update_option == 'Cat':
-                    update_status = opensrf.ils_item_update(item.barcode, item.orig_callno,
+                    update_status = opensrf.ils_item_update(item.barcode, callno_option,
                                                             modifier_option, location_option)
 
                 #leave values alone if update failed
-                if update_status:
-                    item.evergreen_update = update_option
+                if update_status and update_option == 'One':
                     item.circ_desk = location_option
                     item.circ_modifier = modifier_option
-                else:
+                    item.orig_callno = callno_option
+                    item.save()
+
+                if not update_status:
                     return simple_message(_('Unable to update'),
                                           _('Sorry, unable to update at this time, please try again.'))
 
-                if update_option == 'None':
+                if update_option == 'Zap':
                     item.evergreen_update = ''
                     item.barcode = ''
                     item.orig_callno = ''
                     item.circ_modifier = ''
                     item.circ_desk = ''
+                    item.save()
+            else:
+                item.save()
 
-        item.save()
         return HttpResponseRedirect(item.parent_url())
 
 @instructors_only
