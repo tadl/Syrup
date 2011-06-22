@@ -1,5 +1,12 @@
 <?python
-title = _('All Reserves, by Department')
+option2 = _('Instructor')
+option3 = _('Course')
+if browse_option == 'Instructor':
+    option2 = _('Department')
+    option3 = _('Course')
+elif browse_option == 'Course':
+    option2 = _('Department')
+    option3 = _('Instructor')
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -7,10 +14,12 @@ title = _('All Reserves, by Department')
 <xi:include href="master.xhtml"/>
 <xi:include href="components/timeframe.xhtml"/>
 <head>
-  <title>${title}</title>
+  <title>All Reserves by ${browse_option}</title>
 </head>
 <body>
-  <h1>${title}</h1>
+  <h1>All Reserves by ${browse_option}</h1> 
+    (list by <a href="${ROOT}/browse/${option2}">${option2}</a>, 
+    list by <a href="${ROOT}/browse/${option3}">${option3}</a>)
   ${timeframe_nav(timeframe)}
   <p py:if="user.is_anonymous() and sites">
     (Note: some reserve materials may require you
