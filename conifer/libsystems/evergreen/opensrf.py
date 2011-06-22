@@ -36,35 +36,32 @@ class AuthException(Exception):
 
 def auth_token(username, password, workstation):
     authtoken = None
-    seed = request(
-	'open-ils.auth', 
-	'open-ils.auth.authenticate.init', username).send()
+    seed = request('open-ils.auth', 
+	    'open-ils.auth.authenticate.init', username).send()
 
     # generate the hashed password
     password = oils.utils.utils.md5sum(seed + oils.utils.utils.md5sum(password))
 	
-    result = request(
-	'open-ils.auth',
-	'open-ils.auth.authenticate.complete', {
-	'workstation' : workstation,
-	'username' : username,
-	'password' : password,
-	'type' : 'staff' 
-	}).send()
+    result = request('open-ils.auth',
+	    'open-ils.auth.authenticate.complete', {
+	    'workstation' : workstation,
+	    'username' : username,
+	    'password' : password,
+	    'type' : 'staff' 
+	    }).send()
 	
     evt = oils.event.Event.parse_event(result)
     if evt and not evt.success:
-	print "authentication problem: ", AuthException(evt.text_code)
-	return None
+        print "authentication problem: ", AuthException(evt.text_code)
+        return None
 
     authtoken = result['payload']['authtoken']
     return authtoken
 
 def session_cleanup(authtoken):
     try:
-    	result = request(
-		'open-ils.auth', 
-		'open-ils.auth.session.delete', authtoken).send()
+    	result = request('open-ils.auth', 
+		    'open-ils.auth.session.delete', authtoken).send()
     except:
 	    print "session problem: ", authtoken
             print "*** print_exc:"
@@ -116,67 +113,70 @@ def ils_item_info(barcode):
     return None, None, None
 
 def ils_item_update(barcode, callno, modifier, location):
-    try:
-	item_changed = False
-	callno_changed = False
+    item_changed = False
+    callno_changed = False
 
+    try:
     	# We get our copy object
-    	req = request('open-ils.search', 
-		'open-ils.search.asset.copy.fleshed2.find_by_barcode', 
-		barcode)
+        req = request('open-ils.search', 
+            'open-ils.search.asset.copy.fleshed2.find_by_barcode', 
+            barcode)
     	barcode_copy = req.send()
 
-	# are there changes?
-	if barcode_copy.location().id != location or barcode_copy.circ_modifier() != modifier:
-		item_changed = True 
+        # are there changes?
+        if barcode_copy.location().id != location or barcode_copy.circ_modifier() != modifier:
+            item_changed = True 
 
     	# And our call number object
         req = request('open-ils.search', 
-		'open-ils.search.asset.call_number.retrieve', 
-		barcode_copy.call_number())
-	call_num = req.send()
+		    'open-ils.search.asset.call_number.retrieve', 
+            barcode_copy.call_number())
+        call_num = req.send()
 
-	# are there changes?
-	if call_num.label() != callno:
-		callno_changed = True
+	    # are there changes?
+        if call_num.label() != callno:
+            callno_changed = True
 
-	# there might be nothing to do
-	if not item_changed and not callno_changed:
-		return True
+	    # there might be nothing to do
+	    if not item_changed and not callno_changed:
+		    return True
 		
-	# ok, we are going to update, first we authenticate
+	    # ok, we are going to update, first we authenticate
         authtoken = auth_token(settings.OPENSRF_STAFF_USERID, 
-		settings.OPENSRF_STAFF_PW,
-                settings.OPENSRF_STAFF_WORKSTATION)
+		    settings.OPENSRF_STAFF_PW,
+            settings.OPENSRF_STAFF_WORKSTATION)
 
-	# item changes first, location and circ modifier
-	if authtoken and item_changed:
-		barcode_copy.location().id(location);
-		barcode_copy.circ_modifier(modifier);
-		barcode_copy.ischanged(True)
+	    # item changes first, location and circ modifier
+        if authtoken and item_changed:
+            barcode_copy.location().id(location)
+            barcode_copy.circ_modifier(modifier)
+            barcode_copy.ischanged(True)
 
-		acp = [barcode_copy]
-		req = request('open-ils.cat', 
-			'open-ils.cat.asset.copy.fleshed.batch.update',
-			authtoken, acp, False, None)
-		result = req.send()
-		# print "item result", result
+            acp = [barcode_copy]
+            req = request('open-ils.cat', 
+                'open-ils.cat.asset.copy.fleshed.batch.update',
+                authtoken, acp, False, None)
+            result = req.send()
+		
+            # print "item result", result
 
-	# on to call number
-	if authtoken and callno_changed:
-		call_num.label(callno)
-		call_num.ischanged(True)
+	        
+        # on to call number
+        if authtoken and callno_changed:
+            call_num.label(callno)
+            call_num.ischanged(True)
 
-		# volume.fleshed.batch.update expects an array of call number objects 
-		acn = [call_num]
-		req = request('open-ils.cat', 
-			'open-ils.cat.asset.volume.fleshed.batch.update', 
-			authtoken, acn, False, None)
-		result = req.send()
-		# print "callno result", result
+            # volume.fleshed.batch.update expects an array of call number objects 
+            acn = [call_num]
+            req = request('open-ils.cat', 
+                'open-ils.cat.asset.volume.fleshed.batch.update', 
+                authtoken, acn, False, None)
+		
+            result = req.send()
+		    # print "callno result", result
         
-	#clean up session
-	session_cleanup(authtoken)
+            #clean up session
+            session_cleanup(authtoken)
     except:
             print "item update problem"
             print "*** print_exc:"
