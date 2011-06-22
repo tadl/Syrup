@@ -68,6 +68,8 @@ urlpatterns = patterns('conifer.syrup.views',
 #     (r'^admin/terms/$', 'admin_term'),
     (r'^unapi/$', 'unapi'),
 
+    (r'^site/(?P<site_id>\d+)/revert_parms/$', 'site_revert_parms'),
+
     (r'^site/(?P<site_id>\d+)/copy_from/$', 'site_clipboard_copy_from'),
     (r'^site/(?P<site_id>\d+)/paste_to/$', 'site_clipboard_paste_to'),
     (r'^site/(?P<site_id>\d+)/paste_undo/$', 'site_clipboard_paste_undo'),

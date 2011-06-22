@@ -31,6 +31,7 @@ is_joinable = site.is_joinable_by(request.user)
       <div py:if="is_editor" id="edit_site" class="little_action_panel">
 	<div><a href="${site.site_url()}edit/">Setup</a></div>
 	<div><a href="${site.site_url()}edit/permission/">Permissions</a></div>
+	<div><a href="${site.site_url()}revert_parms/">Revert Parameters</a></div>
       </div>
       <div py:if="is_joinable">
 	<a href="${site.site_url()}join/">Join this site</a>

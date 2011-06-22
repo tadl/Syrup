@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?python
+title = _('Revert parameters for this site?') 
+?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+  <xi:include href="master.xhtml"/>
+  <xi:include href="components/site.xhtml"/>
+  <head>
+    <title>${title}</title>
+  </head>
+  <body>
+    <h2>${title}</h2>
+    <p>Please confirm that you want to update the catalogue with the parameters 
+    stored with the course materials.</p>
+    <table class="metadata_table">
+      <tr><th>Source:</th><td><a href="${site.site_url()}">${site}</a></td></tr>
+      <tr><th>Items:</th><td>
+      ${show_tree(site.item_tree(), edit=True)}
+      </td></tr>
+    </table>
+    <form action="." method="POST">
+      <p>
+	<input type="submit" value="Revert these materials"/>
+	${go_back_link()}
+      </p>
+    </form>
+  </body>
+</html>

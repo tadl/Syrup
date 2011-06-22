@@ -1,5 +1,11 @@
 from _common import *
 from search  import *
+from conifer.libsystems.evergreen.support import initialize, E1
+from conifer.plumbing.hooksystem          import *
+from django.conf                          import settings
+if hasattr(settings, 'OPENSRF_STAFF_USERID'): # TODO: we need an explicit 'we do updates' flag
+    from conifer.libsystems.evergreen import opensrf
+
 
 #-----------------------------------------------------------------------------
 # Creating a new site
@@ -256,6 +262,39 @@ def site_fuzzy_user_lookup(request):
     return HttpResponse(simplejson.dumps(resp),
                         content_type='application/json')
 
+
+def _revert_parms(request, source_site):
+    cnt = 0
+    def revert_item(parent, (item, subitems)):
+        update_status = False
+        if hasattr(settings, 'OPENSRF_STAFF_USERID'): 
+            update_status = True
+            dct = dict((k,v) for k,v in item.__dict__.items() if not k.startswith('_'))
+            dct['parent_heading_id'] = parent.id if parent else None
+            barcode = dct['barcode']
+            orig_call = dct['orig_callno']
+            orig_desk = dct['circ_desk']
+            orig_modifier = dct['circ_modifier']
+
+            if barcode and orig_call and orig_desk and orig_modifier:
+                update_status = opensrf.ils_item_update(barcode, orig_call,
+                                    orig_modifier, orig_desk)
+        if update_status:
+            for sub in subitems:
+                revert_item(parent, sub)
+        else:
+            return simple_message(_('Unable to update'),
+                _('Sorry, unable to finish updates, %d processed' % cnt))
+
+    for branch in source_site.item_tree():
+        revert_item(None, branch)
+
+def site_revert_parms(request, site_id):
+    site = get_object_or_404(models.Site, pk=site_id)
+    if request.method != 'POST':
+        return g.render('revert_confirm.xhtml', **locals())
+    _revert_parms(request, site)
+    return HttpResponseRedirect('../')
 
 def site_clipboard_copy_from(request, site_id):
     site = get_object_or_404(models.Site, pk=site_id)
