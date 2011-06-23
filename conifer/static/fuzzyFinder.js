@@ -31,8 +31,12 @@ function fuzzyFinder(Search, Matches, EditPanel, ViewPanel, ViewName, Change, Ow
 	    
 	    here.waiting = true;
 	    $(Search).css({backgroundColor: 'yellow'}); // debugging
+        var search='';
+        var search_level = document.getElementById('search_level');
+        if (search_level)
+            search = search_level.value;
 	    $.post(ROOT + '/fuzzy_user_lookup', {'q': here.lastText, 
-						 includeStudents: here.includeStudents},
+						 includeStudents: here.includeStudents, level: search},
 		   function(data) {
 		       here.waiting = false;
 		       here.lastPress = null;

@@ -106,6 +106,13 @@ extgroups = site.group_set.filter(external_id__isnull=False).annotate(Count('mem
 			Type a partial name or userid into the box; then select one of the matches.
 		      </div>
 		      <input type="text" id="fuzzyinput" autocomplete="off" value=""/>
+                <span style="margin: 8px;">
+                <select id="search_level">
+                <option value="EVERYONE" selected="selected">Everyone</option>
+                <option value="STAFF">Staff</option>
+                <option value="USERNAME">Username</option>
+                </select>
+                </span>
 		      <div id="fuzzypanel">
 		      </div>
 		    </div>

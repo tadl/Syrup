@@ -112,6 +112,50 @@ def ils_item_info(barcode):
 
     return None, None, None
 
+def ils_patron_details(usrname):
+    dir_entry = {}
+
+    try:
+        authtoken = auth_token(settings.OPENSRF_STAFF_USERID, 
+            settings.OPENSRF_STAFF_PW,
+            settings.OPENSRF_STAFF_WORKSTATION)
+
+        if auth_token:
+            patrons = []
+            req = request('open-ils.actor',
+                'open-ils.actor.patron.search.advanced',
+                authtoken, {'usrname':{'value':usrname.strip(),'group':0}})
+            patron_info = req.send()
+            if patron_info:
+                patrons = patron_info
+            for patron in patrons[0:1]:
+                req = request('open-ils.actor',
+                    'open-ils.actor.user.fleshed.retrieve',
+                    authtoken, patron,
+                    ["first_given_name","family_name","email","cards"])
+                patron_info = req.send()
+                if patron_info:
+                    dir_entry['given_name'] = patron_info.first_given_name()
+                    dir_entry['surname'] = patron_info.family_name()
+                    dir_entry['email'] = patron_info.email()
+
+                    cards = patron_info.cards()
+                    if cards:
+                        barcode = None
+                        for card in cards:
+                            barcode = card.barcode()
+                            dir_entry['barcode'] = barcode
+                        
+            #clean up session
+            session_cleanup(authtoken)
+    except:
+            print "item update problem"
+            print "*** print_exc:"
+            traceback.print_exc()
+            pass          # fail silently in production
+
+    return dir_entry
+
 def ils_patron_lookup(name, is_staff=True, is_usrname=False, is_everyone=False):
     """
     This is the barebones of a fuzzy lookup using opensrf
@@ -148,7 +192,7 @@ def ils_patron_lookup(name, is_staff=True, is_usrname=False, is_everyone=False):
     if not is_barcode and is_number(name):
         return out
     is_email = False
-    if name.find('@') > 0:
+    if not is_usrname and name.find('@') > 0:
         is_email = True
 
     try:
@@ -182,6 +226,13 @@ def ils_patron_lookup(name, is_staff=True, is_usrname=False, is_everyone=False):
                         'open-ils.actor.patron.search.advanced',
                         authtoken, {'card':{'value':name.strip(),'group':3}})
                     patrons = req.send()
+            elif is_usrname:
+                    req = request('open-ils.actor',
+                        'open-ils.actor.patron.search.advanced',
+                        authtoken, {'usrname':{'value':name.strip(),'group':0}})
+                    patron_info = req.send()
+                    if patron_info:
+                        patrons = patron_info
             elif is_staff:
                 patrons.extend(group_search(query,authtoken,patrons))
                 if (len(patrons) < RESULT_LIMIT and default_query):
@@ -216,9 +267,9 @@ def ils_patron_lookup(name, is_staff=True, is_usrname=False, is_everyone=False):
                         authtoken, patron,
                         ["first_given_name","family_name","email","usrname"])
                 patron_info = req.send()
-                display = ('%s %s. %s, '
-                    '%s. <%s>. [%s]') % (patron_info.first_given_name(),
-                    patron_info.family_name(), 'Test', 'FACULTY/STAFF',
+                display = ('%s %s, '
+                    '<%s>. [%s]') % (patron_info.first_given_name(),
+                    patron_info.family_name(), 
                     patron_info.email(), patron_info.usrname())
                 out.append((patron_info.usrname(), display))
                         

@@ -31,8 +31,15 @@ title = _('Add new staff user')
   </p>
   <div>
     <div id="fuzzyedit" style="display: block">
-      <div style="font-size: 80%; margin: 0.5em 0;">Type a partial name or userid into the box; then select one of the matches.</div>
+      <div style="font-size: 80%; margin: 0.5em 0;">For fuzzy matches, type a partial name or username into the box, then select one of the matches.</div>
       <input type="text" id="fuzzyinput" autocomplete="off" value=""/>
+        <span style="margin: 8px;">
+        <select id="search_level">
+        <option value="STAFF" selected="selected">Staff</option>
+        <option value="USERNAME">Username</option>
+        <option value="EVERYONE">Everyone</option>
+        </select>
+        </span>
       <div id="fuzzypanel">
       </div>
     </div>

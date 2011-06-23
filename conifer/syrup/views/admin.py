@@ -156,13 +156,18 @@ def admin_staff_add(request):
         return g.render('admin/staff_add.xhtml', **locals())
     else:
         userid = request.POST.get('userid','').strip()
+        print "userid", userid
         message_continue = True
 
         try:
             user = User.objects.get(username=userid)
         except User.DoesNotExist:
+            print "about to create"
             user = User.objects.create(username=userid)
+            print "created", user
+            print "1"
             user.maybe_decorate()
+            print "2"
 
         user.is_staff = True
         user.is_superuser = True # TODO: are we sure they should be superuser?
