@@ -112,6 +112,106 @@ def ils_item_info(barcode):
 
     return None, None, None
 
+def ils_patron_lookup(patron):
+    """
+    This is the barebones of a fuzzy lookup using opensrf
+    """
+    def is_number(s):
+        try:
+            float(s)
+            return True
+        except ValueError:
+            return False
+
+    out = []
+    if len(patron) < settings.MIN_QUERY_LENGTH:
+        return out
+    is_barcode = re.search('\d{14}', patron)
+    if not is_barcode and is_number(patron):
+        return out
+    is_email = False
+    if patron.find('@') > 0:
+        is_email = True
+
+    try:
+        query = None
+        query1 = None
+        query2 = None
+        incoming = None
+
+        if not is_barcode: 
+            incoming = patron.split()
+            query1 = incoming[0]
+
+            if len(incoming) > 1:   
+                #in case wild card searching can be used
+                query2 = '%s' % incoming[1].strip()
+                query = {'first_given_name':{'value':query1,'group':0},
+                    'family_name':{'value':query2,'group':0}}
+            else:
+                query1 = '%s' % query1
+                query = {'first_given_name':{'value':query1,'group':0}}
+            
+        authtoken = auth_token(settings.OPENSRF_STAFF_USERID, 
+            settings.OPENSRF_STAFF_PW,
+            settings.OPENSRF_STAFF_WORKSTATION)
+
+        if auth_token:
+            patron_info = []
+            if not is_barcode and not is_email:
+                req = request('open-ils.actor',
+                    'open-ils.actor.patron.search.advanced',
+                    authtoken, query)
+                patron_info = req.send()
+                if not patron_info and len(incoming) == 1:
+                    req = request('open-ils.actor',
+                        'open-ils.actor.patron.search.advanced',
+                        authtoken, {'family_name':{'value':query1,'group':0},'profile':{'value':'11','group':0}})
+                    patron_info = req.send()
+            if is_email:
+                    req = request('open-ils.actor',
+                        'open-ils.actor.patron.search.advanced',
+                        authtoken, {'email':{'value':query1,'group':0}})
+                    patron_info = req.send()
+            if is_barcode:
+                    req = request('open-ils.actor',
+                        'open-ils.actor.patron.search.advanced',
+                        authtoken, {'card':{'value':patron.strip(),'group':3}})
+                    patron_info = req.send()
+
+            if patron_info:
+                cnt = 0
+                for patron in patron_info:
+                    req = request('open-ils.actor',
+                    'open-ils.actor.user.fleshed.retrieve',
+                    authtoken, patron,
+                    ["profile"])
+                    ind_info = req.send()
+                    profile = ind_info.profile()
+                    profile_id = profile.id()
+
+                    if int(profile_id) in settings.OPENSRF_PERMIT_GRPS:
+                        cnt+=1
+                        display = ('%s %s. %s, '
+                        '%s. <%s>. [%s]') % (ind_info.first_given_name(),
+                            ind_info.family_name(), 'Test', 'FACULTY/STAFF',
+                            ind_info.email(), ind_info.usrname())
+                        out.append((ind_info.usrname(), display))
+                        if cnt == 5:
+                            return out
+
+            #clean up session
+            session_cleanup(authtoken)
+    except:
+            print "item update problem"
+            print "*** print_exc:"
+            traceback.print_exc()
+            pass          # fail silently in production
+            return out
+
+    return out
+
+
 def ils_item_update(barcode, callno, modifier, location):
     item_changed = False
     callno_changed = False

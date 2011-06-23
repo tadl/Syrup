@@ -55,6 +55,7 @@ RESERVES_DESK_NAME = 'Leddy: Course Reserves - Main Bldng - 1st Flr - Reserve Co
 SYRUP_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
 SYRUP_DUE_FORMAT = '%b %d %Y, %r'
 ATTACHMENT_REGEXP ='\w*DVD\s?|\w*CD\s?|\w[Gg]uide\s?|\w[Bb]ooklet\s?|\w*CD\-ROM\s?'
+MIN_QUERY_LENGTH = 3
 
 # Note, in the Evergreen integration, commenting out Z3950_CONFIG or setting it
 # equal to None will result in OpenSRF being used for catalogue search instead
@@ -75,3 +76,4 @@ Z3950_CONFIG     = ('zed.concat.ca', 210, 'OWA')  #OWA,OSUL,CONIFER
 #OPENSRF_STAFF_PW = 'mypassword'
 #OPENSRF_STAFF_ORG = 'OWA'
 #OPENSRF_STAFF_WORKSTATION = 'OWA-syrup-test'
+#OPENSRF_PERMIT_GRPS = [3,4,5,11,12]
