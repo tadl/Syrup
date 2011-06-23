@@ -112,10 +112,12 @@ def ils_item_info(barcode):
 
     return None, None, None
 
-def ils_patron_lookup(patron):
+def ils_patron_lookup(name, is_staff=True, is_usrname=False, is_everyone=False):
     """
     This is the barebones of a fuzzy lookup using opensrf
     """
+    RESULT_LIMIT  = 5
+
     def is_number(s):
         try:
             float(s)
@@ -123,83 +125,103 @@ def ils_patron_lookup(patron):
         except ValueError:
             return False
 
+    def group_search(q,token,patrons):
+        my_q = q
+        my_patrons = []
+        for group in settings.OPENSRF_PERMIT_GRPS:
+            my_q['profile'] = {'value':group,'group':0}
+            req = request('open-ils.actor',
+                'open-ils.actor.patron.search.advanced',
+                    token, my_q)
+            patron_info = req.send()
+            if patron_info: 
+                my_patrons.extend(patron_info)
+                if len(my_patrons) + len(patrons) > RESULT_LIMIT:
+                    break
+        my_patrons.extend(patrons)
+        return my_patrons
+
     out = []
-    if len(patron) < settings.MIN_QUERY_LENGTH:
+    if len(name) < settings.MIN_QUERY_LENGTH:
         return out
-    is_barcode = re.search('\d{14}', patron)
-    if not is_barcode and is_number(patron):
+    is_barcode = re.search('\d{14}', name)
+    if not is_barcode and is_number(name):
         return out
     is_email = False
-    if patron.find('@') > 0:
+    if name.find('@') > 0:
         is_email = True
 
     try:
         query = None
+        default_query = None
         query1 = None
         query2 = None
         incoming = None
 
         if not is_barcode: 
-            incoming = patron.split()
+            incoming = name.split()
             query1 = incoming[0]
 
             if len(incoming) > 1:   
-                #in case wild card searching can be used
-                query2 = '%s' % incoming[1].strip()
+                query2 = incoming[1].strip()
                 query = {'first_given_name':{'value':query1,'group':0},
                     'family_name':{'value':query2,'group':0}}
             else:
-                query1 = '%s' % query1
                 query = {'first_given_name':{'value':query1,'group':0}}
+                default_query = {'family_name':{'value':query1,'group':0}}
             
         authtoken = auth_token(settings.OPENSRF_STAFF_USERID, 
             settings.OPENSRF_STAFF_PW,
             settings.OPENSRF_STAFF_WORKSTATION)
 
         if auth_token:
-            patron_info = []
-            if not is_barcode and not is_email:
-                req = request('open-ils.actor',
-                    'open-ils.actor.patron.search.advanced',
-                    authtoken, query)
-                patron_info = req.send()
-                if not patron_info and len(incoming) == 1:
-                    req = request('open-ils.actor',
-                        'open-ils.actor.patron.search.advanced',
-                        authtoken, {'family_name':{'value':query1,'group':0},'profile':{'value':'11','group':0}})
-                    patron_info = req.send()
-            if is_email:
-                    req = request('open-ils.actor',
-                        'open-ils.actor.patron.search.advanced',
-                        authtoken, {'email':{'value':query1,'group':0}})
-                    patron_info = req.send()
+
+            patrons = []
             if is_barcode:
                     req = request('open-ils.actor',
                         'open-ils.actor.patron.search.advanced',
-                        authtoken, {'card':{'value':patron.strip(),'group':3}})
-                    patron_info = req.send()
-
-            if patron_info:
-                cnt = 0
-                for patron in patron_info:
+                        authtoken, {'card':{'value':name.strip(),'group':3}})
+                    patrons = req.send()
+            elif is_staff:
+                patrons.extend(group_search(query,authtoken,patrons))
+                if (len(patrons) < RESULT_LIMIT and default_query):
+                    more_patrons = group_search(default_query,
+                        authtoken,patrons)
+                    patrons.extend(more_patrons)
+            elif is_email:
                     req = request('open-ils.actor',
+                        'open-ils.actor.patron.search.advanced',
+                        authtoken, {'email':{'value':name.strip(),'group':0}})
+                    patron_info = req.send()
+                    if patron_info:
+                        patrons = patron_info
+            else:
+                req = request('open-ils.actor',
+                    'open-ils.actor.patron.search.advanced',
+                        authtoken, query)
+                patron_info = req.send()
+                if patron_info:
+                    patrons = patron_info
+                if (len(patrons) < RESULT_LIMIT and default_query):
+                    req = request('open-ils.actor',
+                        'open-ils.actor.patron.search.advanced',
+                        authtoken, default_query)
+                    patron_info = req.send()
+                    if patron_info:
+                        patrons.extend(patron_info)
+                
+            for patron in patrons[0:RESULT_LIMIT]:
+                req = request('open-ils.actor',
                     'open-ils.actor.user.fleshed.retrieve',
-                    authtoken, patron,
-                    ["profile"])
-                    ind_info = req.send()
-                    profile = ind_info.profile()
-                    profile_id = profile.id()
-
-                    if int(profile_id) in settings.OPENSRF_PERMIT_GRPS:
-                        cnt+=1
-                        display = ('%s %s. %s, '
-                        '%s. <%s>. [%s]') % (ind_info.first_given_name(),
-                            ind_info.family_name(), 'Test', 'FACULTY/STAFF',
-                            ind_info.email(), ind_info.usrname())
-                        out.append((ind_info.usrname(), display))
-                        if cnt == 5:
-                            return out
-
+                        authtoken, patron,
+                        ["first_given_name","family_name","email","usrname"])
+                patron_info = req.send()
+                display = ('%s %s. %s, '
+                    '%s. <%s>. [%s]') % (patron_info.first_given_name(),
+                    patron_info.family_name(), 'Test', 'FACULTY/STAFF',
+                    patron_info.email(), patron_info.usrname())
+                out.append((patron_info.usrname(), display))
+                        
             #clean up session
             session_cleanup(authtoken)
     except:
