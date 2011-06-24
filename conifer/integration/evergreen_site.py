@@ -175,7 +175,7 @@ class EvergreenIntegration(object):
         assert self.RESERVES_DESK_NAME, 'No RESERVES_DESK_NAME specified!'
         try:
             counts = E1(OPENSRF_COPY_COUNTS, bib_id, 1, 0)
-            lib = desk = avail = vol = 0
+            lib = desk = avail = vol = anystatus_here = 0
             dueinfo = ''
             callno  = ''
             circmod = ''
@@ -189,6 +189,7 @@ class EvergreenIntegration(object):
                 avail_here = stats.get(self.AVAILABLE, 0)
                 avail_here += stats.get(self.RESHELVING, 0)
                 anystatus_here = sum(stats.values())
+                lib += anystatus_here
 
                 # volume check - based on v.1, etc. in call number
                 voltest = re.search(r'\w*v\.\s?(\d+)', callnum)
@@ -214,7 +215,6 @@ class EvergreenIntegration(object):
                     else:
                         callno = callnum
 
-                    lib += anystatus_here
                     copyids = E1(OPENSRF_CN_CALL, bib_id, callnum, org)
 
                     # we want to return the resource that will be returned first if

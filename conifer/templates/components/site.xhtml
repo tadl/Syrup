@@ -30,7 +30,8 @@ searchtext = _('search this site...')
   <ul py:def="show_tree(tree, edit=False)"
       py:if="tree"
       class="itemtree">
-    <li py:for="item, subs in tree" py:with="forbidden=not item.copyright_status_ok()" class="item_${item.item_type} an_item ${forbidden and 'forbidden' or ''}"
+    <span py:for="item, subs in tree" py:with="forbidden=not item.copyright_status_ok()">
+    <li py:if="not item.suppress_item or user.is_staff" class="item_${item.item_type} an_item ${forbidden and 'forbidden' or ''}"
 	id="item_${item.id}">
       <abbr py:if="not item.item_type=='HEADING'" class="unapi-id" title="${item.id}"/>
       <?python
@@ -104,6 +105,7 @@ searchtext = _('search this site...')
 	       src="${ROOT}/static/tango/lock.png"/></span>
 	  <a href="${item.item_url()}" class="mainlink"
 	     py:strip="item.item_type=='ELEC' and not downloads_allowed">${item}</a> 
+	<span py:if="item.suppress_item">[additional copy - not displayed]</span>
       </div>
       <div class="author_pub" py:if="item.author or item.publisher or item.published">
 	<span py:with="vt=item.video_type()"><span class="videotype" py:if="vt">[${vt}]</span></span>
@@ -111,7 +113,7 @@ searchtext = _('search this site...')
 		<span py:if="item.published">(${item.published}).</span>
 		<span py:if="item.source_title"><i>${item.source_title}.</i></span>
 		<span py:if="item.volume or item.issue"><i>${item.volume}</i>(${item.issue}), ${item.pages}.</span>
-		  <div py:if="edit">
+		  <div py:if="edit and user.is_staff">
             <span><i>Source: </i></span>
 		    <span py:if="item.circ_modifier">${item.circ_modifier}, </span>
 		    <span py:if="item.orig_callno">${item.orig_callno}, </span>
@@ -135,6 +137,7 @@ searchtext = _('search this site...')
       <!-- !to show a full tree, uncomment the following: -->
       ${show_tree(subs, edit)}
     </li>
+    </span>
   </ul>
 
   <ul py:def="heading_tree(tree, stop_at=None)" class="heading_tree">
