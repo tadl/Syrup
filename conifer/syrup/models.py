@@ -637,6 +637,7 @@ class Item(BaseModel):
     # bib_id's and MARC records.
 
     bib_id = m.CharField('Bib Record ID', max_length=256, blank=True, null=True)
+    suppress_item = m.BooleanField(default=False)
     marcxml = m.TextField('MARCXML', blank=True, null=True)
 
     # Fundamental metadata. These attributes may be populated from
