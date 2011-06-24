@@ -15,9 +15,6 @@ class EvergreenExampleIntegration(EvergreenIntegration):
     OPAC_LANG = 'en-US'
     OPAC_SKIN = 'default'
 
-    RESERVES_DESK_NAME = 'Reserves'
-    SITE_DEFAULT_ACCESS_LEVEL = 'RESTR'
-
     def external_person_lookup(self, userid):
         """
         Given a userid, return either None (if the user cannot be found),
