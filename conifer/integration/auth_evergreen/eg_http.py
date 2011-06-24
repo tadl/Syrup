@@ -7,6 +7,7 @@ from hashlib import md5
 import warnings
 import time
 from conifer.libsystems.evergreen.support import ER, E1, initialize
+from django.conf                          import settings
 import re
 
 #----------------------------------------------------------------------
@@ -23,19 +24,31 @@ class EvergreenAuthServer(object):
     def __init__(self):
         pass
 
-    def login(self, username, password, workstation='OWA-proxyloc'): # fixme!
+    def login(self, username, password, workstation=None): 
         """Return True if the username/password are good, False otherwise."""
 
         seed = E1('open-ils.auth.authenticate.init', username)
+        
+        """
+        We get away with no workstation in proxy auth setup at Windsor,
+        need to track down but use staff station for now
+        """
+        if workstation:
+            patronws = workstation
+        else:
+            patronws = getattr(settings, 'OPENSRF_STAFF_WORKSTATION', None)
 
         result = E1('open-ils.auth.authenticate.complete', {
-                'workstation' : workstation,
+                'workstation' : patronws,
                 'username' : username,
                 'password' : _hsh(seed + _hsh(password)),
-                'type' : 'staff' 
+                'type' : 'opac' 
                 })
         try:
             authkey = result['payload']['authtoken']
+            #cleanup session - we do not use eg authkey locally
+            E1('open-ils.auth.session.delete', [authkey])
+            
             return authkey
         except:
             return None
