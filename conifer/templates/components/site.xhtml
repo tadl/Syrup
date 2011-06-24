@@ -44,7 +44,11 @@ searchtext = _('search this site...')
 	<div py:if="valid" py:with="(_lib, _desk, _avail, _callno, _dueinfo, _circmod, _alldues) = stat"
 	     class="${_avail &gt; 0 and 'available' or 'unavailable'}"
 	     title="${_avail} of ${_desk} copies available at reserves desk; ${_lib} total copies in library system">
+          <!--
           <div>${_avail and 'Available' or 'Unavailable'} (${_avail}/${_desk})</div>
+          -->
+          <div py:if="_avail == 1">${_avail} copy available</div>
+          <div py:if="_avail &gt; 1 or _avail == 0">${_avail} copies available</div>
           <div py:if="_circmod">
           	<span py:if="_circmod == 'RSV2'">2 Hour Loan</span>
           	<span py:if="_circmod == 'RSV3'">3 Day Loan</span>
