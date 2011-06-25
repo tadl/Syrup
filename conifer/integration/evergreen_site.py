@@ -181,6 +181,12 @@ class EvergreenIntegration(object):
             circmod = ''
             alldues = []
 
+            # Note: MassLNC requires this, need to add a version
+            # value to settings and consider required opensrf to
+            # to be installed for any evergreen site.
+            #
+            # for org, skip1, callnum, skip2, loc, stats in counts:
+
             for org, callnum, loc, stats in counts:
                 callprefix = ''
                 callsuffix = ''
@@ -214,6 +220,9 @@ class EvergreenIntegration(object):
                             callprefix = callnum
                     else:
                         callno = callnum
+
+                    # Another MassLNC variation, needs same refactoring as above
+                    # copyids = E1(OPENSRF_CN_CALL, bib_id, [callnum], org)
 
                     copyids = E1(OPENSRF_CN_CALL, bib_id, callnum, org)
 

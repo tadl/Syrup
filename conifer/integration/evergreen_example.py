@@ -15,6 +15,23 @@ class EvergreenExampleIntegration(EvergreenIntegration):
     OPAC_LANG = 'en-US'
     OPAC_SKIN = 'default'
 
+    # Options for circ modifiers
+    MODIFIER_CHOICES = [
+        ('CIRC', 'Normal'),
+        ('RSV2', '2 Hour'),
+        ('RSV1', '1 Day'),
+        ('RSV3', '3 Day'),
+        ('RSV7', '7 Day'),
+        ]
+
+    # TODO: these are harcoded for now, should make the opensrf calls to resolve them
+    # Options for circ desk
+    DESK_CHOICES = [
+        ('821', 'Reserves Counter'),
+        ('598', 'Circulating Collection'),
+        ]
+
+
     def external_person_lookup(self, userid):
         """
         Given a userid, return either None (if the user cannot be found),
