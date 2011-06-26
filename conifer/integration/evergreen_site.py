@@ -168,26 +168,23 @@ class EvergreenIntegration(object):
 
     @memoize(timeout=CACHE_TIME)
     def _item_status(self, bib_id):
-        # At this point, status information does not require the opensrf
-        # bindings, I am not sure there is a use case where an evergreen
-        # site would not have access to these but will leave for now
-        # since there are no hardcoded references
-        assert self.RESERVES_DESK_NAME, 'No RESERVES_DESK_NAME specified!'
-        try:
-            counts = E1(OPENSRF_COPY_COUNTS, bib_id, 1, 0)
-            lib = desk = avail = vol = anystatus_here = 0
-            dueinfo = ''
-            callno  = ''
-            circmod = ''
-            alldues = []
+        def sort_out_status(counts, version, sort_lib, sort_desk, sort_avail, 
+            sort_callno, sort_dueinfo, sort_circmod, sort_alldues):
 
-            # Note: MassLNC requires this, need to add a version
-            # value to settings and consider required opensrf to
-            # to be installed for any evergreen site.
-            #
-            # for org, skip1, callnum, skip2, loc, stats in counts:
+            lib = sort_lib
+            desk = sort_desk
+            avail = sort_avail 
+            callno = sort_callno 
+            dueinfo = sort_dueinfo
+            circmod = sort_circmod
+            alldues = sort_alldues
+            try:
+                # Note: MassLNC requires this, need to add a version
+                # value to settings and consider required opensrf to
+                # to be installed for any evergreen site.
+                #
+                # for org, skip1, callnum, skip2, loc, stats in counts:
 
-            for org, callnum, loc, stats in counts:
                 callprefix = ''
                 callsuffix = ''
                 if len(callno) == 0:
@@ -222,9 +219,10 @@ class EvergreenIntegration(object):
                         callno = callnum
 
                     # Another MassLNC variation, needs same refactoring as above
-                    # copyids = E1(OPENSRF_CN_CALL, bib_id, [callnum], org)
-
-                    copyids = E1(OPENSRF_CN_CALL, bib_id, callnum, org)
+                    if version >= 2.1:
+                        copyids = E1(OPENSRF_CN_CALL, bib_id, [callnum], org)
+                    else:
+                        copyids = E1(OPENSRF_CN_CALL, bib_id, callnum, org)
 
                     # we want to return the resource that will be returned first if
                     # already checked out
@@ -302,12 +300,44 @@ class EvergreenIntegration(object):
                                 callno = callno + callsuffix
                         if voltest:
                             vol = int(voltest.group(1))
+                        
+                    
+            except:
+                print "due date/call problem: ", bib_id
+                print "*** print_exc:"
+                traceback.print_exc()
+        
             return (lib, desk, avail, callno, dueinfo, circmod, alldues)
-        except:
-            print "due date/call problem: ", bib_id
-            print "*** print_exc:"
-            traceback.print_exc()
-            return None # fail silently in production if there's an opensrf or time related error.
+
+        # At this point, status information does not require the opensrf
+        # bindings, I am not sure there is a use case where an evergreen
+        # site would not have access to these but will leave for now
+        # since there are no hardcoded references
+        assert self.RESERVES_DESK_NAME, 'No RESERVES_DESK_NAME specified!'
+
+        lib = desk = avail = vol = anystatus_here = 0
+        dueinfo = ''
+        callno  = ''
+        circmod = ''
+        alldues = []
+            
+        counts = E1(OPENSRF_COPY_COUNTS, bib_id, 1, 0)
+
+        version = getattr(settings, 'EVERGREEN_VERSION',
+                      2.0)
+
+        #TODO: clean this up, a hackish workaround for now
+        if version >= 2.1:
+            for org, skip1, callnum, skip2, loc, stats in counts:
+                lib, desk, avail, callno, dueinfo, circmod, alldues = sort_out_status(counts, 
+                    version, lib, desk, avail, callno, dueinfo, circmod, alldues)
+        else:
+            for org, callnum, loc, stats in counts:
+                lib, desk, avail, callno, dueinfo, circmod, alldues = sort_out_status(counts, 
+                    version, lib, desk, avail, callno, dueinfo, circmod, alldues)
+            
+        return (lib, desk, avail, callno, dueinfo, circmod, alldues)
+
 
 
     # You'll need to define OSRF_CAT_SEARCH_ORG_UNIT, either by overriding its
