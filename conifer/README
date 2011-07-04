@@ -87,5 +87,5 @@ section in the OpenSRF README.
 
 Integration is carried out through an intergration class, for Windsor we use
 "conifer.integration.uwindsor.UWindsorIntegration", but this should be defined for your
-institution. The "uwindsor.py" file in the integration directory can be used as an
-example.
+institution. The "evergreen_example.py" file in the integration directory can be used as a
+model.
