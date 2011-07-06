@@ -267,11 +267,21 @@ def ils_patron_lookup(name, is_staff=True, is_usrname=False, is_everyone=False):
                         authtoken, patron,
                         ["first_given_name","family_name","email","usrname"])
                 patron_info = req.send()
-                display = ('%s %s, '
-                    '<%s>. [%s]') % (patron_info.first_given_name(),
-                    patron_info.family_name(), 
-                    patron_info.email(), patron_info.usrname())
-                out.append((patron_info.usrname(), display))
+                if patron_info.usrname():
+                    first_name = ""
+                    family_name = ""
+                    email = ""
+                    if patron_info.first_given_name():
+                        first_name = patron_info.first_given_name()
+                    if patron_info.family_name():
+                        family_name = patron_info.family_name()
+                    if patron_info.email():
+                        email = patron_info.email()
+                    display = ('%s %s, '
+                        '<%s>. [%s]') % (first_name,
+                        family_name, 
+                        email, patron_info.usrname())
+                    out.append((patron_info.usrname(), display))
                         
             #clean up session
             session_cleanup(authtoken)

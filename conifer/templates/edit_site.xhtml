@@ -54,6 +54,13 @@ owner = instance.owner if instance.owner_id else None
 			   style="display: ${'none' if owner else 'block'}">
 			<div style="font-size: 80%; margin: 0.5em 0;">Type a partial name or userid into the box; then select one of the matches.</div>
 			<input type="text" id="fuzzyinput" autocomplete="off" value="${owner.username if owner else ''}"/>
+                <span style="margin: 8px;">
+                <select id="search_level">
+                <option value="EVERYONE" selected="selected">Everyone</option>
+                <option value="STAFF">Staff</option>
+                <option value="USERNAME">Username</option>
+                </select>
+                </span>
 			<div id="fuzzypanel">
 			</div>
 		  </div>

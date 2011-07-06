@@ -125,9 +125,20 @@ class UserExtensionMixin(object):
         if dir_entry is None:
             return
 
-        self.first_name = dir_entry['given_name']
-        self.last_name  = dir_entry['surname']
-        self.email      = dir_entry.get('email', self.email)
+        first_name = ""
+        last_name = ""
+        email = ""
+
+        if dir_entry['given_name']:
+            first_name = dir_entry['given_name']
+        if dir_entry['surname']:
+            last_name = dir_entry['surname']
+        if dir_entry.get('email', self.email):
+            email = dir_entry.get('email', self.email)
+
+        self.first_name = first_name
+        self.last_name  = last_name
+        self.email      = email
         self.save()
 
         if 'patron_id' in dir_entry:

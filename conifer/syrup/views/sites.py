@@ -69,7 +69,8 @@ def _add_or_edit_site(request, instance=None, basis=None):
             # then the owner may be a username instead of an ID, and
             # the user may not exist in the local database.
             userid = POST.get('owner', '').strip()
-            if userid and not userid.isdigit():
+            is_barcode = re.search('\d{14}', userid)
+            if userid and (not userid.isdigit() or is_barcode):
                 try:
                     user = User.objects.get(username=userid)
                 except User.DoesNotExist:
