@@ -135,9 +135,17 @@ def ils_patron_details(usrname):
                     ["first_given_name","family_name","email","cards"])
                 patron_info = req.send()
                 if patron_info:
-                    dir_entry['given_name'] = patron_info.first_given_name()
-                    dir_entry['surname'] = patron_info.family_name()
-                    dir_entry['email'] = patron_info.email()
+                    given_name = ""
+                    if patron_info.first_given_name():
+                        given_name = patron_info.first_given_name()
+                    dir_entry['given_name'] = given_name
+                    surname = ""
+                    if patron_info.family_name():
+                        surname = patron_info.family_name()
+                    dir_entry['surname'] = surname
+                    email = ""
+                    if patron_info.email():
+                        dir_entry['email'] = email
 
                     cards = patron_info.cards()
                     if cards:
@@ -158,7 +166,7 @@ def ils_patron_details(usrname):
 
 def ils_patron_lookup(name, is_staff=True, is_usrname=False, is_everyone=False):
     """
-    This is the barebones of a fuzzy lookup using opensrf
+    This is an implementation of a fuzzy lookup using opensrf
     """
     RESULT_LIMIT  = 5
 
@@ -268,19 +276,11 @@ def ils_patron_lookup(name, is_staff=True, is_usrname=False, is_everyone=False):
                         ["first_given_name","family_name","email","usrname"])
                 patron_info = req.send()
                 if patron_info.usrname():
-                    first_name = ""
-                    family_name = ""
-                    email = ""
-                    if patron_info.first_given_name():
-                        first_name = patron_info.first_given_name()
-                    if patron_info.family_name():
-                        family_name = patron_info.family_name()
-                    if patron_info.email():
-                        email = patron_info.email()
                     display = ('%s %s, '
-                        '<%s>. [%s]') % (first_name,
-                        family_name, 
-                        email, patron_info.usrname())
+                        '<%s>. [%s]') % (patron_info.first_given_name(),
+                        patron_info.family_name(),
+                        patron_info.email(), 
+                        patron_info.usrname())
                     out.append((patron_info.usrname(), display))
                         
             #clean up session

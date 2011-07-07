@@ -147,8 +147,6 @@ class UserExtensionMixin(object):
             self.get_profile().ils_userid = dir_entry['patron_id']
             profile.save()
 
-
-
 for k,v in [(k,v) for k,v in UserExtensionMixin.__dict__.items() \
                 if not k.startswith('_')]:
     setattr(User, k, v)
@@ -704,7 +702,7 @@ class Item(BaseModel):
     CIRC_MODIFIER_CHOICES = getattr(integration_class, 'MODIFIER_CHOICES',
                                        [('', 'n/a')])
 
-    circ_modifier = m.CharField(max_length=10,
+    circ_modifier = m.CharField(max_length=50,
                                 choices=CIRC_MODIFIER_CHOICES,
                                 default=CIRC_MODIFIER_CHOICES[0][0], blank=True)
 
