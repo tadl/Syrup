@@ -1,0 +1,54 @@
+Syrup User Guide
+================
+Art Rhyno <http://projectconifer.ca>
+:Author Initials: AR
+:toc:
+:icons:
+:numbered:
+:website: http://git.evergreen-ils.org/?p=Syrup.git;a=summary
+
+The install instructions in the README are the most up to date. These are
+in the 'Syrup/conifer' directory if you use git to get the application.
+
+  git clone git://git.evergreen-ils.org/Syrup.git
+
+This document assumes you have Syrup running and walks through configuring a 
+working instance.
+
+.Why Syrup?
+**********************************************************************
+It is a little unclear. It might have been an acronym for 'Serving Your
+Reserves to University Populations'. The project originated within 
+http://projectconifer.ca/[Project Conifer] and pays homage to the library
+world's most ambitious open source undertaking (otherwise known as
+http://www.open-ils.org/[Evergreen]).
+**********************************************************************
+
+Initial Configuration
+---------------------
+Syrup needs time periods for controlling when course sites are to be made
+available. After you log in the first time, the first stopping point should
+probably be the 'Admin' link.
+
+image:images/admin.jpg[Admin Link]
+
+We use 'Terms' to define the period for which course materials will be 'active'.
+
+image:images/term_menu.jpg[Admin Menu]
+
+You can define as many terms as you want but you need at least one to add
+materials to Syrup. In this case, we will define one for the summer.
+
+image:images/term_example.jpg[Term Example]
+
+You also need at least one 'Service Desk' if you intend to offer physical
+materials for reserves. 
+
+image:images/desk_menu.jpg[Service Desk Menu Option]
+
+A service desk in Syrup is really just a helpful cue to the user where to
+request materials. The name does not have to match the wording in your ILS
+or elsewhere. The service desk can also be given a URL-friendly name for 
+linking.
+
+image:images/desk_example.jpg[Service Desk Menu Option]
