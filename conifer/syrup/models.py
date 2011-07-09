@@ -676,7 +676,9 @@ class Item(BaseModel):
     #barcode
     barcode      = m.CharField(max_length=14, null=True, blank=True)
     #orig_callno: this is a copy of the call number associated with the barcode
+    orig_prefix  = m.CharField(max_length=25, null=True, blank=True)
     orig_callno  = m.CharField(max_length=64, null=True, blank=True)
+    orig_suffix  = m.CharField(max_length=25, null=True, blank=True)
 
     # Options for evergreen updates
     EVERGREEN_UPDATE_CHOICES = getattr(integration_class, 'UPDATE_CHOICES',

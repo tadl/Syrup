@@ -274,13 +274,15 @@ def _revert_parms(request, source_site):
             dct = dict((k,v) for k,v in item.__dict__.items() if not k.startswith('_'))
             dct['parent_heading_id'] = parent.id if parent else None
             barcode = dct['barcode']
+            orig_prefix = dct['orig_prefix']
             orig_call = dct['orig_callno']
+            orig_suffix = dct['orig_suffix']
             orig_desk = dct['circ_desk']
             orig_modifier = dct['circ_modifier']
 
             if barcode and orig_call and orig_desk and orig_modifier:
-                update_status = opensrf.ils_item_update(barcode, orig_call,
-                                    orig_modifier, orig_desk)
+                update_status = opensrf.ils_item_update(barcode, orig_prefix, orig_call,
+                                    orig_suffix, orig_modifier, orig_desk)
         if update_status:
             for sub in subitems:
                 revert_item(parent, sub)

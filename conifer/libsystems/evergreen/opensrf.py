@@ -103,7 +103,11 @@ def ils_item_info(barcode):
    
         	call_num = req.send()
 		if call_num:
-			return barcode_copy.circ_modifier(), barcode_copy.location().id(), call_num.label()
+			print "req", call_num
+			print "label", call_num.label()
+			print "prefix", call_num.prefix()
+			print "suffix", call_num.suffix()
+			return barcode_copy.circ_modifier(), barcode_copy.location().id(), call_num.prefix(), call_num.label(), call_num.suffix()
     except:
             print "problem retrieving item info"
             print "*** print_exc:"
@@ -295,7 +299,7 @@ def ils_patron_lookup(name, is_staff=True, is_usrname=False, is_everyone=False):
     return out
 
 
-def ils_item_update(barcode, callno, modifier, location):
+def ils_item_update(barcode, prefix, callno, suffix, modifier, location):
     item_changed = False
     callno_changed = False
 
@@ -346,7 +350,9 @@ def ils_item_update(barcode, callno, modifier, location):
 	        
         # on to call number
         if authtoken and callno_changed:
+            call_num.prefix(prefix)
             call_num.label(callno)
+            call_num.suffix(suffix)
             call_num.ischanged(True)
 
             # volume.fleshed.batch.update expects an array of call number objects 
@@ -356,7 +362,7 @@ def ils_item_update(barcode, callno, modifier, location):
                 authtoken, acn, False, None)
 		
             result = req.send()
-		    # print "callno result", result
+            # print "callno result", result
         
             #clean up session
             session_cleanup(authtoken)

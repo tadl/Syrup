@@ -305,14 +305,16 @@ def item_add_cat_search(request, site_id, item_id):
         # TODO: the Leddy stuff here belongs in an integration-module function. [GF]
         # - no longer Leddy specific [AR]
 
+        eg_prefix   = ''
         eg_callno   = ''
+        eg_suffix   = ''
         eg_modifier = ''
         eg_location = ''
 
         #TODO: use python bindings for these interactions
         if bar_num and hasattr(settings, 'OPENSRF_STAFF_USERID'): # TODO: we need an explicit 'we do updates' flag
             barcode = bar_num
-            eg_modifier, eg_location, eg_callno = opensrf.ils_item_info(barcode)
+            eg_modifier, eg_location, eg_prefix, eg_callno, eg_suffix = opensrf.ils_item_info(barcode)
         if bibid:
             item = site.item_set.create(parent_heading=parent_item,
                                         title=dublin.get('dc:title','Untitled'),
@@ -323,7 +325,9 @@ def item_add_cat_search(request, site_id, item_id):
                                         barcode = barcode,
                                         circ_modifier = eg_modifier,
                                         circ_desk = eg_location,
+                                        orig_prefix = eg_prefix,
                                         orig_callno = eg_callno,
+                                        orig_suffix = eg_suffix,
                                         marcxml=raw_pickitem,
                                         **dct)
         else:
@@ -335,7 +339,9 @@ def item_add_cat_search(request, site_id, item_id):
                                         barcode = barcode,
                                         circ_modifier = eg_modifier,
                                         circ_desk = eg_location,
+                                        orig_prefix = eg_prefix,
                                         orig_callno = eg_callno,
+                                        orig_suffix = eg_suffix,
                                         marcxml=raw_pickitem,
                                         **dct)
         item.save()
@@ -382,12 +388,15 @@ def item_edit(request, site_id, item_id):
                 update_option = request.POST.get('update_option')
                 location_option = request.POST.get('location_option')
                 modifier_option = request.POST.get('modifier_option')
+                prefix_option = request.POST.get('orig_prefix')
                 callno_option = request.POST.get('orig_callno')
+                suffix_option = request.POST.get('orig_suffix')
                 suppress_option = request.POST.get('suppress_item')
                 update_status = True
 
                 if update_option == 'Cat':
-                    update_status = opensrf.ils_item_update(item.barcode, callno_option,
+                    update_status = opensrf.ils_item_update(item.barcode, prefix_option,
+                                                            callno_option, suffix_option,
                                                             modifier_option, location_option)
                     # we need to carry over suppress flag for instances where a call number
                     # is modified for a second copy - this might be a common workflow
@@ -401,7 +410,9 @@ def item_edit(request, site_id, item_id):
                 if update_status and update_option == 'One':
                     item.circ_desk = location_option
                     item.circ_modifier = modifier_option
+                    item.orig_prefix = prefix_option
                     item.orig_callno = callno_option
+                    item.orig_suffix = suffix_option
                     item.save()
 
                 if not update_status:
@@ -411,7 +422,9 @@ def item_edit(request, site_id, item_id):
                 if update_option == 'Zap':
                     item.evergreen_update = ''
                     item.barcode = ''
+                    item.orig_prefix = ''
                     item.orig_callno = ''
+                    item.orig_suffix = ''
                     item.circ_modifier = ''
                     item.circ_desk = ''
                     item.save()

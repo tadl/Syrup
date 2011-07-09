@@ -120,7 +120,9 @@ searchtext = _('search this site...')
 		  <div py:if="edit and user.is_staff">
             <span><i>Source: </i></span>
 		    <span py:if="item.circ_modifier">${item.circ_modifier}, </span>
+		    <span py:if="item.orig_prefix">${item.orig_prefix}, </span>
 		    <span py:if="item.orig_callno">${item.orig_callno}, </span>
+		    <span py:if="item.orig_suffix">${item.orig_suffix}, </span>
 		    <span py:if="item.circ_desk">desk - ${item.circ_desk}</span>
 		  </div>
       </div>
