@@ -283,6 +283,7 @@ def _revert_parms(request, source_site):
             if barcode and orig_call and orig_desk and orig_modifier:
                 update_status = opensrf.ils_item_update(barcode, orig_prefix, orig_call,
                                     orig_suffix, orig_modifier, orig_desk)
+                # print "update_status", update_status
         if update_status:
             for sub in subitems:
                 revert_item(parent, sub)

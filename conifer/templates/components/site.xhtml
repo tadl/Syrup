@@ -118,12 +118,24 @@ searchtext = _('search this site...')
 		<span py:if="item.source_title"><i>${item.source_title}.</i></span>
 		<span py:if="item.volume or item.issue"><i>${item.volume}</i>(${item.issue}), ${item.pages}.</span>
 		  <div py:if="edit and user.is_staff">
-            <span><i>Source: </i></span>
-		    <span py:if="item.circ_modifier">${item.circ_modifier}, </span>
-		    <span py:if="item.orig_prefix">${item.orig_prefix}, </span>
-		    <span py:if="item.orig_callno">${item.orig_callno}, </span>
-		    <span py:if="item.orig_suffix">${item.orig_suffix}, </span>
-		    <span py:if="item.circ_desk">desk - ${item.circ_desk}</span>
+            <span><i>Revert Parms: </i></span>
+		    <span py:for="k,v in item.CALLNO_PREFIX_CHOICES">
+                <span py:if="int(item.orig_prefix)==int(k)">
+                   ${v} 
+                </span>
+            </span>
+		    <span py:if="item.orig_callno">${item.orig_callno}</span>
+		    <span py:for="k,v in item.CALLNO_SUFFIX_CHOICES">
+                <span py:if="int(item.orig_suffix)==int(k)">
+                   ${v} 
+                </span>
+            </span>
+		    <span py:if="item.circ_modifier">(${item.circ_modifier}) </span>
+		    <span py:for="k,v in item.CIRC_DESK_CHOICES">
+                <span py:if="item.circ_desk==k">
+                   ${v} 
+                </span>
+            </span>
 		  </div>
       </div>
       <div class="forbidden_notice" py:if="forbidden">Awaiting copyright clearance: Not available to students.</div>
@@ -140,7 +152,7 @@ searchtext = _('search this site...')
 		  </span>
 		</div>
 	  </div>
-      <!-- !to show a full tree, uncomment the following: -->
+      <!-- !to hide the full tree, comment the following: -->
       ${show_tree(subs, edit)}
     </li>
     </span>

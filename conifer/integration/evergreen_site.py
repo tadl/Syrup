@@ -169,7 +169,7 @@ class EvergreenIntegration(object):
     @memoize(timeout=CACHE_TIME)
     def _item_status(self, bib_id):
         def sort_out_status(counts, version, sort_lib, sort_desk, sort_avail, 
-            sort_callno, sort_dueinfo, sort_circmod, sort_alldues):
+            sort_callno, sort_dueinfo, sort_circmod, sort_alldues, prefix, suffix):
 
             lib = sort_lib
             desk = sort_desk
@@ -189,6 +189,11 @@ class EvergreenIntegration(object):
                 callsuffix = ''
                 if len(callno) == 0:
                     callno = callnum
+
+                if prefix:
+                    callno = prefix + callno
+                if suffix:
+                    callno = callno + suffix
                 avail_here = stats.get(self.AVAILABLE, 0)
                 avail_here += stats.get(self.RESHELVING, 0)
                 anystatus_here = sum(stats.values())
@@ -328,9 +333,13 @@ class EvergreenIntegration(object):
 
         #TODO: clean this up, a hackish workaround for now
         if version >= 2.1:
-            for org, skip1, callnum, skip2, loc, stats in counts:
+            for org, prefix, callnum, suffix, loc, stats in counts:
+                if len(prefix) > 0:
+                    prefix += ' '
+                if len(suffix) > 0:
+                    suffix = ' ' + suffix
                 lib, desk, avail, callno, dueinfo, circmod, alldues = sort_out_status(counts, 
-                    version, lib, desk, avail, callno, dueinfo, circmod, alldues)
+                    version, lib, desk, avail, callno, dueinfo, circmod, alldues, prefix, suffix)
         else:
             for org, callnum, loc, stats in counts:
                 lib, desk, avail, callno, dueinfo, circmod, alldues = sort_out_status(counts, 
