@@ -103,10 +103,6 @@ def ils_item_info(barcode):
    
         	call_num = req.send()
 		if call_num:
-			print "req", call_num
-			print "label", call_num.label()
-			print "prefix", call_num.prefix()
-			print "suffix", call_num.suffix()
 			return barcode_copy.circ_modifier(), barcode_copy.location().id(), call_num.prefix(), call_num.label(), call_num.suffix()
     except:
             print "problem retrieving item info"
@@ -301,7 +297,9 @@ def ils_patron_lookup(name, is_staff=True, is_usrname=False, is_everyone=False):
 
 def ils_item_update(barcode, prefix, callno, suffix, modifier, location):
     item_changed = False
+    prefix_changed = False
     callno_changed = False
+    suffix_changed = False
 
     try:
     	# We get our copy object
@@ -321,8 +319,12 @@ def ils_item_update(barcode, prefix, callno, suffix, modifier, location):
         call_num = req.send()
 
 	    # are there changes?
+        if call_num.prefix() != prefix:
+            prefix_changed = True
         if call_num.label() != callno:
             callno_changed = True
+        if call_num.suffix() != suffix:
+            suffix_changed = True
 
 	    # there might be nothing to do
 	    if not item_changed and not callno_changed:
@@ -344,17 +346,19 @@ def ils_item_update(barcode, prefix, callno, suffix, modifier, location):
                 'open-ils.cat.asset.copy.fleshed.batch.update',
                 authtoken, acp, False, None)
             result = req.send()
-		
             # print "item result", result
 
 	        
         # on to call number
-        if authtoken and callno_changed:
+        if authtoken and prefix_changed:
             call_num.prefix(prefix)
+        if authtoken and callno_changed:
             call_num.label(callno)
+        if authtoken and suffix_changed:
             call_num.suffix(suffix)
-            call_num.ischanged(True)
 
+        if authtoken and (prefix_changed or callno_changed or suffix_changed):
+            call_num.ischanged(True)
             # volume.fleshed.batch.update expects an array of call number objects 
             acn = [call_num]
             req = request('open-ils.cat', 
@@ -362,7 +366,7 @@ def ils_item_update(barcode, prefix, callno, suffix, modifier, location):
                 authtoken, acn, False, None)
 		
             result = req.send()
-            # print "callno result", result
+            print "callno result", result
         
             #clean up session
             session_cleanup(authtoken)

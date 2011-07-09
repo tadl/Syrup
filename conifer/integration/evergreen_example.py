@@ -31,6 +31,21 @@ class EvergreenExampleIntegration(EvergreenIntegration):
         ('598', 'Circulating Collection'),
         ]
 
+    # Options for call number prefixes
+    PREFIX_CHOICES = [
+        ('-1', ''),
+        ('1', 'FIC'),
+        ('2', 'NF'),
+        ]
+
+    # Options for call number suffixes
+    SUFFIX_CHOICES = [
+        ('-1', ''),
+        ('1', 'OV'),
+        ('2', 'BIO'),
+        ]
+
+
 
     def external_person_lookup(self, userid):
         """

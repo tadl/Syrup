@@ -675,10 +675,22 @@ class Item(BaseModel):
     isbn         = m.CharField(max_length=17, null=True, blank=True)
     #barcode
     barcode      = m.CharField(max_length=14, null=True, blank=True)
+    # These are defined in integration class
+    CALLNO_PREFIX_CHOICES = getattr(integration_class, 'PREFIX_CHOICES',
+                                       [(-1, '')])
+
+    orig_prefix = m.IntegerField(choices=CALLNO_PREFIX_CHOICES,
+                                default=CALLNO_PREFIX_CHOICES[0][0], blank=False)
+
     #orig_callno: this is a copy of the call number associated with the barcode
-    orig_prefix  = m.CharField(max_length=25, null=True, blank=True)
     orig_callno  = m.CharField(max_length=64, null=True, blank=True)
-    orig_suffix  = m.CharField(max_length=25, null=True, blank=True)
+
+    # These are defined in integration class
+    CALLNO_SUFFIX_CHOICES = getattr(integration_class, 'SUFFIX_CHOICES',
+                                       [(-1, '')])
+
+    orig_suffix = m.IntegerField(choices=CALLNO_SUFFIX_CHOICES,
+                                default=CALLNO_SUFFIX_CHOICES[0][0], blank=False)
 
     # Options for evergreen updates
     EVERGREEN_UPDATE_CHOICES = getattr(integration_class, 'UPDATE_CHOICES',

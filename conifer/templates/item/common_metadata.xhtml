@@ -82,7 +82,11 @@ if len(authors) < 2:
       		<tr>
 		<th>Call Number Prefix</th>
 		<td class="cat_opts">
-		<input type="text" name="orig_prefix" value="${item.orig_prefix}"/>
+		<select name="orig_prefix">
+			<option py:for="k,v in item.CALLNO_PREFIX_CHOICES"
+				py:attrs="{'selected': item.orig_prefix==k or None}"
+				value="${k}" py:content="v"/>
+		</select>
 		</td>
       		</tr>
       		<tr>
@@ -94,7 +98,11 @@ if len(authors) < 2:
       		<tr>
 		<th>Call Number Suffix</th>
 		<td class="cat_opts">
-		<input type="text" name="orig_suffix" value="${item.orig_suffix}"/>
+		<select name="orig_suffix">
+			<option py:for="k,v in item.CALLNO_SUFFIX_CHOICES"
+				py:attrs="{'selected': item.orig_suffix==k or None}"
+				value="${k}" py:content="v"/>
+		</select>
 		</td>
       		</tr>
     	</tbody>
