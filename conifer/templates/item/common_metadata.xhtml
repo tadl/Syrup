@@ -84,7 +84,7 @@ if len(authors) < 2:
 		<td class="cat_opts">
 		<select name="orig_prefix">
 			<option py:for="k,v in item.CALLNO_PREFIX_CHOICES"
-				py:attrs="{'selected': item.orig_prefix==k or None}"
+				py:attrs="{'selected': int(item.orig_prefix)==int(k) or None}"
 				value="${k}" py:content="v"/>
 		</select>
 		</td>
@@ -100,7 +100,7 @@ if len(authors) < 2:
 		<td class="cat_opts">
 		<select name="orig_suffix">
 			<option py:for="k,v in item.CALLNO_SUFFIX_CHOICES"
-				py:attrs="{'selected': item.orig_suffix==k or None}"
+				py:attrs="{'selected': int(item.orig_suffix)==int(k) or None}"
 				value="${k}" py:content="v"/>
 		</select>
 		</td>
