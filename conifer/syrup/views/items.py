@@ -325,9 +325,9 @@ def item_add_cat_search(request, site_id, item_id):
                                         barcode = barcode,
                                         circ_modifier = eg_modifier,
                                         circ_desk = eg_location,
-                                        orig_prefix = int(eg_prefix),
+                                        orig_prefix = eg_prefix,
                                         orig_callno = eg_callno,
-                                        orig_suffix = int(eg_suffix),
+                                        orig_suffix = eg_suffix,
                                         marcxml=raw_pickitem,
                                         **dct)
         else:
@@ -339,9 +339,9 @@ def item_add_cat_search(request, site_id, item_id):
                                         barcode = barcode,
                                         circ_modifier = eg_modifier,
                                         circ_desk = eg_location,
-                                        orig_prefix = int(eg_prefix),
+                                        orig_prefix = eg_prefix,
                                         orig_callno = eg_callno,
-                                        orig_suffix = int(eg_suffix),
+                                        orig_suffix = eg_suffix,
                                         marcxml=raw_pickitem,
                                         **dct)
         item.save()
