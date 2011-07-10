@@ -30,25 +30,185 @@ Syrup needs time periods for controlling when course sites are to be made
 available. After you log in the first time, the first stopping point should
 probably be the 'Admin' link.
 
-image:images/admin.jpg[Admin Link]
+image:images/admin.jpg[admin link]
 
 We use 'Terms' to define the period for which course materials will be 'active'.
 
-image:images/term_menu.jpg[Admin Menu]
+image:images/term_menu.jpg[admin menu]
 
 You can define as many terms as you want but you need at least one to add
 materials to Syrup. In this case, we will define one for the summer.
 
-image:images/term_example.jpg[Term Example]
+image:images/term_example.jpg[term example]
 
 You also need at least one 'Service Desk' if you intend to offer physical
 materials for reserves. 
 
-image:images/desk_menu.jpg[Service Desk Menu Option]
+image:images/desk_menu.jpg[service desk menu option]
 
 A service desk in Syrup is really just a helpful cue to the user where to
 request materials. The name does not have to match the wording in your ILS
 or elsewhere. The service desk can also be given a URL-friendly name for 
 linking.
 
-image:images/desk_example.jpg[Service Desk Menu Option]
+image:images/desk_example.jpg[service desk menu option]
+
+The main purpose of Syrup is to support course work and we use the 'Courses'
+link to add the ones we need. The University of Windsor uses a very 
+cool option written by Graham Fawcett to automatically update course 
+information and memberships from a campus directory service. This
+level of integration is possible if this information is stored 
+in an accessible place.
+
+image:images/course_menu.jpg[course menu option]
+
+Each course is assigned a code and associated with a department. 
+
+image:images/course_example.jpg[course option]
+
+We add as many courses as needed to get started.
+
+image:images/course_examples.jpg[course option]
+
+[underline]#Finally#, we can create a 'Course Site'.
+
+image:images/site_menu.jpg[site option]
+
+Syrup uses an autocomplete function, there is an option to search everyone
+or to limit searches. When you type in a name, the text box will turn yellow
+to indicate that the search has started.
+
+image:images/lookup_example.jpg[autocomplete in action]
+
+NOTE: You can always use a barcode to look up anyone in the patron
+database.
+
+Choose from the resulting list to add an instructor. Syrup uses a lot of
+drop-down lists based on the configuration. After you specify all of the
+parameters for a course, the site permissions can be set.
+
+image:images/perm_example.jpg[permissions list]
+
+Configuring Evergreen for Authentication and Updates
+----------------------------------------------------
+
+Syrup uses a 'local_settings.py' file for base configuration parameters and an 
+'intergration class' for specific interactions. The 'local_settings'
+parameters specific to Evergreen are listed below.
+
+.....................................................................
+EVERGREEN_SERVER = 'eg-training.cwmars.org'
+EVERGREEN_VERSION = 2.1
+RESERVES_DESK_NAME = 'Reserves' 
+SYRUP_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
+SYRUP_DUE_FORMAT = '%b %d %Y, %r'
+ATTACHMENT_REGEXP ='\w*DVD\s?|\w*CD\s?|\w[Gg]uide\s?|\w[Bb]ooklet\s?|\w*CD\-ROM\s?'
+MIN_QUERY_LENGTH = 3
+
+# Note, in the Evergreen integration, commenting out Z3950_CONFIG or setting it
+# equal to None will result in OpenSRF being used for catalogue search instead
+# of Z39.50.
+
+# Z3950_CONFIG     = ('zed.concat.ca', 210, 'OWA')  #OWA,OSUL,CONIFER
+
+#----------------------------------------------------------------------
+# INTEGRATION_CLASS: name of a class to instantiate after the database models
+# have been initialized. This can be used for defining 'hook' functions, and
+# other late initializations. See the 'conifer.syrup.integration' module for
+# more information.
+
+INTEGRATION_CLASS = 'conifer.integration.mars.MarsIntegration'
+GATEWAY_SERVER = 'eg-training.cwmars.org'
+GATEWAY_URL = 'osrf-gateway-v1'
+OPENSRF_STAFF_USERID = 'staff'
+OPENSRF_STAFF_PW = 'passwordforstaff'
+OPENSRF_STAFF_ORG = 'BOYLSTON PUBLIC LIBRARY'
+OPENSRF_STAFF_WORKSTATION = 'BOYLSTON PUBLIC LIBRARY-Coordinator'
+OPENSRF_PERMIT_GRPS = [301]
+
+.....................................................................
+
+The intergation class is specified in 'local_settings' and contains the
+site-specific options. In Syrup, you need to specify the parameters for
+for all possible values for physical materials that will be reverted
+after the course is over.
+.....................................................................
+class MarsIntegration(EvergreenIntegration):
+
+    OSRF_CAT_SEARCH_ORG_UNIT = 28
+   
+    OPAC_LANG = 'en-US'
+    OPAC_SKIN = 'default'
+
+    # Options for circ modifiers
+    MODIFIER_CHOICES = [
+        ('CIRC', 'Normal'),
+        ('RSV2', '2 Hour'),
+        ]
+
+    # Options for circ desk
+    DESK_CHOICES = [
+        ('6329', 'Reserves'),
+        ('4548', 'Juv Fiction'),
+        ('4549', 'Juv Nonfiction'),
+        ('4552', 'Nonfiction'),
+        ]
+
+
+    # Options for call number prefixes
+    PREFIX_CHOICES = [
+        ('-1', ''),
+        ('1', 'FIC'),
+        ('2', 'NF'),
+        ('36', 'YA'),
+        ]
+
+    SUFFIX_CHOICES = [
+        ('-1', ''),
+        ('1', 'OV'),
+        ('2', 'BIO'),
+        ('816', 'Biography'),
+        ]
+.....................................................................
+
+This all comes together when adding physical materials to a course. The 
+options for new items are on the left. 
+
+image:images/item_options.jpg[course with no items added yet]
+
+Syrup can use Z39.50 for searching but with Evergreen, it makes more sense
+to fall back on Evergreen's base searching support. It is also possible to jump
+directly to a title using the barcode.
+
+image:images/barcode_search.jpg[fast-tracking search with barcode]
+
+When a title is first added, it may not have been pre-processed for
+reserves. This can be done from within Syrup using the 'Edit' option. Syrup
+can store the original item parameters and the option for updating the
+catalogue will not change Syrup. So, for example, here we change all of the
+parameters but choose the option for 'Catalogue'.
+
+image:images/item_parms.jpg[item parameters]
+
+NOTE: You can use the suppress option for working through multiple copies.
+This way all of the copies can be updated via Syrup.
+
+The item display should now reflect accurate status information.
+
+image:images/item_upd.jpg[title ready for viewing]
+
+There are two options for reverting parameters when a course is over. One
+is to use the title's 'Edit' option and update the Catalogue in the same
+way the parameters were set above. Since the parameters are stored in their
+original form, this can be done quite quickly.
+
+There is also a 'Revert Parameters' option which will change all the
+materials in a course back to the parameters stored in Syrup. 
+
+NOTE: The staff-only 'Revert Parms' display shows what Syrup has stored for
+a title.
+
+
+image:images/item_display.jpg[initial view of item]
+
+
