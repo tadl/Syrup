@@ -392,33 +392,29 @@ def item_edit(request, site_id, item_id):
                 callno_option = request.POST.get('orig_callno')
                 suffix_option = request.POST.get('orig_suffix')
                 suppress_option = request.POST.get('suppress_item')
-                update_status = True
+                update_status = False
 
+                #only update the Catalogue
                 if update_option == 'Cat':
                     update_status = opensrf.ils_item_update(item.barcode, prefix_option,
                                                             callno_option, suffix_option,
                                                             modifier_option, location_option)
-                    # we need to carry over suppress flag for instances where a call number
-                    # is modified for a second copy - this might be a common workflow
-                    if suppress_option == None:
-                        item.suppress_item = False
-                    else:
-                        item.suppress_item = True
-                    item.save()
 
-                #leave values alone if update failed
-                if update_status and update_option == 'One':
+                #only update Syrup
+                if update_option == 'One':
                     item.circ_desk = location_option
                     item.circ_modifier = modifier_option
                     item.orig_prefix = prefix_option
                     item.orig_callno = callno_option
                     item.orig_suffix = suffix_option
                     item.save()
+                    update_option = True
 
                 if not update_status:
                     return simple_message(_('Unable to update'),
                                           _('Sorry, unable to update at this time, please try again.'))
 
+                #wipe Syrup values
                 if update_option == 'Zap':
                     item.evergreen_update = ''
                     item.barcode = ''
