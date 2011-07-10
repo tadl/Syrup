@@ -408,7 +408,7 @@ def item_edit(request, site_id, item_id):
                     item.orig_callno = callno_option
                     item.orig_suffix = suffix_option
                     item.save()
-                    update_option = True
+                    update_status = True
 
                 if not update_status:
                     return simple_message(_('Unable to update'),
