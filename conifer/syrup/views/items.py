@@ -305,9 +305,9 @@ def item_add_cat_search(request, site_id, item_id):
         # TODO: the Leddy stuff here belongs in an integration-module function. [GF]
         # - no longer Leddy specific [AR]
 
-        eg_prefix   = ''
+        eg_prefix   = -1
         eg_callno   = ''
-        eg_suffix   = ''
+        eg_suffix   = -1
         eg_modifier = ''
         eg_location = ''
 
@@ -315,6 +315,10 @@ def item_add_cat_search(request, site_id, item_id):
         if bar_num and hasattr(settings, 'OPENSRF_STAFF_USERID'): # TODO: we need an explicit 'we do updates' flag
             barcode = bar_num
             eg_modifier, eg_location, eg_prefix, eg_callno, eg_suffix = opensrf.ils_item_info(barcode)
+            if not eg_prefix:
+                eg_prefix = -1
+            if not eg_suffix:
+                eg_suffix = -1
         if bibid:
             item = site.item_set.create(parent_heading=parent_item,
                                         title=dublin.get('dc:title','Untitled'),
