@@ -179,12 +179,6 @@ class EvergreenIntegration(object):
             circmod = sort_circmod
             alldues = sort_alldues
             try:
-                # Note: MassLNC requires this, need to add a version
-                # value to settings and consider required opensrf to
-                # to be installed for any evergreen site.
-                #
-                # for org, skip1, callnum, skip2, loc, stats in counts:
-
                 callprefix = ''
                 callsuffix = ''
                 if len(callno) == 0:
@@ -367,6 +361,7 @@ class EvergreenIntegration(object):
             for key in params.keys():
                 if key.find('?r') != -1:
                     bibid = params[key]
+                
             results = M.marcxml_to_records(I.url_to_marcxml(query))
             numhits = len(results)
         elif is_barcode:
