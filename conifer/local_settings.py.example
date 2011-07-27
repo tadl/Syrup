@@ -60,6 +60,8 @@ MIN_QUERY_LENGTH = 3
 # Set these for limiting options for status displays
 #EVERGREEN_STATUS_ORG = 28
 #EVERGREEN_STATUS_DEPTH = 1
+# Set this for limiting searching
+#EVERGREEN_SEARCH_DEPTH = 1
 
 # Note, in the Evergreen integration, commenting out Z3950_CONFIG or setting it
 # equal to None will result in OpenSRF being used for catalogue search instead

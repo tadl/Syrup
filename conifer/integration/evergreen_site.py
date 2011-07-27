@@ -391,9 +391,11 @@ class EvergreenIntegration(object):
                     raise NotImplementedError, \
                         'Your integration must provide a value for OSRF_CAT_SEARCH_ORG_UNIT.'
 
+                EVERGREEN_SEARCH_DEPTH = getattr(settings, 'EVERGREEN_SEARCH_DEPTH', 1)
                 superpage = E1('open-ils.search.biblio.multiclass.query',
                                {'org_unit': self.OSRF_CAT_SEARCH_ORG_UNIT,
-                                'depth': 1, 'limit': limit, 'offset': start-1,
+                                'depth': EVERGREEN_SEARCH_DEPTH, 
+                                'limit': limit, 'offset': start-1,
                                 'visibility_limit': 3000,
                                 'default_class': 'keyword'},
                                query, 1)
