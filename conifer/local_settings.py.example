@@ -57,6 +57,9 @@ SYRUP_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
 SYRUP_DUE_FORMAT = '%b %d %Y, %r'
 ATTACHMENT_REGEXP ='\w*DVD\s?|\w*CD\s?|\w[Gg]uide\s?|\w[Bb]ooklet\s?|\w*CD\-ROM\s?'
 MIN_QUERY_LENGTH = 3
+# Set these for limiting options for status displays
+#EVERGREEN_STATUS_ORG = 28
+#EVERGREEN_STATUS_DEPTH = 1
 
 # Note, in the Evergreen integration, commenting out Z3950_CONFIG or setting it
 # equal to None will result in OpenSRF being used for catalogue search instead
