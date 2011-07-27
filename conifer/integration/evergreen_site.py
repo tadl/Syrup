@@ -105,9 +105,6 @@ class EvergreenIntegration(object):
 
     USE_Z3950 = bool(getattr(settings, 'Z3950_CONFIG', None))
 
-    EVERGREEN_STATUS_ORG = getattr(settings, 'EVERGREEN_STATUS_ORG', 1)
-    EVERGREEN_STATUS_DEPTH = getattr(settings, 'EVERGREEN_STATUS_DEPTH', 0)
-
     TIME_FORMAT = getattr(settings, 'SYRUP_TIME_FORMAT', '%Y-%m-%dT%H:%M:%S')
     DUE_FORMAT  = getattr(settings, 'SYRUP_DUE_FORMAT', '%b %d %Y, %r')
 
@@ -122,7 +119,6 @@ class EvergreenIntegration(object):
         ('Cat', 'Catalogue'), 
         ('Zap', 'Remove from Syrup'), 
         ] 
-
 
 
     # ----------------------------------------------------------------------
@@ -322,6 +318,9 @@ class EvergreenIntegration(object):
         circmod = ''
         alldues = []
             
+        EVERGREEN_STATUS_ORG = getattr(settings, 'EVERGREEN_STATUS_ORG', 1)
+        EVERGREEN_STATUS_DEPTH = getattr(settings, 'EVERGREEN_STATUS_DEPTH', 0)
+
         counts = E1(OPENSRF_COPY_COUNTS, bib_id, EVERGREEN_STATUS_ORG, EVERGREEN_STATUS_DEPTH)
 
         version = getattr(settings, 'EVERGREEN_VERSION',
