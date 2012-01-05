@@ -115,8 +115,8 @@ class EvergreenIntegration(object):
 
     # Used if you're doing updates to Evergreen from Syrup.
     UPDATE_CHOICES = [ 
-        ('One', 'Syrup only'), 
         ('Cat', 'Catalogue'), 
+        ('One', 'Syrup only'), 
         ('Zap', 'Remove from Syrup'), 
         ] 
 
@@ -217,7 +217,7 @@ class EvergreenIntegration(object):
 
                     # Another MassLNC variation, needs same refactoring as above
                     if version >= 2.1:
-                        copyids = E1(OPENSRF_CN_CALL, bib_id, [callnum], org)
+                        copyids = E1(OPENSRF_CN_CALL, bib_id, [prefix,callnum,suffix], org)
                     else:
                         copyids = E1(OPENSRF_CN_CALL, bib_id, callnum, org)
 
