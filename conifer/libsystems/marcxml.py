@@ -35,7 +35,10 @@ def record_to_dictionary(rec, multiples=True):
             c = sf.attrib['code']
             v = sf.text or ''
             dct.setdefault(t+c, []).append(v)
-    dct = dict((k,'\n'.join(v or [])) for k,v in dct.items())
+    try:
+        dct = dict((k,'\n'.join(v or [])) for k,v in dct.items())
+    except TypeError:
+        print "Unable to extract all of the record"
     return dct
 
 def marcxml_to_dictionary(rec, multiples=False):
@@ -59,7 +62,11 @@ def marcxml_to_dictionary(rec, multiples=False):
                 c = sf.attrib['code']
                 v = sf.text or ''
                 dct.setdefault(t+c, []).append(v)
-        dct = dict((k,'\n'.join(v or [])) for k,v in dct.items())
+        try:
+            dct = dict((k,'\n'.join(v or [])) for k,v in dct.items())
+        except TypeError:
+            print "Unable to extract all of the record"
+            
         out.append(dct)
     if multiples is False:
         return out and out[0] or None
