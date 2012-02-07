@@ -52,7 +52,9 @@ CAS_SERVER_URL     = 'https://uwinid.uwindsor.ca/cas/'
 
 EVERGREEN_SERVER = 'www.concat.ca'
 EVERGREEN_VERSION = 2.1
-RESERVES_DESK_NAME = 'Leddy: Course Reserves - Main Bldng - 1st Flr - Reserve Counter at Circulation Desk'
+
+# list of locations
+RESERVES_DESK_NAME = ['Leddy: Course Reserves - Main Bldng - 1st Flr - Reserve Counter at Circulation Desk', 'Leddy: Reserves 2']
 SYRUP_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
 SYRUP_DUE_FORMAT = '%b %d %Y, %r'
 ATTACHMENT_REGEXP ='\w*DVD\s?|\w*CD\s?|\w[Gg]uide\s?|\w[Bb]ooklet\s?|\w*CD\-ROM\s?'

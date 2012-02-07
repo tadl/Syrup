@@ -197,7 +197,7 @@ class EvergreenIntegration(object):
                 # attachment test
                 attachtest = re.search(self.IS_ATTACHMENT, callnum)
 
-                if loc == self.RESERVES_DESK_NAME:
+                if loc in self.RESERVES_DESK_NAME:
                     desk += anystatus_here
                     avail += avail_here
                     dueinfo = ''
@@ -230,7 +230,7 @@ class EvergreenIntegration(object):
                         if thisloc:
                             thisloc = thisloc.get("name")
 
-                        if thisloc == self.RESERVES_DESK_NAME:
+                        if thisloc in self.RESERVES_DESK_NAME:
                             bringfw = attachtest
 
                             # multiple volumes
