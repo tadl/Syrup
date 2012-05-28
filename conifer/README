@@ -33,9 +33,10 @@ Third-party Python dependencies:
 
 (You'll need 'setuptools' in order to have 'easy_install'.)
 
-Windows is very similar, see:
+Windows is very similar, use setuptools. The trickiest dependency might
+be lxml, it is possible to get a binary for it here:
 
-http://groups.google.com/group/syrup-reserves-discuss/web/installing-syrup-in-windows
+http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml
 
 Getting this thing to run
 -------------------------

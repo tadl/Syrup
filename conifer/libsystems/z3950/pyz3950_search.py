@@ -1,13 +1,8 @@
-# z39.50 search using yaz-client. 
-# dependencies: yaz-client, pexpect
-
-# I found that pyz3950.zoom seemed wonky when testing against conifer
-# z3950, so I whipped up this expect-based version instead.
+# use pyz3950 for z39.50 goodness
 
 import warnings
 import re
 import sys
-from ..marcxml import marcxml_to_dictionary
 from xml.etree import ElementTree as ET
 
 try:
@@ -28,15 +23,11 @@ except ImportError:
 # as generic as it gets
 from PyZ3950 import zoom, zmarc
 
-
-LOG = None              #  for pexpect debugging, try LOG = sys.stderr
+LOG = None              
 GENERAL_TIMEOUT = 40
 PRESENT_TIMEOUT = 60
 
 def search(host, port, database, query, start=1, limit=10):
-
-
-    query = query.encode('utf-8') # is this okay? Is it enough??
 
     conn = zoom.Connection(host, port)
     conn.databaseName = database
@@ -89,8 +80,8 @@ def search(host, port, database, query, start=1, limit=10):
 
 if __name__ == '__main__':
     tests = [
-        ('zed.concat.ca:210', 'OSUL', 'chanson'),
+        ('zed.concat.ca', 210, 'OSUL', 'chanson'),
         ]
-    for host, db, query in tests:
-        print (host, db, query)
-        print len(search(host, db, query, limit=33))
+    for host, port, db, query in tests:
+        print (host, port, db, query)
+        print len(search(host, port, db, query, limit=10))
