@@ -33,8 +33,12 @@ Third-party Python dependencies:
 
 (You'll need 'setuptools' in order to have 'easy_install'.)
 
+If lxml gives you trouble in linux, install python-xml instead:
+
+sudo apt-get install python-lxml
+
 Windows is very similar, use setuptools. The trickiest dependency might
-be lxml, it is possible to get a binary for it here:
+be lxml here as well, it is possible to get a binary for it:
 
 http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml
 
@@ -45,9 +49,8 @@ This might work:
 
 * Copy local_settings.py.example to local_settings.py, and review the settings
 
-* If you want to use Evergreen authentication and/or plan to update the catalogue
-from syrup, you must fill in all the commented values in local_settings and
-set EVERGREEN_AUTHENTICATION to True
+* Django 1.4 and above uses a different syntax for database settings, this will
+work for syrup as well, see: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
 * ./manage.py syncdb
 
@@ -82,9 +85,18 @@ If you have an existing database, use south to deal with fields that have been a
 If you are an evergreen site
 ----------------------------
 
-Congratulations! Syrup can integrate closely with evergreen using OpenSRF, install the
-python bindings with OpenSRF on the machine where Syrup sits, and take note of the dnsmasq 
-section in the OpenSRF README.
+Congratulations! Status information can be obtained without any additional
+packages.
+
+If you want to use Evergreen authentication and/or plan to update the catalogue
+from syrup, you must fill in all the commented values in local_settings and
+set EVERGREEN_AUTHENTICATION to True and install OpenSRF. Remember to install 
+the python bindings with OpenSRF on the machine where Syrup sits, and 
+take note of the dnsmasq section in the OpenSRF README.
+
+You don't need to install the Evergreen server if it's not already there, but you do need
+to copy or link the Open-ILS/src/python/oils directory from the server distribution in 
+the active dist-packages folder, e.g. /usr/local/lib/python2.6/dist-packages
 
 Integration is carried out through an intergration class, for Windsor we use
 "conifer.integration.uwindsor.UWindsorIntegration", but this should be defined for your
