@@ -56,7 +56,8 @@ def marcxml_to_dictionary(rec, multiples=False):
         dct = {}
         for cf in r.findall('{http://www.loc.gov/MARC21/slim}controlfield'):
             t = cf.attrib['tag']
-            dct.setdefault(t, []).append(cf.text)
+            if not cf.text is None:
+               dct.setdefault(t, []).append(cf.text)
         for df in r.findall('{http://www.loc.gov/MARC21/slim}datafield'):
             t = df.attrib['tag']
             for sf in df.findall('{http://www.loc.gov/MARC21/slim}subfield'):
