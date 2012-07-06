@@ -213,7 +213,8 @@ class EvergreenIntegration(object):
                         else:
                             callprefix = callnum
                     else:
-                        callno = callnum
+                        if len(callno) == 0:
+                           callno = callnum
 
                     # Another MassLNC variation, needs same refactoring as above
                     if version >= 2.1:
