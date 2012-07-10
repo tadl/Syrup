@@ -56,7 +56,7 @@ EVERGREEN_VERSION = 2.1
 # list of locations
 RESERVES_DESK_NAME = ['Leddy: Course Reserves - Main Bldng - 1st Flr - Reserve Counter at Circulation Desk', 'Leddy: Reserves 2']
 SYRUP_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
-SYRUP_DUE_FORMAT = '%b %d %Y, %r'
+SYRUP_DUE_FORMAT = '%b %d %Y, %p'
 ATTACHMENT_REGEXP ='\w*DVD\s?|\w*CD\s?|\w[Gg]uide\s?|\w[Bb]ooklet\s?|\w*CD\-ROM\s?'
 MIN_QUERY_LENGTH = 3
 # Set these for limiting options for status displays

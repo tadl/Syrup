@@ -166,9 +166,10 @@ class EvergreenIntegration(object):
 
     @memoize(timeout=CACHE_TIME)
     def _item_status(self, bib_id):
-        def sort_out_status(counts, version, sort_lib, sort_desk, sort_avail, 
+        def sort_out_status(sort_vol, counts, version, sort_lib, sort_desk, sort_avail, 
             sort_callno, sort_dueinfo, sort_circmod, sort_alldues, prefix, suffix):
 
+            vol = sort_vol
             lib = sort_lib
             desk = sort_desk
             avail = sort_avail 
@@ -304,7 +305,7 @@ class EvergreenIntegration(object):
                 print "*** print_exc:"
                 traceback.print_exc()
         
-            return (lib, desk, avail, callno, dueinfo, circmod, alldues)
+            return (vol, lib, desk, avail, callno, dueinfo, circmod, alldues)
 
         # At this point, status information does not require the opensrf
         # bindings, I am not sure there is a use case where an evergreen
@@ -333,11 +334,11 @@ class EvergreenIntegration(object):
                     prefix += ' '
                 if len(suffix) > 0:
                     suffix = ' ' + suffix
-                lib, desk, avail, callno, dueinfo, circmod, alldues = sort_out_status(counts, 
+                vol, lib, desk, avail, callno, dueinfo, circmod, alldues = sort_out_status(vol, counts, 
                     version, lib, desk, avail, callno, dueinfo, circmod, alldues, prefix, suffix)
         else:
             for org, callnum, loc, stats in counts:
-                lib, desk, avail, callno, dueinfo, circmod, alldues = sort_out_status(counts, 
+                vol, lib, desk, avail, callno, dueinfo, circmod, alldues = sort_out_status(vol, counts, 
                     version, lib, desk, avail, callno, dueinfo, circmod, alldues)
             
         return (lib, desk, avail, callno, dueinfo, circmod, alldues)
