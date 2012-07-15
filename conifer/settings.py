@@ -17,6 +17,8 @@ DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
 
+# see local_settings.py.example for Django 1.4+ example
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -52,6 +54,9 @@ MEDIA_URL = ''
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
+
+# use STATIC_URL for Django 1.4+ and comment out ADMIN_MEDIA_PREFIX
+#STATIC_URL = '/syrup/djmedia/'
 ADMIN_MEDIA_PREFIX = '/syrup/djmedia/'
 
 # Make this unique, and don't share it with anybody.
@@ -63,6 +68,13 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.load_template_source',
 )
 
+# for Django 1.4+, use this
+#TEMPLATE_LOADERS = (
+#    'django.template.loaders.app_directories.Loader',
+#    'django.template.loaders.filesystem.Loader',
+#)
+
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -71,6 +83,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.locale.LocaleMiddleware',
     'babeldjango.middleware.LocaleMiddleware',
     'django.middleware.transaction.TransactionMiddleware',
+    # uncomment this for Django 1.4+
+    # 'django.contrib.messages.middleware.MessageMiddleware',
 )
 
 ROOT_URLCONF = 'conifer.urls'
@@ -80,6 +94,8 @@ TEMPLATE_DIRS = []
 INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    # uncomment this for Django 1.4+
+    # 'django.contrib.messages',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',

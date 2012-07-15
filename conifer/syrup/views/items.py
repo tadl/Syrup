@@ -271,9 +271,13 @@ def item_add_cat_search(request, site_id, item_id):
             return _access_denied(_('You are not an editor.'))
 
         if gethook('get_better_copy_of_marc'):
+            print "pick"
             pickitem_xml = callhook('get_better_copy_of_marc', raw_pickitem)
+            print "picked"
             raw_pickitem = unicode(ET.tostring(pickitem_xml))
+            print "raw"
             pickitem = marcxml_to_dictionary(pickitem_xml)
+            print "dict"
         else:
             pickitem = marcxml_to_dictionary(raw_pickitem)
         dublin = marcxml_dictionary_to_dc(pickitem)
@@ -388,6 +392,12 @@ def item_edit(request, site_id, item_id):
                     del data['author2']
             [setattr(item, k, v) for (k,v) in data.items()]
 
+                
+            suppress_option = request.POST.get('suppress_item')
+            # this is not always a problem but force just in case
+            if suppress_option is None:
+               item.suppress_item = False
+
             if item.barcode and item.item_type == 'PHYS' and hasattr(settings, 'OPENSRF_STAFF_USERID'): # TODO: we need an explicit 'we do updates' flag
                 update_option = request.POST.get('update_option')
                 location_option = request.POST.get('location_option')
@@ -395,7 +405,6 @@ def item_edit(request, site_id, item_id):
                 prefix_option = request.POST.get('orig_prefix')
                 callno_option = request.POST.get('orig_callno')
                 suffix_option = request.POST.get('orig_suffix')
-                suppress_option = request.POST.get('suppress_item')
                 update_status = False
 
                 #only update the Catalogue

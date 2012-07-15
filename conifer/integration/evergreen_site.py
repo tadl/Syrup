@@ -178,27 +178,27 @@ class EvergreenIntegration(object):
             circmod = sort_circmod
             alldues = sort_alldues
             try:
-                callprefix = ''
-                callsuffix = ''
-                if len(callno) == 0:
-                    callno = callnum
-
-                if prefix:
-                    callno = prefix + callno
-                if suffix:
-                    callno = callno + suffix
-                avail_here = stats.get(self.AVAILABLE, 0)
-                avail_here += stats.get(self.RESHELVING, 0)
-                anystatus_here = sum(stats.values())
-                lib += anystatus_here
-
-                # volume check - based on v.1, etc. in call number
-                voltest = re.search(r'\w*v\.\s?(\d+)', callnum)
-
-                # attachment test
-                attachtest = re.search(self.IS_ATTACHMENT, callnum)
-
                 if loc in self.RESERVES_DESK_NAME:
+                    callprefix = ''
+                    callsuffix = ''
+                    if len(callno) == 0:
+                       callno = callnum
+
+                    if prefix:
+                       callno = prefix + callno
+                    if suffix:
+                       callno = callno + suffix
+                    avail_here = stats.get(self.AVAILABLE, 0)
+                    avail_here += stats.get(self.RESHELVING, 0)
+                    anystatus_here = sum(stats.values())
+                    lib += anystatus_here
+
+                    # volume check - based on v.1, etc. in call number
+                    voltest = re.search(r'\w*v\.\s?(\d+)', callnum)
+
+                    # attachment test
+                    attachtest = re.search(self.IS_ATTACHMENT, callnum)
+
                     desk += anystatus_here
                     avail += avail_here
                     dueinfo = ''
@@ -216,7 +216,6 @@ class EvergreenIntegration(object):
                     else:
                            callno = prefix + callnum + suffix
 
-                    # Another MassLNC variation, needs same refactoring as above
                     if version >= 2.1:
                         copyids = E1(OPENSRF_CN_CALL, bib_id, [prefix,callnum,suffix], org)
                     else:
@@ -355,16 +354,23 @@ class EvergreenIntegration(object):
         barcode = ''
         bibid	= ''
         is_barcode = re.search('\d{14}', query)
-
         if query.startswith(self.OPAC_URL):
+            results = []
             # query is an Evergreen URL
             # snag the bibid at this point
-            params = dict([x.split("=") for x in query.split("&")])
-            for key in params.keys():
-                if key.find('?r') != -1:
-                    bibid = params[key]
+            if "=" in query and "&" in query:
+                params = dict([x.split("=") for x in query.split("&")])
+                for key in params.keys():
+                    if key.find('?r') != -1:
+                       bibid = params[key]
+                results = M.marcxml_to_records(I.url_to_marcxml(query))
+            else:
+                # likely template opac
+                url_nums = [int(s) for s in query.split('/') if s.isdigit()]
+                if len(url_nums) > 0:
+                   bib_id = url_nums[len(url_nums) - 1]
+                   results = M.marcxml_to_records(self.bib_id_to_marcxml(bib_id))
                 
-            results = M.marcxml_to_records(I.url_to_marcxml(query))
             numhits = len(results)
         elif is_barcode:
             results = []
@@ -474,7 +480,9 @@ class EvergreenIntegration(object):
         codes and $u holds the URLs.
         """
         # TODO: move this to local_settings
-        LIBCODE = 'OWA'					# Leddy
+        LIBCODE = 'OWA'			
+        if hasattr(settings, 'EVERGREEN_LIBCODE'):
+           LIBCODE = settings.EVERGREEN_OPAC_URL
         try:
             dct           = M.marcxml_to_dictionary(marc_string)
             words = lambda string: re.findall(r'\S+', string)
