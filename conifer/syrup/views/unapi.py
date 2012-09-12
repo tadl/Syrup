@@ -2,12 +2,15 @@ from lxml import etree
 
 from _common import *
 
-stylesheet = etree.parse(
-    file(HERE('templates/unapi/MARC21slim2MODS3-3.xsl')))
-
-xform = etree.XSLT(stylesheet)
-
 def unapi(request):
+    #sometimes apache does not seem to like doing this as part of the
+    #import step in __init__.py, and will hang on the request, so we
+    #do this each time
+    stylesheet = etree.parse(
+        file(HERE('templates/unapi/MARC21slim2MODS3-3.xsl')))
+
+    xform = etree.XSLT(stylesheet)
+
     id = request.GET.get('id')
     if not id:
         return g.render_xml('unapi/formats.xml', item=None)
