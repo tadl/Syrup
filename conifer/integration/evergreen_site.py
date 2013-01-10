@@ -444,9 +444,8 @@ class EvergreenIntegration(object):
         Given a bib ID, return either a URL for examining the bib record, or None.
         """
         if bib_id:
-            url = '%sopac/%s/skin/%s/xml/rdetail.xml?l=1&d=0&r=%s' % (
-                self.OPAC_URL, self.OPAC_LANG, self.OPAC_SKIN,
-                bib_id)
+            url = '%seg/opac/record/%s' % (
+                self.OPAC_URL, bib_id)
             return url
 
     if USE_Z3950:
