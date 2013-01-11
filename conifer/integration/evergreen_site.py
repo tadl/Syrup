@@ -19,7 +19,7 @@ try:
     OSRF_LIB_INSTALLED = True
 except ImportError:
     OSRF_LIB_INSTALLED = False
-
+    
 if OSRF_LIB_INSTALLED:
     from conifer.libsystems.evergreen.startup import ils_startup
 
@@ -481,14 +481,13 @@ class EvergreenIntegration(object):
         # TODO: move this to local_settings
         LIBCODE = 'OWA'			
         if hasattr(settings, 'EVERGREEN_LIBCODE'):
-           LIBCODE = settings.EVERGREEN_OPAC_URL
+           # LIBCODE = settings.EVERGREEN_OPAC_URL
+           LIBCODE = self.OPAC_URL
         try:
             dct           = M.marcxml_to_dictionary(marc_string)
             words = lambda string: re.findall(r'\S+', string)
             keys  = words(dct.get('8569'))
             urls  = words(dct.get('856u'))
-            print 'KEYS:', keys
-            print 'URLS:', urls
             return urls[keys.index(LIBCODE)]
         except:
             return None
