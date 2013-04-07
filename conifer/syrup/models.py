@@ -978,6 +978,7 @@ def highlight(text, phrase,
 # Activate the local integration module. We loaded the module at the top of
 # models.py, now we instantiate it.
 
+    
 if integration_class:
     initialize_hooks(integration_class())
 

@@ -5,12 +5,15 @@ import subprocess
 from django.conf                          import settings
 from urllib2 import urlopen
 from django.utils import simplejson
-from conifer.libsystems.evergreen import opensrf
+try:
+    from conifer.libsystems.evergreen import opensrf
+except ImportError:
+    print "evergreen access without opensrf library"
 
 
 class EvergreenExampleIntegration(EvergreenIntegration):
 
-    OSRF_CAT_SEARCH_ORG_UNIT = 28
+    OSRF_CAT_SEARCH_ORG_UNIT = 106
     
     OPAC_LANG = 'en-US'
     OPAC_SKIN = 'default'

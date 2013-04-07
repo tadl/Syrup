@@ -42,6 +42,7 @@ class CASBackend(backends.CASBackend):
         """Authenticates CAS ticket and retrieves user data"""
 
         user = super(CASBackend, self).authenticate(ticket, service)
+        print "user", user
         if user:
             user.maybe_decorate()
         return user
