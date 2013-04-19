@@ -354,6 +354,7 @@ class EvergreenIntegration(object):
         barcode = ''
         bibid	= ''
         is_barcode = re.search('\d{14}', query)
+
         if query.startswith(self.OPAC_URL):
             results = []
             # query is an Evergreen URL
@@ -366,11 +367,11 @@ class EvergreenIntegration(object):
                 results = M.marcxml_to_records(I.url_to_marcxml(query))
             else:
                 # likely template opac
-                url_nums = [int(s) for s in query.split('/') if s.isdigit()]
-                if len(url_nums) > 0:
-                   bib_id = url_nums[len(url_nums) - 1]
-                   results = M.marcxml_to_records(self.bib_id_to_marcxml(bib_id))
-                
+                # first seq of digits after a / should be the bibid
+                match = re.search(r'/(\d+)', query)
+                if match:
+                    bibid = match.group(1)
+                    results = M.marcxml_to_records(self.bib_id_to_marcxml(bibid))
             numhits = len(results)
         elif is_barcode:
             results = []
@@ -478,11 +479,10 @@ class EvergreenIntegration(object):
         856$u form an associative array, where $9 holds the institution
         codes and $u holds the URLs.
         """
-        # TODO: move this to local_settings
+
         LIBCODE = 'OWA'			
         if hasattr(settings, 'EVERGREEN_LIBCODE'):
-           # LIBCODE = settings.EVERGREEN_OPAC_URL
-           LIBCODE = self.OPAC_URL
+           LIBCODE = settings.EVERGREEN_LIBCODE
         try:
             dct           = M.marcxml_to_dictionary(marc_string)
             words = lambda string: re.findall(r'\S+', string)

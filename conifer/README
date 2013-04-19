@@ -101,4 +101,5 @@ the active dist-packages folder, e.g. /usr/local/lib/python2.6/dist-packages
 Integration is carried out through an intergration class, for Windsor we use
 "conifer.integration.uwindsor.UWindsorIntegration", but this should be defined for your
 institution. The "evergreen_example.py" file in the integration directory can be used as a
-model.
+model. The "term_catalogue" function is where the academic terms, e.g. Fall 2013, 
+are defined. We need to add an admin interface for this at some point.

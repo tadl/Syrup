@@ -76,8 +76,8 @@ class UWindsorIntegration(EvergreenIntegration):
         """
         # TODO: make this algorithmic.
         return [
-            ('2011S', '2011 Summer', date(2011,5,1), date(2011,9,1)),
-            ('2011F', '2011 Fall', date(2011,9,1), date(2011,12,31)),
+            ('2013S', '2013 Summer', date(2013,5,1), date(2013,9,1)),
+            ('2013F', '2013 Fall', date(2013,9,1), date(2013,12,31)),
             ]
 
     def _campus_info(self, name, *args):
