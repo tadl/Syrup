@@ -160,14 +160,104 @@ class EvergreenIntegration(object):
         """
         if not item.bib_id:
             return None
-        return self._item_status(item.bib_id)
+        return self._item_status(item.bib_id, item.barcode)
+
 
     CACHE_TIME = 300
 
     @memoize(timeout=CACHE_TIME)
-    def _item_status(self, bib_id):
-        def sort_out_status(sort_vol, counts, version, sort_lib, sort_desk, sort_avail, 
-            sort_callno, sort_dueinfo, sort_circmod, sort_alldues, prefix, suffix):
+    def _item_status(self, bib_id, barcode):
+
+        class copy_obj:
+           def __init__(self, circ_modifier, circs, part_label, part_sort):
+              self.circ_modifier = circ_modifier
+              self.circs = circs
+              self.part_label = part_label
+              self.part_sort = part_sort
+
+        #if a reserve title is specific to a barcode, there will not be more than one
+        def limit_counts(avail,lib,desk):
+           limit_avail = 0
+           limit_lib = 0
+           limit_desk = 0
+           if avail >= 1:
+              limit_avail = 1
+           if lib >= 1:
+              limit_lib = 1
+           if desk >= 1:
+              limit_desk = 1
+           return limit_avail, limit_lib, limit_desk
+           
+           
+        def get_copydetails(barcode,copyids,reserves_loc):
+           copy_list = []
+
+           for copyid in copyids:
+              circinfo = E1(OPENSRF_FLESHED2_CALL, copyid)
+              circbarcode = None
+              if barcode is not None:
+                  circbarcode = circinfo.get("barcode")
+             
+              thisloc = circinfo.get("location")
+
+              if thisloc:
+                  thisloc = thisloc.get("name")
+
+              if thisloc in reserves_loc and barcode==circbarcode:
+                  circ_modifier = circinfo.get("circ_modifier")
+                  circs = circinfo.get("circulations")
+                  parts = circinfo.get("parts")
+                  part_label = ''
+                  part_sort = None
+                  part = None
+                  if parts:
+                      part = parts[0]
+                  if part:
+                      part_label = ' ' + part.get("label")
+                      part_sort = part.get("label_sortkey")
+
+                  copy_list.append(copy_obj(circ_modifier,circs,part_label,part_sort))
+
+           return sorted(copy_list, key=lambda copy: copy.part_sort)
+
+        def get_dueinfo(callprefix,callsuffix,callno,earliestdue,attachtest,voltest,sort_callno,bringfw,dueinfo):
+            tmpinfo = ''
+
+            _callprefix = callprefix
+            _callsuffix = callsuffix
+            _callno = callno
+            _dueinfo = dueinfo
+
+            if voltest:
+                if (int(voltest.group(1)) > vol):
+                    if len(_dueinfo) > 0:
+                        _dueinfo = _dueinfo + "/"
+                    _dueinfo = _dueinfo + voltest.group(0) + ': ' + time.strftime(self.DUE_FORMAT,earliestdue)
+                else:
+                    tmpinfo = _dueinfo
+                    _dueinfo = voltest.group(0) + ': ' + time.strftime(self.DUE_FORMAT,earliestdue)
+                    if len(tmpinfo) > 0:
+                        _dueinfo = _dueinfo + "/" + tmpinfo
+                _callprefix = _callsuffix = ''
+            elif attachtest:
+                tmpinfo = _dueinfo
+                _dueinfo = attachtest.group(0) + ': ' + time.strftime(self.DUE_FORMAT,earliestdue)
+                if len(_callno) > 0:
+                    _callno = _callno + '/' + sort_callno
+                    _callprefix = _callsuffix = ''
+                else:
+                    _callno = sort_callno
+                if len(tmpinfo) > 0:
+                    _dueinfo = _dueinfo + "/" + tmpinfo
+
+            if not bringfw:
+                _dueinfo = time.strftime(self.DUE_FORMAT,earliestdue)
+                _callno = sort_callno
+
+            return _dueinfo,_callno,_callprefix,_callsuffix
+
+        def sort_out_status(barcode, sort_vol, counts, version, sort_lib, sort_desk, sort_avail, 
+            sort_callno, sort_dueinfo, sort_circmod, sort_allcalls, sort_alldues, prefix, suffix):
 
             vol = sort_vol
             lib = sort_lib
@@ -176,13 +266,13 @@ class EvergreenIntegration(object):
             callno = sort_callno 
             dueinfo = sort_dueinfo
             circmod = sort_circmod
+            allcalls = sort_allcalls
             alldues = sort_alldues
+
             try:
                 if loc in self.RESERVES_DESK_NAME:
                     callprefix = ''
                     callsuffix = ''
-                    if len(callno) == 0:
-                       callno = callnum
 
                     if prefix:
                        callno = prefix + callno
@@ -194,10 +284,10 @@ class EvergreenIntegration(object):
                     lib += anystatus_here
 
                     # volume check - based on v.1, etc. in call number
-                    voltest = re.search(r'\w*v\.\s?(\d+)', callnum)
+                    voltest = re.search(r'\w*v\.\s?(\d+)', callno)
 
                     # attachment test
-                    attachtest = re.search(self.IS_ATTACHMENT, callnum)
+                    attachtest = re.search(self.IS_ATTACHMENT, callno)
 
                     desk += anystatus_here
                     avail += avail_here
@@ -205,106 +295,84 @@ class EvergreenIntegration(object):
 
                     if (voltest and vol > 0 ):
                         if (int(voltest.group(1)) > vol):
-                            callsuffix = "/" + callnum
+                            callsuffix = "/" + callno
                         else:
-                            callprefix = callnum + "/"
+                            callprefix = callno + "/"
                     elif attachtest and callno.find(attachtest.group(0)) == -1:
                         if len(callno) > 0:
-                            callsuffix = "/" + callnum
+                            callsuffix = "/" + callno
                         else:
-                            callprefix = callnum
+                            callprefix = callno
                     else:
-                           callno = prefix + callnum + suffix
+                           callno = prefix + callno + suffix
 
                     if version >= 2.1:
-                        copyids = E1(OPENSRF_CN_CALL, bib_id, [prefix,callnum,suffix], org)
+                        copyids = E1(OPENSRF_CN_CALL, bib_id, [prefix,sort_callno,suffix], org)
                     else:
-                        copyids = E1(OPENSRF_CN_CALL, bib_id, callnum, org)
+                        copyids = E1(OPENSRF_CN_CALL, bib_id, sort_callno, org)
+
+                    copies = get_copydetails(barcode,copyids,self.RESERVES_DESK_NAME)
+                    if barcode is not None:
+                        avail = lib = desk = 1
 
                     # we want to return the resource that will be returned first if
                     # already checked out
-                    for copyid in copyids:
-                        circinfo = E1(OPENSRF_FLESHED2_CALL, copyid)
+                    for copy in copies:
+                        if copy.part_label:
+                            #print "callno", callno
+                            #print "sort_callno", sort_callno
+                            callno = sort_callno + " " + copy.part_label
+                            allcalls.append([callno,1])
 
-                        thisloc = circinfo.get("location")
-                        if thisloc:
-                            thisloc = thisloc.get("name")
+                        bringfw = attachtest
 
-                        if thisloc in self.RESERVES_DESK_NAME:
-                            bringfw = attachtest
+                        # multiple volumes in identified in call number
+                        if voltest and callno.find(voltest.group(0)) == -1:
+                            bringfw = True
 
-                            # multiple volumes
-                            if voltest and callno.find(voltest.group(0)) == -1:
-                                bringfw = True
+                        if copy.circs and isinstance(copy.circs, list):
+                            circ = copy.circs[0]
+                            rawdate = circ.get("due_date")
+                            #remove offset info, %z is flakey for some reason
+                            rawdate = rawdate[:-5]
+                            duetime = time.strptime(rawdate, self.TIME_FORMAT)
 
-                            if len(circmod) == 0:
-                                circmod = circinfo.get("circ_modifier")
-                            circs = circinfo.get("circulations")
+                        if (avail == 0 or bringfw) and copy.circs and len(copy.circs) > 0:
+                            if len(dueinfo) == 0 or bringfw:
+                                earliestdue = duetime
+                                dueinfo,callno,callprefix,callsuffix = get_dueinfo(callprefix,callsuffix,callno,
+                                   earliestdue,attachtest,voltest,sort_callno,bringfw,dueinfo)
 
-                            if circs and isinstance(circs, list):
-                                circ = circs[0]
-                                rawdate = circ.get("due_date")
-                                #remove offset info, %z is flakey for some reason
-                                rawdate = rawdate[:-5]
-                                duetime = time.strptime(rawdate, self.TIME_FORMAT)
+                            # way too wacky to sort out embedded vols for this
+                            if duetime < earliestdue and not bringfw:
+                                earliestdue = duetime
+                                dueinfo = time.strftime(self.DUE_FORMAT,earliestdue)
 
-                            if (avail == 0 or bringfw) and circs and len(circs) > 0:
-                                if len(dueinfo) == 0 or bringfw:
-                                    earliestdue = duetime
-                                    if voltest:
-                                        if (int(voltest.group(1)) > vol):
-                                            if len(dueinfo) > 0:
-                                                dueinfo = dueinfo + "/"
-                                            dueinfo = dueinfo + voltest.group(0) + ': ' + time.strftime(self.DUE_FORMAT,earliestdue)
-                                        else:
-                                            tmpinfo = dueinfo
-                                            dueinfo = voltest.group(0) + ': ' + time.strftime(self.DUE_FORMAT,earliestdue)
-                                            if len(tmpinfo) > 0:
-                                                dueinfo = dueinfo + "/" + tmpinfo
-                                        callprefix = callsuffix = ''
-                                    elif attachtest:
-                                        tmpinfo = dueinfo
-                                        dueinfo = attachtest.group(0) + ': ' + time.strftime(self.DUE_FORMAT,earliestdue)
-                                        if len(callno) > 0:
-                                            callno = callno + '/' + callnum
-                                            callprefix = callsuffix = ''
-                                        else:
-                                            callno = callnum
-                                        if len(tmpinfo) > 0:
-                                            dueinfo = dueinfo + "/" + tmpinfo
+                        alldisplay = callno + ' (Available)'
 
-                                    if not bringfw:
-                                        dueinfo = time.strftime(self.DUE_FORMAT,earliestdue)
-                                        callno = callnum
+                        if copy.circs and isinstance(copy.circs, list):
+                            alldisplay = '%s (DUE: %s)' % (callno,time.strftime(self.DUE_FORMAT,duetime))
 
-                                # way too wacky to sort out vols for this
-                                if duetime < earliestdue and not bringfw:
-                                    earliestdue = duetime
-                                    dueinfo = time.strftime(self.DUE_FORMAT,earliestdue)
-                                    callno = callnum
+                            if barcode is not None:
+                                avail = 0
+                            if copy.part_label:
+                                allcalls[len(allcalls) - 1] = [alldisplay,0]
 
-                            alldisplay = callnum + ' (Available)'
-
-                            if circs and isinstance(circs, list):
-                                alldisplay = '%s (DUE: %s)' % (callnum, time.strftime(self.DUE_FORMAT,duetime))
-
-                            alldues.append(alldisplay)
+                        alldues.append(alldisplay)
 
                         if voltest or attachtest:
                             if callno.find(callprefix) == -1:
                                 callno = callprefix + callno
                             if callno.find(callsuffix) == -1:
                                 callno = callno + callsuffix
-                        if voltest:
-                            vol = int(voltest.group(1))
-                        
-                    
+                            if voltest:
+                                vol = int(voltest.group(1))
             except:
                 print "due date/call problem: ", bib_id
                 print "*** print_exc:"
                 traceback.print_exc()
         
-            return (vol, lib, desk, avail, callno, dueinfo, circmod, alldues)
+            return (vol, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues)
 
         # At this point, status information does not require the opensrf
         # bindings, I am not sure there is a use case where an evergreen
@@ -316,7 +384,9 @@ class EvergreenIntegration(object):
         dueinfo = ''
         callno  = ''
         circmod = ''
+        allcalls = []
         alldues = []
+        cpname = 'copies'
             
         EVERGREEN_STATUS_ORG = getattr(settings, 'EVERGREEN_STATUS_ORG', 1)
         EVERGREEN_STATUS_DEPTH = getattr(settings, 'EVERGREEN_STATUS_DEPTH', 0)
@@ -324,23 +394,28 @@ class EvergreenIntegration(object):
         counts = E1(OPENSRF_COPY_COUNTS, bib_id, EVERGREEN_STATUS_ORG, EVERGREEN_STATUS_DEPTH)
 
         version = getattr(settings, 'EVERGREEN_VERSION',
-                      2.0)
+                      2.4)
 
         #TODO: clean this up, a hackish workaround for now
         if version >= 2.1:
-            for org, prefix, callnum, suffix, loc, stats in counts:
+            for org, prefix, callno, suffix, loc, stats in counts:
                 if len(prefix) > 0:
                     prefix += ' '
                 if len(suffix) > 0:
                     suffix = ' ' + suffix
-                vol, lib, desk, avail, callno, dueinfo, circmod, alldues = sort_out_status(vol, counts, 
-                    version, lib, desk, avail, callno, dueinfo, circmod, alldues, prefix, suffix)
+                vol, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues = sort_out_status(barcode, vol, counts, 
+                    version, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues, prefix, suffix)
         else:
-            for org, callnum, loc, stats in counts:
-                vol, lib, desk, avail, callno, dueinfo, circmod, alldues = sort_out_status(vol, counts, 
-                    version, lib, desk, avail, callno, dueinfo, circmod, alldues)
+            for org, callno, loc, stats in counts:
+                vol, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues = sort_out_status(barcode, vol, counts, 
+                    version, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues)
             
-        return (lib, desk, avail, callno, dueinfo, circmod, alldues)
+        if len(allcalls) > 0:
+            cpname = 'parts'
+            if barcode is not None:
+                cpname = 'part'
+
+        return (cpname, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues)
 
 
 

@@ -63,12 +63,16 @@ callnum = item.call_number()
         stat = callhook('item_status', item) if (item.item_type == 'PHYS') else None
         valid = stat is not None
       ?>
-      <tr py:if="valid" py:with="(_lib, _desk, _avail, _callno, _dueinfo, _circmod) = stat"
-             title="${_avail} of ${_desk} copies available at reserves desk; ${_lib} total copies in library system">
+      <tr py:if="valid" py:with="(_cpname, _lib, _desk, _avail, _callno, _dueinfo, _circmod, _allcalls, _alldues) = stat"
+             title="${_avail} of ${_desk} ${_cpname} available at reserves desk; ${_lib} total copies in library system">
 	  <th>Call Number (take this to the counter)</th>
           <td>
-          <div class="${_avail &gt; 0 and 'available' or 'unavailable'}" py:if="_dueinfo">DUE: ${_dueinfo}</div>
-          <div class="callnumber ${_avail &gt; 0 and 'available' or 'unavailable'}">${_callno}</div>
+          <div class="${_avail &gt; 0 and 'available' or 'unavailable'}" py:if="_dueinfo and len(_allcalls) == 0">DUE: ${_dueinfo}</div>
+          <div class="${_avail &gt; 0 and 'available' or 'unavailable'}"><span py:if="len(_allcalls) == 0">${_callno}</span></div>
+          <div py:for="j,k in _allcalls"> 
+                <span py:if="k==0" class="unavailable">${j}</span>
+                <span py:if="k==1" class="available">${j}</span>
+          </div>
           <div py:if="_circmod">
                 <span py:if="_circmod == 'RSV2'">2 Hour Loan</span>
                 <span py:if="_circmod == 'RSV3'">3 Day Loan</span>

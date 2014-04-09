@@ -310,10 +310,6 @@ class Site(BaseModel):
 
     sitenotes = m.TextField('Course Site Notes', blank=True, null=True)
 
-    # temporary, uwindsor-only fields! For initial migration. FIXME: remove.
-    # uwindsor_bookbag = m.CharField(max_length=2048, blank=True, null=True)
-    # uwindsor_eres = m.CharField(max_length=2048, blank=True, null=True)
-
     @property
     def term(self):
         """
@@ -875,11 +871,11 @@ class Item(BaseModel):
         if not stat:
             return (False, 'Status information not available.')
         else:
-            lib, desk, avail, callno, dueinfo, circmod, alldues = stat
+            cpname, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues = stat
             return (avail > 0,
-                    '%d of %d copies available at reserves desk; '
+                    '%d of %d %s available at reserves desk; '
                     '%d total copies in library system'
-                    % (avail, desk, lib))
+                    % (avail, desk, cpname, lib))
 
     _video_type_re = re.compile(r'tag="007">v(.)')
     _video_types = {'c':'videocartridge',
