@@ -86,16 +86,11 @@ def _add_or_edit_site(request, instance=None, basis=None):
         else:
             form.save()
             site = form.instance
-            print "site", site
             assert site.id
-            test_site = models.Site.objects.get(pk=3)
-            print "TEST_SITE", test_site
 
             if 'basis' in POST:
                 # We are duplicating a site. Copy all the items over into the new site.
                 source_site = models.Site.objects.get(pk=POST['basis'])
-                print "SOURCE_SITE", source_site
-                print "POST", POST['basis']
                 _copy_contents(request, source_site, site)
             if is_add:
                 # we need to configure permissions.
