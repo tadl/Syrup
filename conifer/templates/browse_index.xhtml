@@ -7,6 +7,9 @@ if browse_option == 'Instructor':
 elif browse_option == 'Course':
     option2 = _('Department')
     option3 = _('Instructor')
+dup_option = _('Duplicate Courses')
+check_option = _('Check/Uncheck All')
+sites_count = len(sites)
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -15,16 +18,44 @@ elif browse_option == 'Course':
 <xi:include href="components/timeframe.xhtml"/>
 <head>
   <title>All Reserves by ${browse_option}</title>
+  <script py:if="show_terms==1" type="text/javascript"> 
+    //toggle selection for top and bottom
+    $(document).ready(function () {
+        $("#checkalltop").click(function () {
+           $(".checkBoxClass").attr('checked', this.checked);
+        });
+    });
+    $(document).ready(function () {
+        $("#checkallbottom").click(function () {
+           $(".checkBoxClass").attr('checked', this.checked);
+        });
+    });
+   </script>
 </head>
 <body>
+  <span py:if="show_terms==0">
   <h1>All Reserves by ${browse_option}</h1> 
     (list by <a href="${ROOT}/browse/${option2}">${option2}</a>, 
     list by <a href="${ROOT}/browse/${option3}">${option3}</a>)
+  </span>
+  <span py:if="show_terms==1">
+  <h1>All Reserves by ${browse_option}</h1> 
+    (list by <a href="${ROOT}/browse/${option2}?termdup=1">${option2}</a>, 
+    list by <a href="${ROOT}/browse/${option3}?termdup=1">${option3}</a>)
+  </span>
   ${timeframe_nav(timeframe)}
   <p py:if="user.is_anonymous() and sites">
     (Note: some reserve materials may require you
     to <a href="${ROOT}${settings.LOGIN_URL}?next=${ROOT}/">log in</a>)
   </p>
+  <span py:if="show_terms==1">
+  <div py:with="nfe=form.non_field_errors()">
+    <ul py:if="nfe" class="errorlist">
+      <li py:for="err in nfe">${err}</li>
+    </ul>
+  </div>
+  </span>
+
   
   <img py:def="lock(condition=True)" 
 	   py:if="condition"
@@ -35,18 +66,98 @@ elif browse_option == 'Course':
     There are no reserves materials within the selected timeframe.
   </p>
 
+  <span py:if="show_terms==0">
   <div py:for="(dept, ss) in blocks">
 	<h2>${dept}</h2>
 	<div py:for="site in ss">
-	  <span py:if="not site.is_open_to(request.user)" style="float: left;">
+	  <span py:if="not site[1].is_open_to(request.user)" style="float: left;">
 		${lock()}
 	  </span>
 	  <p style="margin-left: 26px;">
-		
-		<a href="${site.site_url()}">${site}</a>
-      </p>
+		<a href="${site[1].site_url()}">${site[1]}</a>
+          </p>
 	</div>
   </div>
+  </span>
+
+  <span py:if="show_terms==1">
+  <form action="." method="POST" id="copy_sites_form">
+    <tr py:def="field_row(field, example=None)">
+      <th>${field.label}</th>
+      <td>
+        <ul py:if="field.errors" class="errorlist">
+          <li py:for="err in field.errors">${err}</li>
+        </ul>
+        ${Markup(field)}
+      </td>
+      <td class="example" py:if="example">e.g., ${example}</td>
+    </tr>
+  <table class="metadata_table">
+  ${field_row(form.start_term)}
+  ${field_row(form.end_term)}
+  </table>
+  <input type="submit" style="font-size: 115%;" name="submit" id="submitButton1" value="${dup_option}" onClick='return formCheck();'> </input>
+  <input type="hidden" name="sites_count" value="${sites_count}"/>
+  <input type="hidden" name="site_start_term" id="site_start_term"/>
+  <input type="hidden" name="site_end_term" id="site_end_term"/>
+  <fieldset>
+  <div><input type="checkbox" id="checkalltop" name="checkalltop" class="checkalltop">${check_option}</input></div>
+  <div py:for="(dept, ss) in blocks">
+	<h2>${dept}</h2>
+	<div py:for="site in ss">
+          <input type="checkbox" class="checkBoxClass" name="site_${site[0]}" value="${site[1].pk}"/>
+	  <a href="${site[1].site_url()}">${site[1]}</a>
+	</div>
+  </div>
+  </fieldset>
+  <table id="copy_sites_bottom_section" class="metadata_table">
+  ${field_row(form.start_term)}
+  ${field_row(form.end_term)}
+  </table>
+  <input type="submit" style="font-size: 115%;" name="submit" id="submitButton2" value="${dup_option}" onClick='return formCheck();'> </input>
+  <div><input type="checkbox" id="checkallbottom" name="checkallbottom" class="checkallbottom">${check_option}</input></div>
+  </form>
+  </span>
+
   <div class="gap"/>
+
+  <script py:if="show_terms==1" type="text/javascript"> //<![CDATA[ 
+   //do some checks on term dates and update hidden values for results -
+   //using 2 selection boxes can mess up both django's and jquery's 
+   //form handling and this old school approach gets around the problem
+   function formCheck() {
+       var startTerm = -1;
+       var endTerm = -1;
+       var optionElems = document.getElementsByTagName('option');
+       //churn through all options presented on the page
+       for (var i = 0; i < optionElems.length; i++) {
+           if (optionElems[i].selected) {
+               var parentElemId = optionElems[i].parentNode.id;
+               if (parentElemId && optionElems[i].value && parentElemId.indexOf("start_term") != -1) {
+                      startTerm = parseInt(optionElems[i].value);
+               }
+               if (parentElemId && optionElems[i].value && parentElemId.indexOf("end_term") != -1) {
+                      endTerm = parseInt(optionElems[i].value);
+               }
+           }
+       }
+       //these are the ids of the terms in the database and should never be negative
+       if (startTerm < 0 || endTerm < 0) {
+          alert("Missing Term Values");
+          return false;
+       }
+       //term values can be equal but a course can not end before it starts
+       if (startTerm > endTerm) {
+          alert("Start Term must be less than or equal to End Term");
+          return false;
+       }
+       //update the values to be used in creating the courses
+       var startElem = document.getElementById("site_start_term");
+       startElem.value = startTerm
+       var endElem = document.getElementById("site_end_term");
+       endElem.value = endTerm
+       return true;
+   }
+  // ]]></script>
 </body>
 </html>

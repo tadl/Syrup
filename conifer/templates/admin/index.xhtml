@@ -22,24 +22,28 @@ title = _('Administrative Options')
     <li><a href="desks/">Service Desks</a></li>
     <li><a href="depts/">Departments</a></li>
     <li><a href="courses/">Courses</a></li>
+    <li><a href="../browse/?termdup=1">Term Changeover</a></li>
     <li><a href="targets/">Z39.50 Targets</a></li>
     <li><a href="config/">Configuration settings</a></li>
-    <!-- <li><a href="targets/">Z39.50 Targets</a></li> -->
   </ul>
-  <!-- <ul> -->
-  <!--   <li><a href="../zsearch/">Search Z39.50 Targets</a></li> -->
-  <!-- </ul> -->
   <ul>
     <li><a href="staff/add/">Add new staff user</a></li>
   </ul>
+  <!--
+    There are some hooks to pulling course information from sakai,
+    uncomment these and examine the files in conifer/integration/sakai_linktool
+    if that is an option at your site.
+  -->
+  <!--
   <ul>
     <li py:if="gethook('department_course_catalogue')">
-      <a href="update_depts_courses">Automatically update departments and courses</a>
+      <a href="update_depts_courses">Automatically update departments and courses (Conifer only)</a>
     </li>
     <li py:if="gethook('term_catalogue')">
-      <a href="update_terms">Automatically update terms</a>
+      <a href="update_terms">Automatically update terms (Conifer only)</a>
     </li>
   </ul>
+  -->
   <ul>
     <li><a href="../djadmin/">Advanced Administration</a></li>
   </ul>

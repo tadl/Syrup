@@ -196,22 +196,118 @@ def my_sites(request):
 def my_tests(request):
     return g.render('my_test.xhtml', **locals())
 
+#add occurence value to sites
+def add_to_sites(sites):
+    term_sites = []
+    i = 0
+    for site in sites:
+        term_sites.append([i,site])
+        i = i + 1
+
+    return term_sites
+
+#get specified terms if provided
+def get_sel_terms(request):
+    start_term = None
+    end_term = None
+
+    if request.method == 'POST':
+       sel_start = int(request.POST['site_start_term'])
+       sel_end = int(request.POST['site_end_term'])
+       if sel_start > 0 and sel_end > 0:
+           start_term = models.Term.objects.get(pk=sel_start)
+           end_term = models.Term.objects.get(pk=sel_end)
+
+    return start_term, end_term
+
+#get ids for selected sites
+def get_sel_sites(request):
+    selected = []
+    if request.method == 'POST':
+       sites_count = int(request.POST['sites_count'])
+       if sites_count > 0:
+           for i in range(sites_count):
+              site_bx = 'site_%d' % i
+              if site_bx in request.POST:
+                 site_sel = request.POST[site_bx]
+                 selected.append(int(site_sel))
+    return selected
+
+#copy sites to new terms
+def duplicate_sites(request,sel_sites,new_start_term,new_end_term):
+    duplicated = []
+    if len(sel_sites) > 0 and new_start_term is not None and new_end_term is not None:
+        for sel in sel_sites:
+            sel_site = models.Site.objects.get(pk=sel)
+            course_site = models.Site.objects.create(
+               course = sel_site.course,
+               start_term = new_start_term,
+               end_term = new_end_term,
+               owner = sel_site.owner,
+               service_desk = sel_site.service_desk)
+            _copy_contents(request, sel_site, course_site)
+            duplicated.append(course_site.pk)
+    return duplicated
+ 
+
+#set up query for browse display
+def setup_site_list(browse_option, time_query, dup_list):
+    sites = None
+    blocks = None
+    if browse_option == 'Instructor':
+        if len(dup_list) == 0:
+           sites = list(models.Site.objects.order_by('owner__last_name', 'course__department__name', 'course__code').
+                    select_related().filter(time_query))
+        else:
+           sites = list(models.Site.objects.order_by('owner__last_name', 'course__department__name', 'course__code').
+                    select_related().filter(id__in=dup_list))
+        sites = add_to_sites(sites)
+        blocks = itertools.groupby(sites, lambda s: s[1].owner.last_name)
+    elif browse_option == 'Course':
+        if len(dup_list) == 0:
+           sites = list(models.Site.objects.order_by('course__code', 'owner__last_name', 'course__department__name').
+                    select_related().filter(time_query))
+        else:
+           sites = list(models.Site.objects.order_by('course__code', 'owner__last_name', 'course__department__name').
+                    select_related().filter(id__in=dup_list))
+        sites = add_to_sites(sites)
+        blocks = itertools.groupby(sites, lambda s: s[1].course.code)
+    else:
+        if len(dup_list) == 0:
+            sites = list(models.Site.objects.order_by('course__department__name', 'course__code', 'owner__last_name').
+                    select_related().filter(time_query))
+        else:
+            sites = list(models.Site.objects.order_by('course__department__name', 'course__code', 'owner__last_name').
+                    select_related().filter(id__in=dup_list))
+        sites = add_to_sites(sites)
+        blocks = itertools.groupby(sites, lambda s: s[1].course.department)
+
+    return sites, blocks
+
 def browse(request, browse_option='Department'):
     #the defaults should be moved into a config file or something...
     page_num = int(request.GET.get('page', 1))
     count    = int(request.GET.get('count', 5))
+
+    sel_sites = get_sel_sites(request)
+    start_term, end_term = get_sel_terms(request)
     timeframe = request.session.get('timeframe', 0)
     time_query = models.Term.timeframe_query(timeframe)
+
+    term_sites = []
+    show_terms = 0
     queryset = None
-    if browse_option == 'Instructor':
-        sites = list(models.Site.objects.order_by('owner__last_name', 'course__department__name', 'course__code').select_related().filter(time_query))
-        blocks = itertools.groupby(sites, lambda s: s.owner.last_name)
-    elif browse_option == 'Course':
-        sites = list(models.Site.objects.order_by('course__code', 'owner__last_name', 'course__department__name').select_related().filter(time_query))
-        blocks = itertools.groupby(sites, lambda s: s.course.code)
-    else:
-        sites = list(models.Site.objects.order_by('course__department__name', 'course__code', 'owner__last_name').select_related().filter(time_query))
-        blocks = itertools.groupby(sites, lambda s: s.course.department)
+    if request.method == 'POST':
+        term_sites = duplicate_sites(request,sel_sites,start_term,end_term)
+        
+    sites, blocks = setup_site_list(browse_option, time_query, term_sites)
+
+    if not request.user.is_anonymous():
+        if request.user.can_create_sites() and request.method == 'GET':
+            show_terms = int(request.GET.get('termdup', 0))
+            if show_terms > 0:
+                instance = models.Site()
+                form = NewSiteForm(instance=instance)
     return g.render('browse_index.xhtml', **locals())
 
 
@@ -285,7 +381,7 @@ def _revert_parms(request, source_site):
             if barcode and orig_call and orig_desk and orig_modifier:
                 update_status = opensrf.ils_item_update(barcode, orig_prefix, orig_call,
                                     orig_suffix, orig_modifier, orig_desk)
-                # print "update_status", update_status
+                #print "update_status", update_status
         if update_status:
             for sub in subitems:
                 revert_item(parent, sub)
