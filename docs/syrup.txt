@@ -1,6 +1,6 @@
 Syrup User Guide
 ================
-Art Rhyno <http://projectconifer.ca>
+Art Rhyno <http://github.com/artunit>
 :Author Initials: AR
 :toc:
 :icons:
@@ -19,7 +19,7 @@ working instance.
 **********************************************************************
 It is a little unclear. It might have been an acronym for 'Serving Your
 Reserves to University Populations'. The project originated within 
-http://projectconifer.ca/[Project Conifer] and pays homage to the library
+http://http://git.evergreen-ils.org/?p=contrib/Conifer.git;a=summary[Project Conifer] and pays homage to the library
 world's most ambitious open source undertaking (otherwise known as
 http://www.open-ils.org/[Evergreen]).
 **********************************************************************
