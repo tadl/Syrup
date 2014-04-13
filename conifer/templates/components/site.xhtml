@@ -30,25 +30,25 @@ searchtext = _('search this site...')
   <ul py:def="show_tree(tree, edit=False)"
       py:if="tree"
       class="itemtree">
-    <span py:for="item, subs in tree" py:with="forbidden=not item.copyright_status_ok()">
+    <span py:for="item, subs, bcs, ids in tree" py:with="forbidden=not item.copyright_status_ok()">
     <li py:if="not item.suppress_item or user.is_staff" class="item_${item.item_type} an_item ${forbidden and 'forbidden' or ''}"
 	id="item_${item.id}">
       <abbr py:if="not item.item_type=='HEADING'" class="unapi-id" title="${item.id}"/>
       <?python
 	downloads_allowed = site.allows_downloads_to(user)
-	stat = callhook('item_status', item) if (item.item_type == 'PHYS') else None
+	stat = callhook('item_status', item, bcs, ids) if (item.item_type == 'PHYS') else None
 	valid = stat is not None
       ?>
       <span py:if="valid" py:with="(_cpname, _lib, _desk, _avail, _callno, _dueinfo, _circmod, _allcalls, _alldues) = stat">
       <div class="availability" py:if="item.item_type == 'PHYS'">
 	<a href="${item.item_url()}">
 	<div class="${_avail &gt; 0 and 'available' or 'unavailable'}"
-	     title="${_avail} of ${_desk} ${_cpname} available at reserves desk; ${_lib} total copies in library system">
+	     title="${_avail} of ${_desk} copies available at reserves desk; ${_lib} total copies in library system">
           <!--
           <div>${_avail and 'Available' or 'Unavailable'} (${_avail}/${_desk})</div>
           -->
           <div py:if="_avail == 1">${_avail} copy available</div>
-          <div py:if="_avail &gt; 1 or _avail == 0">${_avail} ${_cpname} of ${_lib} available</div>
+          <div py:if="_avail &gt; 1 or _avail == 0">${_avail} copies of ${_desk} available</div>
           <div py:if="_circmod">
           	<span py:if="_circmod == 'RSV2'">2 Hour Loan</span>
           	<span py:if="_circmod == 'RSV3'">3 Day Loan</span>
@@ -68,7 +68,7 @@ searchtext = _('search this site...')
           </div>
 	  <div py:for="j,k in _allcalls" class="callnumber">
                 <span py:if="k==0" class="unavailable">${j}</span>
-                <span py:if="k==1">Ask for: <span class="standout">${j}</span></span>
+                <span py:if="k &gt; 0">Ask for: <span class="standout">${j}</span></span>
 	  </div>
           <div py:if="_dueinfo">NEXT DUE: ${_dueinfo}</div>
          </div>
@@ -105,8 +105,6 @@ searchtext = _('search this site...')
 		</div>
          </div>
       </div>
-      </span>
-         
 
       <div class="availability avail_nonphys" py:if="item.item_type != 'PHYS'">
       </div>
@@ -114,10 +112,35 @@ searchtext = _('search this site...')
 	<span py:if="item.item_type=='ELEC' and not downloads_allowed">
 	  <img title="Sorry, this document is not available to you."
 	       src="${ROOT}/static/tango/lock.png"/></span>
-	  <a href="${item.item_url()}" class="mainlink"
+	  <a py:if="len(_allcalls) == 0 or (edit and user.is_staff)" href="${item.item_url()}" class="mainlink"
 	     py:strip="item.item_type=='ELEC' and not downloads_allowed">${item}</a> 
 	<span py:if="item.suppress_item">[additional copy - not displayed]</span>
+        <span py:if="len(_allcalls) &gt; 0 and not (edit and user.is_staff)">
+        <?python
+            site_url = item.item_url()
+            #get base of url without item number
+            site_url = site_url[:-1]
+            last_slash = site_url.rfind('/')
+            site_url = site_url[:last_slash+1]
+
+            display_calls = []
+            #parts are worth displaying as separate titles but otherwise limit 
+            for j,k,l,m in _allcalls:
+                part = ''
+                if len(m) > 0:
+                    part = ' - ' + m
+                #link to item if provided, otherwise use provided url
+                if l == -1: 
+                    display_calls.append([item.item_url(),item,part])
+                elif len(m) > 0 or len(display_calls) == 0:
+                    display_calls.append([site_url + str(l),item,part])
+        ?>
+	  <div py:for="i,j,k in display_calls"> 
+               <a href="${i}" class="mainlink">${j}${k}</a>
+	  </div>
+        </span>
       </div>
+      </span>
       <div class="author_pub" py:if="item.author or item.publisher or item.published">
 	<span py:with="vt=item.video_type()"><span class="videotype" py:if="vt">[${vt}]</span></span>
 		<span py:if="item.author">${item.author}<span py:if="item.author[-1]!='.'">.</span></span>

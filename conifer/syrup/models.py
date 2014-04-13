@@ -26,6 +26,8 @@ if hasattr(settings, 'INTEGRATION_CLASS'):
     mod = __import__(modname, fromlist=[''])
     integration_class = getattr(mod, klassname)
 
+BIB_PART_MERGE = bool(getattr(settings, 'BIB_PART_MERGE', True))
+
 #----------------------------------------------------------------------
 
 class BaseModel(m.Model):
@@ -355,7 +357,10 @@ class Site(BaseModel):
         """A list of all items which are headings."""
         return self.item_set.filter(item_type='HEADING').order_by('title')
 
-    def item_tree(self, subtree=None):
+    def item_tree_merge(self, edit_status=False):
+        return self.item_tree(None,edit_status)
+
+    def item_tree(self, subtree=None, edit_status=False):
         """
         Return a list, representing a tree of the site items, in
         display order.  Every element of the list is an (Item, [Item])
@@ -381,6 +386,7 @@ class Site(BaseModel):
             return  " ".join(words)
 
         items = self.items()
+
         # make a node-lookup table
         dct = {}
         for item in items:
@@ -389,14 +395,65 @@ class Site(BaseModel):
             # TODO: what's the sort order? - art weighing in on normalized title
             lst.sort(key=lambda item: (item.item_type=='HEADING',
                                        sort_title(item.title))) # sort in place
+
+        #has barcode already been dealt with
+        def is_collected(poss,barcodes):
+            for bc in barcodes:
+                if poss.barcode in bc:
+                    return True
+            return False
+
+        #only concerned about duplicate physical items
+        def is_dup_candidate(poss):
+            if len(poss.bib_id) > 0:
+                if poss.item_type == 'PHYS':
+                    if poss.barcode is not None:
+                        return True
+            return False
+
+        #collect barcodes for dups
+        def deal_with_dups(item,items,edit_status,barcodes):
+            dup_barcodes = []
+            dup_ids = []
+            push_thru = True
+
+            if not BIB_PART_MERGE or edit_status:
+                return push_thru, dup_barcodes, dup_ids
+            if not is_dup_candidate(item):
+                return push_thru, dup_barcodes, dup_ids
+ 
+            if is_collected(item,barcodes):
+                return False, dup_barcodes, dup_ids
+                
+            for display_item in items:
+                 if is_dup_candidate(display_item):
+                     if display_item.barcode != item.barcode:
+                         if display_item.bib_id == item.bib_id and display_item.barcode not in dup_barcodes:
+                             dup_barcodes.append(display_item.barcode)
+                             dup_ids.append(display_item.id)
+
+       
+            if len(dup_barcodes) > 0 and not item.barcode in dup_barcodes:
+                dup_barcodes.append(item.barcode)
+                dup_ids.append(item.id)
+
+            return push_thru, dup_barcodes, dup_ids
+
         # walk the tree
         out = []
+        out_barcodes = []
+        out_ids = []
         def walk(parent, accum):
             here = dct.get(parent, [])
             for item in here:
                 sub = []
                 walk(item, sub)
-                accum.append((item, sub))
+                push_thru, bib_barcodes, syrup_ids = deal_with_dups(item,items,edit_status,out_barcodes)
+                if len(bib_barcodes) > 0:
+                    out_barcodes.append(bib_barcodes)
+                    out_ids.append(syrup_ids)
+                if push_thru:
+                    accum.append((item, sub, out_barcodes, out_ids))
         walk(subtree, out)
         return out
 
@@ -864,18 +921,14 @@ class Item(BaseModel):
     def describe_physical_item_status(self):
         """Return a (bool,str) tuple: whether the item is available,
         and a friendly description of the physical item's status"""
-        # TODO: this needs to be reimplemented, based on copy detail
-        # lookup in the ILS. It also may not belong here!
-        #return (True, 'NOT-IMPLEMENTED')
         stat = callhook('item_status', self)
         if not stat:
             return (False, 'Status information not available.')
         else:
             cpname, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues = stat
             return (avail > 0,
-                    '%d of %d %s available at reserves desk; '
-                    '%d total copies in library system'
-                    % (avail, desk, cpname, lib))
+                    '%d of %d %s available at reserves desk; %d total copies in library system' % 
+                    (avail, desk, cpname, lib))
 
     _video_type_re = re.compile(r'tag="007">v(.)')
     _video_types = {'c':'videocartridge',

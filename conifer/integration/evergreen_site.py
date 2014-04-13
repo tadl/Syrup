@@ -43,8 +43,6 @@ OPENSRF_FLESHEDCOPY_CALL  = "open-ils.search.asset.copy.fleshed.batch.retrieve.a
 def disable(func):
     return None
 
-
-
 class EvergreenIntegration(object):
 
     # Either specify EVERGREEN_SERVERin your local_settings, or override
@@ -85,7 +83,9 @@ class EvergreenIntegration(object):
     # end of variables dependent on EVERGREEN_SERVER
     # ----------------------------------------------------------------------
 
-
+    # BIB_PART_MERGE: display multiple parts for one bib title
+    # that have been scanned in separately in one section
+    BIB_PART_MERGE = bool(getattr(settings, 'BIB_PART_MERGE', True))
 
     # OPAC_LANG and OPAC_SKIN: localization skinning for your OPAC
 
@@ -113,6 +113,11 @@ class EvergreenIntegration(object):
     ATTACHMENT_EXPRESSION = getattr(settings, 'ATTACHMENT_REGEXP', '\w*DVD\s?|\w*CD\s?|\w[Gg]uide\s?|\w[Bb]ooklet\s?|\w*CD\-ROM\s?')
     IS_ATTACHMENT = re.compile(ATTACHMENT_EXPRESSION)
 
+    # regular expression to volume designations within a 
+    # call number
+    EMBEDDEDVOL_EXPRESSION = getattr(settings, 'EMBEDDEDVOL_REGEXP','\w*[Vv]\.\s?(\d+)')
+    IS_EMBEDDEDVOL = re.compile(EMBEDDEDVOL_EXPRESSION)
+
     # Used if you're doing updates to Evergreen from Syrup.
     UPDATE_CHOICES = [ 
         ('Cat', 'Catalogue'), 
@@ -120,11 +125,7 @@ class EvergreenIntegration(object):
         ('Zap', 'Remove from Syrup'), 
         ] 
 
-
     # ----------------------------------------------------------------------
-
-
-
     def __init__(self):
         # establish our OpenSRF connection.
         initialize(self)
@@ -137,11 +138,14 @@ class EvergreenIntegration(object):
         status_decode = [(str(x['id']), x['name'])
                          for x in E1('open-ils.search.config.copy_status.retrieve.all')]
 
+        #for x in E1('open-ils.search.config.copy_status.retrieve.all'):
+        #    print "x", x
         self.AVAILABLE  = [id for id, name in status_decode if name == 'Available'][0]
         self.RESHELVING = [id for id, name in status_decode if name == 'Reshelving'][0]
+        self.CHECKEDOUT = [id for id, name in status_decode if name == 'Checked out'][0]
 
 
-    def item_status(self, item):
+    def item_status(self, item, bcs=[], ids=[]):
         """
         Given an Item object, return three numbers: (library, desk,
         avail). Library is the total number of copies in the library
@@ -160,41 +164,71 @@ class EvergreenIntegration(object):
         """
         if not item.bib_id:
             return None
-        return self._item_status(item.bib_id, item.barcode)
 
+        #really silly function to turn list into string for passing
+        def make_obj_string(objs):
+            objlist = ""
+            for obj in objs:
+                if len(objlist) > 0:
+                    objlist = objlist + ';'
+
+                for o in obj:
+                    if obj.index(o) > 0:
+                        objlist = objlist + '/'
+                    objlist = objlist + str(o)
+
+            return objlist
+
+        bclist = make_obj_string(bcs)
+        idlist = make_obj_string(ids)
+        return self._item_status(item.bib_id, item.barcode, bclist, idlist)
 
     CACHE_TIME = 300
 
     @memoize(timeout=CACHE_TIME)
-    def _item_status(self, bib_id, barcode):
+    def _item_status(self, bib_id, barcode, bclist, idlist):
+
+        #sanity variables for multipart titles
+        DUE = 0
+        READY = 1
+        LOCKED = 2 #lock in an available copy
 
         class copy_obj:
-           def __init__(self, circ_modifier, circs, part_label, part_sort):
+           def __init__(self, circ_modifier, circs, part_label, part_sort, syrup_id):
               self.circ_modifier = circ_modifier
               self.circs = circs
               self.part_label = part_label
               self.part_sort = part_sort
+              self.syrup_id = syrup_id
 
-        #if a reserve title is specific to a barcode, there will not be more than one
-        def limit_counts(avail,lib,desk):
-           limit_avail = 0
-           limit_lib = 0
-           limit_desk = 0
-           if avail >= 1:
-              limit_avail = 1
-           if lib >= 1:
-              limit_lib = 1
-           if desk >= 1:
-              limit_desk = 1
-           return limit_avail, limit_lib, limit_desk
-           
-           
-        def get_copydetails(barcode,copyids,reserves_loc):
+        def make_obj_list(objlist):
+           objset = []
+           objcoll = objlist.split(";")
+           for o in objcoll:
+               objset.append(o.split("/"))
+
+           return objset
+
+        def collect_set(barcode,bcs,ids):
+           bc_dups = []
+           id_dups = []
+           i=0
+           for bc in bcs:
+               if barcode in bc:
+                   return bc,ids[i]
+               i = i+1
+
+           return bc_dups, id_dups
+                            
+        def get_copydetails(barcode,copyids,reserves_loc,bcs,ids):
            copy_list = []
+
+           bcs_set, ids_set = collect_set(barcode,bcs,ids)
 
            for copyid in copyids:
               circinfo = E1(OPENSRF_FLESHED2_CALL, copyid)
               circbarcode = None
+
               if barcode is not None:
                   circbarcode = circinfo.get("barcode")
              
@@ -203,7 +237,8 @@ class EvergreenIntegration(object):
               if thisloc:
                   thisloc = thisloc.get("name")
 
-              if thisloc in reserves_loc and barcode==circbarcode:
+              #create copy object for supplied barcode - will be all barcodes if none supplied
+              if thisloc in reserves_loc and (barcode==circbarcode or circbarcode in bcs_set):
                   circ_modifier = circinfo.get("circ_modifier")
                   circs = circinfo.get("circulations")
                   parts = circinfo.get("parts")
@@ -213,14 +248,20 @@ class EvergreenIntegration(object):
                   if parts:
                       part = parts[0]
                   if part:
-                      part_label = ' ' + part.get("label")
+                      part_label = part.get("label")
                       part_sort = part.get("label_sortkey")
 
-                  copy_list.append(copy_obj(circ_modifier,circs,part_label,part_sort))
+                  id_ind = -1
+                  if circbarcode in bcs_set:
+                      id_ind = ids_set[bcs_set.index(circbarcode)]
+                  copy_list.append(copy_obj(circ_modifier,circs,part_label,part_sort,id_ind))
 
            return sorted(copy_list, key=lambda copy: copy.part_sort)
 
-        def get_dueinfo(callprefix,callsuffix,callno,earliestdue,attachtest,voltest,sort_callno,bringfw,dueinfo):
+        #deal with call numbers that have embedded parts - ugh!
+        def get_dueinfo(callprefix,callsuffix,callno,earliestdue,attachtest,voltest,sort_callno,
+                            bringfw,dueinfo):
+
             tmpinfo = ''
 
             _callprefix = callprefix
@@ -256,8 +297,90 @@ class EvergreenIntegration(object):
 
             return _dueinfo,_callno,_callprefix,_callsuffix
 
+        #get due information - lots of pieces passed on for embedded parts
+        def deal_with_dues(duetime,avail,bringfw,copy,callprefix,callsuffix,callno,earliestdue,
+                attachtest,voltest,sort_callno,dueinfo):
+
+            earlydue = earliestdue
+            due = dueinfo
+            due_callprefix = callprefix
+            due_callno = callno
+            due_callsuffix = callsuffix
+             
+            if (avail == 0 or bringfw) and copy.circs and len(copy.circs) > 0:
+                if len(dueinfo) == 0 or bringfw:
+                    earlydue = duetime
+                    due,due_callno,due_callprefix,due_callsuffix = get_dueinfo(callprefix,callsuffix,callno,
+                        earliestdue,attachtest,voltest,sort_callno,bringfw,dueinfo)
+
+                if duetime < earlydue and not bringfw:
+                   earlydue = duetime
+                   due = time.strftime(self.DUE_FORMAT,earliestdue)
+
+            return due, due_callprefix, due_callno,due_callsuffix
+
+        #create initial call no and counts
+        def initialVals(prefix,suffix,callno,lib):
+            initial_callno = callno
+            if prefix:
+                initial_callno = prefix + callno
+            if suffix:
+                initial_callno = callno + suffix
+            initial_avail = stats.get(self.AVAILABLE, 0)
+            initial_avail += stats.get(self.RESHELVING, 0)
+            anystatus_here = sum(stats.values())
+                    
+            return initial_callno, lib + anystatus_here
+
+        #sometimes part information is in the callno directly, try to combine for display by
+        #shifting to suffix - otherwise treat normally
+        def add_in_embedded_parts(prefix,suffix,callprefix,callsuffix,callno,voltest,attachtest,vol):
+            embed_prefix = callprefix
+            embed_callno = callno
+            embed_suffix = callsuffix
+
+            if (voltest and vol > 0 ):
+                if (int(voltest.group(1)) > vol):
+                    embed_suffix = "/" + callno
+                else:
+                    embed_prefix = callno + "/"
+            elif attachtest and callno.find(attachtest.group(0)) == -1:
+                if len(callno) > 0:
+                    embed_suffix = "/" + callno
+                else:
+                    embed_prefix = callno
+            else:
+                embed_callno = prefix + callno + suffix
+
+            return embed_prefix, embed_callno, embed_suffix
+
+        #probably not needed but final sanity check for embedded parts
+        def last_check_embed(callprefix,callno,callsuffix,voltest,vol):
+            last_call = callno
+            last_vol = vol 
+            if callno.find(callprefix) == -1:
+                last_call = callprefix + callno
+            if callno.find(callsuffix) == -1:
+                last_call = last_call + callsuffix
+            if voltest:
+                last_vol = int(voltest.group(1))
+
+            return last_call, last_vol
+
+        #use counts from system if not parts
+        def get_desk_counts(counts):
+            desk_count = 0
+            for i, j, k, l, m, n in counts:
+                if m in self.RESERVES_DESK_NAME:
+                      desk_count += n.get(self.AVAILABLE, 0)
+                      desk_count += n.get(self.RESHELVING, 0)
+                      desk_count += n.get(self.CHECKEDOUT, 0)
+            return desk_count
+                    
+        #pull together status information
         def sort_out_status(barcode, sort_vol, counts, version, sort_lib, sort_desk, sort_avail, 
-            sort_callno, sort_dueinfo, sort_circmod, sort_allcalls, sort_alldues, prefix, suffix):
+            sort_callno, sort_dueinfo, sort_circmod, sort_allcalls, sort_alldues, prefix, suffix, 
+            bcs,ids):
 
             vol = sort_vol
             lib = sort_lib
@@ -274,55 +397,48 @@ class EvergreenIntegration(object):
                     callprefix = ''
                     callsuffix = ''
 
-                    if prefix:
-                       callno = prefix + callno
-                    if suffix:
-                       callno = callno + suffix
-                    avail_here = stats.get(self.AVAILABLE, 0)
-                    avail_here += stats.get(self.RESHELVING, 0)
-                    anystatus_here = sum(stats.values())
-                    lib += anystatus_here
+                    # get initial call number and total library count
+                    callno, lib = initialVals(prefix,suffix,callno,lib)
 
                     # volume check - based on v.1, etc. in call number
-                    voltest = re.search(r'\w*v\.\s?(\d+)', callno)
+                    voltest = re.search(self.IS_EMBEDDEDVOL, callno)
 
                     # attachment test
                     attachtest = re.search(self.IS_ATTACHMENT, callno)
 
-                    desk += anystatus_here
-                    avail += avail_here
                     dueinfo = ''
 
-                    if (voltest and vol > 0 ):
-                        if (int(voltest.group(1)) > vol):
-                            callsuffix = "/" + callno
-                        else:
-                            callprefix = callno + "/"
-                    elif attachtest and callno.find(attachtest.group(0)) == -1:
-                        if len(callno) > 0:
-                            callsuffix = "/" + callno
-                        else:
-                            callprefix = callno
-                    else:
-                           callno = prefix + callno + suffix
+                    # combine volume designations for embedded values
+                    callprefix,callno,callsuffix = add_in_embedded_parts(prefix,suffix,
+                        callprefix,callsuffix,callno,voltest,attachtest,vol)
 
                     if version >= 2.1:
                         copyids = E1(OPENSRF_CN_CALL, bib_id, [prefix,sort_callno,suffix], org)
                     else:
                         copyids = E1(OPENSRF_CN_CALL, bib_id, sort_callno, org)
 
-                    copies = get_copydetails(barcode,copyids,self.RESERVES_DESK_NAME)
-                    if barcode is not None:
-                        avail = lib = desk = 1
+                    #get copy information
+                    copies = get_copydetails(barcode,copyids,self.RESERVES_DESK_NAME,bcs,ids)
 
-                    # we want to return the resource that will be returned first if
-                    # already checked out
+                    desk = get_desk_counts(counts)
+                    avail = desk
+                       
+                    copy_parts = []
+                    duetime = None
+                    earliestdue = None
+
+                    # we want to identify the copy that will be returned first if
+                    # all are checked out
                     for copy in copies:
                         if copy.part_label:
                             #print "callno", callno
                             #print "sort_callno", sort_callno
                             callno = sort_callno + " " + copy.part_label
-                            allcalls.append([callno,1])
+                            if copy.part_sort in copy_parts and len(copy_parts) > 0:
+                                allcalls[len(allcalls) - 1] = [callno,READY,copy.syrup_id,copy.part_label]
+                            else:
+                                allcalls.append([callno,READY,copy.syrup_id,copy.part_label])
+                            copy_parts.append(copy.part_sort)
 
                         bringfw = attachtest
 
@@ -337,42 +453,41 @@ class EvergreenIntegration(object):
                             rawdate = rawdate[:-5]
                             duetime = time.strptime(rawdate, self.TIME_FORMAT)
 
-                        if (avail == 0 or bringfw) and copy.circs and len(copy.circs) > 0:
-                            if len(dueinfo) == 0 or bringfw:
-                                earliestdue = duetime
-                                dueinfo,callno,callprefix,callsuffix = get_dueinfo(callprefix,callsuffix,callno,
-                                   earliestdue,attachtest,voltest,sort_callno,bringfw,dueinfo)
-
-                            # way too wacky to sort out embedded vols for this
-                            if duetime < earliestdue and not bringfw:
-                                earliestdue = duetime
-                                dueinfo = time.strftime(self.DUE_FORMAT,earliestdue)
+                        #get due information - lots of extra pieces needed for embedded parts
+                        dueinfo,callprefix,callno,callsuffix = deal_with_dues(duetime,avail,bringfw,copy,
+                            callprefix,callsuffix,callno,earliestdue,attachtest,voltest,sort_callno,dueinfo)
 
                         alldisplay = callno + ' (Available)'
 
                         if copy.circs and isinstance(copy.circs, list):
+                            if len(allcalls) > 0 and (earliestdue is None or duetime < earliestdue):
+                                earliestdue = duetime
                             alldisplay = '%s (DUE: %s)' % (callno,time.strftime(self.DUE_FORMAT,duetime))
 
-                            if barcode is not None:
-                                avail = 0
-                            if copy.part_label:
-                                allcalls[len(allcalls) - 1] = [alldisplay,0]
+                            if len(allcalls) > 0:
+                                if allcalls[len(allcalls) - 1][1] != LOCKED:
+                                    allcalls[len(allcalls) - 1] = [alldisplay,DUE,copy.syrup_id,copy.part_label]
+                                    avail -= 1
+                            else:
+                                avail -= 1
+                               
+                        elif len(allcalls) > 0:
+                            allcalls[len(allcalls) - 1] = [callno,LOCKED,copy.syrup_id,copy.part_label]
 
                         alldues.append(alldisplay)
 
                         if voltest or attachtest:
-                            if callno.find(callprefix) == -1:
-                                callno = callprefix + callno
-                            if callno.find(callsuffix) == -1:
-                                callno = callno + callsuffix
-                            if voltest:
-                                vol = int(voltest.group(1))
+                            callno,vol = last_check_embed(callprefix,callno,callsuffix,voltest,vol)
             except:
                 print "due date/call problem: ", bib_id
                 print "*** print_exc:"
                 traceback.print_exc()
         
             return (vol, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues)
+
+        #get lists of barcodes and ids
+        bcs = make_obj_list(bclist)
+        ids = make_obj_list(idlist)
 
         # At this point, status information does not require the opensrf
         # bindings, I am not sure there is a use case where an evergreen
@@ -396,24 +511,22 @@ class EvergreenIntegration(object):
         version = getattr(settings, 'EVERGREEN_VERSION',
                       2.4)
 
-        #TODO: clean this up, a hackish workaround for now
         if version >= 2.1:
+            #this loop is needed in case there are multiple reserves locations
             for org, prefix, callno, suffix, loc, stats in counts:
                 if len(prefix) > 0:
                     prefix += ' '
                 if len(suffix) > 0:
                     suffix = ' ' + suffix
                 vol, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues = sort_out_status(barcode, vol, counts, 
-                    version, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues, prefix, suffix)
+                    version, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues, prefix, suffix, bcs,ids)
         else:
             for org, callno, loc, stats in counts:
                 vol, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues = sort_out_status(barcode, vol, counts, 
-                    version, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues)
+                    version, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues, bcs,ids)
             
         if len(allcalls) > 0:
-            cpname = 'parts'
-            if barcode is not None:
-                cpname = 'part'
+            cpname = 'volumes'
 
         return (cpname, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues)
 
