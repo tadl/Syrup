@@ -145,32 +145,33 @@ searchtext = _('search this site...')
         </span>
       </div>
       </span>
-      <div class="author_pub" py:if="item.author or item.publisher or item.published">
+      <div class="author_pub" py:if="item.author or item.publisher or item.published or (edit and user.is_staff)">
 	<span py:with="vt=item.video_type()"><span class="videotype" py:if="vt">[${vt}]</span></span>
-		<span py:if="item.author">${item.author}<span py:if="item.author[-1]!='.'">.</span></span>
-		<span py:if="item.published">(${item.published}).</span>
-		<span py:if="item.source_title"><i>${item.source_title}.</i></span>
-		<span py:if="item.volume or item.issue"><i>${item.volume}</i>(${item.issue}), ${item.pages}.</span>
-		  <div py:if="edit and user.is_staff">
+	<span py:if="item.author">${item.author}<span py:if="item.author[-1]!='.'">.</span></span>
+	<span py:if="item.published">(${item.published}).</span>
+	<span py:if="item.source_title"><i>${item.source_title}.</i></span>
+	<span py:if="item.volume or item.issue"><i>${item.volume}</i>(${item.issue}), ${item.pages}.</span>
+	<div py:if="edit and user.is_staff">
             <span><i>Revert Parms: </i></span>
-		    <span py:for="k,v in item.CALLNO_PREFIX_CHOICES">
+            <span py:for="k,v in item.CALLNO_PREFIX_CHOICES">
                 <span py:if="int(item.orig_prefix)==int(k)">
-                   ${v} 
+                    ${v} 
                 </span>
             </span>
-		    <span py:if="item.orig_callno">${item.orig_callno}</span>
-		    <span py:for="k,v in item.CALLNO_SUFFIX_CHOICES">
+	    <span py:if="item.orig_callno">${item.orig_callno}</span>
+	    <span py:for="k,v in item.CALLNO_SUFFIX_CHOICES">
                 <span py:if="int(item.orig_suffix)==int(k)">
-                   ${v} 
+                    ${v} 
                 </span>
             </span>
-		    <span py:if="item.circ_modifier">(${item.circ_modifier}) </span>
-		    <span py:for="k,v in item.CIRC_DESK_CHOICES">
+            <span py:if="item.circ_modifier">(${item.circ_modifier}) </span>
+            <span py:for="k,v in item.CIRC_DESK_CHOICES">
                 <span py:if="item.circ_desk==k">
-                   ${v} 
+                    ${v} 
                 </span>
             </span>
-		  </div>
+		 
+        </div>
       </div>
       <div class="forbidden_notice" py:if="forbidden">Awaiting copyright clearance: Not available to students.</div>
 	  <div>

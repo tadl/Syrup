@@ -183,8 +183,14 @@ class EvergreenIntegration(object):
         idlist = make_obj_string(ids)
         return self._item_status(item.bib_id, item.barcode, bclist, idlist)
 
-    #in general, you want to cache this for a few minutes
-    #but bump this value to 0 or something low for debugging
+    """
+    in general, you want to cache this for a few minutes
+    but bump this value to 0 or something low for debugging
+    the count is in seconds, default is 2
+
+    see: http://code.activestate.com/recipes/325905/
+    """
+
     CACHE_TIME = 300
 
     @memoize(timeout=CACHE_TIME)
