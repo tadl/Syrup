@@ -39,7 +39,7 @@ searchtext = _('search this site...')
 	stat = callhook('item_status', item, bcs, ids) if (item.item_type == 'PHYS') else None
 	valid = stat is not None
       ?>
-      <span py:if="valid" py:with="(_cpname, _lib, _desk, _avail, _callno, _dueinfo, _circmod, _allcalls, _alldues) = stat">
+      <span py:if="valid" py:with="(_cpname, _lib, _desk, _avail, _callno, _dueid, _dueinfo, _circmod, _allcalls, _alldues) = stat">
       <div class="availability" py:if="item.item_type == 'PHYS'">
 	<a href="${item.item_url()}">
 	<div class="${_avail &gt; 0 and 'available' or 'unavailable'}"
@@ -70,7 +70,7 @@ searchtext = _('search this site...')
                 <span py:if="k==0" class="unavailable">${j}</span>
                 <span py:if="k &gt; 0">Ask for: <span class="standout">${j}</span></span>
 	  </div>
-          <div py:if="_dueinfo">NEXT DUE: ${_dueinfo}</div>
+          <div py:if="_avail == 0 and _dueinfo">NEXT DUE: ${_dueinfo}</div>
          </div>
 		  
          <div py:if="not valid" class="unavailable">
@@ -109,13 +109,6 @@ searchtext = _('search this site...')
       <div class="availability avail_nonphys" py:if="item.item_type != 'PHYS'">
       </div>
       <div class="mainline ${item.item_type=='HEADING' and 'headingmainline' or ''}">
-	<span py:if="item.item_type=='ELEC' and not downloads_allowed">
-	  <img title="Sorry, this document is not available to you."
-	       src="${ROOT}/static/tango/lock.png"/></span>
-	  <a py:if="len(_allcalls) == 0 or (edit and user.is_staff)" href="${item.item_url()}" class="mainlink"
-	     py:strip="item.item_type=='ELEC' and not downloads_allowed">${item}</a> 
-	<span py:if="item.suppress_item">[additional copy - not displayed]</span>
-        <span py:if="len(_allcalls) &gt; 0 and not (edit and user.is_staff)">
         <?python
             site_url = item.item_url()
             #get base of url without item number
@@ -135,6 +128,17 @@ searchtext = _('search this site...')
                 elif len(m) > 0 or len(display_calls) == 0:
                     display_calls.append([site_url + str(l),item,part])
         ?>
+	<span py:if="item.item_type=='ELEC' and not downloads_allowed">
+	  <img title="Sorry, this document is not available to you."
+	       src="${ROOT}/static/tango/lock.png"/></span>
+          <span py:if="len(_allcalls) == 0 or (edit and user.is_staff)">
+	   <a py:if="not _dueid" href="${item.item_url()}" class="mainlink"
+	      py:strip="item.item_type=='ELEC' and not downloads_allowed">${item}</a> 
+	   <a py:if="_dueid" href="${site_url}${_dueid}" class="mainlink"
+	      py:strip="item.item_type=='ELEC' and not downloads_allowed">${item}</a> 
+          </span>
+	<span py:if="item.suppress_item">[additional copy - not displayed]</span>
+        <span py:if="len(_allcalls) &gt; 0 and not (edit and user.is_staff)">
 	  <div py:for="i,j,k in display_calls"> 
                <a href="${i}" class="mainlink">${j}${k}</a>
 	  </div>

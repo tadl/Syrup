@@ -183,6 +183,8 @@ class EvergreenIntegration(object):
         idlist = make_obj_string(ids)
         return self._item_status(item.bib_id, item.barcode, bclist, idlist)
 
+    #in general, you want to cache this for a few minutes
+    #but bump this value to 0 or something low for debugging
     CACHE_TIME = 300
 
     @memoize(timeout=CACHE_TIME)
@@ -307,13 +309,13 @@ class EvergreenIntegration(object):
             due_callno = callno
             due_callsuffix = callsuffix
              
-            if (avail == 0 or bringfw) and copy.circs and len(copy.circs) > 0:
+            if copy.circs and len(copy.circs) > 0:
                 if len(dueinfo) == 0 or bringfw:
                     earlydue = duetime
                     due,due_callno,due_callprefix,due_callsuffix = get_dueinfo(callprefix,callsuffix,callno,
-                        earliestdue,attachtest,voltest,sort_callno,bringfw,dueinfo)
+                        earlydue,attachtest,voltest,sort_callno,bringfw,dueinfo)
 
-                if duetime < earlydue and not bringfw:
+                if (earlydue is None or duetime < earlydue) and not bringfw:
                    earlydue = duetime
                    due = time.strftime(self.DUE_FORMAT,earliestdue)
 
@@ -379,7 +381,7 @@ class EvergreenIntegration(object):
                     
         #pull together status information
         def sort_out_status(barcode, sort_vol, counts, version, sort_lib, sort_desk, sort_avail, 
-            sort_callno, sort_dueinfo, sort_circmod, sort_allcalls, sort_alldues, prefix, suffix, 
+            sort_callno, sort_dueid, sort_dueinfo, sort_circmod, sort_allcalls, sort_alldues, prefix, suffix, 
             bcs,ids):
 
             vol = sort_vol
@@ -391,6 +393,7 @@ class EvergreenIntegration(object):
             circmod = sort_circmod
             allcalls = sort_allcalls
             alldues = sort_alldues
+            dueid = sort_dueid
 
             try:
                 if loc in self.RESERVES_DESK_NAME:
@@ -430,12 +433,21 @@ class EvergreenIntegration(object):
                     # we want to identify the copy that will be returned first if
                     # all are checked out
                     for copy in copies:
+                        #this condition should only ever be true when a multipart is in full display
+                        #in that case, the most available copy should be selected
+                        if len(ids) == 1:
+                            if ids[0][0] == '':
+                                avail = 1 
                         if copy.part_label:
                             #print "callno", callno
                             #print "sort_callno", sort_callno
+
                             callno = sort_callno + " " + copy.part_label
                             if copy.part_sort in copy_parts and len(copy_parts) > 0:
-                                allcalls[len(allcalls) - 1] = [callno,READY,copy.syrup_id,copy.part_label]
+                                #leave alone if locked - otherwise mark as ready
+                                if allcalls[len(allcalls) - 1][1] != LOCKED:
+                                    allcalls[len(allcalls) - 1] = [callno,READY,copy.syrup_id,copy.part_label]
+                                    
                             else:
                                 allcalls.append([callno,READY,copy.syrup_id,copy.part_label])
                             copy_parts.append(copy.part_sort)
@@ -452,6 +464,8 @@ class EvergreenIntegration(object):
                             #remove offset info, %z is flakey for some reason
                             rawdate = rawdate[:-5]
                             duetime = time.strptime(rawdate, self.TIME_FORMAT)
+                        elif len(allcalls) == 0:
+                            dueid = [copy.syrup_id,LOCKED]
 
                         #get due information - lots of extra pieces needed for embedded parts
                         dueinfo,callprefix,callno,callsuffix = deal_with_dues(duetime,avail,bringfw,copy,
@@ -460,15 +474,22 @@ class EvergreenIntegration(object):
                         alldisplay = callno + ' (Available)'
 
                         if copy.circs and isinstance(copy.circs, list):
-                            if len(allcalls) > 0 and (earliestdue is None or duetime < earliestdue):
+                            if (earliestdue is None or duetime < earliestdue):
+                                #print "SETTING earliest to", duetime
                                 earliestdue = duetime
-                            alldisplay = '%s (DUE: %s)' % (callno,time.strftime(self.DUE_FORMAT,duetime))
+                                dueinfo = time.strftime(self.DUE_FORMAT,earliestdue)
+                                #will want the link to be to the earliest item if not multipart
+                                if len(allcalls) == 0 and dueid[1] != LOCKED:
+                                    dueid = [copy.syrup_id,DUE]
+
+                            alldisplay = '%s (DUE: %s)' % (callno,time.strftime(self.DUE_FORMAT,earliestdue))
 
                             if len(allcalls) > 0:
                                 if allcalls[len(allcalls) - 1][1] != LOCKED:
                                     allcalls[len(allcalls) - 1] = [alldisplay,DUE,copy.syrup_id,copy.part_label]
-                                    avail -= 1
-                            else:
+                                    if avail >= 1:
+                                        avail -= 1
+                            elif avail >= 1:
                                 avail -= 1
                                
                         elif len(allcalls) > 0:
@@ -483,7 +504,7 @@ class EvergreenIntegration(object):
                 print "*** print_exc:"
                 traceback.print_exc()
         
-            return (vol, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues)
+            return (vol, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues)
 
         #get lists of barcodes and ids
         bcs = make_obj_list(bclist)
@@ -496,6 +517,7 @@ class EvergreenIntegration(object):
         assert self.RESERVES_DESK_NAME, 'No RESERVES_DESK_NAME specified!'
 
         lib = desk = avail = vol = anystatus_here = 0
+        dueid = ['',READY]
         dueinfo = ''
         callno  = ''
         circmod = ''
@@ -518,17 +540,17 @@ class EvergreenIntegration(object):
                     prefix += ' '
                 if len(suffix) > 0:
                     suffix = ' ' + suffix
-                vol, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues = sort_out_status(barcode, vol, counts, 
-                    version, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues, prefix, suffix, bcs,ids)
+                vol, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues = sort_out_status(barcode, vol, counts, 
+                    version, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues, prefix, suffix, bcs,ids)
         else:
             for org, callno, loc, stats in counts:
-                vol, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues = sort_out_status(barcode, vol, counts, 
-                    version, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues, bcs,ids)
+                vol, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues = sort_out_status(barcode, vol, counts, 
+                    version, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues, bcs,ids)
             
         if len(allcalls) > 0:
             cpname = 'volumes'
 
-        return (cpname, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues)
+        return (cpname, lib, desk, avail, callno, dueid[0], dueinfo, circmod, allcalls, alldues)
 
 
 

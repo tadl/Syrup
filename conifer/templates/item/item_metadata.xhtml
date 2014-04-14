@@ -63,7 +63,7 @@ callnum = item.call_number()
         stat = callhook('item_status', item) if (item.item_type == 'PHYS') else None
         valid = stat is not None
       ?>
-      <tr py:if="valid" py:with="(_cpname, _lib, _desk, _avail, _callno, _dueinfo, _circmod, _allcalls, _alldues) = stat"
+      <tr py:if="valid" py:with="(_cpname, _lib, _desk, _avail, _callno, _dueid, _dueinfo, _circmod, _allcalls, _alldues) = stat"
              title="${_avail} of ${_desk} copies available at reserves desk; ${_lib} total copies in library system">
 	  <th>Call Number(s) (take to the counter)</th>
           <td>

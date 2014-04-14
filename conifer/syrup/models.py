@@ -925,7 +925,7 @@ class Item(BaseModel):
         if not stat:
             return (False, 'Status information not available.')
         else:
-            cpname, lib, desk, avail, callno, dueinfo, circmod, allcalls, alldues = stat
+            cpname, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues = stat
             return (avail > 0,
                     '%d of %d %s available at reserves desk; %d total copies in library system' % 
                     (avail, desk, cpname, lib))
