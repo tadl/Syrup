@@ -464,7 +464,7 @@ class EvergreenIntegration(object):
                             #remove offset info, %z is flakey for some reason
                             rawdate = rawdate[:-5]
                             duetime = time.strptime(rawdate, self.TIME_FORMAT)
-                        elif len(allcalls) == 0:
+                        elif len(allcalls) == 0 and copy.syrup_id != -1:
                             dueid = [copy.syrup_id,LOCKED]
 
                         #get due information - lots of extra pieces needed for embedded parts
@@ -479,7 +479,7 @@ class EvergreenIntegration(object):
                                 earliestdue = duetime
                                 dueinfo = time.strftime(self.DUE_FORMAT,earliestdue)
                                 #will want the link to be to the earliest item if not multipart
-                                if len(allcalls) == 0 and dueid[1] != LOCKED:
+                                if len(allcalls) == 0 and dueid[1] != LOCKED and copy.syrup_id != -1:
                                     dueid = [copy.syrup_id,DUE]
 
                             alldisplay = '%s (DUE: %s)' % (callno,time.strftime(self.DUE_FORMAT,earliestdue))
