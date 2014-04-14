@@ -488,7 +488,11 @@ class EvergreenIntegration(object):
                                 if len(allcalls) == 0 and dueid[1] != LOCKED and copy.syrup_id != -1:
                                     dueid = [copy.syrup_id,DUE]
 
-                            alldisplay = '%s (DUE: %s)' % (callno,time.strftime(self.DUE_FORMAT,earliestdue))
+                            if copy.part_label:
+                                alldisplay = '%s - %s (DUE: %s)' % (callno,
+                                    copy.part_label,time.strftime(self.DUE_FORMAT,earliestdue))
+                            else:
+                                alldisplay = '%s (DUE: %s)' % (callno,time.strftime(self.DUE_FORMAT,earliestdue))
 
                             if len(allcalls) > 0:
                                 if allcalls[len(allcalls) - 1][1] != LOCKED:

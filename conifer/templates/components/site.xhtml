@@ -44,9 +44,6 @@ searchtext = _('search this site...')
 	<a href="${item.item_url()}">
 	<div class="${_avail &gt; 0 and 'available' or 'unavailable'}"
 	     title="${_avail} of ${_desk} copies available at reserves desk; ${_lib} total copies in library system">
-          <!--
-          <div>${_avail and 'Available' or 'Unavailable'} (${_avail}/${_desk})</div>
-          -->
           <div py:if="_avail == 1">${_avail} copy available</div>
           <div py:if="_avail &gt; 1 or _avail == 0">${_avail} copies of ${_desk} available</div>
           <div py:if="_circmod">
@@ -70,39 +67,36 @@ searchtext = _('search this site...')
                 <span py:if="k==0" class="unavailable">${j}</span>
                 <span py:if="k &gt; 0">Ask for: <span class="standout">${j}</span></span>
 	  </div>
-          <div py:if="_avail == 0 and _dueinfo">NEXT DUE: ${_dueinfo}</div>
+          <div py:if="_avail == 0 and _dueinfo and len(_allcalls) == 0">NEXT DUE: ${_dueinfo}</div>
          </div>
 		  
          <div py:if="not valid" class="unavailable">
 		Availability unknown.
 		<div class="callnumber">${item.call_number()}</div>
          </div>
-    		
          </a>
-         <div py:if="len(_allcalls) == 0">
-		<div id="status_${item.id}" style="display: none;"> 
-    		<script type="text/javascript">
-			function show_stuff(the_id){
-   				document.getElementById('status_' + the_id).style.display="block";
-   				document.getElementById('showlink_' + the_id).style.display="none";
-   				document.getElementById('hidelink_' + the_id).style.display="block";
-			}
-			function hide_stuff(the_id){
-   				document.getElementById('status_' + the_id).style.display="none";
-   				document.getElementById('showlink_' + the_id).style.display="block";
-   				document.getElementById('hidelink_' + the_id).style.display="none";
-			}
-    		</script>
-		<div py:for="k in _alldues">
-			${k}
-		</div>
-		</div>
-		<div id="showlink_${item.id}" py:if="len(_alldues) > 1">
-			<a href="javascript:show_stuff('${item.id}');">Show status of all copies</a>
-		</div>
-		<div style="display: none;" id="hidelink_${item.id}" py:if="len(_alldues) > 1">
-			<a href="javascript:hide_stuff('${item.id}');">Hide status details</a>
-		</div>
+	 <div id="status_${item.id}" style="display: none;"> 
+    	     <script type="text/javascript">
+                 function show_stuff(the_id){
+                     document.getElementById('status_' + the_id).style.display="block";
+                     document.getElementById('showlink_' + the_id).style.display="none";
+                     document.getElementById('hidelink_' + the_id).style.display="block";
+                 }
+                 function hide_stuff(the_id){
+                     document.getElementById('status_' + the_id).style.display="none";
+                     document.getElementById('showlink_' + the_id).style.display="block";
+                     document.getElementById('hidelink_' + the_id).style.display="none";
+                 }
+             </script>
+             <div py:for="k in _alldues">
+                 ${k}
+             </div>
+         </div>
+         <div id="showlink_${item.id}" py:if="len(_alldues) > 1">
+             <a href="javascript:show_stuff('${item.id}');">Show status of all copies</a>
+         </div>
+         <div style="display: none;" id="hidelink_${item.id}" py:if="len(_alldues) > 1">
+             <a href="javascript:hide_stuff('${item.id}');">Hide status details</a>
          </div>
       </div>
 
@@ -151,7 +145,9 @@ searchtext = _('search this site...')
 	<span py:if="item.published">(${item.published}).</span>
 	<span py:if="item.source_title"><i>${item.source_title}.</i></span>
 	<span py:if="item.volume or item.issue"><i>${item.volume}</i>(${item.issue}), ${item.pages}.</span>
-	<div py:if="edit and user.is_staff">
+      </div>
+      <!-- use author styling for revert parameters -->
+      <div class="author_pub" py:if="edit and user.is_staff">
             <span><i>Revert Parms: </i></span>
             <span py:for="k,v in item.CALLNO_PREFIX_CHOICES">
                 <span py:if="int(item.orig_prefix)==int(k)">
@@ -170,8 +166,6 @@ searchtext = _('search this site...')
                     ${v} 
                 </span>
             </span>
-		 
-        </div>
       </div>
       <div class="forbidden_notice" py:if="forbidden">Awaiting copyright clearance: Not available to students.</div>
 	  <div>
@@ -262,4 +256,3 @@ searchtext = _('search this site...')
     </div>
 
 </html>
-
