@@ -417,6 +417,8 @@ class Site(BaseModel):
             dup_ids = []
             push_thru = True
 
+            if item.item_type == 'HEADING':
+                return push_thru, dup_barcodes, dup_ids
             if not BIB_PART_MERGE or edit_status:
                 return push_thru, dup_barcodes, dup_ids
             if not is_dup_candidate(item):

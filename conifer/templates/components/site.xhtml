@@ -103,6 +103,9 @@ searchtext = _('search this site...')
       <div class="availability avail_nonphys" py:if="item.item_type != 'PHYS'">
       </div>
       <div class="mainline ${item.item_type=='HEADING' and 'headingmainline' or ''}">
+        <a py:if="item.item_type=='HEADING'" href="${item.item_url()}" class="mainlink"
+             py:strip="item.item_type=='ELEC' and not downloads_allowed">${item}
+        </a>
         <?python
             site_url = item.item_url()
             #get base of url without item number
@@ -139,6 +142,11 @@ searchtext = _('search this site...')
         </span>
       </div>
       </span>
+      <div class="mainline ${item.item_type=='HEADING' and 'headingmainline' or ''}">
+        <a py:if="item.item_type=='HEADING'" href="${item.item_url()}" class="mainlink"
+             py:strip="item.item_type=='ELEC' and not downloads_allowed">${item}
+        </a>
+      </div>
       <div class="author_pub" py:if="item.author or item.publisher or item.published or (edit and user.is_staff)">
 	<span py:with="vt=item.video_type()"><span class="videotype" py:if="vt">[${vt}]</span></span>
 	<span py:if="item.author">${item.author}<span py:if="item.author[-1]!='.'">.</span></span>
@@ -147,7 +155,7 @@ searchtext = _('search this site...')
 	<span py:if="item.volume or item.issue"><i>${item.volume}</i>(${item.issue}), ${item.pages}.</span>
       </div>
       <!-- use author styling for revert parameters -->
-      <div class="author_pub" py:if="edit and user.is_staff">
+      <div class="author_pub" py:if="edit and user.is_staff and item.item_type!='HEADING'">
             <span><i>Revert Parms: </i></span>
             <span py:for="k,v in item.CALLNO_PREFIX_CHOICES">
                 <span py:if="int(item.orig_prefix)==int(k)">
