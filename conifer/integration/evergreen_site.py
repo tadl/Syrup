@@ -191,7 +191,10 @@ class EvergreenIntegration(object):
     see: http://code.activestate.com/recipes/325905/
     """
 
-    CACHE_TIME = 300
+    #CACHE_TIME = 300
+
+    #set low for testing
+    CACHE_TIME = 5
 
     @memoize(timeout=CACHE_TIME)
     def _item_status(self, bib_id, barcode, bclist, idlist):
@@ -488,11 +491,7 @@ class EvergreenIntegration(object):
                                 if len(allcalls) == 0 and dueid[1] != LOCKED and copy.syrup_id != -1:
                                     dueid = [copy.syrup_id,DUE]
 
-                            if copy.part_label:
-                                alldisplay = '%s - %s (DUE: %s)' % (callno,
-                                    copy.part_label,time.strftime(self.DUE_FORMAT,earliestdue))
-                            else:
-                                alldisplay = '%s (DUE: %s)' % (callno,time.strftime(self.DUE_FORMAT,earliestdue))
+                            alldisplay = '%s (DUE: %s)' % (callno,time.strftime(self.DUE_FORMAT,earliestdue))
 
                             if len(allcalls) > 0:
                                 if allcalls[len(allcalls) - 1][1] != LOCKED:
@@ -502,6 +501,10 @@ class EvergreenIntegration(object):
                             elif avail >= 1:
                                 avail -= 1
                                
+                            if copy.part_label and copy.part_label not in alldisplay:
+                                alldisplay = '%s %s (DUE: %s)' % (callno,
+                                    copy.part_label,time.strftime(self.DUE_FORMAT,earliestdue))
+
                         elif len(allcalls) > 0:
                             allcalls[len(allcalls) - 1] = [callno,LOCKED,copy.syrup_id,copy.part_label]
 

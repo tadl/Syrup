@@ -245,6 +245,7 @@ def duplicate_sites(request,sel_sites,new_start_term,new_end_term):
                end_term = new_end_term,
                owner = sel_site.owner,
                service_desk = sel_site.service_desk)
+
             _copy_contents(request, sel_site, course_site)
             duplicated.append(course_site.pk)
     return duplicated
@@ -410,7 +411,7 @@ def site_clipboard_copy_from(request, site_id):
 def _copy_contents(request, source_site, dest_site):
     item_map = {}
 
-    def process_item(parent, (item, subitems)):
+    def process_item(parent, (item, subitems,extra1,extra2)):
         dct = dict((k,v) for k,v in item.__dict__.items() if not k.startswith('_'))
         old_id = dct['id']
         del dct['id']
