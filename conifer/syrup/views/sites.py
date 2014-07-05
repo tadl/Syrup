@@ -407,25 +407,45 @@ def site_clipboard_copy_from(request, site_id):
                           _('This site has been marked as the copying source. Visit the new site, '
                             'and click "Paste to Here," to copy this site\'s materials into the new site.'))
 
+#a part with a barcode will be picked up once, add other entries if other barcodes are also there
+def sort_out_parts(theid,bc,bcs,tids):
+    partids = []
+    partbcs = []
+        
+    if len(tids) > 0:
+        if theid in tids[0]:
+            print "would add", bcs
+            partids = tids[0]
+            partpos = partids.index(theid)
+            partbcs = bcs[0]
+
+    if len(partbcs) == 0:
+        partbcs.append(bc)
+
+    return partbcs
 
 def _copy_contents(request, source_site, dest_site):
     item_map = {}
 
-    def process_item(parent, (item, subitems,extra1,extra2)):
+    def process_item(parent, (item, subs, barcodes, titleids)):
         dct = dict((k,v) for k,v in item.__dict__.items() if not k.startswith('_'))
         old_id = dct['id']
         del dct['id']
         dct['parent_heading_id'] = parent.id if parent else None
-        newitem = models.Item.objects.create(**dct)
-        newitem.site = dest_site
-        newitem.save()
-        item_map[old_id] = newitem.id
-        for sub in subitems:
+        partbcs = sort_out_parts(int(old_id),dct['barcode'],barcodes,titleids)
+        for bc in partbcs: 
+             newitem = models.Item.objects.create(**dct)
+             newitem.site = dest_site
+             newitem.barcode = bc
+             newitem.save()
+             item_map[old_id] = newitem.id
+        for sub in subs:
             process_item(newitem, sub)
 
     for branch in source_site.item_tree():
         process_item(None, branch)
     request.session['last_paste'] = (source_site.id, dest_site.id, item_map.values())
+
 
 def site_clipboard_paste_to(request, site_id):
     source_id = request.session['copy_source']
