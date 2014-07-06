@@ -144,44 +144,6 @@ class EvergreenIntegration(object):
         self.RESHELVING = [id for id, name in status_decode if name == 'Reshelving'][0]
         self.CHECKEDOUT = [id for id, name in status_decode if name == 'Checked out'][0]
 
-    def get_copydetails(barcode,copyids,reserves_loc,bcs,ids,ignore_loc):
-        copy_list = []
-
-        bcs_set, ids_set = collect_set(barcode,bcs,ids)
-
-        for copyid in copyids:
-            circinfo = E1(OPENSRF_FLESHED2_CALL, copyid)
-            circbarcode = None
-
-            if barcode is not None:
-                circbarcode = circinfo.get("barcode")
-             
-            thisloc = circinfo.get("location")
-
-            if thisloc:
-                thisloc = thisloc.get("name")
-
-            #create copy object for supplied barcode - will be all barcodes if none supplied
-            if (thisloc in reserves_loc or ignore_loc) and (barcode==circbarcode or circbarcode in bcs_set):
-                circ_modifier = circinfo.get("circ_modifier")
-                circs = circinfo.get("circulations")
-                parts = circinfo.get("parts")
-                part_label = ''
-                part_sort = None
-                part = None
-                if parts:
-                    part = parts[0]
-                if part:
-                    part_label = part.get("label")
-                    part_sort = part.get("label_sortkey")
-
-                id_ind = -1
-                if circbarcode in bcs_set:
-                    id_ind = ids_set[bcs_set.index(circbarcode)]
-                copy_list.append(copy_obj(circ_modifier,circs,part_label,part_sort,id_ind))
-
-        return sorted(copy_list, key=lambda copy: copy.part_sort)
-
     def item_status(self, item, bcs=[], ids=[]):
         """
         Given an Item object, return three numbers: (library, desk,
@@ -473,7 +435,6 @@ class EvergreenIntegration(object):
 
                     desk = get_desk_counts(counts)
                     avail = desk
-                       
                     copy_parts = []
                     duetime = None
                     earliestdue = None
@@ -645,8 +606,6 @@ class EvergreenIntegration(object):
             if bib:
                 bibid = bib
                 copy = E1('open-ils.supercat.record.object.retrieve', bib)
-                #get_copydetails(barcode,copyids,self.RESERVES_DESK_NAME,bcs,ids,False)
-                #copydetails = get_copydetails(barcode,[copy[0]['id']],self.RESERVES_DESK_NAME,[],[],True)
                 copyinfo = E1(OPENSRF_BARCODE, barcode)
                 parts = copyinfo.get("parts")
                 if parts:
