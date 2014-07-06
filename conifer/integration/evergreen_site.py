@@ -23,13 +23,13 @@ except ImportError:
 if OSRF_LIB_INSTALLED:
     from conifer.libsystems.evergreen.startup import ils_startup
 
-
 OPENSRF_AUTHENTICATE      = "open-ils.auth.authenticate.complete"
 OPENSRF_AUTHENTICATE_INIT = "open-ils.auth.authenticate.init"
 OPENSRF_BATCH_UPDATE      = "open-ils.cat.asset.copy.fleshed.batch.update"
 OPENSRF_CIRC_UPDATE       = "open-ils.cstore open-ils.cstore.direct.action.circulation.update"
 OPENSRF_CLEANUP           = "open-ils.auth.session.delete"
 OPENSRF_CN_BARCODE        = "open-ils.circ.copy_details.retrieve.barcode.authoritative"
+OPENSRF_BARCODE           = "open-ils.search.asset.copy.fleshed2.find_by_barcode"
 OPENSRF_CN_CALL           = "open-ils.search.asset.copy.retrieve_by_cn_label"
 OPENSRF_COPY_COUNTS       = "open-ils.search.biblio.copy_counts.location.summary.retrieve"
 OPENSRF_FLESHED2_CALL     = "open-ils.search.asset.copy.fleshed2.retrieve"
@@ -144,6 +144,43 @@ class EvergreenIntegration(object):
         self.RESHELVING = [id for id, name in status_decode if name == 'Reshelving'][0]
         self.CHECKEDOUT = [id for id, name in status_decode if name == 'Checked out'][0]
 
+    def get_copydetails(barcode,copyids,reserves_loc,bcs,ids,ignore_loc):
+        copy_list = []
+
+        bcs_set, ids_set = collect_set(barcode,bcs,ids)
+
+        for copyid in copyids:
+            circinfo = E1(OPENSRF_FLESHED2_CALL, copyid)
+            circbarcode = None
+
+            if barcode is not None:
+                circbarcode = circinfo.get("barcode")
+             
+            thisloc = circinfo.get("location")
+
+            if thisloc:
+                thisloc = thisloc.get("name")
+
+            #create copy object for supplied barcode - will be all barcodes if none supplied
+            if (thisloc in reserves_loc or ignore_loc) and (barcode==circbarcode or circbarcode in bcs_set):
+                circ_modifier = circinfo.get("circ_modifier")
+                circs = circinfo.get("circulations")
+                parts = circinfo.get("parts")
+                part_label = ''
+                part_sort = None
+                part = None
+                if parts:
+                    part = parts[0]
+                if part:
+                    part_label = part.get("label")
+                    part_sort = part.get("label_sortkey")
+
+                id_ind = -1
+                if circbarcode in bcs_set:
+                    id_ind = ids_set[bcs_set.index(circbarcode)]
+                copy_list.append(copy_obj(circ_modifier,circs,part_label,part_sort,id_ind))
+
+        return sorted(copy_list, key=lambda copy: copy.part_sort)
 
     def item_status(self, item, bcs=[], ids=[]):
         """
@@ -181,6 +218,8 @@ class EvergreenIntegration(object):
 
         bclist = make_obj_string(bcs)
         idlist = make_obj_string(ids)
+        #print "item.barcode", item.barcode
+        #print "item.bib_id", item.bib_id
         return self._item_status(item.bib_id, item.barcode, bclist, idlist)
 
     """
@@ -194,7 +233,7 @@ class EvergreenIntegration(object):
     #CACHE_TIME = 300
 
     #set low for testing
-    CACHE_TIME = 5
+    CACHE_TIME = 0
 
     @memoize(timeout=CACHE_TIME)
     def _item_status(self, bib_id, barcode, bclist, idlist):
@@ -230,7 +269,7 @@ class EvergreenIntegration(object):
                i = i+1
 
            return bc_dups, id_dups
-                            
+
         def get_copydetails(barcode,copyids,reserves_loc,bcs,ids):
            copy_list = []
 
@@ -242,7 +281,7 @@ class EvergreenIntegration(object):
 
               if barcode is not None:
                   circbarcode = circinfo.get("barcode")
-             
+
               thisloc = circinfo.get("location")
 
               if thisloc:
@@ -554,14 +593,14 @@ class EvergreenIntegration(object):
                 if len(suffix) > 0:
                     suffix = ' ' + suffix
                 vol, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues = sort_out_status(barcode, vol, counts, 
-                    version, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues, prefix, suffix, bcs,ids)
+                    version, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues, prefix, suffix, bcs, ids)
         else:
             for org, callno, loc, stats in counts:
                 vol, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues = sort_out_status(barcode, vol, counts, 
-                    version, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues, bcs,ids)
+                    version, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues, bcs, ids)
             
         if len(allcalls) > 0:
-            cpname = 'volumes'
+            cpname = 'copies/parts'
 
         return (cpname, lib, desk, avail, callno, dueid[0], dueinfo, circmod, allcalls, alldues)
 
@@ -576,6 +615,8 @@ class EvergreenIntegration(object):
     def cat_search(self, query, start=1, limit=10):
         barcode = ''
         bibid	= ''
+        partlabel = ''
+
         is_barcode = re.search('\d{14}', query)
 
         if query.startswith(self.OPAC_URL):
@@ -604,6 +645,15 @@ class EvergreenIntegration(object):
             if bib:
                 bibid = bib
                 copy = E1('open-ils.supercat.record.object.retrieve', bib)
+                #get_copydetails(barcode,copyids,self.RESERVES_DESK_NAME,bcs,ids,False)
+                #copydetails = get_copydetails(barcode,[copy[0]['id']],self.RESERVES_DESK_NAME,[],[],True)
+                copyinfo = E1(OPENSRF_BARCODE, barcode)
+                parts = copyinfo.get("parts")
+                if parts:
+                    part = parts[0]
+                    if part:
+                        partlabel = part['label']
+
                 marc = copy[0]['marc']
                 # In some institutions' installations, 'marc' is a string; in
                 # others it's unicode. Convert to unicode if necessary.
@@ -641,7 +691,7 @@ class EvergreenIntegration(object):
                     tree = M.marcxml_to_records(marc)[0]
                     results.append(tree)
                 numhits = int(superpage['count'])
-        return results, numhits, bibid, barcode
+        return results, numhits, bibid, barcode, partlabel
 
     def bib_id_to_marcxml(self, bib_id):
         """

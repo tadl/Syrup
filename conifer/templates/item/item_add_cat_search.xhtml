@@ -65,7 +65,7 @@ dc_keys = ['dc:title', 'dc:creator', 'dc:publisher', 'dc:date']
 	<tr>
 	  <td>${resultnum+start}.</td>
 	  <td>
-	    ${dc.get('dc:title', '???')}
+	    ${dc.get('dc:title', '???')} ${partlabel}
 	    <a href="javascript:$('#full_${resultnum}').toggle(); void(0);">details</a>
 	    <p py:if="dct.get('8569')" style="margin: 8px 0; font-size: 90%; color: darkred;">
 	      Electronic resource. <a href="${callhook('marcxml_to_url', res)}">view</a>

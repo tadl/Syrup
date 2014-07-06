@@ -249,11 +249,11 @@ def item_add_cat_search(request, site_id, item_id):
                             site=site, parent_item=parent_item)
         query = request.GET.get('query','').strip()
         start, limit = (int(request.GET.get(k,v)) for k,v in (('start',1),('limit',10)))
-        results, numhits, bibid, bc = callhook('cat_search', query, start, limit)
+        results, numhits, bibid, bc, partlabel = callhook('cat_search', query, start, limit)
         return g.render('item/item_add_cat_search.xhtml',
                         results=results, query=query,
                         start=start, limit=limit, numhits=numhits,
-                        site=site, parent_item=parent_item, bibid=bibid, bc=bc)
+                        site=site, parent_item=parent_item, bibid=bibid, bc=bc, partlabel=partlabel)
     else:
         # User has selected an item; add it to site.
         raw_pickitem = request.POST.get('pickitem', '').strip()
