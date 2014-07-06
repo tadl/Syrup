@@ -98,6 +98,9 @@ class EvergreenIntegration(object):
     # the given item.
 
     RESERVES_DESK_NAME = getattr(settings, 'RESERVES_DESK_NAME', None)
+
+    # BIB_PART_MERGE: if True, merge parts under one title
+    BIB_PART_MERGE = getattr(settings, 'BIB_PART_MERGE', False)
     
     # USE_Z3950: if True, use Z39.50 for catalogue search; if False, use OpenSRF.
     # Don't set this value directly here: rather, if there is a valid Z3950_CONFIG
@@ -232,9 +235,11 @@ class EvergreenIntegration(object):
 
            return bc_dups, id_dups
 
+        #syrup tries to store as little as possible about an
+        #item, which leads to a lot of hoops when combining
+        #volumes/parts
         def get_copydetails(barcode,copyids,reserves_loc,bcs,ids):
            copy_list = []
-
            bcs_set, ids_set = collect_set(barcode,bcs,ids)
 
            for copyid in copyids:
@@ -434,6 +439,9 @@ class EvergreenIntegration(object):
                     copies = get_copydetails(barcode,copyids,self.RESERVES_DESK_NAME,bcs,ids)
 
                     desk = get_desk_counts(counts)
+                    if barcode:
+                        desk = len(copies)
+
                     avail = desk
                     copy_parts = []
                     duetime = None

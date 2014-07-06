@@ -443,14 +443,15 @@ class Site(BaseModel):
 
         # walk the tree
         out = []
-        out_barcodes = []
-        out_ids = []
         def walk(parent, accum):
+            out_barcodes = []
+            out_ids = []
             here = dct.get(parent, [])
             for item in here:
                 sub = []
                 walk(item, sub)
                 push_thru, bib_barcodes, syrup_ids = deal_with_dups(item,items,edit_status,out_barcodes)
+
                 if len(bib_barcodes) > 0:
                     out_barcodes.append(bib_barcodes)
                     out_ids.append(syrup_ids)

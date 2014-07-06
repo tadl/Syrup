@@ -119,6 +119,11 @@ SAKAI_LINKTOOL_AUTHENTICATION  = False
 # http://code.google.com/p/django-cas/
 CAS_AUTHENTICATION       = False  
 
+# This flag will merge titles with parts into
+# one entry on public display
+BIB_PART_MERGE = False
+
+
 #---------------------------------------------------------------------------
 # local_settings.py
 
