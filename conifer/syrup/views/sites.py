@@ -414,9 +414,9 @@ def sort_out_parts(theid,bc,bcs,tids):
         
     if len(tids) > 0:
         if theid in tids[0]:
-            print "would add", bcs
             partids = tids[0]
-            partpos = partids.index(theid)
+            #for debugging
+            #partpos = partids.index(theid)
             partbcs = bcs[0]
 
     if len(partbcs) == 0:

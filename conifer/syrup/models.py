@@ -443,9 +443,9 @@ class Site(BaseModel):
 
         # walk the tree
         out = []
+        out_barcodes = []
+        out_ids = []
         def walk(parent, accum):
-            out_barcodes = []
-            out_ids = []
             here = dct.get(parent, [])
             for item in here:
                 sub = []
