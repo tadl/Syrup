@@ -114,6 +114,7 @@ searchtext = _('search this site...')
             site_url = site_url[:last_slash+1]
 
             display_calls = []
+            lpart = None
             #parts are worth displaying as separate titles but otherwise limit 
             for j,k,l,m in _allcalls:
                 part = ''
@@ -122,8 +123,9 @@ searchtext = _('search this site...')
                 #link to item if provided, otherwise use provided url
                 if l == -1: 
                     display_calls.append([item.item_url(),item,part])
-                elif len(m) > 0 or len(display_calls) == 0:
+                elif (len(m) > 0 and lpart != m) or len(display_calls) == 0:
                     display_calls.append([site_url + str(l),item,part])
+                lpart = m
         ?>
 	<span py:if="item.item_type=='ELEC' and not downloads_allowed">
 	  <img title="Sorry, this document is not available to you."

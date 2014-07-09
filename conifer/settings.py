@@ -123,6 +123,10 @@ CAS_AUTHENTICATION       = False
 # one entry on public display
 BIB_PART_MERGE = False
 
+# This flag will merge titles with parts into
+# one entry on public display PER PART -
+# so all V.2s will appear together (for example)
+PART_MERGE = True
 
 #---------------------------------------------------------------------------
 # local_settings.py

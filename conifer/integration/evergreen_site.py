@@ -83,10 +83,6 @@ class EvergreenIntegration(object):
     # end of variables dependent on EVERGREEN_SERVER
     # ----------------------------------------------------------------------
 
-    # BIB_PART_MERGE: display multiple parts for one bib title
-    # that have been scanned in separately in one section
-    BIB_PART_MERGE = bool(getattr(settings, 'BIB_PART_MERGE', True))
-
     # OPAC_LANG and OPAC_SKIN: localization skinning for your OPAC
 
     OPAC_LANG = getattr(settings, 'EVERGREEN_OPAC_LANG', 'en-CA')
@@ -98,10 +94,9 @@ class EvergreenIntegration(object):
     # the given item.
 
     RESERVES_DESK_NAME = getattr(settings, 'RESERVES_DESK_NAME', None)
+    BIB_PART_MERGE = getattr(settings, 'BIB_PART_MERGE', None)
+    PART_MERGE = getattr(settings, 'PART_MERGE', None)
 
-    # BIB_PART_MERGE: if True, merge parts under one title
-    BIB_PART_MERGE = getattr(settings, 'BIB_PART_MERGE', False)
-    
     # USE_Z3950: if True, use Z39.50 for catalogue search; if False, use OpenSRF.
     # Don't set this value directly here: rather, if there is a valid Z3950_CONFIG
     # settings in local_settings.py, then Z39.50 will be used.
@@ -224,6 +219,7 @@ class EvergreenIntegration(object):
 
            return objset
 
+        #is current barcode one of identified sets
         def collect_set(barcode,bcs,ids):
            bc_dups = []
            id_dups = []
@@ -238,8 +234,15 @@ class EvergreenIntegration(object):
         #syrup tries to store as little as possible about an
         #item, which leads to a lot of hoops when combining
         #volumes/parts
-        def get_copydetails(barcode,copyids,reserves_loc,bcs,ids):
+        def get_copydetails(barcode,copyids,reserves_loc,bib_part_flag,part_flag,bcs,ids):
+           copies_desk = len(copyids)
+           copies_lib = copies_desk
            copy_list = []
+           lib_parts_list = []
+           res_parts_list = []
+           copy_sort = None
+           part_sort = None
+           part_label = ''
            bcs_set, ids_set = collect_set(barcode,bcs,ids)
 
            for copyid in copyids:
@@ -255,25 +258,36 @@ class EvergreenIntegration(object):
                   thisloc = thisloc.get("name")
 
               #create copy object for supplied barcode - will be all barcodes if none supplied
-              if thisloc in reserves_loc and (barcode==circbarcode or circbarcode in bcs_set):
+              if part_flag:
                   circ_modifier = circinfo.get("circ_modifier")
                   circs = circinfo.get("circulations")
                   parts = circinfo.get("parts")
-                  part_label = ''
-                  part_sort = None
                   part = None
                   if parts:
                       part = parts[0]
-                  if part:
+                  if part and (bib_part_flag or part_flag):
                       part_label = part.get("label")
                       part_sort = part.get("label_sortkey")
+                      if thisloc in reserves_loc: 
+                          res_parts_list.append(part_sort)
+                      lib_parts_list.append(part_sort)
+
+              if thisloc in reserves_loc and (barcode==circbarcode or circbarcode in bcs_set):
+                  if part_sort is not None and copy_sort is None:
+                      copy_sort = part_sort
 
                   id_ind = -1
                   if circbarcode in bcs_set:
                       id_ind = ids_set[bcs_set.index(circbarcode)]
                   copy_list.append(copy_obj(circ_modifier,circs,part_label,part_sort,id_ind))
 
-           return sorted(copy_list, key=lambda copy: copy.part_sort)
+           desk_count = len(res_parts_list)
+           lib_count = len(lib_parts_list)
+           if part_flag and copy_sort is not None:
+              desk_count = res_parts_list.count(copy_sort) 
+              lib_count = lib_parts_list.count(copy_sort)
+        
+           return sorted(copy_list, key=lambda copy: copy.part_sort),desk_count,lib_count
 
         #deal with call numbers that have embedded parts - ugh!
         def get_dueinfo(callprefix,callsuffix,callno,earliestdue,attachtest,voltest,sort_callno,
@@ -384,6 +398,18 @@ class EvergreenIntegration(object):
 
             return last_call, last_vol
 
+        #make sure request call number is limited to unique entries
+        def callparts(callno,status,syrup_id,label,allcalls):
+            partcalls = allcalls
+            if len(partcalls) > 0:
+                multipart = allcalls[len(partcalls) - 1]
+                if callno != multipart[0] and label != multipart[3]:
+                    partcalls.append([callno,status,syrup_id,label])
+            else:
+                partcalls.append([callno,status,syrup_id,label])
+
+            return partcalls
+
         #use counts from system if not parts
         def get_desk_counts(counts):
             desk_count = 0
@@ -431,16 +457,20 @@ class EvergreenIntegration(object):
                         callprefix,callsuffix,callno,voltest,attachtest,vol)
 
                     if version >= 2.1:
+                        #oh-oh, something inconsistent on multiple calls here
+                        #print "called", [prefix,sort_callno,suffix]
+                        #print "org", org
+                        #print "==>", E1(OPENSRF_CN_CALL, bib_id, [prefix,sort_callno,suffix], org)
                         copyids = E1(OPENSRF_CN_CALL, bib_id, [prefix,sort_callno,suffix], org)
                     else:
                         copyids = E1(OPENSRF_CN_CALL, bib_id, sort_callno, org)
 
                     #get copy information
-                    copies = get_copydetails(barcode,copyids,self.RESERVES_DESK_NAME,bcs,ids)
+                    copies, desk, lib = get_copydetails(barcode,copyids,self.RESERVES_DESK_NAME,
+                        self.BIB_PART_MERGE,self.PART_MERGE,bcs,ids)
 
-                    desk = get_desk_counts(counts)
-                    if barcode:
-                        desk = len(copies)
+                    if desk==0:
+                        desk = get_desk_counts(counts)
 
                     avail = desk
                     copy_parts = []
@@ -450,15 +480,7 @@ class EvergreenIntegration(object):
                     # we want to identify the copy that will be returned first if
                     # all are checked out
                     for copy in copies:
-                        #this condition should only ever be true when a multipart is in full display
-                        #in that case, the most available copy should be selected
-                        if len(ids) == 1:
-                            if ids[0][0] == '':
-                                avail = 1 
                         if copy.part_label:
-                            #print "callno", callno
-                            #print "sort_callno", sort_callno
-
                             callno = sort_callno + " " + copy.part_label
                             if copy.part_sort in copy_parts and len(copy_parts) > 0:
                                 #leave alone if locked - otherwise mark as ready
@@ -466,7 +488,7 @@ class EvergreenIntegration(object):
                                     allcalls[len(allcalls) - 1] = [callno,READY,copy.syrup_id,copy.part_label]
                                     
                             else:
-                                allcalls.append([callno,READY,copy.syrup_id,copy.part_label])
+                                allcalls = callparts(callno,READY,copy.syrup_id,copy.part_label,allcalls)
                             copy_parts.append(copy.part_sort)
 
                         bringfw = attachtest
@@ -492,7 +514,6 @@ class EvergreenIntegration(object):
 
                         if copy.circs and isinstance(copy.circs, list):
                             if (earliestdue is None or duetime < earliestdue):
-                                #print "SETTING earliest to", duetime
                                 earliestdue = duetime
                                 dueinfo = time.strftime(self.DUE_FORMAT,earliestdue)
                                 #will want the link to be to the earliest item if not multipart

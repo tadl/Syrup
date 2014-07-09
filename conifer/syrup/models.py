@@ -3,6 +3,7 @@ import re
 
 from collections                     import defaultdict
 from conifer.libsystems              import marcxml as MX
+from conifer.libsystems.evergreen.support import E1
 from conifer.plumbing.genshi_support import get_request
 from conifer.plumbing.hooksystem     import *
 from datetime                        import datetime, timedelta, date
@@ -20,13 +21,15 @@ from genshi                          import Markup
 # refer to static values in the module.
 
 integration_class = None
+OPENSRF_BARCODE           = "open-ils.search.asset.copy.fleshed2.find_by_barcode"
 
 if hasattr(settings, 'INTEGRATION_CLASS'):
     modname, klassname = settings.INTEGRATION_CLASS.rsplit('.', 1) # e.g. 'foo.bar.baz.MyClass'
     mod = __import__(modname, fromlist=[''])
     integration_class = getattr(mod, klassname)
 
-BIB_PART_MERGE = bool(getattr(settings, 'BIB_PART_MERGE', True))
+BIB_PART_MERGE = bool(getattr(settings, 'BIB_PART_MERGE', False))
+PART_MERGE = bool(getattr(settings, 'PART_MERGE', True))
 
 #----------------------------------------------------------------------
 
@@ -411,7 +414,27 @@ class Site(BaseModel):
                         return True
             return False
 
-        #collect barcodes for dups
+        def get_label(bc):
+            partlabel = None
+            copyinfo = E1(OPENSRF_BARCODE, bc)
+            parts = copyinfo.get("parts")
+            if parts:
+                part = parts[0]
+                if part:
+                   partlabel = part['label']
+            return partlabel
+
+        #def parts_match(bc1,bc2,labels):
+        def parts_match(bc1,bc2):
+            label1 = get_label(bc1)
+            if label1 is not None:
+                label2 = get_label(bc2)
+                if label1 == label2:
+                    #add label to labels
+                    return True
+            return False
+
+        #collect barcodes for titles with same bib id
         def deal_with_dups(item,items,edit_status,barcodes):
             dup_barcodes = []
             dup_ids = []
@@ -419,7 +442,7 @@ class Site(BaseModel):
 
             if item.item_type == 'HEADING':
                 return push_thru, dup_barcodes, dup_ids
-            if not BIB_PART_MERGE or edit_status:
+            if (not BIB_PART_MERGE and not PART_MERGE) or edit_status:
                 return push_thru, dup_barcodes, dup_ids
             if not is_dup_candidate(item):
                 return push_thru, dup_barcodes, dup_ids
@@ -431,31 +454,37 @@ class Site(BaseModel):
                  if is_dup_candidate(display_item):
                      if display_item.barcode != item.barcode:
                          if display_item.bib_id == item.bib_id and display_item.barcode not in dup_barcodes:
-                             dup_barcodes.append(display_item.barcode)
-                             dup_ids.append(display_item.id)
+                             #if BIB_PART_MERGE or (PART_MERGE and parts_match(item.barcode,display_item.barcode,part_labels)):
+                             if BIB_PART_MERGE or (PART_MERGE and parts_match(item.barcode,display_item.barcode)):
+                                 dup_barcodes.append(display_item.barcode)
+                                 dup_ids.append(display_item.id)
 
        
+            #if added, make sure original is there
             if len(dup_barcodes) > 0 and not item.barcode in dup_barcodes:
                 dup_barcodes.append(item.barcode)
                 dup_ids.append(item.id)
 
+            #sort out based on part_labels
             return push_thru, dup_barcodes, dup_ids
 
-        # walk the tree
+        # walk the tree - if bib or part merge flag, collect ids & barcodes for 
+        # same bib or part, and only pass one instance onwards
         out = []
-        out_barcodes = []
-        out_ids = []
         def walk(parent, accum):
+            out_barcodes = []
+            out_ids = []
             here = dct.get(parent, [])
             for item in here:
                 sub = []
                 walk(item, sub)
                 push_thru, bib_barcodes, syrup_ids = deal_with_dups(item,items,edit_status,out_barcodes)
 
-                if len(bib_barcodes) > 0:
-                    out_barcodes.append(bib_barcodes)
-                    out_ids.append(syrup_ids)
-                if push_thru:
+                if len(bib_barcodes) > 0 and bib_barcodes not in accum:
+                    if bib_barcodes not in out_barcodes:
+                        out_barcodes.append(bib_barcodes)
+                        out_ids.append(syrup_ids)
+                if push_thru and bib_barcodes not in accum:
                     accum.append((item, sub, out_barcodes, out_ids))
         walk(subtree, out)
         return out
