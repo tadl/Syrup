@@ -60,12 +60,12 @@ searchtext = _('search this site...')
                 <span py:if="_circmod == 'RESERVE 4 HOUR'">4 Hour Loan</span>
                 <span py:if="_circmod == 'RESERVE 7 DAY'">7 Day Loan</span>
           </div>
-	  <div py:if="_avail &gt; 0 and len(_allcalls) == 0" class="callnumber">
+	  <div py:if="_avail &gt; 0" class="callnumber">
           <span>Ask for: </span><span class="standout">${_callno}</span>
           </div>
 	  <div py:for="j,k in _allcalls" class="callnumber">
-                <span py:if="k==0" class="unavailable">${j}</span>
-                <span py:if="k &gt; 0">Ask for: <span class="standout">${j}</span></span>
+                <span py:if="k==0 and _avail==0" class="unavailable">${j}</span>
+                <span py:if="k &gt; 0 and _avail==0">Ask for: <span class="standout">${j}</span></span>
 	  </div>
           <div py:if="_avail == 0 and _dueinfo and len(_allcalls) == 0">NEXT DUE: ${_dueinfo}</div>
          </div>
@@ -92,7 +92,8 @@ searchtext = _('search this site...')
                  ${k}
              </div>
          </div>
-         <div id="showlink_${item.id}" py:if="len(_alldues) > 1">
+         <!-- if there is an available copy, leave status displays to catalogue proper -->
+         <div id="showlink_${item.id}" py:if="len(_alldues) > 1 and _avail == 0">
              <a href="javascript:show_stuff('${item.id}');">Show status of all copies</a>
          </div>
          <div style="display: none;" id="hidelink_${item.id}" py:if="len(_alldues) > 1">

@@ -487,6 +487,7 @@ class Site(BaseModel):
                 if push_thru and bib_barcodes not in accum:
                     accum.append((item, sub, out_barcodes, out_ids))
         walk(subtree, out)
+        # print "returning", out
         return out
 
     def site_url(self, suffix=''):

@@ -258,14 +258,14 @@ class EvergreenIntegration(object):
                   thisloc = thisloc.get("name")
 
               #create copy object for supplied barcode - will be all barcodes if none supplied
-              if part_flag:
+              if bib_part_flag or part_flag:
                   circ_modifier = circinfo.get("circ_modifier")
                   circs = circinfo.get("circulations")
                   parts = circinfo.get("parts")
                   part = None
                   if parts:
                       part = parts[0]
-                  if part and (bib_part_flag or part_flag):
+                  if part:
                       part_label = part.get("label")
                       part_sort = part.get("label_sortkey")
                       if thisloc in reserves_loc: 
@@ -324,7 +324,7 @@ class EvergreenIntegration(object):
 
             if not bringfw:
                 _dueinfo = time.strftime(self.DUE_FORMAT,earliestdue)
-                _callno = sort_callno
+                #_callno = sort_callno
 
             return _dueinfo,_callno,_callprefix,_callsuffix
 
@@ -341,7 +341,7 @@ class EvergreenIntegration(object):
             if copy.circs and len(copy.circs) > 0:
                 if len(dueinfo) == 0 or bringfw:
                     earlydue = duetime
-                    due,due_callno,due_callprefix,due_callsuffix = get_dueinfo(callprefix,callsuffix,callno,
+                    due,due_due_callno,due_callprefix,due_callsuffix = get_dueinfo(callprefix,callsuffix,callno,
                         earlydue,attachtest,voltest,sort_callno,bringfw,dueinfo)
 
                 if (earlydue is None or duetime < earlydue) and not bringfw:
@@ -423,7 +423,7 @@ class EvergreenIntegration(object):
         #pull together status information
         def sort_out_status(barcode, sort_vol, counts, version, sort_lib, sort_desk, sort_avail, 
             sort_callno, sort_dueid, sort_dueinfo, sort_circmod, sort_allcalls, sort_alldues, prefix, suffix, 
-            bcs,ids):
+            bcs,ids, sort_copyids):
 
             vol = sort_vol
             lib = sort_lib
@@ -435,6 +435,9 @@ class EvergreenIntegration(object):
             allcalls = sort_allcalls
             alldues = sort_alldues
             dueid = sort_dueid
+            copyids = sort_copyids
+            duedisplay = None
+            partdisplay = ""
 
             try:
                 if loc in self.RESERVES_DESK_NAME:
@@ -458,19 +461,20 @@ class EvergreenIntegration(object):
 
                     if version >= 2.1:
                         #oh-oh, something inconsistent on multiple calls here
-                        #print "called", [prefix,sort_callno,suffix]
-                        #print "org", org
-                        #print "==>", E1(OPENSRF_CN_CALL, bib_id, [prefix,sort_callno,suffix], org)
-                        copyids = E1(OPENSRF_CN_CALL, bib_id, [prefix,sort_callno,suffix], org)
+                        tmp_copyids = E1(OPENSRF_CN_CALL, bib_id, [prefix,sort_callno,suffix], org)
+                        copyids.extend(tmp_copyids)
                     else:
-                        copyids = E1(OPENSRF_CN_CALL, bib_id, sort_callno, org)
+                        tmp_copyids = E1(OPENSRF_CN_CALL, bib_id, sort_callno, org)
+                        copyids.extend(tmp_copyids)
 
                     #get copy information
-                    copies, desk, lib = get_copydetails(barcode,copyids,self.RESERVES_DESK_NAME,
+                    copies, desk, copy_lib = get_copydetails(barcode,copyids,self.RESERVES_DESK_NAME,
                         self.BIB_PART_MERGE,self.PART_MERGE,bcs,ids)
 
-                    if desk==0:
+                    if desk==0 or copy_lib==0: 
                         desk = get_desk_counts(counts)
+                    else:
+                        lib = copy_lib
 
                     avail = desk
                     copy_parts = []
@@ -483,6 +487,7 @@ class EvergreenIntegration(object):
                         if copy.part_label:
                             callno = sort_callno + " " + copy.part_label
                             if copy.part_sort in copy_parts and len(copy_parts) > 0:
+                                partdisplay = copy.part_label
                                 #leave alone if locked - otherwise mark as ready
                                 if allcalls[len(allcalls) - 1][1] != LOCKED:
                                     allcalls[len(allcalls) - 1] = [callno,READY,copy.syrup_id,copy.part_label]
@@ -520,23 +525,26 @@ class EvergreenIntegration(object):
                                 if len(allcalls) == 0 and dueid[1] != LOCKED and copy.syrup_id != -1:
                                     dueid = [copy.syrup_id,DUE]
 
-                            alldisplay = '%s (DUE: %s)' % (callno,time.strftime(self.DUE_FORMAT,earliestdue))
+                            #alldisplay = '%s (DUE: %s)' % (callno,time.strftime(self.DUE_FORMAT,earliestdue))
+                            duedisplay = '%s (DUE: %s)' % (callno,time.strftime(self.DUE_FORMAT,earliestdue))
 
                             if len(allcalls) > 0:
                                 if allcalls[len(allcalls) - 1][1] != LOCKED:
-                                    allcalls[len(allcalls) - 1] = [alldisplay,DUE,copy.syrup_id,copy.part_label]
+                                    allcalls[len(allcalls) - 1] = [duedisplay,DUE,copy.syrup_id,copy.part_label]
                                     if avail >= 1:
                                         avail -= 1
                             elif avail >= 1:
                                 avail -= 1
                                
                             if copy.part_label and copy.part_label not in alldisplay:
-                                alldisplay = '%s %s (DUE: %s)' % (callno,
+                                duedisplay = '%s %s (DUE: %s)' % (callno,
                                     copy.part_label,time.strftime(self.DUE_FORMAT,earliestdue))
 
                         elif len(allcalls) > 0:
                             allcalls[len(allcalls) - 1] = [callno,LOCKED,copy.syrup_id,copy.part_label]
 
+                        if avail == 0 and duedisplay is not None:
+                            alldisplay = duedisplay
                         alldues.append(alldisplay)
 
                         if voltest or attachtest:
@@ -546,7 +554,11 @@ class EvergreenIntegration(object):
                 print "*** print_exc:"
                 traceback.print_exc()
         
-            return (vol, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues)
+            if avail != 0 and len(allcalls) > 0:
+                  if allcalls[len(allcalls) - 1][1] == DUE:
+                      allcalls[len(allcalls) - 1] = [alldisplay,READY,
+                          allcalls[len(allcalls) - 1][2],allcalls[len(allcalls) - 1][3]]
+            return (vol, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues,copyids)
 
         #get lists of barcodes and ids
         bcs = make_obj_list(bclist)
@@ -565,6 +577,9 @@ class EvergreenIntegration(object):
         circmod = ''
         allcalls = []
         alldues = []
+        tot_allcalls = []
+        tot_alldues = []
+        copyids = []
         cpname = 'copies'
             
         EVERGREEN_STATUS_ORG = getattr(settings, 'EVERGREEN_STATUS_ORG', 1)
@@ -582,12 +597,14 @@ class EvergreenIntegration(object):
                     prefix += ' '
                 if len(suffix) > 0:
                     suffix = ' ' + suffix
-                vol, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues = sort_out_status(barcode, vol, counts, 
-                    version, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues, prefix, suffix, bcs, ids)
+                vol, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues, copyids = sort_out_status(barcode, vol, counts, 
+                    version, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues, prefix, suffix, bcs, ids, copyids)
+                tot_allcalls.extend(allcalls)
+                tot_alldues.extend(alldues)
         else:
             for org, callno, loc, stats in counts:
-                vol, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues = sort_out_status(barcode, vol, counts, 
-                    version, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues, bcs, ids)
+                vol, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues, copyids = sort_out_status(barcode, vol, counts, 
+                    version, lib, desk, avail, callno, dueid, dueinfo, circmod, allcalls, alldues, bcs, ids, copyids)
             
         if len(allcalls) > 0:
             cpname = 'copies/parts'
