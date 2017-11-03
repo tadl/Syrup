@@ -685,7 +685,9 @@ class EvergreenIntegration(object):
                                 'visibility_limit': 3000,
                                 'default_class': 'keyword'},
                                query, 1)
-                ids = [id for (id,) in superpage['ids']]
+                ids = []
+                for entry in superpage['ids']:
+                    ids.append(entry[0])
                 results = []
                 for rec in E1('open-ils.supercat.record.object.retrieve', ids):
                     marc = rec['marc']
